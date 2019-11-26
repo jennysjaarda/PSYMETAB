@@ -1,0 +1,120 @@
+---
+title: "Project setup"
+author: "Jenny Sjaarda"
+date: 2015-04-11
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+All processing scripts were run from the root sgg directory. Project was initialized using `workflowr` rpackage, see [here](https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html).
+
+On sgg server:
+
+```{r eval=FALSE}
+project_name <- "PSYMETAB"
+library("workflowr")
+
+wflow_start(project_name) # creates directory called project_name
+
+options("workflowr.view" = FALSE) # if using cluster
+wflow_build() # create directories
+
+wflow_publish(c("analysis/index.Rmd", "analysis/about.Rmd", "analysis/license.Rmd"),
+              "Publish the initial files for myproject")
+
+wflow_use_github("jennysjaarda")
+# select option 2. Create the remote repository yourself by going to https://github.com/new and entering the Repository name that matches the name of the directory of your workflowr project.
+
+options(workflowr.sysgit = "")
+wflow_git_push()
+
+```
+
+After successfully creating a github repository, on personal computer:
+
+ ```bash
+cd ~/Dropbox/UNIL/projects/
+git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB
+ ```
+
+add the following to the git .Rprofile
+`options(workflowr.sysgit = "")` and `options(workflowr.sysgit = "")`
+
+Create internal folders:
+```bash
+project_dir=/data/sgg2/jenny/projects/PSYMETAB_GWAS
+mkdir $project_dir/data/raw/reference_files
+mkdir $project_dir/data/raw/phenotype_data
+mkdir $project_dir/data/raw/extraction
+mkdir $project_dir/data/raw/imputation
+mkdir $project_dir/data/processed/imputation
+```
+
+Most steps are saved in shell scripts. This code should be able to run in any
+Unix-like environment (of course after installing the necessary software). To
+process the data efficiently on our HPC, we wrote a wrapper script,
+[submit-array.sh][], to combine the many parallel jobs into one array job
+submitted to the Sun Grid Engine (SGE) scheduler. Not only does this make it
+easier for the scheduler (and you) to manage thousands of tasks, we also made it
+so that it won't re-run jobs if the output file already exists. This is
+convenient when a small fraction of jobs fail and need to be re-run. However, if
+your HPC uses a scheduler other than SGE, you will have to decide how best to
+submit the jobs.
+
+[submit-array.sh]: https://github.com/jdblischak/singleCellSeq/blob/master/code/submit-array.sh
+
+## Create genome for mapping
+
+[create-genome.sh][] downloads the fasta files for human genome hg19 (chromosomes 1-22, X, Y, M) and the ERRC spike-ins.
+It indexes the genome with `subread-buildindex`.
+The output is saved in the directory `genome`.
+
+```bash
+submit-array.sh create-genome.sh 8g genome
+```
+
+[create-genome.sh]: https://github.com/jdblischak/singleCellSeq/blob/master/code/create-genome.sh
+
+## Run FastQC
+
+[run-fastqc.sh][] runs [FastQC][] on each raw fastq file.
+It also counts the number of reads.
+The output is saved in the directory `fastqc`.
+
+```bash
+submit-array.sh run-fastqc.sh 2g fastq/*fastq.gz
+```
+
+[run-fastqc.sh]: https://github.com/jdblischak/singleCellSeq/blob/master/code/run-fastqc.sh
+[FastQC]: http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+
+```bash
+ls fastqc/*zip | wc -l
+ls fastqc/*count.txt | wc -l
+grep -w success ~/log/run-fastqc.sh/* | wc -l
+grep -w failure ~/log/run-fastqc.sh/* | wc -l
+```
+
+## Trim UMI
+
+[trim.sh][] removes the 5 bp UMI at the 5' end of the read using the program `umitools trim`.
+We used [umitools v2.1.1][umitools]. Output fastq files are written to the directory `trim`.
+Reads without a valid UMI are written to the directory `invalid`.
+
+```bash
+submit-array.sh trim.sh 2g fastq/*fastq.gz
+```
+
+[trim.sh]: https://github.com/jdblischak/singleCellSeq/blob/master/code/trim.sh
+[umitools]: https://github.com/brwnj/umitools/releases/tag/v2.1.1
+
+To confirm that the jobs ran successfully:
+
+```bash
+ls trim/*fastq.gz | wc -l
+ls invalid/*fastq.gz | wc -l
+grep -w success ~/log/trim.sh/* | wc -l
+grep -w failure ~/log/trim.sh/* | wc -l
+```
