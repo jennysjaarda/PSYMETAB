@@ -9,3 +9,9 @@ editor_options:
 ---
 
 Welcome to my research website.
+
+<br>
+![Divvy bikes](divvy.jpg) <br>
+*[Photo](https://www.flickr.com/photos/jamesbondsv/9041673199) by
+[Steven Vance](https://www.flickr.com/photos/jamesbondsv) /
+[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)*

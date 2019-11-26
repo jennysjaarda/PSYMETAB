@@ -8,3 +8,192 @@ editor_options:
 ---
 
 Describe your project.
+
+see `data/README.md` for information on data inputs
+see `scripst/README.md` for information on scripts
+
+*  [INFO](info.html)
+
+---
+title: "Home"
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+We used this site to collaborate and share our results.
+Please feel free to explore.
+The results that made it into the final paper are in the section [Finalizing](#finalizing) below.
+Here are some useful links:
+
+*  [Batch effects and the effective design of single-cell gene expression studies](http://www.nature.com/articles/srep39921) (published in 2017) - [Pre-print](http://biorxiv.org/content/early/2016/07/08/062919) (posted in 2016)
+*  GEO record [GSE77288][geo] for the raw FASTQ files
+*  [GitHub repo][gh] for code and data
+
+[geo]: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE77288
+[gh]: https://github.com/jennysjaarda/PSYMETAB
+
+## Setting up the project
+
+
+## Finalizing
+
+*  [Process sequencing data - From fastq to gene counts](process-samples.html)
+*  [Create gene-x-sample count matrices and annotation files](prepare-counts.html)
+*  [Quality control of single cells](qc-filter-ipsc.html)
+*  [Filter genes and low-quality single cells](filter.html)
+*  [Quality control of UMIs and ERCC spike-ins](qc-plots.html)
+*  [Compare reads to molecules counts](compare-reads-v-molecules-per-batch-test.html)
+*  [Subsampling](subsample-final.html) ([LCL](subsample-lcl-final.html), [per batch](subsample-final-rep.html))
+*  [Standardize with counts per million](cpm.html)
+*  [Account for technical noise measured with ERCC controls using Poisson GLM transformation](poisson-glm-normalization.html)
+*  [Mixed effect model for batch correction](batch-correction.html)
+*  [Visualization of data transformations](data-transformation.html)
+*  [Comparing cell-to-cell variation between individuals](cv-adjusted-summary-pois-final.html) ([Additional figures](paper-additional-analysis.html))
+
+## Process sequence data
+
+*  [Pipeline](process-samples.html) - ([LCLs](process-lcl.html))
+*  [Total counts](total-counts.html)
+*  [Quality control at level of sequencing lane](qc-by-lane.html)
+*  [Sum counts per sample](sum-counts-per-sample.html)
+*  [Quality control at level of single cell samples](qc-cell-ipsc.html) - ([LCLs](qc-cell-lcl.html))
+     * [Sequencing depth and cellular RNA content](depth.html) - ([Final](depth-final.html))
+     * [Attempt to finalize quality control](qc-filter-ipsc.html)
+
+## Analysis
+
+*  [Identification of noisy genes](noisy-gene.html)
+*  [Compare read versus molecule counts](compare-reads-v-molecules.html) - ([per batch](compare-reads-v-molecules-per-batch.html),[per batch conversion rates comparison](compare-reads-v-molecules-per-batch-test.html), [per cell](compare-reads-v-molecules-in-cells.html))
+     *  [Islam et al., 2014](islam2014.html)
+     *  [Vallejos et al., 2015](vallejos2015.html)
+*  [Variance within and between individaul](variance.html)
+*  [Correlation with ERCC spike-ins](ercc-correlation.html)
+     *  [Counts of each ERCC in single cell](ercc-counts.html)
+     *  [Capture efficiency](capture-efficiency.html)
+     *  [Over-sequenced ERCC in LCLs](ercc-over-sequenced.html)
+     *  [cmp ERCC or not](ercc-cpm.html)
+*  [ERCC normalization](ercc-normalization.html)
+     *  [Gamma regression model (GRM)](gamma-regression-model.html)
+     *  [BASiCS](basics.html)
+         * [without modeling batch](basics-wo-batch.html)
+         * Using too few iterations gives a poor fit. These are older versions of the analysis kept to demonstrate this([4000 iterations](basics-4000.html), [20000 iterations](basics-20000.html))
+     *  [Shrunk linear transformation](shrunk-linear-transform.html)
+     *  [Variance components](basics-variance-components.html)
+     *  [Poisson GLM normalization](poisson-glm-normalization.html)
+*  [Subsample](subsample.html) - ([LCLs](subsample-lcl.html))
+     *  [Correlation of single and bulk cells](correlate-single-to-bulk.html)
+     *  [Number of expressed genes](detect-genes.html) - ([LCLs](detect-genes-lcl.html))
+     *  [High coverage single cells](subsample-high-coverage-lcl.html)
+     *  [Cell to cell variance](subsample-variance.html)
+*  [Cell-cycle analysis](cell-cycle.html) - ([final](cell-cycle-post-correction.html)), ([cycle-gene-set](cell-cycle-investigate.html))
+*  [pluripotency gene expression](stemness.html)
+*  [Proportion of detected genes](pca-correlation-rafa.html) - ([filter and final](pca-correlation-rafa-filter.html))
+     *  [Detected genes and total molecule counts](gene-and-total-molecule.html)
+     *  [More exploring of the proportion of genes detected](prop-genes-detected.html) - [Using all cells](prop-genes-detected-unfiltered.html)
+*  [Batch effect correction with mixed modeling](batch-limma.html) - ([linear transformation, filter and final](batch-limma-final.html), [Poisson transformation, filter and final](batch-limma-poisson.html))
+     * [Per gene correction (filtered and final)](batch-limma-final-per-gene.html)
+*  [Individual PCAs](pca-individual.html)
+*  Ordering effect of capture sites
+     * All genes ([DESeq-normalized](oefinder-analysis.html),  [CPM-normalized](oefinder-analysis-cpm.html))
+     * [ERCC genes](oefinder-analysis-ercc.html)
+     * [Endogeneous genes per batch, per individual](oefinder-analysis-cpm-batch.html)
+* [Extract gene symbols](gene-symbol.html)
+*  Cell-to-cell variation analysis
+     * [CV and sparsity](cv-sparsity.html)
+     * Mean-adjusted CV -- ( [Normalize CV excluding outlier batch](cv-adjusted-wo-19098-r2.html), [Normalize CV including outlier batch](cv-adjusted.html), [Gene rankings](cv-adjusted-profile.html), [Annotations](cv-adjusted-profile-annotation.html), [Gene-level dissimilarity measure](cv-adjusted-comparison.html) )
+     * Compare mean-adjusted CVs -- ([ANOVA](cv-adjusted-all-genes-wo-19098-2.html), [ANOVA & annotations](cv-annotation.html), [Sum of Squared Deviation from the Median](cv-adjusted-statistical-test.html), [Permutation-based p-values](cv-adjusted-statistical-test-permute.html) )
+     * Noisy genes analysis -- ([final and Gaussian-based transformation](cv-adjusted-summary.html), [final and Poisson-based transformation](cv-adjusted-summary-pois.html), [Pluripotent gene density plots](compare-distribution-pluripotency.html) )
+     * Putting it all together... ([All cells](cv-adjusted-summary-pois.html), [Expressed cells](cv-adjusted-summary-pois-expressed.html), [Undetected cells](cv-adjusted-summary-pois-dropout.html) )
+*  [Quality control plots](qc-plots.html)
+*  [Total molecule-counts and standardization](total-molecule.html)
+*  Exploring sequence coverage
+     * Endogenous genes
+          * [molecules](coverage-endogenous.html)
+          * [reads](coverage-endogenous-reads.html)
+          * [bulk](coverage-endogenous-bulk.html)
+     * ERCC spike-ins
+          * [molecules](coverage-ercc.html)
+          * [reads](coverage-ercc-reads.html)
+          * [bulk](coverage-ercc-bulk.html)
+     * Using ngsplot
+          * [Setup](ngsplot-setup.html)
+          * [endogenous genes](ngsplot-endogenous.html)
+          * [ERCC genes](ngsplot-ercc.html)
+* [PCA quantification](pca-quantification.html)
+
+
+## Download data
+
+*  [Download flow cell 01 - C6WYKACXX](download_flow_cell_01.html)
+*  [Download flow cell 02 - C6WURACXX](download_flow_cell_02.html)
+*  [Download flow cell 03 - C723YACXX](download_flow_cell_03.html)
+*  [Download flow cell 04 - C72JMACXX](download_flow_cell_04.html)
+
+## One-time investigations
+*  [Verify md5 checksums](verify-md5sum.html)
+*  [Small and large files for testing](files-for-testing.html)
+*  [Tracking down bug in reads to molecules conversion - Attempt 01](bug-conversion-01.html)
+*  [The effect of using featureCounts read2pos flag](read2pos.html)
+*  [Tracking down bug in reads to molecules conversion - Attempt 02](bug-conversion-02.html)
+*  [Tracking down bug in reads to molecules conversion - Attempt 03](bug-conversion-03.html)
+*  [Tracking down bug in reads to molecules conversion - Attempt 04](bug-conversion-04.html)
+
+## Other
+
+*  [Assessment of rapid run flow cell](analysis.html)
+
+## LCL data from a full flowcell
+
+*  [Quality control of cell/library](qc-cell-library.html)
+
+
+<br>
+![Divvy bikes](divvy.jpg) <br>
+*[Photo](https://www.flickr.com/photos/jamesbondsv/9041673199) by
+[Steven Vance](https://www.flickr.com/photos/jamesbondsv) /
+[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)*
+
+## Project overview
+
+The purpose of this project is to gain some insight into city-wide
+biking trends by analyzing the
+[Divvy trip data](https://www.divvybikes.com/system-data). Also, I
+examine trip data from one bike station at the University of Chicago
+to compare the biking patterns at the university against city-wide
+trends.
+
+All the results and plots presented in the pages below should be
+reproduceable on your computer. Follow the
+[Setup Instructions](setup.html) if you are interested in reproducing
+the results for yourself.
+
+These are the results of my analyses. They were generated by rendering
+the [R Markdown documents](https://github.com/stephenslab/wflow-divvy/tree/master/analysis)
+into webpages.
+
+1. [A first glance at the Divvy data.](first-glance.html)
+
+2. [A map of the Divvy stations in Chicago.](station-map.html)
+
+3. [Exploring daily bike commuting trends from the Divvy
+data.](time-of-day-trends.html)
+
+4. [Exploring seasonal biking trends from the Divvy
+data.](seasonal-trends.html)
+
+## Credits
+
+This workflowr project was developed by [Peter
+Carbonetto](http://pcarbo.github.io) at the [University of
+Chicago](https://www.uchicago.edu).
+
+Thanks to [John Blischak](https://github.com/jdblischak) and
+[Matthew Stephens](http://stephenslab.uchicago.edu) for their assistance and
+support. Also, thanks to [Larry
+Layne](https://rstudio-pubs-static.s3.amazonaws.com/63061_90f5136ffdf74740b6ba4ad8f2fd72fe.html)
+and [Austin
+Wehrwein](http://www.austinwehrwein.com/data-visualization/heatmaps-with-divvy-data)
+for sharing their analyses of the Divvy trip data that inspired some
+of the investigations here.

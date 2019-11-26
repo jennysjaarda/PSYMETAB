@@ -6,3 +6,8 @@ if (requireNamespace("workflowr", quietly = TRUE)) {
 } else {
   message("workflowr package not installed, please run install.packages(\"workflowr\") to use the workflowr functions")
 }
+
+# don't generate view
+options("workflowr.view" = FALSE)
+# disable system executable
+options(workflowr.sysgit = "")
