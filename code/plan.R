@@ -34,8 +34,12 @@ plan <- drake_plan (
   qc_info = read_excel(
     file_in("data/raw/phenotype_data/QC_sex_eth.xlsx"),
     sheet = 1),
-  id_code = read.csv("data/raw/ID_key.csv"), header=T),
-  bed_conversion = basename(original_plink_data)
+  id_code = read.csv("data/raw/ID_key.csv", header=T),
+  bed_conversion = basename(original_plink_data) # convert plink to bed file
+  fam = read.table(".fam") # read the .fam file
+
+  run(command="plink",c( "--file", "PSYMETAB_GWAS", "--freq", "--out", "test"), error_on_status=F)
+
 
 
   )
