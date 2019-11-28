@@ -15,7 +15,7 @@ source("code/packages.R")
 
 # Load functions and plans  ----
 source("code/functions.R")
+source("code/settings.R")
 source("code/plan.R")
 
 # Run analyses ----
-make(plan)
