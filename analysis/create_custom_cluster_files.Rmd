@@ -1,0 +1,64 @@
+---
+title: "Creating Custom Cluster Files in GenomeStudio"
+author: "Jenny Sjaarda"
+output: workflowr::wflow_html
+---
+
+Notes from Illumina [webinar](https://support.illumina.com/training/webinars/array/array-archive.html):
+*GenomeStudio Genotyping: Creating Custom Cluster Files for Infinium Arrays*.
+
+#### Background and raw genotype data:
+- Scanner detects red and green fluorescent intenseities for each locaus (A and B) to produce genotyping data
+(intensity data files - idats).
+- GenomeStudio converts A and B color channel signals into genoype calls.
+- A and B intensity plots (A vs. B) are transformed into polar coordinates plots
+(theta vs. R, where theta is the angle from the line Y=0 [x-axis] to a given point i (A,B) and R = sum of A and B signal intensities).
+  <img src="assets/illumina_cluster_cart_polar_coord.png" width=500>
+- GS uses algorithms to create clusters and assign genotypes.
+  <img src="assets/illumina_cluster_assign_genotypes.png" width=500>
+- Clustering algorithm **GenTrain** surveys data to determine shape of genotype cluster (3 clusters expected), algorithm works in 3 steps (SNP specific):
+  - Preliminary clustering based on samples, looks for groups.
+  - Assigns 3 clusters (AA/AB/BB).
+  - Scores them based on tighteness and spread between them and HW, perfect GenTrain score = 1.
+  <img src="assets/illumina_cluster_gen_train_scores.png" width=500>
+- Calling algorithm **GenCall** determines which genotype bin each data point belongs to after clustered are defined.
+  - GenCall score is SNP and sample specific, measures how well a smaple fits into a given cluster.
+  - SNP with poor GenTrain score then this SNP will also have low GenCall scores.
+  - Threshold for calling genotypes is recommended at 0.15.
+  <img src="assets/illumina_cluster_gen_call_scores.png" width=500>
+
+#### Cluster files:
+- Matrices, with one row per SNP with the following columns:
+  - Cluster positions: mean and SD of **R** and **Theta** for each AA, AB, BB cluster in normalized coordinates for every SNP.
+  - Cluster score information, i.e. **GenTrain** score.
+  - Cluster seperation.
+  <img src="assets/illumina_cluster_cluster_file_structure.png" width=500>
+- Cluster file (.egt) and manifest file (.bpm) are needed to define genotypes from intensity files (.idats).
+- Standard cluster files are provided with each version of an array.
+- Reclustering some or all SNPs will make your calls more accurate (since they are based on your data not a reference panel).
+
+#### Designing a custom cluster file:
+- Sample choice:
+  - Use normal samples (i.e. controls)
+  - Samples of comparable, good quality
+  - \>100 individauls
+- Conditions:
+  - \>3 runs
+  - \>3 reagent lots
+  - Representative number of operators/technicians/robtots
+
+#### Creating a cluster file:
+1. Cluster:
+   1. Cluster all SNPs (takes a long time)
+   2. Evaluate samples and remove outliers
+2. Recluster:
+   1. Cluster sex chromosomes
+   2. Cluster autosomes
+3. Review and edit:
+   1. Use filters and score to evaluate SNPs
+   2. Correct or zero SNPs as needed
+
+<img src="assets/illumina_cluster_summary.png" width=500>
+
+
+See [technical note](https://www.illumina.com/Documents/products/technotes/technote_infinium_genotyping_data_analysis.pdf) with additional details.

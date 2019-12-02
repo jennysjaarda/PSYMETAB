@@ -13,3 +13,4 @@ data/*
 !analysis/*.Rmd
 !data/*.md
 .drake/
+.git/

@@ -8,18 +8,30 @@ editor_options:
   chunk_output_type: console
 ---
 
-[![Last-changedate](https://img.shields.io/badge/last%20change-`r gsub('-', '--', Sys.Date())`-brightgreen.svg)](https://github.com/pat-s/2019-feature-selection/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change- \
+  `r gsub('-', '--', Sys.Date())-brightgreen`.svg)](https://github.com/pat-s/2019-feature-selection/commits/master)
 [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg)](https://cran.r-project.org/)
-
 
 This [workflowr]() site contains all information and results about this research project.
 
 Project details can be found in the [About](about.html) page.
 
-**Result shortcuts**
-1. [Prediction maps of defoliation at trees](report-defoliation.html)
+See [Setup](setup.html) for details on data sources and project launching.
 
-Powered by [drake](https://github.com/ropensci/drake) + [workflowr](https://github.com/jdblischak/workflowr) + [mlr](https://github.com/mlr-org/mlr).
+**Result shortcuts**
+1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
+2. [Quality control]()
+3. [Imputation report]()
+4. [GWAS]()
+
+![](assets/michigan_imputation_screenshot.PNG)
+
+**Useful papers**
+
+**Notes**
+- [Creating custom cluster files](creating_custom_cluster_files.html)
+
+Powered by [drake](https://github.com/ropensci/drake) + [workflowr](https://github.com/jdblischak/workflowr)
 
 # Acknowledgements
 This work has been supported by the [Swiss National Science Foundation](http://www.snf.ch/en/funding/Pages/default.aspx).

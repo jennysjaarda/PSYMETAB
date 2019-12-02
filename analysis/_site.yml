@@ -7,8 +7,8 @@ navbar:
     href: index.html
   - text: About
     href: about.html
-  - text: License
-    href: license.html
+  - text: Setup
+    href: setup.html
   right:
   - icon: fa-github
     text: Source code
@@ -17,5 +17,6 @@ output:
   workflowr::wflow_html:
     toc: yes
     toc_float: yes
-    theme: cosmo
+    theme: readable
     highlight: textmate
+    
