@@ -60,7 +60,6 @@ cd ${output_dir}/00_preprocessing
 # wc -l $input_chip.bim
 if [ ! -s "$input_chip.bed" ] || [ ! -s "$input_chip.bim" ] || [ ! -s "$input_chip.fam" ] ; then
 plink --file $input_chip \
-  --threads 1 \
   --make-bed \
   --threads 16 \
   --out $input_chip
