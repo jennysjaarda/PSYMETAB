@@ -12,4 +12,3 @@ analysis/site_libs
 data/*
 analysis/*
 !data/*.md
-!analysis/*.md
