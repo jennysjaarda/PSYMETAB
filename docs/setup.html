@@ -9,9 +9,10 @@
 <meta name="generator" content="pandoc" />
 
 
+<meta name="author" content="Jenny Sjaarda" />
 
 
-<title>Home</title>
+<title>Setup for PSYMETAB data analysis</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,6 +20,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -262,6 +266,92 @@ $(document).ready(function () {
 
 
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -269,6 +359,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -319,7 +419,8 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Setup for PSYMETAB data analysis</h1>
+<h4 class="author">Jenny Sjaarda</h4>
 
 </div>
 
@@ -435,26 +536,33 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec62d35a73f0234724a5f5a2bf5e1ee72c8c51ba3targetblankc62d35aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/c62d35a73f0234724a5f5a2bf5e1ee72c8c51ba3" target="_blank">c62d35a</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77targetblank49a7ba9a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77" target="_blank">49a7ba9</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec62d35a73f0234724a5f5a2bf5e1ee72c8c51ba3targetblankc62d35aa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77targetblank49a7ba9a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    analysis/QC/
+    Ignored:    .drake/config/
+    Ignored:    .drake/data/
+    Ignored:    .drake/drake/
+    Ignored:    .drake/keys/
+    Ignored:    .drake/scratch/
     Ignored:    data/processed/
     Ignored:    data/raw/
 
 Untracked files:
-    Untracked:  .drake/
-    Untracked:  pre_imputation_qc.log
-    Untracked:  pre_imputation_qc.out
-    Untracked:  qc_part1.out
-    Untracked:  slurm_clustermq.tmpl
+    Untracked:  analysis/QC/
+
+Staged changes:
+    New:        .drake/.gitignore
+    New:        pre_imputation_qc.log
+    New:        pre_imputation_qc.out
+    New:        qc_part1.out
+    New:        slurm_clustermq.tmpl
 
 </code></pre>
 <p>
@@ -498,7 +606,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/3d512c23c59e94e41cec64db5916f13532bfb5fd/analysis/index.Rmd" target="_blank">3d512c2</a>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77/analysis/setup.Rmd" target="_blank">49a7ba9</a>
 </td>
 <td>
 Sjaarda Jennifer Lynn
@@ -507,109 +615,7 @@ Sjaarda Jennifer Lynn
 2019-12-02
 </td>
 <td>
-modify website and drake plans
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/8e743a865994963ce285c88620bfdb37798b062d/analysis/index.Rmd" target="_blank">8e743a8</a>
-</td>
-<td>
-Sjaarda Jennifer Lynn
-</td>
-<td>
-2019-11-27
-</td>
-<td>
-drakeplan
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/97b2b48ab966ae123bccd64aacf2e0d331952d2e/docs/index.html" target="_blank">97b2b48</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/2db9bcfcc7febefb29ff93ea2a30e41c0f0156f2/analysis/index.Rmd" target="_blank">2db9bcf</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-wflow_publish(all = T)
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/2db9bcfcc7febefb29ff93ea2a30e41c0f0156f2/docs/index.html" target="_blank">2db9bcf</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-wflow_publish(all = T)
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/5fb939e5f8209480d44c3c98625a40ff85c59e44/docs/index.html" target="_blank">5fb939e</a>
-</td>
-<td>
-Jenny Sjaarda
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/7bae873483c621107e61ecd6592546ed1aef112a/analysis/index.Rmd" target="_blank">7bae873</a>
-</td>
-<td>
-Jenny Sjaarda
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-Start workflowr project.
+modify git ignore
 </td>
 </tr>
 </tbody>
@@ -619,14 +625,105 @@ Start workflowr project.
 </div>
 </div>
 </div>
-<p><a href="https://github.com/pat-s/2019-feature-selection/commits/master"><img src="https://img.shields.io/badge/last%20change-2019--12--02-brightgreen.svg" alt="Last-changedate" /></a> <a href="https://cran.r-project.org/"><img src="https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg" alt="minimal R version" /></a></p>
-<p>This <a href="">workflowr</a> site contains all information and results about this research project.</p>
-<p>Project details can be found in the <a href="about.html">About</a> page.</p>
-<p><strong>Result shortcuts</strong> 1. <a href="report-defoliation.html">Prediction maps of defoliation at trees</a></p>
-<p>Powered by <a href="https://github.com/ropensci/drake">drake</a> + <a href="https://github.com/jdblischak/workflowr">workflowr</a> + <a href="https://github.com/mlr-org/mlr">mlr</a>.</p>
-<div id="acknowledgements" class="section level1">
-<h1>Acknowledgements</h1>
-<p>This work has been supported by the <a href="http://www.snf.ch/en/funding/Pages/default.aspx">Swiss National Science Foundation</a>.</p>
+<p><strong>Last updated:</strong> 2019-12-02</p>
+<p><strong>Code version:</strong> 49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77</p>
+<p>To reproduce these results, please follow these instructions.</p>
+<div id="setup-instructions" class="section level2">
+<h2>Setup instructions</h2>
+<p>All processing scripts were run from the root sgg directory.</p>
+<p>Project was initialized using <code>workflowr</code> rpackage, see <a href="https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html">here</a>.</p>
+<div id="on-sgg-server" class="section level3">
+<h3>On sgg server:</h3>
+<pre class="r"><code>project_name &lt;- &quot;PSYMETAB&quot;
+library(&quot;workflowr&quot;)
+
+wflow_start(project_name) # creates directory called project_name
+
+options(&quot;workflowr.view&quot; = FALSE) # if using cluster
+wflow_build() # create directories
+options(workflowr.sysgit = &quot;&quot;)
+
+wflow_publish(c(&quot;analysis/index.Rmd&quot;, &quot;analysis/about.Rmd&quot;, &quot;analysis/license.Rmd&quot;),
+              &quot;Publish the initial files for myproject&quot;)
+
+wflow_use_github(&quot;jennysjaarda&quot;)
+# select option 2. Create the remote repository yourself by going to https://github.com/new and entering the Repository name that matches the name of the directory of your workflowr project.
+
+wflow_git_push()</code></pre>
+<p>You have now successfully created a github repository for your project that is accessible on github and the servers. Next setup a local copy.</p>
+</div>
+<div id="on-personal-computer" class="section level3">
+<h3>On personal computer:</h3>
+<p>Within your terminal clone the git repository.</p>
+<pre class="bash"><code>cd ~/Dropbox/UNIL/projects/
+git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB</code></pre>
+<p>Open project in atom (or preferred text editor) and modify the following files:</p>
+<ul>
+<li>Because Terminal cannot generate a preview and <code>workflowr</code> doesn’t like the sysgit, to the <code>.Rprofile</code> file, add:
+<ul>
+<li><code>options(workflowr.sysgit = &quot;&quot;)</code></li>
+<li><code>options(&quot;workflowr.view&quot; = FALSE)</code></li>
+</ul></li>
+<li>To ensure git hub isn’t manaaging large files, modify the <code>.gitignore</code> file, by adding the following lines:
+<ul>
+<li><code>data/*</code></li>
+<li><code>!analysis/*.Rmd</code></li>
+<li><code>!data/*.md</code></li>
+</ul></li>
+<li>Save and push these changes to github.</li>
+<li>Pull to the server.</li>
+</ul>
+</div>
+<div id="return-to-sgg-server-and-create-internal-project-folders" class="section level3">
+<h3>Return to sgg server and create internal project folders:</h3>
+<pre class="bash"><code>project_dir=/data/sgg2/jenny/projects/PSYMETAB
+mkdir $project_dir/data/raw
+mkdir $project_dir/data/processed
+mkdir $project_dir/data/raw/reference_files
+mkdir $project_dir/data/raw/phenotype_data
+mkdir $project_dir/data/raw/extraction
+mkdir $project_dir/data/processed/phenotype_data
+mkdir $project_dir/data/processed/extraction
+mkdir $project_dir/docs/assets</code></pre>
+<p>This will create the following directory structure in <code>PSYMETAB/</code>:</p>
+<pre><code>PSYMETAB/
+├── .gitignore
+├── .Rprofile
+├── _workflowr.yml
+├── analysis/
+│   ├── about.Rmd
+│   ├── index.Rmd
+│   ├── license.Rmd
+│   └── _site.yml
+├── code/
+│   ├── README.md
+├── data/
+│   ├── README.md
+│   ├── raw/
+|       ├── phenotype_data/
+|       ├── reference_files/
+|       └── extraction/
+│   └── processed/
+|       ├── phenotype_data/
+|       ├── reference_files/
+|       └── extraction/
+├── docs/
+|       └── assets/
+├── myproject.Rproj
+├── output/
+│   └── README.md
+└── README.md</code></pre>
+<p>Raw PLINK (ped/map files) data was copied from the CHUV <code>L/</code> folder after being built in genomestudio.</p>
+<p><img src="assets/michigan_imputation_screenshot.PNG" /> #OR</p>
+<p>knitr::include_graphics(“assets/external.png”)</p>
+</div>
+</div>
+<div id="explore-pheno-code" class="section level1">
+<h1>explore pheno code</h1>
+<p>wflow_open(“analysis/explore_pheno_data.Rmd”)</p>
+<div id="modify-the-.gitignore" class="section level2">
+<h2>modify the .gitignore</h2>
+<p>Most steps are saved in shell scripts. This code should be able to run in any Unix-like environment (of course after installing the necessary software). To process the data efficiently on our HPC, we wrote a wrapper script, <a href="https://github.com/jdblischak/singleCellSeq/blob/master/code/submit-array.sh">submit-array.sh</a>, to combine the many parallel jobs into one array job submitted to the Sun Grid Engine (SGE) scheduler. Not only does this make it easier for the scheduler (and you) to manage thousands of tasks, we also made it so that it won’t re-run jobs if the output file already exists. This is convenient when a small fraction of jobs fail and need to be re-run. However, if your HPC uses a scheduler other than SGE, you will have to decide how best to submit the jobs.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -634,32 +731,33 @@ Start workflowr project.
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.6.1 (2019-07-05)
-Platform: x86_64-conda_cos6-linux-gnu (64-bit)
-Running under: CentOS Linux 7 (Core)
-
-Matrix products: default
-BLAS/LAPACK: /data/sgg2/jenny/bin/anaconda3/envs/r_env/lib/R/lib/libRblas.so
-
-locale:
- [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
- [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
- [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
- [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
-
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
-
-loaded via a namespace (and not attached):
- [1] workflowr_1.5.0 Rcpp_1.0.1      rprojroot_1.3-2 digest_0.6.18  
- [5] later_0.8.0     R6_2.4.0        backports_1.1.4 git2r_0.26.1   
- [9] magrittr_1.5    evaluate_0.13   stringi_1.4.3   fs_1.3.1       
-[13] promises_1.0.1  whisker_0.3-2   rmarkdown_1.12  tools_3.6.1    
-[17] stringr_1.4.0   glue_1.3.1      httpuv_1.5.1    xfun_0.6       
-[21] yaml_2.2.0      compiler_3.6.1  htmltools_0.3.6 knitr_1.22     </code></pre>
+<pre class="r"><code>sessionInfo()
+# R version 3.6.1 (2019-07-05)
+# Platform: x86_64-conda_cos6-linux-gnu (64-bit)
+# Running under: CentOS Linux 7 (Core)
+# 
+# Matrix products: default
+# BLAS/LAPACK: /data/sgg2/jenny/bin/anaconda3/envs/r_env/lib/R/lib/libRblas.so
+# 
+# locale:
+#  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+# [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+# 
+# attached base packages:
+# [1] stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# loaded via a namespace (and not attached):
+#  [1] workflowr_1.5.0 Rcpp_1.0.1      rprojroot_1.3-2 digest_0.6.18  
+#  [5] later_0.8.0     R6_2.4.0        backports_1.1.4 git2r_0.26.1   
+#  [9] magrittr_1.5    evaluate_0.13   stringi_1.4.3   fs_1.3.1       
+# [13] promises_1.0.1  whisker_0.3-2   rmarkdown_1.12  tools_3.6.1    
+# [17] stringr_1.4.0   glue_1.3.1      httpuv_1.5.1    xfun_0.6       
+# [21] yaml_2.2.0      compiler_3.6.1  htmltools_0.3.6 knitr_1.22</code></pre>
+</div>
 </div>
 </div>
 
@@ -677,6 +775,8 @@ footer is added to webpages before the MathJax javascript. -->
 </script>
 
 
+</div>
+</div>
 
 </div>
 

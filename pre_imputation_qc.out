@@ -1,0 +1,25 @@
+node13.cluster | 112198 | 2019-12-02 15:13:50.653270 +0100 GMT |  | begin drake_config()
+node13.cluster | 112198 | 2019-12-02 15:13:50.680172 +0100 GMT |  | cache /data/sgg2/jenny/projects/PSYMETAB/.drake
+node13.cluster | 112198 | 2019-12-02 15:13:50.684880 +0100 GMT |  | analyze environment
+node13.cluster | 112198 | 2019-12-02 15:13:50.692790 +0100 GMT |  | get knitr hash
+node13.cluster | 112198 | 2019-12-02 15:13:50.701469 +0100 GMT |  | set knitr files
+node13.cluster | 112198 | 2019-12-02 15:13:50.714800 +0100 GMT |  | end drake_config()
+node13.cluster | 112198 | 2019-12-02 15:13:50.716227 +0100 GMT |  | begin make()
+node13.cluster | 112198 | 2019-12-02 15:13:50.834768 +0100 GMT | pre_imputation_script | import
+node13.cluster | 112198 | 2019-12-02 15:13:50.845972 +0100 GMT | processx::run | import
+node13.cluster | 112198 | 2019-12-02 15:13:50.857201 +0100 GMT |  | begin outdated()
+node13.cluster | 112198 | 2019-12-02 15:13:50.859222 +0100 GMT |  | find more outdated targets
+node13.cluster | 112198 | 2019-12-02 15:13:50.861650 +0100 GMT |  | find downstream outdated targets
+node13.cluster | 112198 | 2019-12-02 15:13:50.864386 +0100 GMT |  | end outdated()
+node13.cluster | 112198 | 2019-12-02 15:13:50.865476 +0100 GMT |  | isolate oudated targets
+node13.cluster | 112198 | 2019-12-02 15:13:50.868414 +0100 GMT |  | construct priority queue
+node13.cluster | 112198 | 2019-12-02 15:13:50.876503 +0100 GMT | run_pre_imputation | trigger missing
+node13.cluster | 112198 | 2019-12-02 15:13:51.091413 +0100 GMT |  | set common data
+node13.cluster | 112198 | 2019-12-02 15:13:51.099526 +0100 GMT |  | begin scheduling targets
+node13.cluster | 112198 | 2019-12-02 15:13:52.369179 +0100 GMT |  | sending common data
+node13.cluster | 112198 | 2019-12-02 15:13:52.517435 +0100 GMT | run_pre_imputation | trigger missing
+node13.cluster | 112198 | 2019-12-02 15:13:52.522875 +0100 GMT | run_pre_imputation | target run_pre_imputation
+node15.cluster | 27103 | 2019-12-02 15:13:52.531677 +0100 GMT | run_pre_imputation | build on an hpc worker
+node13.cluster | 112198 | 2019-12-02 15:23:54.042221 +0100 GMT | run_pre_imputation | store
+node13.cluster | 112198 | 2019-12-02 15:23:54.114438 +0100 GMT | run_pre_imputation | time  599.654s (~9.99 minutes) | 601.598s (~10.03 minutes)  (exec | total)
+node13.cluster | 112198 | 2019-12-02 15:23:54.351612 +0100 GMT |  | end make()
