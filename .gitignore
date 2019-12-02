@@ -10,5 +10,5 @@ analysis/*html
 analysis/*_cache
 analysis/site_libs
 data/*
-analysis/*
+!analysis/*.Rmd
 !data/*.md

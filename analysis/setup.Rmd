@@ -1,0 +1,135 @@
+---
+title: "Setup for PSYMETAB data analysis"
+author: "Jenny Sjaarda"
+output: workflowr::wflow_html
+---
+
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE)
+```
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+To reproduce these results, please follow these instructions.
+
+## Setup instructions
+
+All processing scripts were run from the root sgg directory.
+
+Project was initialized using `workflowr` rpackage, see [here](https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html).
+
+### On sgg server:
+
+```{r eval=FALSE}
+project_name <- "PSYMETAB"
+library("workflowr")
+
+wflow_start(project_name) # creates directory called project_name
+
+options("workflowr.view" = FALSE) # if using cluster
+wflow_build() # create directories
+options(workflowr.sysgit = "")
+
+wflow_publish(c("analysis/index.Rmd", "analysis/about.Rmd", "analysis/license.Rmd"),
+              "Publish the initial files for myproject")
+
+wflow_use_github("jennysjaarda")
+# select option 2. Create the remote repository yourself by going to https://github.com/new and entering the Repository name that matches the name of the directory of your workflowr project.
+
+wflow_git_push()
+```
+
+You have now successfully created a github repository for your project that is accessible on github and the servers. Next setup a local copy.
+
+### On personal computer:
+
+Within your terminal clone the git repository.
+
+ ```bash
+cd ~/Dropbox/UNIL/projects/
+git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB
+ ```
+
+Open project in atom (or preferred text editor) and modify the following files:
+
+- Because Terminal cannot generate a preview and `workflowr` doesn't like the sysgit, to the `.Rprofile` file, add:
+  - `options(workflowr.sysgit = "")`
+  - `options("workflowr.view" = FALSE)`
+- To ensure git hub isn't manaaging large files, modify the `.gitignore` file, by adding the following lines:
+  - `data/*`
+  - `!analysis/*.Rmd`
+  - `!data/*.md`
+- Save and push these changes to github.
+- Pull to the server.
+
+### Return to sgg server and create internal project folders:
+
+```bash
+project_dir=/data/sgg2/jenny/projects/PSYMETAB
+mkdir $project_dir/data/raw
+mkdir $project_dir/data/processed
+mkdir $project_dir/data/raw/reference_files
+mkdir $project_dir/data/raw/phenotype_data
+mkdir $project_dir/data/raw/extraction
+mkdir $project_dir/data/processed/phenotype_data
+mkdir $project_dir/data/processed/extraction
+mkdir $project_dir/docs/assets
+```
+
+This will create the following directory structure in `PSYMETAB/`:
+
+```
+PSYMETAB/
+├── .gitignore
+├── .Rprofile
+├── _workflowr.yml
+├── analysis/
+│   ├── about.Rmd
+│   ├── index.Rmd
+│   ├── license.Rmd
+│   └── _site.yml
+├── code/
+│   ├── README.md
+├── data/
+│   ├── README.md
+│   ├── raw/
+|       ├── phenotype_data/
+|       ├── reference_files/
+|       └── extraction/
+│   └── processed/
+|       ├── phenotype_data/
+|       ├── reference_files/
+|       └── extraction/
+├── docs/
+|       └── assets/
+├── myproject.Rproj
+├── output/
+│   └── README.md
+└── README.md
+```
+
+Raw PLINK (ped/map files) data was copied from the CHUV `L/` folder after being built in genomestudio.
+
+![](assets/michigan_imputation_screenshot.PNG)
+#OR
+
+knitr::include_graphics("assets/external.png")
+
+# explore pheno code
+wflow_open("analysis/explore_pheno_data.Rmd")
+
+## modify the .gitignore
+Most steps are saved in shell scripts. This code should be able to run in any
+Unix-like environment (of course after installing the necessary software). To
+process the data efficiently on our HPC, we wrote a wrapper script,
+[submit-array.sh][], to combine the many parallel jobs into one array job
+submitted to the Sun Grid Engine (SGE) scheduler. Not only does this make it
+easier for the scheduler (and you) to manage thousands of tasks, we also made it
+so that it won't re-run jobs if the output file already exists. This is
+convenient when a small fraction of jobs fail and need to be re-run. However, if
+your HPC uses a scheduler other than SGE, you will have to decide how best to
+submit the jobs.
+
+[submit-array.sh]: https://github.com/jdblischak/singleCellSeq/blob/master/code/submit-array.sh
