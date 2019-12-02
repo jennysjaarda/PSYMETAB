@@ -123,7 +123,7 @@ Raw PLINK (ped/map files) data were copied from the CHUV `:L/` folder after bein
 see `make.R`
 
 Configure a slurm template
-```{r}
+```{r eval=FALSE} 
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
 drake_hpc_template_file("slurm_clustermq.tmpl")
 
