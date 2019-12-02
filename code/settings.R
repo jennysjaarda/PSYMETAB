@@ -23,7 +23,12 @@ plink_bed_out <- "data/processed/PLINK_091019_0920/PSYMETAB_GWAS"
 
 rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
+
+
 pre_imputation_script <- "code/pre_imputation_qc.sh"
+post_imputation_script <- "code/post_imputation_qc.sh"
+download_imputation_script <- "code/download_imputation.sh"
+
 source(paste0(SGG_generic,"/scripts/settings.r"))
 source(paste0(project_dir,"/scripts/functions.r"))
 

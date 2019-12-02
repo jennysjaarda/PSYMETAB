@@ -4,7 +4,6 @@ library(pacman)
 library(biglm) # lightweight linear models, easier to store results
 library(dplyr)
 library(drake)
-library(Ecdat) # econometrics datasets
 library(ggplot2)
 library(knitr)
 library(purrr)
