@@ -16,7 +16,7 @@
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -392,7 +392,7 @@ div.tocify {
   <a href="about.html">About</a>
 </li>
 <li>
-  <a href="license.html">License</a>
+  <a href="setup.html">Setup</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -536,33 +536,29 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77targetblank49a7ba9a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77" target="_blank">49a7ba9</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94targetblank179fb3ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94" target="_blank">179fb3b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77targetblank49a7ba9a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94targetblank179fb3ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    .drake/config/
-    Ignored:    .drake/data/
-    Ignored:    .drake/drake/
-    Ignored:    .drake/keys/
-    Ignored:    .drake/scratch/
+    Ignored:    .drake/
     Ignored:    data/processed/
     Ignored:    data/raw/
 
 Untracked files:
     Untracked:  analysis/QC/
+    Untracked:  post_imputation_qc.log
+    Untracked:  pre_impute_qc.out
+    Untracked:  qc_part2.out
 
-Staged changes:
-    New:        .drake/.gitignore
-    New:        pre_imputation_qc.log
-    New:        pre_imputation_qc.out
-    New:        qc_part1.out
-    New:        slurm_clustermq.tmpl
+Unstaged changes:
+    Deleted:    pre_imputation_qc.out
+    Deleted:    qc_part1.out
 
 </code></pre>
 <p>
@@ -606,6 +602,57 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94/analysis/setup.Rmd" target="_blank">179fb3b</a>
+</td>
+<td>
+Jenny
+</td>
+<td>
+2019-12-02
+</td>
+<td>
+eval false to drake launch
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/0dd02a792ccdb998d5650da4f6b713f0d4a46c83/analysis/setup.Rmd" target="_blank">0dd02a7</a>
+</td>
+<td>
+Jenny
+</td>
+<td>
+2019-12-02
+</td>
+<td>
+modify website
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/2849dcbac2c41fe9110cee42ccf040d373821b69/docs/setup.html" target="_blank">2849dcb</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2019-12-02
+</td>
+<td>
+wflow_git_commit(all = T)
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/jennysjaarda/PSYMETAB/blob/49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77/analysis/setup.Rmd" target="_blank">49a7ba9</a>
 </td>
 <td>
@@ -626,14 +673,12 @@ modify git ignore
 </div>
 </div>
 <p><strong>Last updated:</strong> 2019-12-02</p>
-<p><strong>Code version:</strong> 49a7ba9b5f838a8e00b9e1b4e9faea44e2341d77</p>
-<p>To reproduce these results, please follow these instructions.</p>
-<div id="setup-instructions" class="section level2">
-<h2>Setup instructions</h2>
-<p>All processing scripts were run from the root sgg directory.</p>
-<p>Project was initialized using <code>workflowr</code> rpackage, see <a href="https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html">here</a>.</p>
-<div id="on-sgg-server" class="section level3">
-<h3>On sgg server:</h3>
+<p><strong>Code version:</strong> 179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94</p>
+<p><strong>To reproduce these results, please follow these instructions.</strong> <strong>See <a href="#data">Data</a> for details on data sources.</strong></p>
+<div id="step-1-initiate-project-on-remote-server." class="section level2">
+<h2>Step 1: initiate project on remote server.</h2>
+<p>All processing scripts were run from the root sgg directory. Project was initialized using <code>workflowr</code> rpackage, see <a href="https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html">here</a>.</p>
+<p>On sgg server:</p>
 <pre class="r"><code>project_name &lt;- &quot;PSYMETAB&quot;
 library(&quot;workflowr&quot;)
 
@@ -647,14 +692,16 @@ wflow_publish(c(&quot;analysis/index.Rmd&quot;, &quot;analysis/about.Rmd&quot;, 
               &quot;Publish the initial files for myproject&quot;)
 
 wflow_use_github(&quot;jennysjaarda&quot;)
-# select option 2. Create the remote repository yourself by going to https://github.com/new and entering the Repository name that matches the name of the directory of your workflowr project.
+# select option 2. Create the remote repository yourself by going to https://github.com/new
+# and entering the Repository name that matches the name of the directory of your workflowr project.
 
 wflow_git_push()</code></pre>
-<p>You have now successfully created a github repository for your project that is accessible on github and the servers. Next setup a local copy.</p>
+<p>You have now successfully created a github repository for your project that is accessible on github and the servers.</p>
+<p>Next setup a local copy.</p>
 </div>
-<div id="on-personal-computer" class="section level3">
-<h3>On personal computer:</h3>
-<p>Within your terminal clone the git repository.</p>
+<div id="step-2-create-local-copy-on-personal-computer." class="section level2">
+<h2>Step 2: Create local copy on personal computer.</h2>
+<p>Within terminal of personal computer, clone the git repository.</p>
 <pre class="bash"><code>cd ~/Dropbox/UNIL/projects/
 git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB</code></pre>
 <p>Open project in atom (or preferred text editor) and modify the following files:</p>
@@ -669,13 +716,15 @@ git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB</code></pre>
 <li><code>data/*</code></li>
 <li><code>!analysis/*.Rmd</code></li>
 <li><code>!data/*.md</code></li>
+<li><code>.git/</code></li>
 </ul></li>
 <li>Save and push these changes to github.</li>
 <li>Pull to the server.</li>
 </ul>
 </div>
-<div id="return-to-sgg-server-and-create-internal-project-folders" class="section level3">
-<h3>Return to sgg server and create internal project folders:</h3>
+<div id="step-3-create-internal-project-folders." class="section level2">
+<h2>Step 3: Create internal project folders.</h2>
+<p>Return to sgg server and run the following:</p>
 <pre class="bash"><code>project_dir=/data/sgg2/jenny/projects/PSYMETAB
 mkdir $project_dir/data/raw
 mkdir $project_dir/data/processed
@@ -713,17 +762,126 @@ mkdir $project_dir/docs/assets</code></pre>
 ├── output/
 │   └── README.md
 └── README.md</code></pre>
-<p>Raw PLINK (ped/map files) data was copied from the CHUV <code>L/</code> folder after being built in genomestudio.</p>
-<p><img src="assets/michigan_imputation_screenshot.PNG" /> #OR</p>
-<p>knitr::include_graphics(“assets/external.png”)</p>
+<p>Raw PLINK (ped/map files) data were copied from the CHUV <code>:L/</code> folder after being built in genomestudio.</p>
 </div>
+<div id="step-4-setup-drake-plan." class="section level2">
+<h2>Step 4: Setup drake plan.</h2>
+<p>see <code>make.R</code></p>
+<p>Configure a slurm template</p>
+<pre class="r"><code>options(clustermq.scheduler = &quot;slurm&quot;, clustermq.template = &quot;slurm_clustermq.tmpl&quot;)
+drake_hpc_template_file(&quot;slurm_clustermq.tmpl&quot;)
+
+# Write the file slurm_clustermq.tmpl. and edit manually</code></pre>
+<p>The file created using the <code>clustermq</code> template was edited manually to match <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/slurm_clustermq.tmpl">slurm_clustermq.tmpl</a></p>
+<pre class="r"><code>cat(readLines(&#39;slurm_clustermq.tmpl&#39;), sep = &#39;\n&#39;)
+#!/bin/sh
+# From https://github.com/mschubert/clustermq/wiki/SLURM
+#SBATCH --job-name={{ job_name }}           # job name
+#SBATCH --partition={{ partition }}                 # partition
+#SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
+#SBATCH --error={{ log_file | /dev/null }}  # log file
+####SBATCH --mem-per-cpu={{ memory | 4096 }}   # memory
+#SBATCH --array=1-{{ n_jobs }}              # job array
+#SBATCH --cpus-per-task={{ cpus }}
+# module load R                             # Uncomment if R is an environment module.
+####ulimit -v $(( 1024 * {{ memory | 4096 }} ))
+CMQ_AUTH={{ auth }} R --no-save --no-restore -e &#39;clustermq:::worker(&quot;{{ master }}&quot;)&#39;</code></pre>
 </div>
-<div id="explore-pheno-code" class="section level1">
-<h1>explore pheno code</h1>
-<p>wflow_open(“analysis/explore_pheno_data.Rmd”)</p>
-<div id="modify-the-.gitignore" class="section level2">
-<h2>modify the .gitignore</h2>
-<p>Most steps are saved in shell scripts. This code should be able to run in any Unix-like environment (of course after installing the necessary software). To process the data efficiently on our HPC, we wrote a wrapper script, <a href="https://github.com/jdblischak/singleCellSeq/blob/master/code/submit-array.sh">submit-array.sh</a>, to combine the many parallel jobs into one array job submitted to the Sun Grid Engine (SGE) scheduler. Not only does this make it easier for the scheduler (and you) to manage thousands of tasks, we also made it so that it won’t re-run jobs if the output file already exists. This is convenient when a small fraction of jobs fail and need to be re-run. However, if your HPC uses a scheduler other than SGE, you will have to decide how best to submit the jobs.</p>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p><em>provided from iGE3</em></p>
+<div id="general-information" class="section level4">
+<h4>General information</h4>
+<ul>
+<li>Files received from: Mylene Docquier (<a href="mailto:Mylene.Docquier@unige.ch">Mylene.Docquier@unige.ch</a>), iGE3 Genomics Platform Manager, University of Geneva</li>
+<li>ftp server details:
+<ul>
+<li>host: <a href="sftp://129.194.88.17" class="uri">sftp://129.194.88.17</a></li>
+<li>username: 080219CE</li>
+<li>password: chinjennys</li>
+</ul></li>
+<li>Genotype data received in genomestudio format on August 28, 2019; for processing and converting to PLINK format see docs/miscellaneous/data_processing.md</li>
+</ul>
+</div>
+<div id="genotype-data" class="section level4">
+<h4>Genotype data</h4>
+<ul>
+<li>Genotype data found in data/raw/genotypes</li>
+<li>Each folder contains:
+<ul>
+<li>Initial data provided from Mylene in genomestudio format, with the original folder name (‘XXX/’).</li>
+<li>Cluster files in genomestudio format (see docs/miscellaneous/data_processing.md), and named ‘XXX_cluster/’.</li>
+<li>PLINK files exported from genomestudio.</li>
+</ul></li>
+</ul>
+</div>
+<div id="miscellaneous-gsa-information-provided-in-the-following-files" class="section level4">
+<h4>Miscellaneous GSA information provided in the following files:</h4>
+<ol style="list-style-type: decimal">
+<li>GSA v2 + MD Consortium.csv</li>
+<li>GSAMD-24v2-0_20024620_A1.csv</li>
+<li>GSAMD-24v2-0_A1-ACMG-GeneAnnotation.xlsx</li>
+<li>GSAMD-24v2-0_A1-ADME-CPIC-GeneAnnotation.xlsx</li>
+<li>GSAMD-24v2-0_A1-HLA-GeneAnnotation.xlsx</li>
+<li>GSAMD-24v2-0_A1-TruSight-GeneAnnotation.xlsx</li>
+<li>GSAv2_MDConsortium.bpm</li>
+<li>GSPMA24v1_0-A_4349HNR_Samples.egt</li>
+</ol>
+<ul>
+<li>Files 1 and 2 appear to be identical and correspond to strand illumina strand information, same file can be found <a href="http://glimdna.org/assets/gsamd-24v2-0_20024620_a1.zip">here</a>.</li>
+<li>xlsx files contain 2 tabs: “Coverage Summary” and “GSAMD-24v2-0_A1-XXX-GeneAnnota”</li>
+<li>bpm file corresponds to manifest file for use in genomestudio. Manifest files provide a description of the SNP or probe content on a standard BeadChip or in an assay product.</li>
+<li>egt file corresponds to cluster file for making genotype calls.</li>
+<li>all saved in data/reference_files</li>
+</ul>
+</div>
+<div id="chip-details-from-illumina" class="section level2">
+<h2>Chip details from Illumina</h2>
+<ul>
+<li>Files received from: Fe Magbanua (<a href="mailto:techsupport@illumina.com">techsupport@illumina.com</a>),Technical Applications Scientist, Technical Support, Illumina</li>
+<li>GSAMD-24v2-0_20024620_A4_StrandReport_FDT.txt: strand report build38 (build37 not available).</li>
+<li>GSAMD-24v2-0_20024620_A1_b151_rsids.txt: loci to rsid conversion file build37.</li>
+<li>GSAMD-24v2-0_20024620_A4_b151_rsids.txt: loci to rsid conversion file build38.</li>
+<li>all saved in data/reference_files (copied using FileZilla)</li>
+</ul>
+</div>
+<div id="strand-files-from-welcome-centre" class="section level2">
+<h2>Strand files from Welcome Centre</h2>
+<ul>
+<li>The data for each chip and genome build combination are freely downloadable from the links localted <a href="https://www.well.ox.ac.uk/~wrayner/strand/">here</a>, each zip file contains three files, these are:
+<ul>
+<li>.strand file</li>
+<li>.miss file</li>
+<li>.multiple file</li>
+</ul></li>
+<li>More details can be found at the link above</li>
+<li><a href="http://mccarthy.well.ox.ac.uk/chipendium/ui/">Chipendium</a> was used to comfirm that bim files are on the TOP strand .</li>
+<li>Contacted William Rayner (<a href="mailto:wrayner@well.ox.ac.uk">wrayner@well.ox.ac.uk</a>) to find out what to do about custom SNPs, all correspondence on 22/07/2019.
+<ul>
+<li>Query: “The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?”</li>
+<li>Response: “If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching)”</li>
+<li>Trying to obtain such .csv file from Mylene or Smita at Illumina (<a href="mailto:spathak@illumina.com">spathak@illumina.com</a>) who designed the chip.</li>
+<li>On 15/07/2019 Smita provided such a file: GSA_UPPC_20023490X357589_A1_custom_only.csv.</li>
+<li>The file was downloaded and save to UPPC (Jenny/PSYMETAB_GWAS/GSA).</li>
+<li>Sent .csv file to William Rayner and he provided the strand file for the custom SNP list on 16/07/2019:
+<ul>
+<li>GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip</li>
+<li>GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip</li>
+</ul></li>
+<li>Zipped strand files were copied to SGG server (${project_dir}/data/raw/reference_files/) and subsequently unzipped and used in QC (only b37 files was needed).</li>
+</ul></li>
+</ul>
+</div>
+<div id="phenotype-data" class="section level2">
+<h2>Phenotype data</h2>
+<ul>
+<li>Sex and ethnicity data provided by Celine (via email) for each batch on July 18, 2019: GSA_sex-ethnicity.xlsx</li>
+<li>Downloaded and saved to UPPC folder (Jenny/PSYMETAB_GWAS/).</li>
+<li>Opened, manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv/xlsx file (with ‘no_accents’) for easier use in R.</li>
+<li>Moved to SGG folders via filezilla (manually).</li>
+<li>Name was changed (see ‘Master.sh’), as follows:</li>
+</ul>
+<pre><code>mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex_eth.xlsx</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
