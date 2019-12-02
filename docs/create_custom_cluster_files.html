@@ -9,9 +9,10 @@
 <meta name="generator" content="pandoc" />
 
 
+<meta name="author" content="Jenny Sjaarda" />
 
 
-<title>Home</title>
+<title>Creating Custom Cluster Files in GenomeStudio</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,6 +20,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -262,6 +266,92 @@ $(document).ready(function () {
 
 
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -269,6 +359,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -319,7 +419,8 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Creating Custom Cluster Files in GenomeStudio</h1>
+<h4 class="author">Jenny Sjaarda</h4>
 
 </div>
 
@@ -347,7 +448,7 @@ div.section {
 <strong>Last updated:</strong> 2019-12-02
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -375,70 +476,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree0dd02a792ccdb998d5650da4f6b713f0d4a46c83targetblank0dd02a7a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/0dd02a792ccdb998d5650da4f6b713f0d4a46c83" target="_blank">0dd02a7</a> </a>
 </p>
 </div>
-<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191126code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191126)</code> </a>
-</p>
-</div>
-<div id="strongSeedstrongcodesetseed20191126code" class="panel-collapse collapse">
-<div class="panel-body">
-<p>The command <code>set.seed(20191126)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
-</p>
-</div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
-</p>
-</div>
-<div id="strongCachestrongnone" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
-</p>
-</div>
-<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94targetblank179fb3ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94" target="_blank">179fb3b</a> </a>
-</p>
-</div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree179fb3bcc6cd7f84a181e8c0f2f0e6db2d939f94targetblank179fb3ba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree0dd02a792ccdb998d5650da4f6b713f0d4a46c83targetblank0dd02a7a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -501,24 +542,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/dafe34662403daf678c932d4681bb4a92df93bf0/analysis/index.Rmd" target="_blank">dafe346</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-12-02
-</td>
-<td>
-modify index
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/0dd02a792ccdb998d5650da4f6b713f0d4a46c83/analysis/index.Rmd" target="_blank">0dd02a7</a>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/0dd02a792ccdb998d5650da4f6b713f0d4a46c83/analysis/create_custom_cluster_files.Rmd" target="_blank">0dd02a7</a>
 </td>
 <td>
 Jenny
@@ -530,142 +554,6 @@ Jenny
 modify website
 </td>
 </tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/2849dcbac2c41fe9110cee42ccf040d373821b69/docs/index.html" target="_blank">2849dcb</a>
-</td>
-<td>
-Jenny Sjaarda
-</td>
-<td>
-2019-12-02
-</td>
-<td>
-wflow_git_commit(all = T)
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/3d512c23c59e94e41cec64db5916f13532bfb5fd/analysis/index.Rmd" target="_blank">3d512c2</a>
-</td>
-<td>
-Sjaarda Jennifer Lynn
-</td>
-<td>
-2019-12-02
-</td>
-<td>
-modify website and drake plans
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/8e743a865994963ce285c88620bfdb37798b062d/analysis/index.Rmd" target="_blank">8e743a8</a>
-</td>
-<td>
-Sjaarda Jennifer Lynn
-</td>
-<td>
-2019-11-27
-</td>
-<td>
-drakeplan
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/97b2b48ab966ae123bccd64aacf2e0d331952d2e/docs/index.html" target="_blank">97b2b48</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/2db9bcfcc7febefb29ff93ea2a30e41c0f0156f2/analysis/index.Rmd" target="_blank">2db9bcf</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-wflow_publish(all = T)
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/2db9bcfcc7febefb29ff93ea2a30e41c0f0156f2/docs/index.html" target="_blank">2db9bcf</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-wflow_publish(all = T)
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/5fb939e5f8209480d44c3c98625a40ff85c59e44/docs/index.html" target="_blank">5fb939e</a>
-</td>
-<td>
-Jenny Sjaarda
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/7bae873483c621107e61ecd6592546ed1aef112a/analysis/index.Rmd" target="_blank">7bae873</a>
-</td>
-<td>
-Jenny Sjaarda
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-Start workflowr project.
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -673,52 +561,80 @@ Start workflowr project.
 </div>
 </div>
 </div>
-<p><a href="https://github.com/jennysjaarda/PSYMETAB"><img src="https://img.shields.io/badge/last%20change-2019--12--02-brightgreen.svg" alt="Last-changedate" /></a> <a href="https://cran.r-project.org/"><img src="https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg" alt="minimal R version" /></a></p>
-<p>This <a href="">workflowr</a> site contains all information and results about this research project.</p>
-<p>Project details can be found in the <a href="about.html">About</a> page.</p>
-<p>See <a href="setup.html">Setup</a> for details on data sources and project launching.</p>
-<p><strong>Result shortcuts</strong> 1. <a href="data_processing_in_genomestudio.html">Overview of processing in genomestudio</a> 2. <a href="">Quality control</a> 3. <a href="">Imputation report</a> 4. <a href="">GWAS</a></p>
-<p><img src="assets/michigan_imputation_screenshot.PNG" /></p>
-<p><strong>Useful papers</strong></p>
-<p><strong>Notes</strong> - <a href="creating_custom_cluster_files.html">Creating custom cluster files</a></p>
-<p>Powered by <a href="https://github.com/ropensci/drake">drake</a> + <a href="https://github.com/jdblischak/workflowr">workflowr</a></p>
-<div id="acknowledgements" class="section level1">
-<h1>Acknowledgements</h1>
-<p>This work has been supported by the <a href="http://www.snf.ch/en/funding/Pages/default.aspx">Swiss National Science Foundation</a>.</p>
-<br>
-<p>
-<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
-</button>
-</p>
-<div id="workflowr-sessioninfo" class="collapse">
-<pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.6.1 (2019-07-05)
-Platform: x86_64-conda_cos6-linux-gnu (64-bit)
-Running under: CentOS Linux 7 (Core)
-
-Matrix products: default
-BLAS/LAPACK: /data/sgg2/jenny/bin/anaconda3/envs/r_env/lib/R/lib/libRblas.so
-
-locale:
- [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
- [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
- [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
- [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
-
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
-
-loaded via a namespace (and not attached):
- [1] workflowr_1.5.0 Rcpp_1.0.1      rprojroot_1.3-2 digest_0.6.18  
- [5] later_0.8.0     R6_2.4.0        backports_1.1.4 git2r_0.26.1   
- [9] magrittr_1.5    evaluate_0.13   stringi_1.4.3   fs_1.3.1       
-[13] promises_1.0.1  whisker_0.3-2   rmarkdown_1.12  tools_3.6.1    
-[17] stringr_1.4.0   glue_1.3.1      httpuv_1.5.1    xfun_0.6       
-[21] yaml_2.2.0      compiler_3.6.1  htmltools_0.3.6 knitr_1.22     </code></pre>
+<p>Notes from Illumina <a href="https://support.illumina.com/training/webinars/array/array-archive.html">webinar</a>: <em>GenomeStudio Genotyping: Creating Custom Cluster Files for Infinium Arrays</em>.</p>
+<div id="background-and-raw-genotype-data" class="section level4">
+<h4>Background and raw genotype data:</h4>
+<ul>
+<li>Scanner detects red and green fluorescent intenseities for each locaus (A and B) to produce genotyping data (intensity data files - idats).</li>
+<li>GenomeStudio converts A and B color channel signals into genoype calls.</li>
+<li>A and B intensity plots (A vs. B) are transformed into polar coordinates plots (theta vs. R, where theta is the angle from the line Y=0 [x-axis] to a given point i (A,B) and R = sum of A and B signal intensities). <img src="assets/illumina_cluster_cart_polar_coord.png" width=500></li>
+<li>GS uses algorithms to create clusters and assign genotypes. <img src="assets/illumina_cluster_assign_genotypes.png" width=500></li>
+<li>Clustering algorithm <strong>GenTrain</strong> surveys data to determine shape of genotype cluster (3 clusters expected), algorithm works in 3 steps (SNP specific):
+<ul>
+<li>Preliminary clustering based on samples, looks for groups.</li>
+<li>Assigns 3 clusters (AA/AB/BB).</li>
+<li>Scores them based on tighteness and spread between them and HW, perfect GenTrain score = 1. <img src="assets/illumina_cluster_gen_train_scores.png" width=500></li>
+</ul></li>
+<li>Calling algorithm <strong>GenCall</strong> determines which genotype bin each data point belongs to after clustered are defined.
+<ul>
+<li>GenCall score is SNP and sample specific, measures how well a smaple fits into a given cluster.</li>
+<li>SNP with poor GenTrain score then this SNP will also have low GenCall scores.</li>
+<li>Threshold for calling genotypes is recommended at 0.15. <img src="assets/illumina_cluster_gen_call_scores.png" width=500></li>
+</ul></li>
+</ul>
 </div>
+<div id="cluster-files" class="section level4">
+<h4>Cluster files:</h4>
+<ul>
+<li>Matrices, with one row per SNP with the following columns:
+<ul>
+<li>Cluster positions: mean and SD of <strong>R</strong> and <strong>Theta</strong> for each AA, AB, BB cluster in normalized coordinates for every SNP.</li>
+<li>Cluster score information, i.e. <strong>GenTrain</strong> score.</li>
+<li>Cluster seperation. <img src="assets/illumina_cluster_cluster_file_structure.png" width=500></li>
+</ul></li>
+<li>Cluster file (.egt) and manifest file (.bpm) are needed to define genotypes from intensity files (.idats).</li>
+<li>Standard cluster files are provided with each version of an array.</li>
+<li>Reclustering some or all SNPs will make your calls more accurate (since they are based on your data not a reference panel).</li>
+</ul>
+</div>
+<div id="designing-a-custom-cluster-file" class="section level4">
+<h4>Designing a custom cluster file:</h4>
+<ul>
+<li>Sample choice:
+<ul>
+<li>Use normal samples (i.e. controls)</li>
+<li>Samples of comparable, good quality</li>
+<li>&gt;100 individauls</li>
+</ul></li>
+<li>Conditions:
+<ul>
+<li>&gt;3 runs</li>
+<li>&gt;3 reagent lots</li>
+<li>Representative number of operators/technicians/robtots</li>
+</ul></li>
+</ul>
+</div>
+<div id="creating-a-cluster-file" class="section level4">
+<h4>Creating a cluster file:</h4>
+<ol style="list-style-type: decimal">
+<li>Cluster:
+<ol style="list-style-type: decimal">
+<li>Cluster all SNPs (takes a long time)</li>
+<li>Evaluate samples and remove outliers</li>
+</ol></li>
+<li>Recluster:
+<ol style="list-style-type: decimal">
+<li>Cluster sex chromosomes</li>
+<li>Cluster autosomes</li>
+</ol></li>
+<li>Review and edit:
+<ol style="list-style-type: decimal">
+<li>Use filters and score to evaluate SNPs</li>
+<li>Correct or zero SNPs as needed</li>
+</ol></li>
+</ol>
+<p><img src="assets/illumina_cluster_summary.png" width=500></p>
+<p>See <a href="https://www.illumina.com/Documents/products/technotes/technote_infinium_genotyping_data_analysis.pdf">technical note</a> with additional details.</p>
 </div>
 
 
@@ -735,6 +651,8 @@ footer is added to webpages before the MathJax javascript. -->
 </script>
 
 
+</div>
+</div>
 
 </div>
 

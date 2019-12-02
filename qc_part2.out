@@ -1,0 +1,117 @@
+node13.cluster | 112198 | 2019-12-02 21:38:52.713059 +0100 GMT |  | begin drake_config()
+node13.cluster | 112198 | 2019-12-02 21:38:53.009386 +0100 GMT |  | cache /data/sgg2/jenny/projects/PSYMETAB/.drake
+node13.cluster | 112198 | 2019-12-02 21:38:53.047805 +0100 GMT |  | analyze environment
+node13.cluster | 112198 | 2019-12-02 21:38:53.089464 +0100 GMT | rsconv_raw_file | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.091561 +0100 GMT | plink_ped_raw | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.093590 +0100 GMT | format_sex_file | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.098535 +0100 GMT | munge_fam | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.102518 +0100 GMT | munge_qc_pheno | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.107071 +0100 GMT | pre_imputation_script | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.109041 +0100 GMT | plink_bed_out | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.110887 +0100 GMT | post_imputation_script | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.112801 +0100 GMT | leeway_time | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.114570 +0100 GMT | format_eth_file | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.132122 +0100 GMT | qc_prep | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.133931 +0100 GMT | project_dir | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.135773 +0100 GMT | Packages | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.137617 +0100 GMT | qc_part1 | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.139307 +0100 GMT | qc_part2 | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.140997 +0100 GMT | min_follow_up | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.142773 +0100 GMT | read_fam | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.145672 +0100 GMT | SGG_generic | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.147442 +0100 GMT | find_dups | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.157148 +0100 GMT | qc_pheno_file | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.531754 +0100 GMT |  | get knitr hash
+node13.cluster | 112198 | 2019-12-02 21:38:53.554580 +0100 GMT | run_pre_imputation | analyze
+node13.cluster | 112198 | 2019-12-02 21:38:53.562201 +0100 GMT |  | set knitr files
+node13.cluster | 112198 | 2019-12-02 21:38:53.579910 +0100 GMT | rsconv_raw_file | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.581607 +0100 GMT | plink_ped_raw | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.583361 +0100 GMT | format_sex_file | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.585044 +0100 GMT | munge_fam | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.586831 +0100 GMT | munge_qc_pheno | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.588572 +0100 GMT | pre_imputation_script | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.590241 +0100 GMT | plink_bed_out | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.592103 +0100 GMT | post_imputation_script | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.593991 +0100 GMT | leeway_time | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.595784 +0100 GMT | format_eth_file | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.597576 +0100 GMT | qc_prep | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.599318 +0100 GMT | project_dir | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.601111 +0100 GMT | Packages | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.602877 +0100 GMT | qc_part1 | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.604506 +0100 GMT | qc_part2 | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.606239 +0100 GMT | min_follow_up | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.607960 +0100 GMT | read_fam | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.609742 +0100 GMT | SGG_generic | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.611440 +0100 GMT | find_dups | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.613320 +0100 GMT | qc_pheno_file | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.615061 +0100 GMT | run_pre_imputation | connect
+node13.cluster | 112198 | 2019-12-02 21:38:53.617955 +0100 GMT |  | connect output files
+node13.cluster | 112198 | 2019-12-02 21:38:53.628580 +0100 GMT |  | finalize graph edges
+node13.cluster | 112198 | 2019-12-02 21:38:53.630361 +0100 GMT |  | create igraph
+node13.cluster | 112198 | 2019-12-02 21:38:53.633435 +0100 GMT |  | trim neighborhoods
+node13.cluster | 112198 | 2019-12-02 21:38:53.640564 +0100 GMT |  | add igraph attributes
+node13.cluster | 112198 | 2019-12-02 21:38:53.643401 +0100 GMT |  | finalize igraph
+node13.cluster | 112198 | 2019-12-02 21:38:53.744385 +0100 GMT |  | end drake_config()
+node13.cluster | 112198 | 2019-12-02 21:38:53.746384 +0100 GMT |  | begin make()
+node13.cluster | 112198 | 2019-12-02 21:38:56.081417 +0100 GMT | pre_imputation_script | import
+node13.cluster | 112198 | 2019-12-02 21:38:56.224846 +0100 GMT | processx::run | import
+node13.cluster | 112198 | 2019-12-02 21:38:56.255363 +0100 GMT |  | begin outdated()
+node13.cluster | 112198 | 2019-12-02 21:38:56.259127 +0100 GMT |  | find more outdated targets
+node13.cluster | 112198 | 2019-12-02 21:38:56.289119 +0100 GMT | run_pre_imputation | skip
+node13.cluster | 112198 | 2019-12-02 21:38:56.291418 +0100 GMT |  | find more outdated targets
+node13.cluster | 112198 | 2019-12-02 21:38:56.295607 +0100 GMT |  | find downstream outdated targets
+node13.cluster | 112198 | 2019-12-02 21:38:56.297829 +0100 GMT |  | end outdated()
+node13.cluster | 112198 | 2019-12-02 21:38:56.299599 +0100 GMT |  | isolate oudated targets
+node13.cluster | 112198 | 2019-12-02 21:38:56.302260 +0100 GMT |  | All targets are already up to date.
+node13.cluster | 112198 | 2019-12-02 21:38:56.309059 +0100 GMT |  | end make()
+node13.cluster | 112198 | 2019-12-02 21:39:03.598074 +0100 GMT |  | begin drake_config()
+node13.cluster | 112198 | 2019-12-02 21:39:03.619949 +0100 GMT |  | cache /data/sgg2/jenny/projects/PSYMETAB/.drake
+node13.cluster | 112198 | 2019-12-02 21:39:03.624845 +0100 GMT |  | analyze environment
+node13.cluster | 112198 | 2019-12-02 21:39:03.633965 +0100 GMT |  | get knitr hash
+node13.cluster | 112198 | 2019-12-02 21:39:03.641839 +0100 GMT | run_pre_imputation | analyze
+node13.cluster | 112198 | 2019-12-02 21:39:03.652796 +0100 GMT |  | set knitr files
+node13.cluster | 112198 | 2019-12-02 21:39:03.660568 +0100 GMT | rsconv_raw_file | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.662391 +0100 GMT | plink_ped_raw | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.664117 +0100 GMT | format_sex_file | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.665884 +0100 GMT | munge_fam | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.667756 +0100 GMT | munge_qc_pheno | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.669497 +0100 GMT | pre_imputation_script | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.671167 +0100 GMT | plink_bed_out | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.672832 +0100 GMT | post_imputation_script | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.674451 +0100 GMT | leeway_time | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.676272 +0100 GMT | format_eth_file | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.677955 +0100 GMT | qc_prep | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.679787 +0100 GMT | project_dir | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.681479 +0100 GMT | Packages | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.683257 +0100 GMT | qc_part1 | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.684992 +0100 GMT | qc_part2 | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.686666 +0100 GMT | min_follow_up | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.688271 +0100 GMT | read_fam | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.689989 +0100 GMT | SGG_generic | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.691692 +0100 GMT | find_dups | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.693376 +0100 GMT | qc_pheno_file | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.695057 +0100 GMT | run_pre_imputation | connect
+node13.cluster | 112198 | 2019-12-02 21:39:03.697871 +0100 GMT |  | connect output files
+node13.cluster | 112198 | 2019-12-02 21:39:03.708609 +0100 GMT |  | finalize graph edges
+node13.cluster | 112198 | 2019-12-02 21:39:03.710479 +0100 GMT |  | create igraph
+node13.cluster | 112198 | 2019-12-02 21:39:03.713224 +0100 GMT |  | trim neighborhoods
+node13.cluster | 112198 | 2019-12-02 21:39:03.719893 +0100 GMT |  | add igraph attributes
+node13.cluster | 112198 | 2019-12-02 21:39:03.722756 +0100 GMT |  | finalize igraph
+node13.cluster | 112198 | 2019-12-02 21:39:03.857695 +0100 GMT |  | end drake_config()
+node13.cluster | 112198 | 2019-12-02 21:39:03.859727 +0100 GMT |  | begin make()
+node13.cluster | 112198 | 2019-12-02 21:39:04.017427 +0100 GMT | post_imputation_script | import
+node13.cluster | 112198 | 2019-12-02 21:39:04.035548 +0100 GMT | processx::run | import
+node13.cluster | 112198 | 2019-12-02 21:39:04.050827 +0100 GMT |  | begin outdated()
+node13.cluster | 112198 | 2019-12-02 21:39:04.053762 +0100 GMT |  | find more outdated targets
+node13.cluster | 112198 | 2019-12-02 21:39:04.064352 +0100 GMT | run_pre_imputation | trigger command
+node13.cluster | 112198 | 2019-12-02 21:39:04.066114 +0100 GMT |  | find downstream outdated targets
+node13.cluster | 112198 | 2019-12-02 21:39:04.070192 +0100 GMT |  | end outdated()
+node13.cluster | 112198 | 2019-12-02 21:39:04.071731 +0100 GMT |  | isolate oudated targets
+node13.cluster | 112198 | 2019-12-02 21:39:04.075520 +0100 GMT |  | construct priority queue
+node13.cluster | 112198 | 2019-12-02 21:39:04.085002 +0100 GMT | run_pre_imputation | trigger command
+node13.cluster | 112198 | 2019-12-02 21:39:04.343267 +0100 GMT |  | set common data
+node13.cluster | 112198 | 2019-12-02 21:39:04.351399 +0100 GMT |  | begin scheduling targets
+node13.cluster | 112198 | 2019-12-02 21:39:06.018275 +0100 GMT |  | sending common data
+node13.cluster | 112198 | 2019-12-02 21:39:06.927692 +0100 GMT | run_pre_imputation | trigger command
+node13.cluster | 112198 | 2019-12-02 21:39:06.932708 +0100 GMT | run_pre_imputation | target run_pre_imputation
+node15.cluster | 29520 | 2019-12-02 21:39:06.941122 +0100 GMT | run_pre_imputation | build on an hpc worker
