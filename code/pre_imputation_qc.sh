@@ -1,14 +1,15 @@
-#!/bin/bash
 
-#SBATCH --job-name=QC_part1                                        # Job name (this name will appear in the queue)
-#SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB_GWAS          # The Working Directory of the job
-#SBATCH --mail-type=ALL                                            # Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=jennysjaarda@gmail.com                         # Where to send mail
-#SBATCH --ntasks=1                                                 # Run on a single core
-#SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
-#SBATCH --output=pipeline/QC_part1.out                             # Standard output and error log (%j: job allocation number)
-#SBATCH --account=sgg                                              # runs on the sggg nodes.
-#SBATCH --partition=sgg                                            # runs on the sggg nodes
+# !/bin/bash
+#
+## SBATCH --job-name=QC_part1                                        # Job name (this name will appear in the queue)
+## SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB_GWAS          # The Working Directory of the job
+## SBATCH --mail-type=ALL                                            # Mail events (NONE, BEGIN, END, FAIL, ALL)
+## SBATCH --mail-user=jennysjaarda@gmail.com                         # Where to send mail
+## SBATCH --ntasks=1                                                 # Run on a single core
+## SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
+## SBATCH --output=pipeline/QC_part1.out                             # Standard output and error log (%j: job allocation number)
+## SBATCH --account=sgg                                              # runs on the sggg nodes.
+## SBATCH --partition=sgg                                            # runs on the sggg nodes
 
 ####################################################################################################################
 ####################################################################################################################
@@ -27,7 +28,7 @@ project_dir="/data/sgg2/jenny/projects/PSYMETAB"
 plink_data="PLINK_091019_0920"
 raw_data=$project_dir/data/raw/$plink_data
 
-output_dir=$project_dir/pipeline/QC
+output_dir=$project_dir/analysis/QC
 input_chip=$project_dir/data/processed/${plink_data}/PSYMETAB_GWAS
 output_name=PSYMETAB_GWAS
 sex_file=$project_dir/data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt
