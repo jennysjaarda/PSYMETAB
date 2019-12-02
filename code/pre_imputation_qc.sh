@@ -1,5 +1,8 @@
 
 # !/bin/bash
+# redirect stdout/stderr to a file
+exec &> pre_imputation_qc.out
+
 #
 ## SBATCH --job-name=QC_part1                                        # Job name (this name will appear in the queue)
 ## SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB_GWAS          # The Working Directory of the job
