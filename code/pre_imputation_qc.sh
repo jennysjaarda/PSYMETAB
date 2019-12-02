@@ -49,10 +49,10 @@ ref=$data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab
 #################################################################
 
 if [ ! -d "${output_dir}" ] ; then
-mkdir ${output_dir}
+  mkdir ${output_dir}
 fi
 if [ ! -d "${output_dir}/00_preprocessing" ] ; then
-mkdir ${output_dir}/00_preprocessing
+  mkdir ${output_dir}/00_preprocessing
 fi
 cd ${output_dir}/00_preprocessing
 
@@ -129,7 +129,7 @@ done
 #--------------------------------------------- STRAND ALIGNMENT --------------------------------------------#
 #############################################################################################################
 if [ ! -d "${output_dir}/01_strandflip" ] ; then
-mkdir ${output_dir}/01_strandflip
+  mkdir ${output_dir}/01_strandflip
 fi
 cd ${output_dir}/01_strandflip
 #Cut the strand file into a series of plink slices
@@ -209,7 +209,7 @@ plink --bfile ../01_strandflip/${output_name}.strandflip.step1 \
 awk '$5==0{print}' ${output_name}.frq > ${output_name}.maf_zero_snp.txt
 # wc -l ${output_name}.maf_zero_snp.txt: 93578 variants MAF=0
 #3. Remove
-plink --bfile ../${output_name}.strandflip.step1 \
+plink --bfile ../01_strandflip/${output_name}.strandflip.step1 \
   --exclude ${output_name}.maf_zero_snp.txt \
   --make-bed \
   --out ${output_name}.maf_zero.step2
