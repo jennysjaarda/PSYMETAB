@@ -292,7 +292,7 @@ plink --bfile ../03_missingness/${output_name}.missingness.step3 \
 #2. Remove unambiguous sex violations
 grep -w "PROBLEM" ${output_name}.sexcheck.step4.sexcheck | awk '($4!="0"){print $1,$2}' > ${output_name}.sexcheck.problem.ids
 #wc -l ${output_name}.sexcheck.problem.ids: 26 sex problems
-plink --bfile ../${output_name}.missingness.step3 \
+plink --bfile ../03_missingness/${output_name}.missingness.step3 \
   --remove ${output_name}.sexcheck.problem.ids \
   --make-bed \
   --out ${output_name}.sexcheck.step4
