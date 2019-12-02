@@ -33,38 +33,6 @@ ref=$data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab
 flashpca=$bin/flashpca
 
 #############################################################################################################
-#---------------------------------- DOWNLOAD IMPUTATION -------------------------------------------------#
-#############################################################################################################
-
-
-if [ ! -d "${output_dir}/06_imputation_get" ] ; then
-  mkdir ${output_dir}/06_imputation_get
-fi
-cd ${output_dir}/06_imputation_get
-
-
-## QC report
-curl -sL https://imputationserver.sph.umich.edu/get/1640984/764cffab51cb0833521050cef2d98bc | bash
-
-## QC stats
-curl -sL https://imputationserver.sph.umich.edu/get/1640988/1fcd9a0e4f8b6c4c52510d0146a720fa | bash
-
-## Logs
-curl -sL https://imputationserver.sph.umich.edu/get/1640991/d20e8108c6966e7cc2c76f92c368b2a2 | bash
-
-## Imputation results
-curl -sL https://imputationserver.sph.umich.edu/get/1640990/7aaf768775a0b8c7f58afbf109627ac | bash
-
-
-## password provided in email from Michigan imputation server
-for chr in {1..22}
-do
-  unzip -P 'v35orVrSjBKI6W' chr_$chr.zip
-  gunzip chr$chr.info.gz
-done
-
-
-#############################################################################################################
 #---------------------------------- CHECK IMPUTATION -------------------------------------------------#
 #############################################################################################################
 
