@@ -15,7 +15,7 @@ exec &> post_imputation_qc.log
 
 ### DEFINE INPUTS
 
-project_dir="/data/sgg2/jenny/projects/PSYMETAB_GWAS"
+project_dir="/data/sgg2/jenny/projects/PSYMETAB"
 plink_data="PLINK_091019_0920"
 raw_data=$project_dir/data/raw/$plink_data
 
@@ -59,7 +59,7 @@ curl -sL https://imputationserver.sph.umich.edu/get/1640990/7aaf768775a0b8c7f58a
 ## password provided in email from Michigan imputation server
 for chr in {1..22}
 do
-  unzip -P 'bbII89uHOvSsm' chr_$chr.zip
+  unzip -P 'v35orVrSjBKI6W' chr_$chr.zip
   gunzip chr$chr.info.gz
 done
 
@@ -112,7 +112,7 @@ do
   --out chr$chr/$input_basename
 
   ### update bim file to include rsIDs instead of chr:bp
-  Rscript $projects/PSYMETAB_GWAS/code/qc/update_pvar.r $data/dbSNP/dbSNP_SNP_list_chr${chr}.txt chr$chr/${input_basename}.pvar chr${chr}_update_name.txt chr$chr
+  Rscript $project_dir/code/qc/update_pvar.r $data/dbSNP/dbSNP_SNP_list_chr${chr}.txt chr$chr/${input_basename}.pvar chr${chr}_update_name.txt chr$chr
 
   plink2 --pfile chr$chr/$input_basename  \
   --update-name chr$chr/chr${chr}_update_name.txt \
@@ -322,8 +322,8 @@ echo "S008  YLXVRYDT" >> matching_ids.txt
 echo "S092  0021GE" >> matching_ids.txt
 
 
-if [ -e "PSYMETAB_GWAS.duplicates2.txt" ] ; then
-  rm PSYMETAB_GWAS.duplicates2.txt
+if [ -e "${output_name}.duplicates2.txt" ] ; then
+  rm ${output_name}.duplicates2.txt
 fi
 
 num_dups=$(wc -l <  duplicate_ids_remove.txt)
@@ -354,7 +354,7 @@ awk '$8 >= 0.0884' ${output_name}2.kin0 > ${output_name}2.related.filter.smiss #
 awk '$8 >= 0.35' ${output_name}2.kin0 > ${output_name}2.duplicates ## there should be none now
 
 ### R script determines maximal set of unrelated individuals based on kinship results
-Rscript $projects/PSYMETAB_GWAS/code/qc/relatedness_filter.r "${output_name}2.kin0" 0.0884 "${output_dir}/11_relatedness" "${output_name}_related_ids.txt"
+Rscript $project_dir/code/qc/relatedness_filter.r "${output_name}2.kin0" 0.0884 "${output_dir}/11_relatedness" "${output_name}_related_ids.txt"
 
 ## remove related individuals
 
@@ -503,7 +503,7 @@ $flashpca/flashpca --bfile ${output_name}.pruned.full \
 
 ## create ethnicity plots
 cd $project_dir
-Rscript $projects/PSYMETAB_GWAS/code/qc/ethnicity_check.r ${output_name} ${output_dir}/12_ethnicity_admixture/pca \
+Rscript $project_dir/code/qc/ethnicity_check.r ${output_name} ${output_dir}/12_ethnicity_admixture/pca \
   ${output_dir}/12_ethnicity_admixture/pca/${output_name}_projections.txt \
   ${output_dir}/12_ethnicity_admixture/snpweights/${output_name}.NA.predpc ${eth_file}
 
@@ -623,8 +623,8 @@ for eth in CEU EA MIXED NA YRI ; do
 done
 
 cd $project_dir
-Rscript $projects/PSYMETAB_GWAS/code/qc/maf_check.r ${output_name} ${output_dir}/14_mafcheck/ETHNICITY_NAME/PSYMETAB_GWAS.ETHNICITY_NAME.afreq \
-  ${output_dir}/14_mafcheck/ETHNICITY_NAME/PSYMETAB_GWAS.ETHNICITY_NAME.psam \
+Rscript $project_dir/code/qc/maf_check.r ${output_name} ${output_dir}/14_mafcheck/ETHNICITY_NAME/${output_name}.ETHNICITY_NAME.afreq \
+  ${output_dir}/14_mafcheck/ETHNICITY_NAME/${output_name}.ETHNICITY_NAME.psam \
   ${output_dir}/14_mafcheck 0.01 100
 
 cd ${output_dir}/14_mafcheck
