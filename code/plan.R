@@ -9,37 +9,77 @@
 # The files include some additional analsyes and other data that won't
 # be used here.
 
-plan <- drake_plan (
+qc_prep <- drake_plan (
 
   # Load and clean data ----
 
-  # ### Microclimate data
-  #
-  # Microclimate variables include PPFD (photon flux density, in μmol of
-  # light per sq m per sec), rel. humidity (%), and temperature (°C)
-  # measured once every 30 min.
-  #
-  # PPFD is 30 min-averages of values taken every 4 minutes
-  # (raw 4 minute values not included).
-  #
-  # There are two sites, Okutama (site of the independent gametophyte
-  # colony) and Uratakao (site of the sporophyte population). Additional
-  # sites were also measured, but not included in this analysis
-  # because of too much missing data due to mechanical failures.
-  #
-  # For Okutama, the raw data for temperature, rel. hum,
-  # and light (PPFD) are in different columns
-  # in the `xlsx` file, so read in each variable separately.
-
-  qc_info = read_excel(
-    file_in("data/raw/phenotype_data/QC_sex_eth.xlsx"),
+  qc_pheno_raw = read_excel(
+    file_in(qc_pheno_file),
     sheet = 1),
   id_code = read.csv("data/raw/ID_key.csv", header=T),
-  bed_conversion = basename(original_plink_data) # convert plink to bed file
-  fam = read.table(".fam") # read the .fam file
+  rs_conversion = fread(rsconv_raw_file, data.table=F),
+  fam_raw = read_fam(create_bed_out), # read the .fam file
+  create_dir = dir.create(dirname(plink_bed_out), showWarnings=F),
+  create_bed_out = if(!is.null(create_dir)){run(command="plink",c( "--file", plink_ped_raw, "--make-bed", "--out", plink_bed_out), error_on_status=F)},
+  fam_munge = munge_fam(fam_raw, id_code),
+  qc_pheno_munge = munge_qc_pheno(qc_pheno_raw,fam_munge),
+  dups = find_dups(qc_pheno_munge, fam_munge),
+  sex_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Sexe)),
+  eth_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Ethnie)),
+  sex_format = format_sex_file(sex_info),
+  eth_format = format_eth_file(eth_info),
+  rs_conversion_munge = rs_conversion %>% mutate(RsID = case_when(RsID=="." ~ Name, TRUE ~ RsID)),
+  out_sex = write.table(sex_info,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"),row.names=F, quote=F, col.names=F),
+  out_eth = write.table(sex_info,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt"),row.names=F, quote=F, col.names=F),
+  out_dups = write.table(dups$dups,file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"),row.names=F, quote=F, col.names=F),
+  out_dups_set = write.table(dups$dups_sex, file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"),row.names=F, quote=F, col.names=F),
+  out_rs_conversion = write.table(rs_conversion_munge, file_out("data/processed/reference_files/rsid_conversion.txt"), row.names=F, quote=F, col.names=F)
 
-  run(command="plink",c( "--file", "PSYMETAB_GWAS", "--freq", "--out", "test"), error_on_status=F)
+)
 
+make(qc_prep)
 
+qc_part1 <- drake_plan(
 
-  )
+  run_pre_imputation = run(command="sh",c( pre_imputation_script), error_on_status=F)
+
+)
+make(qc_part1,
+  parallelism = "clustermq",
+  jobs = 16,
+  console_log_file = "qc_par1.log")
+
+  visualize <- drake_plan(
+  dim(dups) #30 2
+  table(sex_info3$Sexe, exclude=NULL)
+  #    F    M
+  # 1298 1469
+  table(eth_info3$Ethnie, exclude=NULL)
+  # africain  africain + caucasien       amerique du sud
+  #      101                     1                     1
+  # Antilles                 arabe     arabe + caucasien
+  #        1                    60                     3
+  # asiatique asiatique + caucasien                 autre
+  #       25                     1                   178
+  # caucasien               inconnu                  <NA>
+  #     1667                   458                   271
+
+  ## double check no duplicates
+  sex_info4 <- unique(sex_info)
+  dim(sex_info)==dim(sex_info4)
+  sex_info4[which(duplicated(sex_info4[,2])),]
+  duplicate_IDs <- sex_info4[which(duplicated(sex_info4[,2])),2]
+  sex_info4[which(sex_info4[,2]==duplicate_IDs),]
+  #TRUE
+
+  eth_info4 <- unique(eth_info)
+  dim(eth_info3)==dim(eth_info4)
+  #TRUE
+  eth_info4[which(duplicated(eth_info4[,2])),]
+  #NONE
+
+    ## anyone missign?
+    no_sex_eth <- fam[which(!fam[,2] %in% sex_info4[,2]),c(1,2)]
+    no_sex_eth
+    # empty
+)

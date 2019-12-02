@@ -12,10 +12,18 @@
 #####################################################################################
 
 ### Set data and project directories
+options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
+drake_hpc_template_file("slurm_clustermq.tmpl") # Write the file slurm_clustermq.tmpl.
 
-project_dir <- "/data/sgg2/jenny/projects/PSYMETAB_GWAS/"
+project_dir <- "/data/sgg2/jenny/projects/PSYMETAB/"
 SGG_generic <- "/data/sgg2/jenny/SGG_generic/"
-original_plink_data <- "PLINK_091019_0920"
+
+plink_ped_raw <- "data/raw/PLINK_091019_0920/PSYMETAB_GWAS"
+plink_bed_out <- "data/processed/PLINK_091019_0920/PSYMETAB_GWAS"
+
+rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
+qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
+pre_imputation_script <- "code/pre_imputation_qc.sh"
 source(paste0(SGG_generic,"/scripts/settings.r"))
 source(paste0(project_dir,"/scripts/functions.r"))
 

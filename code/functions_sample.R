@@ -11,10 +11,3 @@ get_rmspe <- function(model_fit, data){
     X3 = terms[3]
   )
 }
-
-# We need a function to generate the plot
-# of the root mean squared prediction error.
-plot_rmspe <- function(rmspe){
-  ggplot(rmspe) +
-    geom_histogram(aes(x = rmspe), bins = 30)
-}
