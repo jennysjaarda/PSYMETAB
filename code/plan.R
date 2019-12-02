@@ -9,13 +9,12 @@
 # The files include some additional analsyes and other data that won't
 # be used here.
 
+
 qc_prep <- drake_plan (
 
   # Load and clean data ----
 
-  qc_pheno_raw = read_excel(
-    file_in(qc_pheno_file),
-    sheet = 1),
+  qc_pheno_raw = read_excel(file_in(qc_pheno_file),sheet = 1),
   id_code = read.csv("data/raw/ID_key.csv", header=T),
   rs_conversion = fread(rsconv_raw_file, data.table=F),
   fam_raw = read_fam(create_bed_out), # read the .fam file
@@ -32,7 +31,7 @@ qc_prep <- drake_plan (
   out_sex = write.table(sex_info,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"),row.names=F, quote=F, col.names=F),
   out_eth = write.table(sex_info,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt"),row.names=F, quote=F, col.names=F),
   out_dups = write.table(dups$dups,file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"),row.names=F, quote=F, col.names=F),
-  out_dups_set = write.table(dups$dups_sex, file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"),row.names=F, quote=F, col.names=F),
+  out_dups_set = write.table(dups$dups_set, file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"),row.names=F, quote=F, col.names=F),
   out_rs_conversion = write.table(rs_conversion_munge, file_out("data/processed/reference_files/rsid_conversion.txt"), row.names=F, quote=F, col.names=F)
 
 )
@@ -40,16 +39,21 @@ qc_prep <- drake_plan (
 make(qc_prep)
 
 qc_part1 <- drake_plan(
-
-  run_pre_imputation = run(command="sh",c( pre_imputation_script), error_on_status=F)
-
+  run_pre_imputation = processx::run(command="sh",c( pre_imputation_script), error_on_status=F)
 )
-make(qc_part1,
-  parallelism = "clustermq",
-  jobs = 16,
-  console_log_file = "qc_par1.log")
 
-  visualize <- drake_plan(
+make(qc_part1,parallelism = "clustermq",jobs = 1, console_log_file = "qc_part1.out", template=list(cpus=16, partition="sgg"))
+
+### download files and impute on Michigan server
+
+qc_part1 <- drake_plan(
+  run_pre_imputation = processx::run(command="sh",c( pre_imputation_script), error_on_status=F)
+)
+
+
+
+
+visualize <- drake_plan(
   dim(dups) #30 2
   table(sex_info3$Sexe, exclude=NULL)
   #    F    M

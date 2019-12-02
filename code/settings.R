@@ -13,7 +13,7 @@
 
 ### Set data and project directories
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
-drake_hpc_template_file("slurm_clustermq.tmpl") # Write the file slurm_clustermq.tmpl.
+drake_hpc_template_file("slurm_clustermq.tmpl") # Write the file slurm_clustermq.tmpl. # Write the file slurm_clustermq.tmpl ## edit manually
 
 project_dir <- "/data/sgg2/jenny/projects/PSYMETAB/"
 SGG_generic <- "/data/sgg2/jenny/SGG_generic/"

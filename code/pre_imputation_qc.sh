@@ -19,8 +19,8 @@ exec &> pre_imputation_qc.log
 ####################################################################################################################
 ####### PSYMETAB GWAS  #############################################################################################
 ####### QUALITY CONTROL ############################################################################################
-####### Genotype Chromosome information: \PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PLINK_091019_0920   ######
-####### Phenotype data:                  \PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\GWAS_PHENO          ######
+####### Genotype Chromosome information: \PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB\PLINK_091019_0920   ######
+####### Phenotype data:                  \PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB\GWAS_PHENO          ######
 ####### AUTHOR: Jenny Sjaarda ######################################################################################
 ####################################################################################################################
 ####################################################################################################################

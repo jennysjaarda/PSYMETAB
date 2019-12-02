@@ -8,84 +8,18 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
-
-<br>
-![Divvy bikes](divvy.jpg) <br>
-*[Photo](https://www.flickr.com/photos/jamesbondsv/9041673199) by
-[Steven Vance](https://www.flickr.com/photos/jamesbondsv) /
-[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)*
+[![Last-changedate](https://img.shields.io/badge/last%20change-`r gsub('-', '--', Sys.Date())`-brightgreen.svg)](https://github.com/pat-s/2019-feature-selection/commits/master)
+[![minimal R version](https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg)](https://cran.r-project.org/)
 
 
----
-title: "Project setup"
-author: "Jenny Sjaarda"
-date: 2015-04-11
----
+This [workflowr]() site contains all information and results about this research project.
 
-**Last updated:** `r Sys.Date()`
+Project details can be found in the [About](about.html) page.
 
-**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+**Result shortcuts**
+1. [Prediction maps of defoliation at trees](report-defoliation.html)
 
-All processing scripts were run from the root sgg directory. Project was initialized using `workflowr` rpackage, see [here](https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html).
+Powered by [drake](https://github.com/ropensci/drake) + [workflowr](https://github.com/jdblischak/workflowr) + [mlr](https://github.com/mlr-org/mlr).
 
-On sgg server:
-
-```{r eval=FALSE}
-project_name <- "PSYMETAB"
-library("workflowr")
-
-wflow_start(project_name) # creates directory called project_name
-
-options("workflowr.view" = FALSE) # if using cluster
-wflow_build() # create directories
-
-wflow_publish(c("analysis/index.Rmd", "analysis/about.Rmd", "analysis/license.Rmd"),
-              "Publish the initial files for myproject")
-
-wflow_use_github("jennysjaarda")
-# select option 2. Create the remote repository yourself by going to https://github.com/new and entering the Repository name that matches the name of the directory of your workflowr project.
-
-options(workflowr.sysgit = "")
-
-
-```
-
-Since it is the first push, the following needs to be run from the terminal within the project directory:
-`git push --set-upstream origin master`
-
-After successfully creating a github repository, on personal computer:
-
- ```bash
-cd ~/Dropbox/UNIL/projects/
-git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB
- ```
-
-add the following to the git .Rprofile
-`options(workflowr.sysgit = "")` and `options(workflowr.sysgit = "")`
-
-Create internal folders:
-```bash
-project_dir=/data/sgg2/jenny/projects/PSYMETAB_GWAS
-mkdir $project_dir/data/raw/reference_files
-mkdir $project_dir/data/raw/phenotype_data
-mkdir $project_dir/data/raw/extraction
-mkdir $project_dir/data/raw/imputation
-mkdir $project_dir/data/processed/imputation
-```
-
-# explore pheno code
-wflow_open("analysis/explore_pheno_data.Rmd")
-
-Most steps are saved in shell scripts. This code should be able to run in any
-Unix-like environment (of course after installing the necessary software). To
-process the data efficiently on our HPC, we wrote a wrapper script,
-[submit-array.sh][], to combine the many parallel jobs into one array job
-submitted to the Sun Grid Engine (SGE) scheduler. Not only does this make it
-easier for the scheduler (and you) to manage thousands of tasks, we also made it
-so that it won't re-run jobs if the output file already exists. This is
-convenient when a small fraction of jobs fail and need to be re-run. However, if
-your HPC uses a scheduler other than SGE, you will have to decide how best to
-submit the jobs.
-
-[submit-array.sh]: https://github.com/jdblischak/singleCellSeq/blob/master/code/submit-array.sh
+# Acknowledgements
+This work has been supported by the [Swiss National Science Foundation](http://www.snf.ch/en/funding/Pages/default.aspx).
