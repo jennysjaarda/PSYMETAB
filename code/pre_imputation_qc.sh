@@ -1,7 +1,7 @@
 
 # !/bin/bash
 # redirect stdout/stderr to a file
-exec &> pre_imputation_qc.out
+exec &> pre_imputation_qc.log
 
 #
 ## SBATCH --job-name=QC_part1                                        # Job name (this name will appear in the queue)
