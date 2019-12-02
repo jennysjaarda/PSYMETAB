@@ -1,14 +1,16 @@
 #!/bin/bash
+# redirect stdout/stderr to a file
+exec &> pre_imputation_qc.log
 
-#SBATCH --job-name=QC_part2                                        # Job name (this name will appear in the queue)
-#SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB_GWAS          # The Working Directory of the job
-#SBATCH --mail-type=ALL                                            # Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=jennysjaarda@gmail.com                         # Where to send mail
-#SBATCH --ntasks=1                                                 # Run on a single core
-#SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
-#SBATCH --output=pipeline/QC_part2.out                             # Standard output and error log (%j: job allocation number)
-#SBATCH --account=sgg                                              # runs on the sggg nodes.
-#SBATCH --partition=sgg                                            # runs on the sggg nodes
+##SBATCH --job-name=QC_part2                                        # Job name (this name will appear in the queue)
+##SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB_GWAS          # The Working Directory of the job
+##SBATCH --mail-type=ALL                                            # Mail events (NONE, BEGIN, END, FAIL, ALL)
+##SBATCH --mail-user=jennysjaarda@gmail.com                         # Where to send mail
+##SBATCH --ntasks=1                                                 # Run on a single core
+##SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
+##SBATCH --output=pipeline/QC_part2.out                             # Standard output and error log (%j: job allocation number)
+##SBATCH --account=sgg                                              # runs on the sggg nodes.
+##SBATCH --partition=sgg                                            # runs on the sggg nodes
 
 
 ### DEFINE INPUTS
@@ -42,16 +44,16 @@ cd ${output_dir}/06_imputation_get
 
 
 ## QC report
-curl -sL https://imputationserver.sph.umich.edu/get/1588597/c10983d676b617241c522ee389fddbea | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1640984/764cffab51cb0833521050cef2d98bc | bash
 
 ## QC stats
-curl -sL https://imputationserver.sph.umich.edu/get/1588601/3839e6b2c57713b6cd4fa36dd732a515 | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1640988/1fcd9a0e4f8b6c4c52510d0146a720fa | bash
 
 ## Logs
-curl -sL https://imputationserver.sph.umich.edu/get/1588604/e2233fd7bf4ac7a816e9d3c1a34177e9 | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1640991/d20e8108c6966e7cc2c76f92c368b2a2 | bash
 
 ## Imputation results
-curl -sL https://imputationserver.sph.umich.edu/get/1588603/725bda13ac4ce5e19b93d65384781d1 | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1640990/7aaf768775a0b8c7f58afbf109627ac | bash
 
 
 ## password provided in email from Michigan imputation server
