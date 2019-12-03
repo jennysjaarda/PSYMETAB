@@ -19,7 +19,7 @@ project_dir="/data/sgg2/jenny/projects/PSYMETAB"
 plink_data="PLINK_091019_0920"
 raw_data=$project_dir/data/raw/$plink_data
 
-output_dir=$project_dir/pipeline/QC
+output_dir=$project_dir/analysis/QC
 input_chip=$project_dir/data/processed/${plink_data}/PSYMETAB
 output_name=PSYMETAB_GWAS
 sex_file=$project_dir/data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt
