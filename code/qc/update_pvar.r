@@ -18,7 +18,6 @@ library(tidyfast)
 library(dplyr)
 library(tidyr)
 
-
 ref_file <- as.character(args[1])
 #$data/dbSNP/dbSNP_SNP_list_chr${chr}.txt  #ref_file <- "/data/sgg2/jenny/data/dbSNP/dbSNP_SNP_list_chr1.txt"
 pvar_file <- as.character(args[2])
@@ -105,4 +104,4 @@ if(dim(output)[1]!=dim(pvar)[1])
 
 }
 
-write.table(output, paste0(out_dir,"/", out_name), row.names=F, col.names=F, sep="\t", quote=F)
+data.table::fwrite(output, paste0(out_dir,"/", out_name), row.names=F, col.names=F, sep="\t", quote=F,nThread=16)
