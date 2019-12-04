@@ -33,27 +33,6 @@ ref=$data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab
 flashpca=$bin/flashpca
 
 #############################################################################################################
-#---------------------------------- CHECK IMPUTATION -------------------------------------------------#
-#############################################################################################################
-
-## Use Will Rayner's tool
-# see : https://www.well.ox.ac.uk/~wrayner/tools/Post-Imputation.html
-
-input=${output_dir}/06_imputation_get
-if [ ! -d "${output_dir}/07_imputation_check" ] ; then
-  mkdir ${output_dir}/07_imputation_check
-fi
-output=${output_dir}/07_imputation_check
-
-perl $bin/vcfparse.pl -d $input -o $output
-cd $bin/IC
-perl ic.pl -d $output -r $ref -o $output
-
-
-#java -Xmx4g -classpath Junk.jar uk.ac.ox.well.t2d.reports.imputation.Main $output $output/summaryOutput
-
-
-#############################################################################################################
 #---------------------------------- PLINK CONVERSION  ------------------------------------------------------#
 #############################################################################################################
 
