@@ -30,7 +30,7 @@ output: workflowr::wflow_html
 ## Clustering and PLINK conversion
 - Data saved on CHUV servers at the following location: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\GS_project_26092019`.
 - `GS_project_26092019.bsc` was opened (requires Genome Studio) and used for clustering.
-- Clustering was performed according to the guidelines in the webinar (see [Notes on creating custom cluster files](creating_custom_cluster_files.html)) with the following procedure:
+- Clustering was performed according to the guidelines in the webinar (see [Notes on creating custom cluster files](create_custom_cluster_files.html)) with the following procedure:
   1. Cluster: cluster all SNPs, evaluate samples.
      1. Once data was opened, all SNPs were clustered by clicking "Cluster all SNPs button" in the top panel (icon with 3 red, purple, blue ovals). SNP statistics and heritability estimate updates were ignored.
      2. In the samples table (bottom left panel) call rate was recalculated by clicking "Calculate" (calculator icon) to recalculate SNP call rates with new cluster positions. SNP statistics and heritability estimate updates were ignored.
