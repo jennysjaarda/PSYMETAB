@@ -13,6 +13,8 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 library(data.table)
+library(dtplyr)
+library(tidyfast)
 library(dplyr)
 library(tidyr)
 
@@ -24,29 +26,37 @@ pvar_file <- as.character(args[2])
 out_name <- as.character(args[3])
 out_dir <- as.character(args[4])
 
-ref <- fread(ref_file,data.table=F)
-pvar <- fread(pvar_file,data.table=F)
+ref <- fread(ref_file,data.table=F,nThread=16)
+pvar <- fread(pvar_file,data.table=F,nThread=16)
 
 colnames(ref) <- c("chr", "bp", "snp", "ref", "alt")
-colnames(pvar) <- c("chr", "bp", "ID", "a1" ,"a2", "INFO")
+colnames(pvar) <- c("chr", "bp", "ID", "a1" ,"a2", "FILTER","INFO")
 
 pvar$index <- 1:dim(pvar)[1]
+
 #s <- strsplit(as.character(ref$alt), ',')
 #ref_update <- data.frame(chr=rep(ref$chr, sapply(s, FUN=length)),alt=unlist(s) )
 
-ref_update <- ref %>%
-  mutate(alt = strsplit(as.character(alt), ",")) %>%
-  unnest(alt)
 
-ref_copy <- ref
+ref_update <- ref %>% lazy_dt() %>%
+  mutate(alt = strsplit(as.character(alt), ",")) %>%
+  dt_hoist(col=alt) %>% as_tibble()
+
+# older slower code
+# ref_update <- temp %>%
+#   mutate(alt = strsplit(as.character(alt), ",")) %>%
+#   unnest(alt)
+
+# ref_copy <- ref
 ref <- ref_update
 
-simple_joint <- merge(pvar, ref, by=c("chr", "bp"), all.x=T)
+simple_joint <- full_join(pvar, ref) # matches by chr, bp
 
 simple_joint$new_id <- NA
 simple_joint$ref_match <- NA
 simple_joint$duplicate <- NA ## duplicate based on rsid
 
+simple_joint <- simple_joint %>% filter(!is.na(index))
 
 select_rows1 <- which(simple_joint$a1==simple_joint$ref &
   simple_joint$a2==simple_joint$alt)
