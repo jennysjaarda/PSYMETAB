@@ -12,7 +12,7 @@ library(tibble)
 library(processx)
 
 library(pacman)
-
+library(clustermq)
 Packages <- c("dplyr", "data.table", "R.utils", "rbgen","devtools",
 "TwoSampleMR","MendelianRandomization","MRInstruments", "rmeta","mr.raps","ukbtools","rslurm",
 "stringr","bit64","optparse", "reader","foreach","doParallel","parallel","MASS","hyperSpec","tidyverse",
