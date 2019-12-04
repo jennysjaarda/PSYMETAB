@@ -11,9 +11,12 @@
 ##
 #####################################################################################
 
-### Set data and project directories
+#.libPaths(c("/data/sgg2/jenny/bin/R-3.5.3/lib64/R/library","/data/sgg2/jenny/bin/anaconda3/lib/R/library"))
+
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
-drake_hpc_template_file("slurm_clustermq.tmpl") # Write the file slurm_clustermq.tmpl. # Write the file slurm_clustermq.tmpl ## edit manually
+drake_hpc_template_file("slurm_clustermq.tmpl")
+
+### Set data and project directories
 
 project_dir <- "/data/sgg2/jenny/projects/PSYMETAB/"
 SGG_generic <- "/data/sgg2/jenny/SGG_generic/"
@@ -28,6 +31,8 @@ qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
 pre_imputation_script <- "code/pre_imputation_qc.sh"
 post_imputation_script <- "code/post_imputation_qc.sh"
 download_imputation_script <- "code/download_imputation.sh"
+check_imputation_script <- "code/check_imputation.sh"
+
 
 source(paste0(SGG_generic,"/scripts/settings.r"))
 source(paste0(project_dir,"/scripts/functions.r"))
