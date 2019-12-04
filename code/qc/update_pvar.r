@@ -18,9 +18,9 @@ library(tidyr)
 
 
 ref_file <- as.character(args[1])
-#$data/dbSNP/dbSNP_SNP_list_chr${chr}.txt  #ref_file <- "/data/sgg2/jenny/data/dbSNP/dbSNP_SNP_list_chr22.txt"
+#$data/dbSNP/dbSNP_SNP_list_chr${chr}.txt  #ref_file <- "/data/sgg2/jenny/data/dbSNP/dbSNP_SNP_list_chr1.txt"
 pvar_file <- as.character(args[2])
-#$processed/${input_basename}.bim #pvar_file <- "/data/sgg2/jenny/projects/PSYMETAB_GWAS/pipeline/QC/07_plink_convert/chr22/chr22.pvar"
+#$processed/${input_basename}.bim #pvar_file <- "/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/08_plink_convert/chr1/chr1.pvar"
 out_name <- as.character(args[3])
 out_dir <- as.character(args[4])
 
