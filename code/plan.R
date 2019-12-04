@@ -38,18 +38,21 @@ qc_prep <- drake_plan (
 
 make(qc_prep)
 
-qc_part1 <- drake_plan(
+pre_impute_qc <- drake_plan(
   run_pre_imputation = processx::run(command="sh",c( pre_imputation_script), error_on_status=F)
 )
 
-make(qc_part1,parallelism = "clustermq",jobs = 1, console_log_file = "qc_part1.out", template=list(cpus=16, partition="sgg"))
+make(pre_impute_qc,parallelism = "clustermq",jobs = 1, console_log_file = "pre_impute_qc.out", template=list(cpus=16, partition="sgg"))
 
 ### download files and impute on Michigan server
 
-qc_part1 <- drake_plan(
-  run_pre_imputation = processx::run(command="sh",c( pre_imputation_script), error_on_status=F)
+post_impute <- drake_plan(
+  #download_imputation = processx::run(command="sh",c( download_imputation_script), error_on_status=F),
+  #run_check_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( check_imputation_script), error_on_status=F)}
+  run_post_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( post_imputation_script), error_on_status=F)}
 )
 
+make(post_impute,parallelism = "clustermq",jobs = 1, console_log_file = "post_impute_qc.out", template=list(cpus=16, partition="sgg"))
 
 
 
