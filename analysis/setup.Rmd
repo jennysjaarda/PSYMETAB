@@ -1,5 +1,5 @@
 ---
-title: "Setup for PSYMETAB data analysis"
+title: "Project setup"
 author: "Jenny Sjaarda"
 output: workflowr::wflow_html
 ---
@@ -35,9 +35,7 @@ options(workflowr.sysgit = "")
 wflow_publish(c("analysis/index.Rmd", "analysis/about.Rmd", "analysis/license.Rmd"),
               "Publish the initial files for myproject")
 
-wflow_use_github("jennysjaarda")
-# select option 2. Create the remote repository yourself by going to https://github.com/new
-# and entering the Repository name that matches the name of the directory of your workflowr project.
+wflow_use_github("jennysjaarda") # select option 2: manually create new repository
 
 wflow_git_push()
 ```
@@ -123,7 +121,7 @@ Raw PLINK (ped/map files) data were copied from the CHUV `:L/` folder after bein
 see `make.R`
 
 Configure a slurm template
-```{r eval=FALSE} 
+```{r eval=FALSE}
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
 drake_hpc_template_file("slurm_clustermq.tmpl")
 
@@ -134,75 +132,4 @@ The file created using the `clustermq` template was edited manually to match [sl
 
 ```{r comment=''}
 cat(readLines('slurm_clustermq.tmpl'), sep = '\n')
-```
-
-
-# Data
-*provided from iGE3*
-
-#### General information
-- Files received from: Mylene Docquier (Mylene.Docquier@unige.ch), iGE3 Genomics Platform Manager, University of Geneva
-- ftp server details:
-  - host: sftp://129.194.88.17
-  - username: 080219CE
-  - password: chinjennys
-- Genotype data received in genomestudio format on August 28, 2019; for processing and converting to PLINK format see docs/miscellaneous/data_processing.md
-
-#### Genotype data
-- Genotype data found in data/raw/genotypes
-- Each folder contains:
-  - Initial data provided from Mylene in genomestudio format, with the original folder name ('XXX/').
-  - Cluster files in genomestudio format (see docs/miscellaneous/data_processing.md), and named 'XXX_cluster/'.
-  - PLINK files exported from genomestudio.
-
-#### Miscellaneous GSA information provided in the following files:
-
-1. GSA v2 + MD Consortium.csv
-2. GSAMD-24v2-0_20024620_A1.csv
-3. GSAMD-24v2-0_A1-ACMG-GeneAnnotation.xlsx
-4. GSAMD-24v2-0_A1-ADME-CPIC-GeneAnnotation.xlsx
-5. GSAMD-24v2-0_A1-HLA-GeneAnnotation.xlsx
-6. GSAMD-24v2-0_A1-TruSight-GeneAnnotation.xlsx
-7. GSAv2_MDConsortium.bpm
-8. GSPMA24v1_0-A_4349HNR_Samples.egt
-- Files 1 and 2 appear to be identical and correspond to strand illumina strand information, same file can be found [here](http://glimdna.org/assets/gsamd-24v2-0_20024620_a1.zip).
-- xlsx files contain 2 tabs: "Coverage Summary" and "GSAMD-24v2-0_A1-XXX-GeneAnnota"
-- bpm file corresponds to manifest file for use in genomestudio. Manifest files provide a description of the SNP or probe content on a standard BeadChip or in an assay product.
-- egt file corresponds to cluster file for making genotype calls.
-- all saved in data/reference_files
-
-## Chip details from Illumina
-- Files received from: Fe Magbanua (techsupport@illumina.com),Technical Applications Scientist, Technical Support, Illumina
-- GSAMD-24v2-0_20024620_A4_StrandReport_FDT.txt: strand report build38 (build37 not available).
-- GSAMD-24v2-0_20024620_A1_b151_rsids.txt: loci to rsid conversion file build37.
-- GSAMD-24v2-0_20024620_A4_b151_rsids.txt: loci to rsid conversion file build38.
-- all saved in data/reference_files (copied using FileZilla)
-
-## Strand files from Welcome Centre
-- The data for each chip and genome build combination are freely downloadable from the links localted [here](https://www.well.ox.ac.uk/~wrayner/strand/), each zip file contains three files, these are:
-  - .strand file
-  - .miss file
-  - .multiple file
-- More details can be found at the link above
-- [Chipendium](http://mccarthy.well.ox.ac.uk/chipendium/ui/) was used to comfirm that bim files are on the TOP strand .
-- Contacted William Rayner (wrayner@well.ox.ac.uk) to find out what to do about custom SNPs, all correspondence on 22/07/2019.
-  - Query: "The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?"
-  - Response: "If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching)"
-  - Trying to obtain such .csv file from Mylene or Smita at Illumina (spathak@illumina.com) who designed the chip.
-  - On 15/07/2019 Smita provided such a file: GSA_UPPC_20023490X357589_A1_custom_only.csv.
-  - The file was downloaded and save to UPPC (Jenny/PSYMETAB_GWAS/GSA).
-  - Sent .csv file to William Rayner and he provided the strand file for the custom SNP list on 16/07/2019:
-    - GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip
-    - GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip
-  - Zipped strand files were copied to SGG server (${project_dir}/data/raw/reference_files/) and subsequently unzipped and used in QC (only b37 files was needed).
-
-## Phenotype data
-- Sex and ethnicity data provided by Celine (via email) for each batch on July 18, 2019: GSA_sex-ethnicity.xlsx
-- Downloaded and saved to UPPC folder (Jenny/PSYMETAB_GWAS/).
-- Opened, manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv/xlsx file (with 'no_accents') for easier use in R.
-- Moved to SGG folders via filezilla (manually).
-- Name was changed (see 'Master.sh'), as follows:
-
-```
-mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex_eth.xlsx
 ```

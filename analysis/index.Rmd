@@ -18,24 +18,27 @@ url <- paste0("https://img.shields.io/badge/last%20change-",date,"-brightgreen.s
 
 This [workflowr]() site contains all information and results about this research project.
 
-Project details can be found in the [About](about.html) page.
+Project details and overview can be found in the [About](about.html) page.
 
-See [Setup](setup.html) for details on data sources and project launching.
+See [Data sources](data_sources.html) for details on data origins.
+See [Setup](setup.html) for details on setting up the analysis for the project.
+
 
 **Result shortcuts**
-1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
-2. [Quality control]()
-3. [Imputation report]()
-4. [GWAS]()
+  1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
+  2. [Quality control]()
+  3. [Imputation report]()
+  4. [GWAS]()
 
 ![](assets/michigan_imputation_screenshot.PNG)
 
 **Useful papers**
 
+
 **Notes**
-- [Creating custom cluster files](creating_custom_cluster_files.html)
+  - [Creating custom cluster files](create_custom_cluster_files.html)
 
 Powered by [drake](https://github.com/ropensci/drake) + [workflowr](https://github.com/jdblischak/workflowr)
 
-# Acknowledgements
+### Acknowledgements
 This work has been supported by the [Swiss National Science Foundation](http://www.snf.ch/en/funding/Pages/default.aspx).
