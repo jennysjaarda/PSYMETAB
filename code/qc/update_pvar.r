@@ -56,7 +56,7 @@ simple_joint$ref_match <- NA
 simple_joint$duplicate <- NA ## duplicate based on rsid
 
 simple_joint <- simple_joint %>% filter(!is.na(index))
-
+colnames(simple_joint)[which(colnames(simple_joint)=="col")] <- "alt"
 select_rows1 <- which(simple_joint$a1==simple_joint$ref &
   simple_joint$a2==simple_joint$alt)
 simple_joint[select_rows1, "new_id"] <- simple_joint$snp[select_rows1]
