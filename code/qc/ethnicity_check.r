@@ -54,7 +54,7 @@ data_clean <- data %>%
     rename_at(vars(ends_with("_factor")),
       list( ~ str_replace(., "_perc", ""))) %>%
     dplyr::select(ends_with("_factor"), FID)  %>%
-    gather(eth, value, -FID) %>%
+    tidyr::gather(eth, value, -FID) %>%
     filter(value==TRUE) %>%
     dplyr::select(-value) %>%
     left_join(data %>% dplyr::select(-ends_with("_factor")), .) %>%
