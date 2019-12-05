@@ -11,31 +11,28 @@
 ##
 #####################################################################################
 
-#.libPaths(c("/data/sgg2/jenny/bin/R-3.5.3/lib64/R/library","/data/sgg2/jenny/bin/anaconda3/lib/R/library"))
-
-source(paste0(SGG_generic,"/scripts/settings.r"))
-source("code/packages.R")
-options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
-drake_hpc_template_file("slurm_clustermq.tmpl")
-
 ### Set data and project directories
 
 project_dir <- "/data/sgg2/jenny/projects/PSYMETAB/"
 SGG_generic <- "/data/sgg2/jenny/SGG_generic/"
 
+source(paste0(SGG_generic,"/scripts/settings.r"))
+source("code/packages.R")
+
+options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
+drake_hpc_template_file("slurm_clustermq.tmpl")
+
+### data sources
 plink_ped_raw <- "data/raw/PLINK_091019_0920/PSYMETAB_GWAS"
 plink_bed_out <- "data/processed/PLINK_091019_0920/PSYMETAB_GWAS"
-
 rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
 
-
+### location of codes
 pre_imputation_script <- "code/pre_imputation_qc.sh"
 post_imputation_script <- "code/post_imputation_qc.sh"
 download_imputation_script <- "code/download_imputation.sh"
 check_imputation_script <- "code/check_imputation.sh"
-
-
 
 
 ### define variables
