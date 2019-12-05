@@ -13,6 +13,8 @@
 
 #.libPaths(c("/data/sgg2/jenny/bin/R-3.5.3/lib64/R/library","/data/sgg2/jenny/bin/anaconda3/lib/R/library"))
 
+source(paste0(SGG_generic,"/scripts/settings.r"))
+source("code/packages.R")
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
 drake_hpc_template_file("slurm_clustermq.tmpl")
 
@@ -34,8 +36,7 @@ download_imputation_script <- "code/download_imputation.sh"
 check_imputation_script <- "code/check_imputation.sh"
 
 
-source(paste0(SGG_generic,"/scripts/settings.r"))
-source(paste0(project_dir,"/scripts/functions.r"))
+
 
 ### define variables
 

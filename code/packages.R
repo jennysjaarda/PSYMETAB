@@ -1,7 +1,6 @@
 library(processx)
 library(pacman)
 
-library(biglm) # lightweight linear models, easier to store results
 library(dplyr)
 library(drake)
 library(ggplot2)
