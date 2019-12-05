@@ -17,7 +17,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 #rmote::start_rmote()
 
-source("scripts/settings.r")
+source("code/settings.r")
 #
 # args <- c("PSYMETAB_GWAS",
 #  "/data/sgg2/jenny/projects/PSYMETAB_GWAS/pipeline/QC/12_ethnicity_admixture/",
