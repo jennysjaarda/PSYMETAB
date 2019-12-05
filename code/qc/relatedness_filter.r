@@ -12,7 +12,7 @@
 #####################################################################################
 
 args <- commandArgs(trailingOnly = TRUE) #args <- c("chr1-22.kin0",0.0884 )
-source("code/settings.r")
+source("code/settings.R")
 kin_file <- as.character(args[1]) # "chr1-22.kin0"
 cutoff <- as.numeric(args[2])
 out_dir <- as.character(args[3])

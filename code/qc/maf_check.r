@@ -16,7 +16,7 @@
 #####################################################################################
 
 args <- commandArgs(trailingOnly = TRUE)
-source("code/settings.r")
+source("code/settings.R")
 
 # args <- c("PSYMETAB_GWAS",
 #  "/data/sgg2/jenny/projects/PSYMETAB_GWAS/pipeline/QC/14_mafcheck/ETHNICITY_NAME/PSYMETAB_GWAS.ETHNICITY_NAME.afreq",
