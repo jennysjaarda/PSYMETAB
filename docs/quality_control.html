@@ -439,10 +439,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree40814e5ee671bf607fe76820633908ec63132dddtargetblank40814e5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/40814e5ee671bf607fe76820633908ec63132ddd" target="_blank">40814e5</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree16f6c28fc976c5b7dc5ac37ba910ec89089f112atargetblank16f6c28a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/16f6c28fc976c5b7dc5ac37ba910ec89089f112a" target="_blank">16f6c28</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree40814e5ee671bf607fe76820633908ec63132dddtargetblank40814e5a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree16f6c28fc976c5b7dc5ac37ba910ec89089f112atargetblank16f6c28a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -505,6 +505,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/b503ef05e45518dbd64f6b84c3c6f4e0d0fd64f8/analysis/quality_control.Rmd" target="_blank">b503ef0</a>
+</td>
+<td>
+Sjaarda Jennifer Lynn
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+add more details to website
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/b6cb0277bdccb2562b2d356a91bb402a4841775e/docs/quality_control.html" target="_blank">b6cb027</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/jennysjaarda/PSYMETAB/blob/487b5f56d9bdfd9bc979405b72e23980daf9dd69/analysis/quality_control.Rmd" target="_blank">487b5f5</a>
 </td>
 <td>
@@ -525,6 +559,30 @@ update website, add qc description
 </div>
 </div>
 <p>The following document outlines and summarizes the quality control and processing procedure that was followed to create a clean, imputed dataset.</p>
+<div id="randomize_ids.r" class="section level2">
+<h2>randomize_IDs.r</h2>
+<ul>
+<li>Script run on CHUV computer before building GenomeStudio project.</li>
+<li>Creates a new csv file which was used to create a GenomeStudio project with data provided by lab in Geneva.</li>
+<li>Requires manual addition of header before uploading to GenomeStudio.</li>
+<li>Some samples were found to be duplicates (i.e. 2 samples at 2 different time points were analyzed for the same individual) and they were recoded to have ID ${ID}002.</li>
+</ul>
+</div>
+<div id="pre-quality-control-data-prep" class="section level2">
+<h2>Pre quality control data prep</h2>
+<ul>
+<li>Processes sex and ethnicity files to be used in QC scripts.</li>
+<li>Sex file was created according to the input specified on plink man page (FID, IID, sex [M/F]).</li>
+<li>Ethnicity input file to be used in R script for comparison to genetically derived ethnic groups (by snpWeights).</li>
+<li>Recodes ethnic groups as follows:
+<ul>
+<li>Changes French codes to English.</li>
+<li>Changes missing to unknown.</li>
+<li>Groups small ethnic groups to missing.</li>
+</ul></li>
+<li>A1 rsid conversion file was updated to remove all SNPs labeled with a [.] (see ‘data/README.md’).</li>
+</ul>
+</div>
 <div id="quality-control-steps" class="section level2">
 <h2>Quality control steps</h2>
 <p><strong>results are saved to <code>analysis/QC</code></strong></p>
@@ -538,6 +596,14 @@ update website, add qc description
 <li>Run and download imputation <img src="assets/michigan_imputation_screenshot.PNG" /></li>
 <li>Check imputation</li>
 <li>PLINK conversion</li>
+</ol>
+<ul>
+<li>Output of Michigan Impuation server is in format chr:bp:ref:alt.</li>
+<li>Convenient to have SNPs in regular rsIDs for extraction, etc.</li>
+<li>If there is no known rsID, SNP name is left as chr:bp:ref:alt.</li>
+<li>Reference file for determining rsIDs can be found here: ‘/data/sgg2/jenny/data/dbSNP/dbSNP_SNP_list_chr${chr}.txt’, which was processed according to description in ‘/SGG_generic/scripts/public_data.sh’.</li>
+</ul>
+<ol start="9" style="list-style-type: decimal">
 <li>Extract typed SNPs</li>
 <li>Merge imputed SNPs</li>
 <li>Relatedness</li>
