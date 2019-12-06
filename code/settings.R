@@ -33,7 +33,7 @@ pre_imputation_script <- "code/pre_imputation_qc.sh"
 post_imputation_script <- "code/post_imputation_qc.sh"
 download_imputation_script <- "code/download_imputation.sh"
 check_imputation_script <- "code/check_imputation.sh"
-
+final_processing_script <-  "code/final_processing.sh"
 
 ### define variables
 

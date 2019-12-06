@@ -1,19 +1,10 @@
 
 # Workflow Plans
 #
-# ## Data sources
-#
-# The raw data are in `.xlsx` files. Some of the data are pre-processed
-# (mean and sd of count and length of gemmae, 30 min averages of PPFD).
-#
-# The files include some additional analsyes and other data that won't
-# be used here.
-
 
 qc_prep <- drake_plan (
 
   # Load and clean data ----
-
   qc_pheno_raw = read_excel(file_in(qc_pheno_file),sheet = 1),
   id_code = read.csv("data/raw/ID_key.csv", header=T),
   rs_conversion = fread(rsconv_raw_file, data.table=F),
@@ -39,6 +30,7 @@ qc_prep <- drake_plan (
 make(qc_prep)
 
 pre_impute_qc <- drake_plan(
+  #### run pre-imupation quality control
   run_pre_imputation = processx::run(command="sh",c( pre_imputation_script), error_on_status=F)
 )
 
@@ -47,15 +39,29 @@ make(pre_impute_qc,parallelism = "clustermq",jobs = 1, console_log_file = "pre_i
 ### download files and impute on Michigan server
 
 post_impute <- drake_plan(
-  #download_imputation = processx::run(command="sh",c( download_imputation_script), error_on_status=F),
-  #run_check_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( check_imputation_script), error_on_status=F)}
-  run_post_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( post_imputation_script), error_on_status=F)}
+  #### run post-imputation quality control and processing
+  download_imputation = processx::run(command="sh",c( download_imputation_script), error_on_status=F),
+  run_check_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( check_imputation_script), error_on_status=F)},
+  run_post_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( post_imputation_script), error_on_status=F)},
+  run_final_processing = if(!is.null(run_post_imputation)){processx::run(command="sh",c( final_processing_script), error_on_status=F)}
 )
 
-make(post_impute,parallelism = "clustermq",jobs = 1, console_log_file = "post_impute_qc.out", template=list(cpus=16, partition="sgg"))
+make(post_impute,parallelism = "clustermq",jobs = 2, console_log_file = "post_impute_qc.out", template=list(cpus=16, partition="sgg"))
 
+analysis_prep <- drake_plan(
+  #### prepare phenotype files for analysis in GWAS/GRS etc.
 
+  ## to be grabbed from `pheno_clean.r`
+  ## and `sort_gwas`
 
+)
+
+init_analysis <- drake_plan(
+  #### run gwas and GRS computation
+  ### to be grabble from `GWAS.sh` and `PRSice.sh`
+)
+
+####
 visualize <- drake_plan(
   dim(dups) #30 2
   table(sex_info3$Sexe, exclude=NULL)
