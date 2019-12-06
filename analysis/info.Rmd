@@ -1,7 +1,11 @@
 ---
-title: "Project setup"
-author: "Jenny Sjaarda"
-date: 2015-04-11
+title: "Info"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
 ---
 
 **Last updated:** `r Sys.Date()`

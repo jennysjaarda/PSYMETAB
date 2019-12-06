@@ -1,7 +1,11 @@
 ---
 title: "Project setup"
-author: "Jenny Sjaarda"
-output: workflowr::wflow_html
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
 ---
 
 ```{r knitr-opts, include=FALSE}
@@ -12,13 +16,16 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE)
 
 **Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
 
-**To reproduce these results, please follow these instructions.**
-**See [Data] for details on data sources.**
+**To reproduce the results from this project, please follow these instructions.**
+
+*In general, `drake` was used to manage long-running code and `workflowr` was used to manage the [website](https://jennysjaarda.github.io/PSYMETAB/index.html).*
+
+***
 
 ## Step 1: initiate project on remote server.
 
 All processing scripts were run from the root sgg directory.
-Project was initialized using `workflowr` rpackage, see [here](https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html).
+Project was initialized using `workflowr` rpackage, see [here](https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html).
 
 On sgg server:
 
@@ -35,12 +42,12 @@ options(workflowr.sysgit = "")
 wflow_publish(c("analysis/index.Rmd", "analysis/about.Rmd", "analysis/license.Rmd"),
               "Publish the initial files for myproject")
 
-wflow_use_github("jennysjaarda") # select option 2: manually create new repository
+wflow_use_GitHub("jennysjaarda") # select option 2: manually create new repository
 
 wflow_git_push()
 ```
 
-You have now successfully created a github repository for your project that is accessible on github and the servers.
+You have now successfully created a GitHub repository for your project that is accessible on GitHub and the servers.
 
 Next setup a local copy.
 
@@ -50,7 +57,7 @@ Within terminal of personal computer, clone the git repository.
 
  ```bash
 cd ~/Dropbox/UNIL/projects/
-git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB
+git clone https://GitHub.com/jennysjaarda/PSYMETAB.git PSYMETAB
  ```
 
 Open project in atom (or preferred text editor) and modify the following files:
@@ -59,11 +66,12 @@ Open project in atom (or preferred text editor) and modify the following files:
   - `options(workflowr.sysgit = "")`
   - `options("workflowr.view" = FALSE)`
 - To ensure git hub isn't manaaging large files, modify the `.gitignore` file, by adding the following lines:
+  - `analysis/*`
   - `data/*`
   - `!analysis/*.Rmd`
   - `!data/*.md`
   - `.git/`
-- Save and push these changes to github.
+- Save and push these changes to GitHub.
 - Pull to the server.
 
 ## Step 3: Create internal project folders.
@@ -116,9 +124,14 @@ PSYMETAB/
 
 Raw PLINK (ped/map files) data were copied from the CHUV `:L/` folder after being built in genomestudio.
 
-## Step 4: Setup drake plan.
+## Step 4: Run and summarize analyses:
 
-see `make.R`
+### Part A: Setup drake and execute plan.
+
+**Note that Part A and B are happening in parallel.**
+
+For execution of drake plan: see `[make.R](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/make.R)`
+For drake plan see: `[code/plan.R](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R)`
 
 Configure a slurm template
 ```{r eval=FALSE}
@@ -127,9 +140,39 @@ drake_hpc_template_file("slurm_clustermq.tmpl")
 
 # Write the file slurm_clustermq.tmpl. and edit manually
 ```
-
-The file created using the `clustermq` template was edited manually to match [slurm_clustermq.tmpl](https://github.com/jennysjaarda/PSYMETAB/blob/master/slurm_clustermq.tmpl)
+The file created using the `clustermq` template was edited manually to match `[slurm_clustermq.tmpl](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/slurm_clustermq.tmpl)`
 
 ```{r comment=''}
 cat(readLines('slurm_clustermq.tmpl'), sep = '\n')
 ```
+
+### Part B: Build and maintain website.
+
+Follow the general workflow outlined by [workflowr](https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html#the-workflow), with some minor revisions to accomodate workflow between personal computer and remote server:
+
+  1. Open a new or existing R Markdown file in `analysis/` (optionally using `wflow_open()`). (Usually created manually on personal computer and push to server to build later.) If creating manually, add the following to the top of the R Markdown file with an appropriate name for `Title`:
+    ```
+    ---
+    title: "Title"
+    site: workflowr::wflow_site
+    output:
+      workflowr::wflow_html:
+        toc: false
+    editor_options:
+      chunk_output_type: console
+    ---
+    ```
+
+  2. Write documentation and perform analyses in the R Markdown file.
+
+  3. Run `commit` and `push` to upload revised R Markdown file to GitHub repository.
+
+  4. On server, pull changes using `wflow_git_pull()` (optionally using `git pull` from Terminal within cloned repository).
+
+  5. Within R console, run `wflow_build()`. This will create html files with `docs/` folder. These files cannot be viewed directly on server, but can be transfered and viewed via [FileZilla](https://filezilla-project.org/) or viewed directly by mounting the remote directory to your personal computer using [SSHFS](https://en.wikipedia.org/wiki/SSHFS) (recommended).
+
+  6. Return to step 2 until satisfied with the result (optionally, edit Rmd file directly on server using `vi` if only small modifications are necessary).
+
+  7. Run `wflow_publish()` to commit the source files (R Markdown files or other files in `code/`, `data/`, and `output/`), build the HTML files, and commit the HTML files.
+
+  8. Push the changes to GitHub with` wflow_git_push()` (or `git push` in the Terminal)).
