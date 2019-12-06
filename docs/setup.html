@@ -499,10 +499,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree487b5f56d9bdfd9bc979405b72e23980daf9dd69targetblank487b5f5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/487b5f56d9bdfd9bc979405b72e23980daf9dd69" target="_blank">487b5f5</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree40814e5ee671bf607fe76820633908ec63132dddtargetblank40814e5a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/40814e5ee671bf607fe76820633908ec63132ddd" target="_blank">40814e5</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree487b5f56d9bdfd9bc979405b72e23980daf9dd69targetblank487b5f5a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree40814e5ee671bf607fe76820633908ec63132dddtargetblank40814e5a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -560,6 +560,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/bee9ea8165cf63245139d9c75569cd5d8250c4cb/analysis/setup.Rmd" target="_blank">bee9ea8</a>
+</td>
+<td>
+Sjaarda Jennifer Lynn
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+add step for using wflow_status()
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/e430d0456a9ac059cf1f72d1b895d1a7f31b387c/analysis/setup.Rmd" target="_blank">e430d04</a>
+</td>
+<td>
+Sjaarda Jennifer Lynn
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+modify commiting instructions
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/d1e539cbc164ef86728db40b92cd5d275ac36a66/docs/setup.html" target="_blank">d1e539c</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -721,7 +772,7 @@ modify git ignore
 </div>
 </div>
 <p><strong>Last updated:</strong> 2019-12-06</p>
-<p><strong>Code version:</strong> 487b5f56d9bdfd9bc979405b72e23980daf9dd69</p>
+<p><strong>Code version:</strong> 40814e5ee671bf607fe76820633908ec63132ddd</p>
 <p><strong>To reproduce the results from this project, please follow these instructions.</strong></p>
 <p><em>In general, <code>drake</code> was used to manage long-running code and <code>workflowr</code> was used to manage the <a href="https://jennysjaarda.github.io/PSYMETAB/index.html">website</a>.</em></p>
 <hr />
@@ -858,12 +909,19 @@ output:
 <li><p>On server, pull changes using <code>wflow_git_pull()</code> (optionally using <code>git pull</code> from Terminal within cloned repository).</p></li>
 <li><p>Within R console, run <code>wflow_build()</code>. This will create html files with <code>docs/</code> folder. These files cannot be viewed directly on server, but can be transfered and viewed via <a href="https://filezilla-project.org/">FileZilla</a> or viewed directly by mounting the remote directory to your personal computer using <a href="https://en.wikipedia.org/wiki/SSHFS">SSHFS</a> (recommended).</p></li>
 <li><p>Return to step 2 until satisfied with the result (optionally, edit Rmd file directly on server using <code>vi</code> if only small modifications are necessary).</p></li>
-<li><p>Run <code>wflow_publish()</code> to commit the source files (R Markdown files or other files in <code>code/</code>, <code>data/</code>, and <code>output/</code>), build the HTML files, and commit the HTML files. If there are uncommited files in the directory that are not “.Rmd”, <code>wflow_publish(all=T)</code> does not work. Alternatively, run the following with an informative message:</p></li>
+<li><p>Run <code>wflow_status()</code> to track repository.</p></li>
+<li><p>Run <code>wflow_publish()</code> to commit the source files (R Markdown files or other files in <code>code/</code>, <code>data/</code>, and <code>output/</code>), build the HTML files, and commit the HTML files. If there are uncommited files in the directory that are not “.Rmd”, <code>wflow_publish(all=T)</code> does not work. Alternatively, run the following with an informative <code>message</code>:</p></li>
 </ol>
-<pre class="r"><code>wflow_publish(list.files(&quot;analysis&quot;, pattern=&quot;.Rmd&quot;, full.names=T),
-              &quot;Updating webiste&quot;)</code></pre>
-<ol start="8" style="list-style-type: decimal">
-<li>Push the changes to GitHub with<code>wflow_git_push()</code> (or <code>git push</code> in the Terminal)).</li>
+<pre class="r"><code>repo_status &lt;- wflow_status()
+rmd_commit &lt;- c(rownames(repo_status$status)[repo_status$status$modified],
+         rownames(repo_status$status)[repo_status$status$unpublished],
+         rownames(repo_status$status)[repo_status$status$scratch])
+
+wflow_publish(rmd_commit,
+              message=&quot;Updating webiste&quot;)
+</code></pre>
+<ol start="9" style="list-style-type: decimal">
+<li>Push the changes to GitHub with<code>wflow_git_push()</code> (or <code>git push</code> in the Terminal).</li>
 </ol>
 <br>
 <p>
