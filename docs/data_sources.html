@@ -9,9 +9,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Jenny Sjaarda" />
 
 
-<title>Info</title>
+<title>Data sources</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,6 +20,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -250,6 +254,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -257,6 +324,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -307,7 +384,8 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">Info</h1>
+<h1 class="title toc-ignore">Data sources</h1>
+<h4 class="author">Jenny Sjaarda</h4>
 
 </div>
 
@@ -335,7 +413,7 @@ div.section {
 <strong>Last updated:</strong> 2019-12-06
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -357,66 +435,6 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
 <p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
-</p>
-</div>
-<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191126code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191126)</code> </a>
-</p>
-</div>
-<div id="strongSeedstrongcodesetseed20191126code" class="panel-collapse collapse">
-<div class="panel-body">
-<p>The command <code>set.seed(20191126)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
-</p>
-</div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
-</p>
-</div>
-<div id="strongCachestrongnone" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
-</div>
-</div>
-</div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
-</p>
-</div>
-<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
-<div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
@@ -489,50 +507,16 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/5e454c33eb2720be586b82acfc4be3c4c52c9124/analysis/info.Rmd" target="_blank">5e454c3</a>
-</td>
-<td>
-Sjaarda Jennifer Lynn
-</td>
-<td>
-2019-12-06
-</td>
-<td>
-add more details to website
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/9220e22e1ede676dfa44a65fe05fe81f0f6ec99f/docs/info.html" target="_blank">9220e22</a>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/c1d579b9f7e71e91086b8652c807db5bcb796cee/analysis/data_sources.Rmd" target="_blank">c1d579b</a>
 </td>
 <td>
 Jenny
 </td>
 <td>
-2019-11-26
+2019-12-04
 </td>
 <td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/f809d9a53d62cd27a2515d03d1a978209dc64e32/analysis/info.Rmd" target="_blank">f809d9a</a>
-</td>
-<td>
-Jenny
-</td>
-<td>
-2019-11-26
-</td>
-<td>
-Add info
+add details on data
 </td>
 </tr>
 </tbody>
@@ -542,96 +526,101 @@ Add info
 </div>
 </div>
 </div>
-<p><strong>Last updated:</strong> 2019-12-06</p>
-<p><strong>Code version:</strong> 5e454c33eb2720be586b82acfc4be3c4c52c9124</p>
-<p>All processing scripts were run from the root sgg directory. Project was initialized using <code>workflowr</code> rpackage, see <a href="https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html">here</a>.</p>
-<p>On sgg server:</p>
-<pre class="r"><code>project_name &lt;- &quot;PSYMETAB&quot;
-library(&quot;workflowr&quot;)
-
-wflow_start(project_name) # creates directory called project_name
-
-options(&quot;workflowr.view&quot; = FALSE) # if using cluster
-wflow_build() # create directories
-
-wflow_publish(c(&quot;analysis/index.Rmd&quot;, &quot;analysis/about.Rmd&quot;, &quot;analysis/license.Rmd&quot;),
-              &quot;Publish the initial files for myproject&quot;)
-
-wflow_use_github(&quot;jennysjaarda&quot;)
-# select option 2. Create the remote repository yourself by going to https://github.com/new and entering the Repository name that matches the name of the directory of your workflowr project.
-
-options(workflowr.sysgit = &quot;&quot;)
-wflow_git_push()</code></pre>
-<p>After successfully creating a github repository, on personal computer:</p>
-<pre class="bash"><code>cd ~/Dropbox/UNIL/projects/
-git clone https://github.com/jennysjaarda/PSYMETAB.git PSYMETAB</code></pre>
-<p>add the following to the git .Rprofile <code>options(workflowr.sysgit = &quot;&quot;)</code> and <code>options(workflowr.sysgit = &quot;&quot;)</code></p>
-<p>Create internal folders:</p>
-<pre class="bash"><code>project_dir=/data/sgg2/jenny/projects/PSYMETAB_GWAS
-mkdir $project_dir/data/raw/reference_files
-mkdir $project_dir/data/raw/phenotype_data
-mkdir $project_dir/data/raw/extraction
-mkdir $project_dir/data/raw/imputation
-mkdir $project_dir/data/processed/imputation</code></pre>
-<p>Most steps are saved in shell scripts. This code should be able to run in any Unix-like environment (of course after installing the necessary software). To process the data efficiently on our HPC, we wrote a wrapper script, <a href="https://github.com/jdblischak/singleCellSeq/blob/master/code/submit-array.sh">submit-array.sh</a>, to combine the many parallel jobs into one array job submitted to the Sun Grid Engine (SGE) scheduler. Not only does this make it easier for the scheduler (and you) to manage thousands of tasks, we also made it so that it won’t re-run jobs if the output file already exists. This is convenient when a small fraction of jobs fail and need to be re-run. However, if your HPC uses a scheduler other than SGE, you will have to decide how best to submit the jobs.</p>
-<div id="create-genome-for-mapping" class="section level2">
-<h2>Create genome for mapping</h2>
-<p><a href="https://github.com/jdblischak/singleCellSeq/blob/master/code/create-genome.sh">create-genome.sh</a> downloads the fasta files for human genome hg19 (chromosomes 1-22, X, Y, M) and the ERRC spike-ins. It indexes the genome with <code>subread-buildindex</code>. The output is saved in the directory <code>genome</code>.</p>
-<pre class="bash"><code>submit-array.sh create-genome.sh 8g genome</code></pre>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p><em>provided from iGE3</em></p>
+<div id="general-information" class="section level4">
+<h4>General information</h4>
+<ul>
+<li>Files received from: Mylene Docquier (<a href="mailto:Mylene.Docquier@unige.ch">Mylene.Docquier@unige.ch</a>), iGE3 Genomics Platform Manager, University of Geneva</li>
+<li>ftp server details:
+<ul>
+<li>host: <a href="sftp://129.194.88.17" class="uri">sftp://129.194.88.17</a></li>
+<li>username: 080219CE</li>
+<li>password: chinjennys</li>
+</ul></li>
+<li>Genotype data received in genomestudio format on August 28, 2019; for processing and converting to PLINK format see docs/miscellaneous/data_processing.md</li>
+</ul>
 </div>
-<div id="run-fastqc" class="section level2">
-<h2>Run FastQC</h2>
-<p><a href="https://github.com/jdblischak/singleCellSeq/blob/master/code/run-fastqc.sh">run-fastqc.sh</a> runs <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a> on each raw fastq file. It also counts the number of reads. The output is saved in the directory <code>fastqc</code>.</p>
-<pre class="bash"><code>submit-array.sh run-fastqc.sh 2g fastq/*fastq.gz</code></pre>
-<pre class="bash"><code>ls fastqc/*zip | wc -l
-ls fastqc/*count.txt | wc -l
-grep -w success ~/log/run-fastqc.sh/* | wc -l
-grep -w failure ~/log/run-fastqc.sh/* | wc -l</code></pre>
+<div id="genotype-data" class="section level4">
+<h4>Genotype data</h4>
+<ul>
+<li>Genotype data found in data/raw/genotypes</li>
+<li>Each folder contains:
+<ul>
+<li>Initial data provided from Mylene in genomestudio format, with the original folder name (‘XXX/’).</li>
+<li>Cluster files in genomestudio format (see docs/miscellaneous/data_processing.md), and named ‘XXX_cluster/’.</li>
+<li>PLINK files exported from genomestudio.</li>
+</ul></li>
+</ul>
 </div>
-<div id="trim-umi" class="section level2">
-<h2>Trim UMI</h2>
-<p><a href="https://github.com/jdblischak/singleCellSeq/blob/master/code/trim.sh">trim.sh</a> removes the 5 bp UMI at the 5’ end of the read using the program <code>umitools trim</code>. We used <a href="https://github.com/brwnj/umitools/releases/tag/v2.1.1">umitools v2.1.1</a>. Output fastq files are written to the directory <code>trim</code>. Reads without a valid UMI are written to the directory <code>invalid</code>.</p>
-<pre class="bash"><code>submit-array.sh trim.sh 2g fastq/*fastq.gz</code></pre>
-<p>To confirm that the jobs ran successfully:</p>
-<pre class="bash"><code>ls trim/*fastq.gz | wc -l
-ls invalid/*fastq.gz | wc -l
-grep -w success ~/log/trim.sh/* | wc -l
-grep -w failure ~/log/trim.sh/* | wc -l</code></pre>
-<br>
-<p>
-<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
-<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
-</button>
-</p>
-<div id="workflowr-sessioninfo" class="collapse">
-<pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.5.3 (2019-03-11)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: CentOS Linux 7 (Core)
-
-Matrix products: default
-BLAS: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRblas.so
-LAPACK: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRlapack.so
-
-locale:
- [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
- [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
- [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
- [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
-
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
-
-loaded via a namespace (and not attached):
- [1] workflowr_1.5.0 Rcpp_1.0.3      rprojroot_1.3-2 digest_0.6.23  
- [5] later_1.0.0     R6_2.4.1        backports_1.1.5 git2r_0.26.1   
- [9] magrittr_1.5    evaluate_0.14   stringi_1.4.3   rlang_0.4.1    
-[13] fs_1.3.1        promises_1.1.0  whisker_0.4     rmarkdown_1.18 
-[17] tools_3.5.3     stringr_1.4.0   glue_1.3.1      httpuv_1.5.2   
-[21] xfun_0.11       yaml_2.2.0      compiler_3.5.3  htmltools_0.4.0
-[25] knitr_1.26     </code></pre>
+<div id="miscellaneous-gsa-information-provided-in-the-following-files" class="section level4">
+<h4>Miscellaneous GSA information provided in the following files:</h4>
+<ol style="list-style-type: decimal">
+<li>GSA v2 + MD Consortium.csv</li>
+<li>GSAMD-24v2-0_20024620_A1.csv</li>
+<li>GSAMD-24v2-0_A1-ACMG-GeneAnnotation.xlsx</li>
+<li>GSAMD-24v2-0_A1-ADME-CPIC-GeneAnnotation.xlsx</li>
+<li>GSAMD-24v2-0_A1-HLA-GeneAnnotation.xlsx</li>
+<li>GSAMD-24v2-0_A1-TruSight-GeneAnnotation.xlsx</li>
+<li>GSAv2_MDConsortium.bpm</li>
+<li>GSPMA24v1_0-A_4349HNR_Samples.egt</li>
+</ol>
+<ul>
+<li>Files 1 and 2 appear to be identical and correspond to strand illumina strand information, same file can be found <a href="http://glimdna.org/assets/gsamd-24v2-0_20024620_a1.zip">here</a>.</li>
+<li>xlsx files contain 2 tabs: “Coverage Summary” and “GSAMD-24v2-0_A1-XXX-GeneAnnota”</li>
+<li>bpm file corresponds to manifest file for use in genomestudio. Manifest files provide a description of the SNP or probe content on a standard BeadChip or in an assay product.</li>
+<li>egt file corresponds to cluster file for making genotype calls.</li>
+<li>all saved in data/reference_files</li>
+</ul>
+</div>
+<div id="chip-details-from-illumina" class="section level2">
+<h2>Chip details from Illumina</h2>
+<ul>
+<li>Files received from: Fe Magbanua (<a href="mailto:techsupport@illumina.com">techsupport@illumina.com</a>),Technical Applications Scientist, Technical Support, Illumina</li>
+<li>GSAMD-24v2-0_20024620_A4_StrandReport_FDT.txt: strand report build38 (build37 not available).</li>
+<li>GSAMD-24v2-0_20024620_A1_b151_rsids.txt: loci to rsid conversion file build37.</li>
+<li>GSAMD-24v2-0_20024620_A4_b151_rsids.txt: loci to rsid conversion file build38.</li>
+<li>all saved in data/reference_files (copied using FileZilla)</li>
+</ul>
+</div>
+<div id="strand-files-from-welcome-centre" class="section level2">
+<h2>Strand files from Welcome Centre</h2>
+<ul>
+<li>The data for each chip and genome build combination are freely downloadable from the links localted <a href="https://www.well.ox.ac.uk/~wrayner/strand/">here</a>, each zip file contains three files, these are:
+<ul>
+<li>.strand file</li>
+<li>.miss file</li>
+<li>.multiple file</li>
+</ul></li>
+<li>More details can be found at the link above</li>
+<li><a href="http://mccarthy.well.ox.ac.uk/chipendium/ui/">Chipendium</a> was used to comfirm that bim files are on the TOP strand .</li>
+<li>Contacted William Rayner (<a href="mailto:wrayner@well.ox.ac.uk">wrayner@well.ox.ac.uk</a>) to find out what to do about custom SNPs, all correspondence on 22/07/2019.
+<ul>
+<li>Query: “The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?”</li>
+<li>Response: “If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching)”</li>
+<li>Trying to obtain such .csv file from Mylene or Smita at Illumina (<a href="mailto:spathak@illumina.com">spathak@illumina.com</a>) who designed the chip.</li>
+<li>On 15/07/2019 Smita provided such a file: GSA_UPPC_20023490X357589_A1_custom_only.csv.</li>
+<li>The file was downloaded and save to UPPC (Jenny/PSYMETAB_GWAS/GSA).</li>
+<li>Sent .csv file to William Rayner and he provided the strand file for the custom SNP list on 16/07/2019:
+<ul>
+<li>GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip</li>
+<li>GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip</li>
+</ul></li>
+<li>Zipped strand files were copied to SGG server (${project_dir}/data/raw/reference_files/) and subsequently unzipped and used in QC (only b37 files was needed).</li>
+</ul></li>
+</ul>
+</div>
+<div id="phenotype-data" class="section level2">
+<h2>Phenotype data</h2>
+<ul>
+<li>Sex and ethnicity data provided by Celine (via email) for each batch on July 18, 2019: GSA_sex-ethnicity.xlsx</li>
+<li>Downloaded and saved to UPPC folder (Jenny/PSYMETAB_GWAS/).</li>
+<li>Opened, manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv/xlsx file (with ‘no_accents’) for easier use in R.</li>
+<li>Moved to SGG folders via filezilla (manually).</li>
+<li>Name was changed (see ‘Master.sh’), as follows:</li>
+</ul>
+<pre><code>mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex_eth.xlsx</code></pre>
 </div>
 </div>
 
@@ -649,6 +638,8 @@ footer is added to webpages before the MathJax javascript. -->
 </script>
 
 
+</div>
+</div>
 
 </div>
 
@@ -681,6 +672,32 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
