@@ -173,8 +173,14 @@ output:
   7. Run `wflow_publish()` to commit the source files (R Markdown files or other files in `code/`, `data/`, and `output/`), build the HTML files, and commit the HTML files. If there are uncommited files in the directory that are not ".Rmd", `wflow_publish(all=T)` does not work. Alternatively, run the following with an informative message:
 
 ```{r eval=FALSE}
-wflow_publish(list.files("analysis", pattern=".Rmd", full.names=T),
+repo_status <- wflow_status()
+rmd_commit <- c(rownames(repo_status$status)[repo_status$status$modified],
+         rownames(repo_status$status)[repo_status$status$unpublished],
+         rownames(repo_status$status)[repo_status$status$scratch])
+
+wflow_publish(rmd_commit,
               "Updating webiste")
+
 ```
 
-  8. Push the changes to GitHub with` wflow_git_push()` (or `git push` in the Terminal)).
+  8. Push the changes to GitHub with` wflow_git_push()` (or `git push` in the Terminal).
