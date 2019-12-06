@@ -6,10 +6,9 @@ output: workflowr::wflow_html
 
 
 
-# Data
 *provided from iGE3*
 
-#### General information
+## General information
 - Files received from: Mylene Docquier (Mylene.Docquier@unige.ch), iGE3 Genomics Platform Manager, University of Geneva
 - ftp server details:
   - host: sftp://129.194.88.17
@@ -17,14 +16,14 @@ output: workflowr::wflow_html
   - password: chinjennys
 - Genotype data received in genomestudio format on August 28, 2019; for processing and converting to PLINK format see docs/miscellaneous/data_processing.md
 
-#### Genotype data
+## Genotype data
 - Genotype data found in data/raw/genotypes
 - Each folder contains:
   - Initial data provided from Mylene in genomestudio format, with the original folder name ('XXX/').
   - Cluster files in genomestudio format (see docs/miscellaneous/data_processing.md), and named 'XXX_cluster/'.
   - PLINK files exported from genomestudio.
 
-#### Miscellaneous GSA information provided in the following files:
+## Miscellaneous GSA information provided in the following files:
 
 1. GSA v2 + MD Consortium.csv
 2. GSAMD-24v2-0_20024620_A1.csv
@@ -35,7 +34,7 @@ output: workflowr::wflow_html
 7. GSAv2_MDConsortium.bpm
 8. GSPMA24v1_0-A_4349HNR_Samples.egt
 
-# Details
+### Details
 - Files 1 and 2 appear to be identical and correspond to strand illumina strand information, same file can be found [here](http://glimdna.org/assets/gsamd-24v2-0_20024620_a1.zip).
 - xlsx files contain 2 tabs: "Coverage Summary" and "GSAMD-24v2-0_A1-XXX-GeneAnnota"
 - bpm file corresponds to manifest file for use in genomestudio. Manifest files provide a description of the SNP or probe content on a standard BeadChip or in an assay product.
