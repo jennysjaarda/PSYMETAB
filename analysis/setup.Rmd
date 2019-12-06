@@ -185,4 +185,4 @@ wflow_publish(rmd_commit,
 
 ```
 
-  9. Push the changes to GitHub with` wflow_git_push()` (or `git push` in the Terminal).
+  9. Push the changes to GitHub with `wflow_git_push()` (or `git push` in the Terminal).

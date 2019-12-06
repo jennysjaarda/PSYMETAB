@@ -34,6 +34,8 @@ output: workflowr::wflow_html
 6. GSAMD-24v2-0_A1-TruSight-GeneAnnotation.xlsx
 7. GSAv2_MDConsortium.bpm
 8. GSPMA24v1_0-A_4349HNR_Samples.egt
+
+# Details
 - Files 1 and 2 appear to be identical and correspond to strand illumina strand information, same file can be found [here](http://glimdna.org/assets/gsamd-24v2-0_20024620_a1.zip).
 - xlsx files contain 2 tabs: "Coverage Summary" and "GSAMD-24v2-0_A1-XXX-GeneAnnota"
 - bpm file corresponds to manifest file for use in genomestudio. Manifest files provide a description of the SNP or probe content on a standard BeadChip or in an assay product.
@@ -49,14 +51,18 @@ output: workflowr::wflow_html
 
 ## Strand files from Welcome Centre
 - The data for each chip and genome build combination are freely downloadable from the links localted [here](https://www.well.ox.ac.uk/~wrayner/strand/), each zip file contains three files, these are:
-  - .strand file
-  - .miss file
-  - .multiple file
+  - `.strand` file
+  - `.miss` file
+  - `.multiple` file
 - More details can be found at the link above
 - [Chipendium](http://mccarthy.well.ox.ac.uk/chipendium/ui/) was used to comfirm that bim files are on the TOP strand .
 - Contacted William Rayner (wrayner@well.ox.ac.uk) to find out what to do about custom SNPs, all correspondence on 22/07/2019.
-  - Query: "The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?"
-  - Response: "If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching)"
+  - Query:
+  >The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?
+
+  - Response:
+  >If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching).
+
   - Trying to obtain such .csv file from Mylene or Smita at Illumina (spathak@illumina.com) who designed the chip.
   - On 15/07/2019 Smita provided such a file: GSA_UPPC_20023490X357589_A1_custom_only.csv.
   - The file was downloaded and save to UPPC (Jenny/PSYMETAB_GWAS/GSA).

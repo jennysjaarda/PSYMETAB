@@ -3,7 +3,7 @@ title: "Home"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
-    toc: true
+    toc: false
 ---
 
 ```{r, echo=FALSE}
@@ -26,7 +26,7 @@ See [Setup](setup.html) for details on setting up the analyses for this project.
 
 1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
 2. [Quality control](quality_control.html)
-3. [Imputation report]()
+3. [Imputation report](GWAS.html)
 4. [GWAS]()
 
 
