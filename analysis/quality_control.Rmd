@@ -1,0 +1,43 @@
+---
+title: "Data quality control and processing"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+
+The following document outlines and summarizes the quality control and processing procedure that was followed to create a clean, imputed dataset.
+
+## Quality control steps
+
+**results are saved to `analysis/QC`**
+
+0. Preprocessing
+1. Strand alignment
+2. MAF zero
+3. Missingness
+4. Sex check
+5. Imputation (preparation and run)
+6. Run and download imputation
+![](assets/michigan_imputation_screenshot.PNG)
+7. Check imputation
+8. PLINK conversion
+9. Extract typed SNPs
+10. Merge imputed SNPs
+11. Relatedness
+12. Ethnicty check and admixture estimation
+13. HWE check
+14. MAF check
+15. Final processing
+
+## Results
+
+## Code
+
+**code was run in 5 steps**
+
+1. [code/pre_imputation_qc.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh)
+2. [code/download_imputation.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh)
+3. [code/check_imputation.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/check_imputation.sh)
+4. [code/post_imputation_qc.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/post_imputation_qc.sh)
+5. [code/final_processing.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/final_processing.sh)

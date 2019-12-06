@@ -3,9 +3,7 @@ title: "Home"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
-    toc: false
-editor_options:
-  chunk_output_type: console
+    toc: true
 ---
 
 ```{r, echo=FALSE}
@@ -21,19 +19,18 @@ This [workflowr]() site contains all information and results about this research
 Project details and overview can be found in the [About](about.html) page.
 
 See [Data sources](data_sources.html) for details on data origins.
-See [Setup](setup.html) for details on setting up the analysis for the project.
+See [Setup](setup.html) for details on setting up the analyses for this project.
 
 
 **Result shortcuts**
-  1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
-  2. [Quality control]()
-  3. [Imputation report]()
-  4. [GWAS]()
 
-![](assets/michigan_imputation_screenshot.PNG)
+1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
+2. [Quality control](quality_control.html)
+3. [Imputation report]()
+4. [GWAS]()
+
 
 **Useful papers**
-
 
 **Notes**
   - [Creating custom cluster files](create_custom_cluster_files.html)
