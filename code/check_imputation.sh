@@ -1,6 +1,6 @@
 #!/bin/bash
 # redirect stdout/stderr to a file
-exec &> check_imputation.log
+exec &> analysis/QC/check_imputation.log
 ### DEFINE INPUTS
 
 project_dir="/data/sgg2/jenny/projects/PSYMETAB"

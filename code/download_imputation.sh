@@ -1,6 +1,6 @@
 #!/bin/bash
 # redirect stdout/stderr to a file
-exec &> download_imputation.log
+exec &> analysis/QC/download_imputation.log
 
 ### DEFINE INPUTS
 
