@@ -77,7 +77,83 @@ format_eth_file <- function(eth_info){
   return(eth_info)
 }
 
-munge_qc_pheno <- function(raw_pheno){
+
+rename_meds <- function(x)
+{
+  out <- rep(1, length(x))
+  regimen_num <- 1
+  for(i in 1:length(x))
+  {
+    if(is.na(x[i])){out[i] <- 1}
+    if(x[i]=="sensible"){out[i] <- regimen_num}
+    if(x[i]=="new_regimen"){
+      regimen_num <- regimen_num + 1
+      out[i] <- regimen_num
+    }
+  }
+  return(out)
+}
+
+bmi_diff <- function(x){n_obs <- length(x); x[n_obs]-x[1]}
+
+check_sex <- function(x){out <- NA
+  if(("M" %in% x) & ("F" %in% x)) {out <- NA} else {
+                            if("M" %in% x) {out <- "M"}
+                            if("F" %in% x) {out <- "F"}}
+                        return(out)
+                      }
+check_height <- function(x){
+                        if(all(is.na(x))) {out <- NA} else{
+                          out <- mean(x, na.rm=T)
+                        }
+                        return(out)
+                      }
+
+ever_drug <- function(x) {
+  if(any(x==1)){out <- 1} else{
+    out <- 0
+  }
+  return(out)
+}
+
+
+munge_pheno <- function(raw_pheno){
+  raw_pheno %>%
+    mutate(Date = as.Date(Date, format = '%d.%m.%Y'))  %>% filter(!is.na(Date)) %>% arrange(Date)  %>%
+    mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>%## merge retard/depot with original
+    group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
+    mutate_at("PatientsTaille", as.numeric) %>% mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
+    mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %>% ungroup() %>%  ### create ever on any drug
+    mutate(BMI = Poids/(PatientsTaille/100)^2)%>% filter(!is.na(BMI)) %>% ## create BMI
+    group_by(GEN,AP1) %>% mutate(drug_instance = row_number()) %>%
+    mutate(date_difference = as.numeric(difftime(lag(Date),Date, units = "days"))) %>%
+    mutate(follow_up = case_when(abs(date_difference) >= (Mois-lag(Mois))*30-leeway_time &  abs(date_difference) <= (Mois-lag(Mois))*30+leeway_time ~ "sensible",
+                                  is.na(date_difference) ~ "NA",
+                                  Mois == 0 ~ "new_regimen",
+                                  date_difference < 0 ~ "check",
+                                  TRUE ~ "check")) %>%
+    filter(!follow_up == "check") %>%
+    mutate(AP1_mod = paste0(AP1, "_round",rename_meds(follow_up))) %>%
+    ungroup() %>% group_by(GEN,AP1_mod) %>%
+    mutate(AP1_duration= as.numeric(max(Date)-min(Date)))%>% mutate(AP1_duration = na_if(AP1_duration, 0)) %>%
+    mutate(Num_followups = n()) %>%
+    ungroup() %>% group_by(GEN,AP1) %>%
+    filter(Num_followups == max(Num_followups)) %>%
+    mutate(BMI_change = bmi_diff(BMI)) %>%
+    mutate(time_between_visits = as.numeric(Date-lag(Date))) %>% replace_na(list(time_between_visits=0)) %>%
+    dplyr::distinct(AP1, .keep_all=T) %>% ungroup() %>%
+    rename(BMI_start= BMI) %>%
+    rename(LDL_start= LDL) %>%
+    rename(Glucose_start= Glucose) %>%
+    rename(Creatinine_start= Creatinine) %>% mutate_at(c("BMI_start","LDL_start","Glucose_start","Creatinine_start"), destring) %>%
+    group_by(GEN) %>%
+    mutate(Drug_Number=paste0("Drug_",row_number())) %>%
+    pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug")), names_from=Drug_Number, values_from=c("AP1", "Age","Date", "BMI_start", "LDL_start","Glucose_start","Creatinine_start",
+        "AP1_duration", "BMI_change","Num_followups")) %>%
+    dplyr::select(matches('GEN|sex|AP1|Age|Date|BMI|_start_Drug_1|Num_followups|_ever_drug')) %>%
+    ungroup() %>%
+    mutate(Age_sq_Drug_1 = Age_Drug_1^2) %>%
+    mutate_at(vars(starts_with("AP1_Drug_")) , as.factor)
 
 }
 
@@ -86,9 +162,8 @@ read_pcs <- function(pc_dir){
   pclist = list()
   for (eth in eths)
   {
-    PC_temp<- fread(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))
-    print(eth)
-    print(dim(PC_temp))
+    PC_temp<- fread(file.path(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))
+
     PC_temp <- PC_temp %>%
       separate(FID, c("counter", "GPCR"), sep="_")  %>%
       mutate(eth = eth)  %>%
@@ -99,4 +174,101 @@ read_pcs <- function(pc_dir){
   }
   PC_data <- dplyr::bind_rows(pclist)
   return(PC_data)
+}
+
+
+clean_drugs <- function(x){
+  drugs <- as.character(unlist(x %>% dplyr::select(starts_with("AP1_Drug_"))))
+  time <- as.numeric(unlist(x %>% dplyr::select(starts_with("AP1_duration_Drug_"))))
+  bmi_change <-  as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_change_Drug_"))))
+  num_followups <- as.numeric(unlist(x %>% dplyr::select(starts_with("Num_followups_Drug_"))))
+  age_started <- as.numeric(unlist(x %>% dplyr::select(starts_with("Age_Drug_"))))
+  drug_num <- c(1:length(drugs))
+  out <- tibble(drug=drugs,time=time,bmi_change=bmi_change, drug_num=drug_num, age_started=age_started, num_followups=num_followups)
+  return(out)
+}
+
+classify_drugs <- function(x, case_categories, preferential_control_categories) {
+  drug_info <- clean_drugs(x)
+  case_match <- unlist(drug_info %>% filter(time >= min_follow_up) %>%
+    filter(drug %in% case_categories) %>% dplyr::select(drug_num))[1]
+  control_match1 <- unlist(drug_info %>% filter(time >= min_follow_up) %>%
+    filter(!drug %in% case_categories) %>% filter(drug %in% preferential_control_categories) %>%
+    filter(num_followups==max(num_followups)) %>% dplyr::select(drug_num))[1]
+  control_match2 <- unlist(drug_info %>% filter(time >= min_follow_up) %>%
+    filter(!drug %in% case_categories) %>% filter(!drug %in% preferential_control_categories) %>%
+    filter(num_followups==max(num_followups)) %>% dplyr::select(drug_num))[1]
+  control_match <- ifelse(is.na(control_match1), control_match2,control_match1 )
+  case <- unname(ifelse (is.na(case_match), 0, 1))
+  if(is.na(control_match) & is.na(case_match)) {case <- NA}
+  best_match <- unname(ifelse (is.na(case_match), control_match, case_match))
+  time_temp <- pull(drug_info[best_match,"time"])
+  drug_temp <- pull(drug_info[best_match,"drug"])
+  bmi_change <- pull(drug_info[best_match,"bmi_change"])
+  age_started <- pull(drug_info[best_match,"age_started"])
+  return(list(case=case, drug_num=best_match, drug_name=drug_temp,age_started=age_started ,bmi_diff=bmi_change, duration=time_temp))
+
+}
+
+
+munge_pheno_follow <-  function(pheno_baseline) {
+
+  out <- list()
+  for(i in 1:dim(test_drugs)[1])
+  {
+    drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
+    drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
+    col_match <- paste(paste0(drug_list,"_ever_drug"), collapse = "|")
+    followup_data <- full_pheno %>% rowwise() %>%
+      do({
+            result = as_tibble(.)
+            x =  classify_drugs(result,drug_list,low_inducers)
+            result$high_inducer=x$case
+            result$high_inducer_drug_num=x$drug_num
+            result$high_inducer_drug_name=x$drug_name
+            result$bmi_change=x$bmi_diff
+            result$follow_up_time=x$duration
+            result$age_started=x$age_started
+            result
+        }) %>% ungroup() %>%
+      mutate(ever_drug_match = rowSums(dplyr::select(., matches(col_match)) == 1) > 0) %>%
+      filter(!(ever_drug_match & high_inducer==0)) %>% ##filter out individuals who have taken this drug but it wasn't followed
+      mutate(follow_up_time_sq = follow_up_time^2) %>%
+      mutate(age_sq=age_started^2)
+
+    out[[drug_class]] <- followup_data
+  }
+
+  return(out)
+}
+
+split_followup <- function(pheno_followup){
+  out <- list()
+  for(i in 1:dim(test_drugs)[1])
+  {
+    drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
+    drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
+    data_drug <- pheno_followup[[drug_class]]
+    temp_pheno = data_drug %>% dplyr::select(matches('^FID$|^IID$|bmi_change$'))
+    temp_covar = data_drug %>% dplyr::select(matches('^FID$|^IID$|^sex$|^high_inducer$|^age_|^follow_up_time|^PC[0-9]$|^PC[1][0-9]$|^PC20',ignore.case = F)) %>%
+      mutate(sex = ifelse(sex == "M",0,1))
+    temp_list <- list("pheno"=temp_pheno,"covar"=temp_covar )
+    out[[drug_class]] <- temp_list
+  }
+  return(out)
+
+}
+
+write_followup_data <- function(pheno_followup_split){
+
+  for(i in 1:dim(test_drugs)[1])
+  {
+    drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
+    drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
+    data_drug <- pheno_followup_split[[drug_class]]
+
+    out_interaction_pheno = write.table(data_drug$pheno, paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_pheno_input.txt"), row.names=F, quote=F, col.names=F)
+    out_interaction_covar = write.table(data_drug$covar, paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_covar_input.txt"), row.names=F, quote=F, col.names=F)
+
+  }
 }
