@@ -43,22 +43,60 @@ post_impute <- drake_plan(
   download_imputation = processx::run(command="sh",c( download_imputation_script), error_on_status=F),
   run_check_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( check_imputation_script), error_on_status=F)},
   run_post_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( post_imputation_script), error_on_status=F)},
-  run_final_processing = if(!is.null(run_post_imputation)){processx::run(command="sh",c( final_processing_script), error_on_status=F)}
+  run_final_processing = if(!is.null(run_post_imputation)){processx::run(command="sh",c( final_processing_script), error_on_status=F)},
+  mk_reprt_folder = if(!is.null(run_check_imputation)){processx::run(command="mkdir",c( "docs/generated_reports"), error_on_status=F)},
+  cp_qc_report = if(!is.null(mk_reprt_folder)){processx::run(command="cp",c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status=F)},
+  cp_qc_check = if(!is.null(mk_reprt_folder)){processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status=F)}
 )
 
 make(post_impute,parallelism = "clustermq",jobs = 2, console_log_file = "post_impute_qc.out", template=list(cpus=16, partition="sgg"))
 
 analysis_prep <- drake_plan(
   #### prepare phenotype files for analysis in GWAS/GRS etc.
+  create_pheno_folder = dir.create("data/processed/phenotype_data/GWAS_input"),
+  pheno_raw = readr::read_delim(file_in(pheno_file), col_types = cols(.default = col_character()), delim=";") %>% type_convert(),
+  pc_raw = read_pcs(pc_dir) %>% as_tibble(),
+  pheno_munge = munge_pheno(pheno_raw), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
+  pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character) , pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
+    replace_na(list(sex='NONE')),
+  pheno_followup = munge_pheno_follow(pheno_baseline), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  ## linear model GWAS:
+  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
+  linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
+  pheno_followup_split = split_followup(pheno_followup),
+  followup_data_write = if(create_pheno_folder){ write_followup_data(pheno_followup_split)},
+  out_linear_pheno =  if(create_pheno_folder){write.table(linear_pheno, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_pheno_input.txt")), row.names=F, quote=F, col.names=F)},
+  out_linear_covar =  if(create_pheno_folder){write.table(linear_covar, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_covar_input.txt")), row.names=F, quote=F, col.names=F)},
 
   ## to be grabbed from `pheno_clean.r`
-  ## and `sort_gwas`
+
 
 )
 
+make(analysis_prep)
+
 init_analysis <- drake_plan(
-  #### run gwas and GRS computation
-  ### to be grabble from `GWAS.sh` and `PRSice.sh`
+  create_GWAS_folder = dir.create("analysis/GWAS"),
+  create_GWAS_inter_folder = if(create_GWAS_inter_folder){dir.create("analysis/GWAS/interaction")},
+  create_GWAS_linear_foler = if(create_GWAS_inter_folder){dir.create("analysis/GWAS/linear")},
+  create_GRS_folder = dir.create("analysis/GRS"),
+
+  run_gwas_interaction = target(
+    fun(create_GWAS_folder, if(create_GWAS_inter_folder){processx::run(command="sh",c( gwas_interaction_script, variable), error_on_status=F)}),
+    transform = cross(variable = !!unlist(test_drugs %>% dplyr::select(class)))
+  ),
+  run_gwas_linear = target(
+    fun(create_GWAS_folder, if(create_GWAS_linear_foler){processx::run(command="sh",c( gwas_linear_script, variable), error_on_status=F)}),
+    transform = cross(variable = !!unlist(test_drugs %>% dplyr::select(class)))
+  ),
+  run_grs = if(create_GRS_folder){processx::run(command="sh",c( compute_grs_script), error_on_status=F)}
+)
+
+make(init_analysis,parallelism = "clustermq",jobs = 8, console_log_file = "init_analysis.out", template=list(cpus=16, partition="sgg"))
+
+
+#### run gwas and GRS computation
+### to be grabble from `GWAS.sh` and `PRSice.sh`
 )
 
 ####
@@ -95,4 +133,13 @@ visualize <- drake_plan(
     no_sex_eth <- fam[which(!fam[,2] %in% sex_info4[,2]),c(1,2)]
     no_sex_eth
     # empty
+
+    ### dimensions of PC data
+    print(eth)
+    print(dim(PC_temp))
+
+    drug_list <- unique(unlist(full_pheno %>% dplyr::select(starts_with("AP1_Drug_"))))
+    ### list of drugs included in phenofile
+
+
 )

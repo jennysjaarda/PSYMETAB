@@ -27,6 +27,8 @@ plink_ped_raw <- "data/raw/PLINK_091019_0920/PSYMETAB_GWAS"
 plink_bed_out <- "data/processed/PLINK_091019_0920/PSYMETAB_GWAS"
 rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
+pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_241019_noaccent.csv"
+pc_dir <- "analysis/QC/15_final_processing/final_pca"
 
 ### location of codes
 pre_imputation_script <- "code/pre_imputation_qc.sh"
@@ -37,7 +39,8 @@ final_processing_script <-  "code/final_processing.sh"
 
 ### define variables
 
-
+eths <- c("CEU", "EA", "MIXED", "NA", "YRI")
+study_name <- "PSYMETAB_GWAS"
 leeway_time <- 90 ## plus or minus on follow-up to double check that the "Mois" column make sense.
 # For example, if one visit is marked month 3 on September 5/15; and the previous visit marked month 0 on June 15/19, the script below will check if:
 # the difference between the two dates (September 5/15 - June 15/19) is within the difference between the two months (3 = 90 days) +/- the 'leeway_time'
@@ -67,3 +70,6 @@ med_inducers <- c("Amitriptyline", "Asenapine", "Clomipramine" ,  "Doxepine", "L
 
 low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine", "Carbamazepine", "Chlorprothixene",
 "Flupentixol", "Fluphenazine","Haloperidol","Lurasidone", "Pipamperone", "Sertindole", "Sulpiride", "Tiapride")
+
+
+test_drugs <- tibble(class=c("all_high_inducers", "olanzapine_clozapine", "valproate"), drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c( "Valproate")))
