@@ -23,8 +23,8 @@ pheno_dir=$project_dir/data/processed/phenotype_data/GWAS_input
 
 interaction_variable=$1
 pheno="bmi_change"
-interaction_pheno_file=$pheno_dir/${interaction_variable}_pheno_input.txt
-interaction_covar_file=$pheno_dir/${interaction_variable}_covar_input.txt
+interaction_pheno_file=$pheno_dir/${interaction_variable}_interaction_pheno_input.txt
+interaction_covar_file=$pheno_dir/${interaction_variable}_interaction_covar_input.txt
 
 cd $GWAS_dir
 
