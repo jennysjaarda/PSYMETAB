@@ -41,16 +41,13 @@ for eth in CEU EA MIXED NA YRI ; do
   count=$(wc -l < "$QC_dir/12_ethnicity_admixture/pca/${output_name}_${eth}_samples.txt")
 
   if [ "$count" -ge 100 ] ; then
-    if [ ! -d "${eth}" ] ; then
-      mkdir ${eth}
-    fi
 
 ### interaction model
 
 	plink2 --pfile $QC_dir/15_final_processing/${eth}/${output_name}.${eth} \
     --pheno $interaction_pheno_file \
-		--linear ${pheno} \
-		--pheno-name bmi_change \
+		--linear interaction \
+		--pheno-name ${pheno} \
 		--keep $QC_dir/12_ethnicity_admixture/pca/${output_name}_${eth}_samples.txt \
 		--remove $QC_dir/11_relatedness/${output_name}_related_ids.txt \
 		--covar $interaction_covar_file \
