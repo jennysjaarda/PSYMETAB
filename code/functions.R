@@ -76,3 +76,27 @@ format_eth_file <- function(eth_info){
 
   return(eth_info)
 }
+
+munge_qc_pheno <- function(raw_pheno){
+
+}
+
+read_pcs <- function(pc_dir){
+
+  pclist = list()
+  for (eth in eths)
+  {
+    PC_temp<- fread(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))
+    print(eth)
+    print(dim(PC_temp))
+    PC_temp <- PC_temp %>%
+      separate(FID, c("counter", "GPCR"), sep="_")  %>%
+      mutate(eth = eth)  %>%
+      mutate(FID = IID)  %>%
+      dplyr::select(FID, IID, counter, GPCR, eth, everything())
+    pclist[[eth]] <- PC_temp # add it to your list
+
+  }
+  PC_data <- dplyr::bind_rows(pclist)
+  return(PC_data)
+}

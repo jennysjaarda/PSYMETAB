@@ -43,13 +43,20 @@ post_impute <- drake_plan(
   download_imputation = processx::run(command="sh",c( download_imputation_script), error_on_status=F),
   run_check_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( check_imputation_script), error_on_status=F)},
   run_post_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( post_imputation_script), error_on_status=F)},
-  run_final_processing = if(!is.null(run_post_imputation)){processx::run(command="sh",c( final_processing_script), error_on_status=F)}
+  run_final_processing = if(!is.null(run_post_imputation)){processx::run(command="sh",c( final_processing_script), error_on_status=F)},
+  mk_reprt_folder = if(!is.null(run_check_imputation)){processx::run(command="mkdir",c( "docs/generated_reports"), error_on_status=F)},
+  cp_qc_report = if(!is.null(mk_reprt_folder)){processx::run(command="cp",c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status=F)},
+  cp_qc_check = if(!is.null(mk_reprt_folder)){processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status=F)}
 )
 
 make(post_impute,parallelism = "clustermq",jobs = 2, console_log_file = "post_impute_qc.out", template=list(cpus=16, partition="sgg"))
 
 analysis_prep <- drake_plan(
   #### prepare phenotype files for analysis in GWAS/GRS etc.
+  pheno_raw = read_csv(file_in(pheno_file)),
+  pc_raw = read_pcs(pc_dir)
+  qc_pheno_munge = munge_qc_pheno(pheno_raw),
+
 
   ## to be grabbed from `pheno_clean.r`
   ## and `sort_gwas`
