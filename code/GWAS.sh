@@ -1,3 +1,6 @@
+#!/bin/bash
+# redirect stdout/stderr to a file
+exec &> analysis/GWAS/GWAS.log
 
 project_dir="/data/sgg2/jenny/projects/PSYMETAB"
 plink_data="PLINK_091019_0920"
@@ -42,7 +45,7 @@ for eth in CEU EA MIXED NA YRI ; do
 		--covar $covar_file \
 		--threads 16 \
 		--covar-variance-standardize \
-		--out ${variable}/PSYMETAB_GWAS_${eth}_${variable}
+		--out ${variable}/PSYMETAB_GWAS_${eth}
 
   fi
 done

@@ -1,6 +1,8 @@
+#!/bin/bash
+# redirect stdout/stderr to a file
+exec &> analysis/GWAS/GWAS_interaction.log
 
-
-project_dir="/data/sgg2/jenny/projects/PSYMETAB_GWAS"
+project_dir="/data/sgg2/jenny/projects/PSYMETAB"
 plink_data="PLINK_091019_0920"
 raw_data=$project_dir/data/raw/$plink_data
 QC_dir=$project_dir/analysis/QC
@@ -53,7 +55,7 @@ for eth in CEU EA MIXED NA YRI ; do
 		--remove $QC_dir/11_relatedness/${output_name}_related_ids.txt \
 		--covar $interaction_covar_file \
 		--threads 16 \
-		--out ${interaction_variable}/${pheno}/PSYMETAB_GWAS_${eth}_${pheno}-${interaction_variable} \
+		--out ${interaction_variable}/${pheno}/PSYMETAB_GWAS_${eth}_${interaction_variable} \
 		--parameters 1-27, 49 \
     --covar-variance-standardize
 
