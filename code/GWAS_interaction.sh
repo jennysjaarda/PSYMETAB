@@ -56,6 +56,9 @@ for eth in CEU EA MIXED NA YRI ; do
 		--parameters 1-27, 49 \
     --covar-variance-standardize
 
+  awk 'NR==1 || $7~/^ADDx/ { print $0 }' ${interaction_variable}/${pheno}/PSYMETAB_GWAS_${eth}_${interaction_variable}.${pheno}.glm.linear \
+    > ${interaction_variable}/${pheno}/PSYMETAB_GWAS_${eth}_${interaction_variable}.${pheno}.filter
+
 	fi
 
 done
