@@ -6,20 +6,6 @@ output:
     toc: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  fig.retina = 3,
-  fig.align = "center",
-  out.width = "100%",
-  echo = FALSE
-)
-source(here::here("code/packages.R"))
-# load drake objects
-loadd(object1,
-      object2,
-)
-```
-
 The following document outlines and summarizes the quality control and processing procedure that was followed to create a clean, imputed dataset.
 
 ## randomize_IDs.r
@@ -67,6 +53,7 @@ The following document outlines and summarizes the quality control and processin
 ## Results
 
 ## Code
+
 
 **code was run in 5 steps**
 

@@ -270,3 +270,52 @@ write_followup_data <- function(pheno_followup_split){
 
   }
 }
+
+create_analysis_dirs <- function(){
+  dir.create("analysis/GWAS",showWarnings=F)
+  dir.create("analysis/GWAS/interaction",showWarnings=F)
+  dir.create("analysis/GWAS/linear",showWarnings=F)
+  dir.create("analysis/GRS",showWarnings=F)
+  return(TRUE)
+}
+
+meta_interaction <- function(run_gwas_interaction){
+
+    input_char <- deparse(substitute(run_gwas_interaction))
+    inter_variable <- sub("run_meta_interaction_", "", input_char)
+    folder <- paste0("analysis/GWAS/interaction/",inter_variable)
+    subfolders <- list.files(path=folder,full.names = T)
+    out <- list()
+    for(result_dir in subfolders)
+    {
+      output_var <- basename(result_dir)
+      gwas_results <- list.files(path=result_dir, pattern=".filter", full.names=T)
+
+      temp_out <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "no-map",
+        "--meta-analysis-snp-field", "ID", "--out", file.path(result_dir, paste0(inter_variable, ".", output_var)), "--threads", "16"), error_on_status=F)
+      out[[output_var]] <- temp_out
+    }
+
+}
+
+meta_linear <- function(run_gwas_linear){
+
+  input_char <- deparse(substitute(run_gwas_linear))
+  variable <- sub("run_gwas_linear_", "", input_char)
+
+  folder <- paste0("analysis/GWAS/linear/",variable)
+  result_dir <-folder
+  gwas_results <- list.files(path=folder, pattern=".linear", full.names=T)
+
+  out <-  processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "no-map",
+  "--meta-analysis-snp-field", "ID", "--out", file.path(result_dir, paste0(variable)), "--threads", "16"), error_on_status=F)
+
+  return(out)
+}
+
+combine_targets <- function(...)
+{
+  temp <- substitute(list(...))[-1]
+  c(sapply(temp, deparse))
+
+}

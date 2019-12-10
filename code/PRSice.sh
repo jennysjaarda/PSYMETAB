@@ -1,4 +1,6 @@
 #!/bin/bash
+# redirect stdout/stderr to a file
+exec &> analysis/GRS/GRS.log
 
 #####################################################################################
 ## Author: Jenny Sjaarda
@@ -8,19 +10,31 @@
 ##
 ## Description: generate GRS using PRSice
 ##
-## run within project folder: /data/sgg2/jenny/projects/PSYMETAB_GWAS
+## run within project folder: /data/sgg2/jenny/projects/PSYMETAB
 ##
 ##
 ## History:
 ##
 #####################################################################################
 
+project_dir="/data/sgg2/jenny/projects/PSYMETAB"
+plink_data="PLINK_091019_0920"
+raw_data=$project_dir/data/raw/$plink_data
+QC_dir=$project_dir/analysis/QC
 
+input_chip=$project_dir/data/processed/${plink_data}/PSYMETAB
+output_name=PSYMETAB_GWAS
+sex_file=$project_dir/data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt
+eth_file=$project_dir/data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt
+duplicate_file=$project_dir/data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt
+duplicate_file_set=$project_dir/data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt
+strand_file=$project_dir/data/processed/GSAMD_UPPC-b37.strand
+conversion_file=$project_dir/data/processed/reference_files/rsid_conversion.txt
+KG_PRUNED="$x1000G/1000G_chrall.ex_maf_05.pruned"
+KG_SAMPLES="$x1000G/integrated_call_samples_v3.20130502.ALL.panel"
+ref=$data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab
 
-project_dir="/data/sgg2/jenny/projects/PSYMETAB_GWAS"
-QC_dir=$project_dir/pipeline/QC
-
-GRS_dir=$project_dir/pipeline/GRS
+GRS_dir=$project_dir/analysis/GRS
 sample_file=${QC_dir}/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample
 bgen_file="${QC_dir}/15_final_processing/FULL/PSYMETAB_GWAS.FULL"
 

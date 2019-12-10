@@ -15,6 +15,7 @@
 
 project_dir <- "/data/sgg2/jenny/projects/PSYMETAB/"
 SGG_generic <- "/data/sgg2/jenny/SGG_generic/"
+consorta_dir <- "/data/sgg2/data/consortia"
 
 source(paste0(SGG_generic,"/scripts/settings.r"))
 source("code/packages.R")
@@ -76,3 +77,5 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 
 test_drugs <- tibble(class=c("all_high_inducers", "olanzapine_clozapine", "valproate"), drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c( "Valproate")))
 baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
+
+GRS_vars <- list.files(path=consorta_dir, pattern=".txt")

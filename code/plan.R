@@ -57,6 +57,9 @@ analysis_prep <- drake_plan(
   #### prepare phenotype files for analysis in GWAS/GRS etc.
   create_pheno_folder = dir.create("data/processed/phenotype_data/GWAS_input",showWarnings=F),
   pheno_raw = readr::read_delim(file_in(pheno_file), col_types = cols(.default = col_character()), delim=";") %>% type_convert(),
+  bgen_sample_file = readr::read_delim(file_in("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL.sample"), col_types = cols(.default = col_character()), delim=" ") %>% type_convert(),
+  bgen_out = write.table(bgen_sample_file[,1:3],file_out("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample"),row.names=F, quote=F, col.names=T),
+
   pc_raw = read_pcs(pc_dir) %>% as_tibble(),
   pheno_munge = munge_pheno(pheno_raw), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
   pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character) , pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
@@ -80,30 +83,40 @@ make(analysis_prep)
 #vis_drake_graph(drake_config(analysis_prep))
 
 init_analysis <- drake_plan(
-  create_GWAS_folder = dir.create("analysis/GWAS",showWarnings=F),
-  create_GWAS_inter_folder = if(!is.null(create_GWAS_folder)){dir.create("analysis/GWAS/interaction",showWarnings=F)},
-  create_GWAS_linear_foler = if(!is.null(create_GWAS_folder)){dir.create("analysis/GWAS/linear",showWarnings=F)},
-  create_GRS_folder = dir.create("analysis/GRS",showWarnings=F),
-
-  # repo_fingerprint = {
-  #   repo <- repository(here::here())
-  #   commits(repo)[[1]]$sha # Or tags(repo)[[1]]@sha if you want your project to be less brittle.
-  # }
+  make_dirs_out = create_analysis_dirs(),
   gwas_interaction_track = file_in(gwas_interaction_script),
   gwas_linear_track = file_in(gwas_linear_script),
 
   run_gwas_interaction = target(
-    if(!is.null(create_GWAS_inter_folder)){processx::run(command="sh",c( gwas_interaction_track, variable), error_on_status=F)},
-    transform = cross(variable = !!unlist(test_drugs %>% dplyr::select(class)))
+    if(make_dirs_out){processx::run(command="sh",c( gwas_interaction_track, variable), error_on_status=F)},
+    transform = map(variable = !!unlist(test_drugs %>% dplyr::select(class)))
   ),
   run_gwas_linear = target(
-    if(!is.null(create_GWAS_linear_foler)){processx::run(command="sh",c( gwas_linear_track, variable), error_on_status=F)},
-    transform = cross(variable = !!paste0(baseline_vars,"_start_Drug_1"))
+    if(make_dirs_out){processx::run(command="sh",c( gwas_linear_track, variable), error_on_status=F)},
+    transform = map(variable = !!paste0(baseline_vars,"_start_Drug_1"))
   ),
-  #run_grs = if(create_GRS_folder){processx::run(command="sh",c( compute_grs_script), error_on_status=F)}
+  run_meta_interaction = target(
+    meta_interaction(run_gwas_interaction),
+    transform = map(run_gwas_interaction)
+  ),
+  run_meta_linear = target(
+    meta_linear(run_gwas_linear),
+    transform = map(run_gwas_linear)
+  ),
+  meta_jobs = target(
+    combine_targets(run_meta_linear,run_meta_interaction),
+    transform = combine(run_meta_linear,run_meta_interaction)
+  ),
+  run_process_meta = target(
+    process_meta(var),
+    transform = map(var=meta_jobs)
+  )
+  #run_grs = if(make_dirs_out){processx::run(command="sh",c( compute_grs_script), error_on_status=F)}
 )
 
-make(init_analysis,parallelism = "clustermq",jobs = 6, console_log_file = "init_analysis.out", template=list(cpus=16, partition="cluster"))
+c(init_analysis %>% dplyr::select(target))
+
+make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template=list(cpus=16, partition="cluster"))
 
 
 #### run gwas and GRS computation
@@ -151,6 +164,10 @@ visualize <- drake_plan(
 
     drug_list <- unique(unlist(full_pheno %>% dplyr::select(starts_with("AP1_Drug_"))))
     ### list of drugs included in phenofile
+
+
+
+  create_report(pheno_baseline, config = configure_report(add_plot_prcomp = FALSE))
 
 
 )
