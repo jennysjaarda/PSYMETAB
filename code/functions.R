@@ -117,8 +117,8 @@ ever_drug <- function(x) {
 }
 
 
-munge_pheno <- function(raw_pheno){
-  raw_pheno %>%
+munge_pheno <- function(pheno_raw){
+  pheno_raw %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%Y'))  %>% filter(!is.na(Date)) %>% arrange(Date)  %>%
     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>%## merge retard/depot with original
     group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
@@ -142,10 +142,8 @@ munge_pheno <- function(raw_pheno){
     mutate(BMI_change = bmi_diff(BMI)) %>%
     mutate(time_between_visits = as.numeric(Date-lag(Date))) %>% replace_na(list(time_between_visits=0)) %>%
     dplyr::distinct(AP1, .keep_all=T) %>% ungroup() %>%
-    rename(BMI_start= BMI) %>%
-    rename(LDL_start= LDL) %>%
-    rename(Glucose_start= Glucose) %>%
-    rename(Creatinine_start= Creatinine) %>% mutate_at(c("BMI_start","LDL_start","Glucose_start","Creatinine_start"), destring) %>%
+    rename_at(baseline_vars, function(x) paste0( x, "_start")) %>%
+    mutate_at(paste0( baseline_vars, "_start"), destring) %>%
     group_by(GEN) %>%
     mutate(Drug_Number=paste0("Drug_",row_number())) %>%
     pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug")), names_from=Drug_Number, values_from=c("AP1", "Age","Date", "BMI_start", "LDL_start","Glucose_start","Creatinine_start",
@@ -202,10 +200,10 @@ classify_drugs <- function(x, case_categories, preferential_control_categories) 
   case <- unname(ifelse (is.na(case_match), 0, 1))
   if(is.na(control_match) & is.na(case_match)) {case <- NA}
   best_match <- unname(ifelse (is.na(case_match), control_match, case_match))
-  time_temp <- pull(drug_info[best_match,"time"])
-  drug_temp <- pull(drug_info[best_match,"drug"])
-  bmi_change <- pull(drug_info[best_match,"bmi_change"])
-  age_started <- pull(drug_info[best_match,"age_started"])
+  time_temp <- dplyr::pull(drug_info[best_match,"time"])
+  drug_temp <- dplyr::pull(drug_info[best_match,"drug"])
+  bmi_change <- dplyr::pull(drug_info[best_match,"bmi_change"])
+  age_started <- dplyr::pull(drug_info[best_match,"age_started"])
   return(list(case=case, drug_num=best_match, drug_name=drug_temp,age_started=age_started ,bmi_diff=bmi_change, duration=time_temp))
 
 }
@@ -219,8 +217,8 @@ munge_pheno_follow <-  function(pheno_baseline) {
     drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
     drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
     col_match <- paste(paste0(drug_list,"_ever_drug"), collapse = "|")
-    followup_data <- full_pheno %>% rowwise() %>%
-      do({
+    followup_data <- pheno_baseline %>% rowwise() %>%
+      dplyr::do({
             result = as_tibble(.)
             x =  classify_drugs(result,drug_list,low_inducers)
             result$high_inducer=x$case
@@ -267,8 +265,8 @@ write_followup_data <- function(pheno_followup_split){
     drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
     data_drug <- pheno_followup_split[[drug_class]]
 
-    out_interaction_pheno = write.table(data_drug$pheno, paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_pheno_input.txt"), row.names=F, quote=F, col.names=F)
-    out_interaction_covar = write.table(data_drug$covar, paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_covar_input.txt"), row.names=F, quote=F, col.names=F)
+    out_interaction_pheno = write.table(data_drug$pheno, file_out(paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_pheno_input.txt")), row.names=F, quote=F, col.names=T)
+    out_interaction_covar = write.table(data_drug$covar, file_out( paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_covar_input.txt")), row.names=F, quote=F, col.names=T)
 
   }
 }

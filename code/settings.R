@@ -36,6 +36,8 @@ post_imputation_script <- "code/post_imputation_qc.sh"
 download_imputation_script <- "code/download_imputation.sh"
 check_imputation_script <- "code/check_imputation.sh"
 final_processing_script <-  "code/final_processing.sh"
+gwas_linear_script <-  "code/GWAS.sh"
+gwas_interaction_script <-  "code/GWAS_interaction.sh"
 
 ### define variables
 
@@ -73,3 +75,4 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 
 
 test_drugs <- tibble(class=c("all_high_inducers", "olanzapine_clozapine", "valproate"), drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c( "Valproate")))
+baseline_vars <- c("BMI","LDL","Glucose","Creatinine")

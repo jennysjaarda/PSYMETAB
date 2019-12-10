@@ -51,9 +51,11 @@ post_impute <- drake_plan(
 
 make(post_impute,parallelism = "clustermq",jobs = 2, console_log_file = "post_impute_qc.out", template=list(cpus=16, partition="sgg"))
 
+
+
 analysis_prep <- drake_plan(
   #### prepare phenotype files for analysis in GWAS/GRS etc.
-  create_pheno_folder = dir.create("data/processed/phenotype_data/GWAS_input"),
+  create_pheno_folder = dir.create("data/processed/phenotype_data/GWAS_input",showWarnings=F),
   pheno_raw = readr::read_delim(file_in(pheno_file), col_types = cols(.default = col_character()), delim=";") %>% type_convert(),
   pc_raw = read_pcs(pc_dir) %>% as_tibble(),
   pheno_munge = munge_pheno(pheno_raw), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
@@ -64,9 +66,10 @@ analysis_prep <- drake_plan(
   linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
   linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
   pheno_followup_split = split_followup(pheno_followup),
-  followup_data_write = if(create_pheno_folder){ write_followup_data(pheno_followup_split)},
-  out_linear_pheno =  if(create_pheno_folder){write.table(linear_pheno, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_pheno_input.txt")), row.names=F, quote=F, col.names=F)},
-  out_linear_covar =  if(create_pheno_folder){write.table(linear_covar, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_covar_input.txt")), row.names=F, quote=F, col.names=F)},
+  followup_data_write = if(!is.null(create_pheno_folder)){ write_followup_data(pheno_followup_split)},
+
+  out_linear_pheno =  if(!is.null(create_pheno_folder)){write.table(linear_pheno, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_pheno_input.txt")), row.names=F, quote=F, col.names=T)},
+  out_linear_covar =  if(!is.null(create_pheno_folder)){write.table(linear_covar, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_covar_input.txt")), row.names=F, quote=F, col.names=T)},
 
   ## to be grabbed from `pheno_clean.r`
 
@@ -74,25 +77,33 @@ analysis_prep <- drake_plan(
 )
 
 make(analysis_prep)
+#vis_drake_graph(drake_config(analysis_prep))
 
 init_analysis <- drake_plan(
-  create_GWAS_folder = dir.create("analysis/GWAS"),
-  create_GWAS_inter_folder = if(create_GWAS_inter_folder){dir.create("analysis/GWAS/interaction")},
-  create_GWAS_linear_foler = if(create_GWAS_inter_folder){dir.create("analysis/GWAS/linear")},
-  create_GRS_folder = dir.create("analysis/GRS"),
+  create_GWAS_folder = dir.create("analysis/GWAS",showWarnings=F),
+  create_GWAS_inter_folder = if(!is.null(create_GWAS_folder)){dir.create("analysis/GWAS/interaction",showWarnings=F)},
+  create_GWAS_linear_foler = if(!is.null(create_GWAS_folder)){dir.create("analysis/GWAS/linear",showWarnings=F)},
+  create_GRS_folder = dir.create("analysis/GRS",showWarnings=F),
+
+  # repo_fingerprint = {
+  #   repo <- repository(here::here())
+  #   commits(repo)[[1]]$sha # Or tags(repo)[[1]]@sha if you want your project to be less brittle.
+  # }
+  gwas_interaction_track = file_in(gwas_interaction_script),
+  gwas_linear_track = file_in(gwas_linear_script),
 
   run_gwas_interaction = target(
-    fun(create_GWAS_folder, if(create_GWAS_inter_folder){processx::run(command="sh",c( gwas_interaction_script, variable), error_on_status=F)}),
+    if(!is.null(create_GWAS_inter_folder)){processx::run(command="sh",c( gwas_interaction_track, variable), error_on_status=F)},
     transform = cross(variable = !!unlist(test_drugs %>% dplyr::select(class)))
   ),
   run_gwas_linear = target(
-    fun(create_GWAS_folder, if(create_GWAS_linear_foler){processx::run(command="sh",c( gwas_linear_script, variable), error_on_status=F)}),
-    transform = cross(variable = !!unlist(test_drugs %>% dplyr::select(class)))
+    if(!is.null(create_GWAS_linear_foler)){processx::run(command="sh",c( gwas_linear_track, variable), error_on_status=F)},
+    transform = cross(variable = !!paste0(baseline_vars,"_start_Drug_1"))
   ),
-  run_grs = if(create_GRS_folder){processx::run(command="sh",c( compute_grs_script), error_on_status=F)}
+  #run_grs = if(create_GRS_folder){processx::run(command="sh",c( compute_grs_script), error_on_status=F)}
 )
 
-make(init_analysis,parallelism = "clustermq",jobs = 8, console_log_file = "init_analysis.out", template=list(cpus=16, partition="sgg"))
+make(init_analysis,parallelism = "clustermq",jobs = 6, console_log_file = "init_analysis.out", template=list(cpus=16, partition="cluster"))
 
 
 #### run gwas and GRS computation
