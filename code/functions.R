@@ -319,3 +319,61 @@ combine_targets <- function(...)
   c(sapply(temp, deparse))
 
 }
+
+
+
+#### TO BE REVISED
+process_gwas <- function(outcome_variable,interaction_variable,model){
+
+  if(model=="interaction"){
+    out_folder <- file.path("analysis/GWAS/interaction",interaction_variable, outcome_variable)
+    eth_gwas_files <- list.files(path=out_folder, pattern = "\\.filter$",full.names=T)
+  }
+  if(model=="linear"){
+    out_folder <- file.path("analysis/GWAS/interaction", outcome_variable)
+    eth_gwas_files <- list.files(path=out_folder, pattern = "\\.linear$",full.names=T)
+
+  }
+
+
+  eths <- sapply(eth_gwas_files,function(x){ gsub(".*PSYMETAB_GWAS_(.*?)\\_.*", "\\1", x)})
+
+  meta_file <- file_in(list.files(path=out_folder, pattern=".meta", full.names=T))
+  gwas_files <- tibble(eth=c(eths,"META"), file=c(eth_gwas_files,meta_file))
+
+  info <- fread("analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
+  for(i in 1:dim(gwas_files)[1])
+  {
+    result <- dplyr::pull(gwas_files %>% dplyr::select(file))[i]
+    eth <- dplyr::pull(gwas_files %>% dplyr::select(eth))[i]
+    gwas_result <- fread(result, data.table=F, stringsAsFactors=F)
+
+    if(eth!="META")
+    {
+      gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+      freq <- fread(paste0("analysis/QC/15_final_processing/,",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T)
+      joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
+      sig <- joint %>%
+              mutate_at("P", as.numeric) %>%
+              filter(P < gw_sig) %>%
+              filter(ALT_FREQS > maf_threshold) %>%
+              filter(R2 > info_threshold)
+
+    }
+
+
+    joint_maf <- joint %>% filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1- maf_threshold))%>% mutate_at("P", as.numeric)
+    sig <- joint_maf  %>% filter(P < gw_sig)
+    png("man_interaction.png", width=2000, height=1000, pointsize=18)
+    manhattan(joint_maf)
+    dev.off()
+
+    png("interaction_qq2.png", width=2000, height=1000, pointsize=18)
+    qq(joint_maf$P)
+    dev.off()
+
+
+    qq(gwas_result2$P)
+  }
+
+}

@@ -78,4 +78,11 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 test_drugs <- tibble(class=c("all_high_inducers", "olanzapine_clozapine", "valproate"), drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c( "Valproate")))
 baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
 
+GWAS_models <- tibble(outcome_variable=c(rep("bmi_change", dim(test_drugs)[1]),baseline_vars),
+                      interaction_variable=c(dplyr::pull(test_drugs, class),rep(NA, length(baseline_vars))),
+                      model=c(rep("interaction", dim(test_drugs)[1]), rep("linear", length(baseline_vars))))
 GRS_vars <- list.files(path=consorta_dir, pattern=".txt")
+
+gw_sig <- 5e-08
+maf_threshold <- 0.05
+info_threshold <- 0.8

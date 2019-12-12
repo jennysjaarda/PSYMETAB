@@ -84,8 +84,8 @@ make(analysis_prep)
 
 init_analysis <- drake_plan(
   make_dirs_out = create_analysis_dirs(),
-  gwas_interaction_track = file_in(gwas_interaction_script),
-  gwas_linear_track = file_in(gwas_linear_script),
+  gwas_interaction_track = file_in(!!gwas_interaction_script),
+  gwas_linear_track = file_in(!!gwas_linear_script),
 
   run_gwas_interaction = target(
     if(make_dirs_out){processx::run(command="sh",c( gwas_interaction_track, variable), error_on_status=F)},
@@ -107,18 +107,24 @@ init_analysis <- drake_plan(
     combine_targets(run_meta_linear,run_meta_interaction),
     transform = combine(run_meta_linear,run_meta_interaction)
   ),
-  run_process_meta = target(
-    process_meta(var),
-    transform = map(var=meta_jobs)
-  )
+
   #run_grs = if(make_dirs_out){processx::run(command="sh",c( compute_grs_script), error_on_status=F)}
 )
 
 c(init_analysis %>% dplyr::select(target))
+outdated(drake_config(init_analysis))
 
 make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template=list(cpus=16, partition="cluster"))
 
+process_init <- plan(
 
+  gwas_figures = target(
+    process_meta(outcome_variable,interaction_variable,model),
+    transform = map(.data =!!!GWAS_models)
+  )
+
+
+)
 #### run gwas and GRS computation
 ### to be grabble from `GWAS.sh` and `PRSice.sh`
 )
