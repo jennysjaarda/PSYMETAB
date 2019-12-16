@@ -138,8 +138,12 @@ For drake plan see: [`code/plan.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blo
 Configure a slurm template
 ```{r eval=FALSE}
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
-drake_hpc_template_file("slurm_clustermq.tmpl")
 
+drake_hpc_template_file("slurm_batchtools.tmpl") # Edit by hand.
+future::plan(batchtools_slurm, template = "slurm_batchtools.tmpl")
+
+drake_hpc_template_file("slurm_clustermq.tmpl")
+drake_hpc_template_file("slurm_batchtools.tmpl") # Edit by hand.
 # Write the file slurm_clustermq.tmpl. and edit manually
 ```
 The file created using the `clustermq` template was edited manually to match [`slurm_clustermq.tmpl`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/slurm_clustermq.tmpl)

@@ -3,120 +3,162 @@
 #
 
 qc_prep <- drake_plan (
+  # Load and clean data to prepare for QC ----------------------
+  qc_pheno_raw = read_excel(file_in(!!qc_pheno_file),sheet = 1),
+  id_code = read.csv(file_in("data/raw/ID_key.csv"), header=T),
+  rs_conversion = fread(file_in(!!rsconv_raw_file), data.table = F),
+  fam_raw = read.table(file_in(!!paste0(plink_bed_out,".fam"))), # read the .fam file
+  ped_folder = file_in(!!dirname(plink_ped_raw)),
+  #bed_folder = dir.create(file_out(!!dirname(plink_bed_out)),showWarnings = F),
+  #create_dir = dir.create(bed_folder, showWarnings = F),
+  create_bed_out = {
+    in_file <- paste0(ped_folder,"/",basename(!!plink_ped_raw))
+    outfile <- paste0(bed_folder,"/",basename(!!plink_bed_out))
+    run(command = "plink", c( "--file", in_file, "--make-bed", "--out", outfile), error_on_status = F)
+    file_out(!!paste0(plink_bed_out,".fam"))},
 
-  # Load and clean data ----
-  qc_pheno_raw = read_excel(file_in(qc_pheno_file),sheet = 1),
-  id_code = read.csv("data/raw/ID_key.csv", header=T),
-  rs_conversion = fread(rsconv_raw_file, data.table=F),
-  fam_raw = read_fam(create_bed_out), # read the .fam file
-  create_dir = dir.create(dirname(plink_bed_out), showWarnings=F),
-  create_bed_out = if(!is.null(create_dir)){run(command="plink",c( "--file", plink_ped_raw, "--make-bed", "--out", plink_bed_out), error_on_status=F)},
-  fam_munge = munge_fam(fam_raw, id_code),
-  qc_pheno_munge = munge_qc_pheno(qc_pheno_raw,fam_munge),
-  dups = find_dups(qc_pheno_munge, fam_munge),
-  sex_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Sexe)),
-  eth_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Ethnie)),
-  sex_format = format_sex_file(sex_info),
-  eth_format = format_eth_file(eth_info),
-  rs_conversion_munge = rs_conversion %>% mutate(RsID = case_when(RsID=="." ~ Name, TRUE ~ RsID)),
-  out_sex = write.table(sex_info,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"),row.names=F, quote=F, col.names=F),
-  out_eth = write.table(sex_info,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt"),row.names=F, quote=F, col.names=F),
-  out_dups = write.table(dups$dups,file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"),row.names=F, quote=F, col.names=F),
-  out_dups_set = write.table(dups$dups_set, file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"),row.names=F, quote=F, col.names=F),
-  out_rs_conversion = write.table(rs_conversion_munge, file_out("data/processed/reference_files/rsid_conversion.txt"), row.names=F, quote=F, col.names=F)
+    fam_munge = munge_fam(fam_raw, id_code),
+    qc_pheno_munge = munge_qc_pheno(qc_pheno_raw,fam_munge),
+    dups = find_dups(qc_pheno_munge, fam_munge),
+    sex_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Sexe)),
+    eth_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Ethnie)),
+    sex_format = format_sex_file(sex_info),
+    eth_format = format_eth_file(eth_info),
+    rs_conversion_munge = rs_conversion %>% mutate(RsID = case_when(RsID=="." ~ Name, TRUE ~ RsID)),
+    out_sex = write.table(sex_format,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"),row.names = F, quote = F, col.names = F),
+    out_eth = write.table(eth_format,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt"),row.names = F, quote = F, col.names = F),
+    out_dups = write.table(dups$dups,file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"),row.names = F, quote = F, col.names = F),
+    out_dups_set = write.table(dups$dups_set, file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"),row.names = F, quote = F, col.names = F),
+    out_rs_conversion = write.table(rs_conversion_munge, file_out("data/processed/reference_files/rsid_conversion.txt"), row.names = F, quote = F, col.names = F)
+
 
 )
 
-make(qc_prep)
+vis_drake_graph(drake_config(qc_prep))
+
+#vis_drake_graph(drake_config(qc_prep))
 
 pre_impute_qc <- drake_plan(
   #### run pre-imupation quality control
-  run_pre_imputation = processx::run(command="sh",c( pre_imputation_script), error_on_status=F)
+  run_pre_imputation = target(
+    {file_in("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt");
+     file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt");
+     file_in("data/processed/reference_files/rsid_conversion.txt");processx::run(command = "sh", c( pre_imputation_script), error_on_status = F)},
+     resources = list(core = 16)
+  )
 )
 
-make(pre_impute_qc,parallelism = "clustermq",jobs = 1, console_log_file = "pre_impute_qc.out", template=list(cpus=16, partition="sgg"))
+pre_impute <- bind_plans(qc_prep,pre_impute_qc)
+vis_drake_graph(drake_config(pre_impute))
 
-### download files and impute on Michigan server
-
+## here download output and upload to Michigan server
 post_impute <- drake_plan(
-  #### run post-imputation quality control and processing
-  download_imputation = processx::run(command="sh",c( download_imputation_script), error_on_status=F),
-  run_check_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( check_imputation_script), error_on_status=F)},
-  run_post_imputation = if(!is.null(download_imputation)){processx::run(command="sh",c( post_imputation_script), error_on_status=F)},
-  run_final_processing = if(!is.null(run_post_imputation)){processx::run(command="sh",c( final_processing_script), error_on_status=F)},
-  mk_reprt_folder = if(!is.null(run_check_imputation)){processx::run(command="mkdir",c( "docs/generated_reports"), error_on_status=F)},
-  cp_qc_report = if(!is.null(mk_reprt_folder)){processx::run(command="cp",c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status=F)},
-  cp_qc_check = if(!is.null(mk_reprt_folder)){processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status=F)}
+
+  # run post-imputation quality control and processing ------------
+  download_imputation = target(
+    processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F),
+    resources = list(ncpus = 16)),
+  run_check_imputation = target({
+      download_imputation
+      processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)},
+    resources = list(ncpus = 16)),
+  run_post_imputation = target({
+      download_imputation
+      processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)},
+    resources = list(ncpus = 16)),
+  run_final_processing = target({
+      run_post_imputation
+      processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)},
+    resources = list(ncpus = 16)),
+  cp_qc_report = target({
+      run_check_imputation
+      processx::run(command = "cp", c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status = F)},
+    resources = list(ncpus = 1)),
+  cp_qc_check = target({
+    run_check_imputation
+    processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)},
+    resources = list(ncpus = 1))
 )
 
-make(post_impute,parallelism = "clustermq",jobs = 2, console_log_file = "post_impute_qc.out", template=list(cpus=16, partition="sgg"))
-
-
+vis_drake_graph(drake_config(post_impute))
 
 analysis_prep <- drake_plan(
-  #### prepare phenotype files for analysis in GWAS/GRS etc.
-  create_pheno_folder = dir.create("data/processed/phenotype_data/GWAS_input",showWarnings=F),
-  pheno_raw = readr::read_delim(file_in(pheno_file), col_types = cols(.default = col_character()), delim=";") %>% type_convert(),
-  bgen_sample_file = readr::read_delim(file_in("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL.sample"), col_types = cols(.default = col_character()), delim=" ") %>% type_convert(),
-  bgen_out = write.table(bgen_sample_file[,1:3],file_out("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample"),row.names=F, quote=F, col.names=T),
+  # prepare phenotype files for analysis in GWAS/GRS etc. ------------
 
-  pc_raw = read_pcs(pc_dir) %>% as_tibble(),
+  pheno_raw = readr::read_delim(file_in(!!pheno_file), col_types = cols(.default = col_character()), delim = ";") %>% type_convert(),
+  bgen_sample_file = target({
+    run_final_processing
+    readr::read_delim(file_in("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL.sample"),
+      col_types = cols(.default = col_character()), delim = " ") %>% type_convert()
+    }),
+  bgen_nosex_out = write.table(bgen_sample_file[,1:3],file_out("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample"),row.names = F, quote = F, col.names = T),
+  pc_raw = read_pcs(file_in(pc_dir)) %>% as_tibble(),
   pheno_munge = munge_pheno(pheno_raw), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
   pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character) , pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
     replace_na(list(sex='NONE')),
+
   pheno_followup = munge_pheno_follow(pheno_baseline), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup),
+
   ## linear model GWAS:
-  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
-  linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
-  pheno_followup_split = split_followup(pheno_followup),
-  followup_data_write = if(!is.null(create_pheno_folder)){ write_followup_data(pheno_followup_split)},
-
-  out_linear_pheno =  if(!is.null(create_pheno_folder)){write.table(linear_pheno, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_pheno_input.txt")), row.names=F, quote=F, col.names=T)},
-  out_linear_covar =  if(!is.null(create_pheno_folder)){write.table(linear_covar, file_out(!! paste0("data/processed/phenotype_data/GWAS_input/","linear_covar_input.txt")), row.names=F, quote=F, col.names=T)},
-
-  ## to be grabbed from `pheno_clean.r`
-
+  #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
+  #linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
+  #pheno_followup_split = split_followup(pheno_followup),
+  #followup_data_write = if(!is.null(create_pheno_folder)){ write_followup_data(pheno_followup_split)},
+  out_linear_pheno =  target({
+    write.table(GWAS_input$full_pheno, file_out("data/processed/phenotype_data/GWAS_input/pheno_input.txt"), row.names = F, quote = F, col.names = T)}),
+  out_linear_covar =  target({
+    write.table(GWAS_input$full_covar, file_out("data/processed/phenotype_data/GWAS_input/covar_input.txt"), row.names = F, quote = F, col.names = T)}),
 
 )
 
+vis_drake_graph(drake_config(analysis_prep))
 make(analysis_prep)
-#vis_drake_graph(drake_config(analysis_prep))
+#
 
 init_analysis <- drake_plan(
-  make_dirs_out = create_analysis_dirs(),
-  gwas_interaction_track = file_in(!!gwas_interaction_script),
-  gwas_linear_track = file_in(!!gwas_linear_script),
+  # run initial GWAS ---------------------------
+  baseline_gwas_info = define_baseline_inputs(GWAS_input),
+  interaction_gwas_info = define_interaction_inputs(GWAS_input),
+  subgroup_gwas_info = define_subgroup_inputs(GWAS_input),
+  linear_out = target({
+    run_final_processing
+    run_gwas(pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
+                covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
+                threads = 16, pheno_name = pheno, covar_names = covars, eths = !!eths,
+                eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+                remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
+                output_dir = file_in("analysis/GWAS"), output = "PSYMETAB_GWAS")},
+    transform = map(.data = baseline_gwas_info, .id = pheno),resources = list(ncpus = 16)),
 
-  run_gwas_interaction = target(
-    if(make_dirs_out){processx::run(command="sh",c( gwas_interaction_track, variable), error_on_status=F)},
-    transform = map(variable = !!unlist(test_drugs %>% dplyr::select(class)))
-  ),
-  run_gwas_linear = target(
-    if(make_dirs_out){processx::run(command="sh",c( gwas_linear_track, variable), error_on_status=F)},
-    transform = map(variable = !!paste0(baseline_vars,"_start_Drug_1"))
-  ),
-  run_meta_interaction = target(
-    meta_interaction(run_gwas_interaction),
-    transform = map(run_gwas_interaction)
-  ),
-  run_meta_linear = target(
-    meta_linear(run_gwas_linear),
-    transform = map(run_gwas_linear)
-  ),
-  meta_jobs = target(
-    combine_targets(run_meta_linear,run_meta_interaction),
-    transform = combine(run_meta_linear,run_meta_interaction)
-  ),
-
-  #run_grs = if(make_dirs_out){processx::run(command="sh",c( compute_grs_script), error_on_status=F)}
+  interaction_out = target({
+    run_final_processing
+    run_gwas(pfile = "analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL", pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
+                covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
+                threads = 16, pheno_name = pheno, covar_names = covars, parameters = parameters, interaction = TRUE,
+                eths = !!eths, eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt",  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+                remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
+                output_dir = file_out("analysis/GWAS"), output = "PSYMETAB_GWAS")},
+    transform = map(.data = interaction_gwas_info, .id = pheno),resources = list(ncpus = 16)),
+  subgroup_out = target({
+    run_final_processing
+    run_gwas(pfile = "analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL", pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
+                covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
+                threads = 16, pheno_name = pheno, covar_names = covars, subgroup_var = subgroup, group = "subgroup",
+                eths = !!eths, eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt",  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+                remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
+                output_dir = file_out("analysis/GWAS"), output = "PSYMETAB_GWAS")},
+    transform = map(.data = subgroup_gwas_info, .id = pheno),resources = list(ncpus = 16))
 )
 
-c(init_analysis %>% dplyr::select(target))
-outdated(drake_config(init_analysis))
+vis_drake_graph(drake_config(init_analysis))
 
-make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template=list(cpus=16, partition="cluster"))
+future::plan(batchtools_slurm, template = "~/slurm/slurm_batchtools_savio.tmpl")
+make(init_analysis,parallelism = "future",jobs = 4, console_log_file = "init.out")
+make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "cluster"))
 
-process_init <- plan(
+
+process_init <- drake_plan(
 
   gwas_figures = target(
     process_meta(outcome_variable,interaction_variable,model),
@@ -125,17 +167,42 @@ process_init <- plan(
 
 
 )
+
+post_impute <- bind_plans(qc_prep,pre_impute_qc, init_analysis, process_init)
+
+make(post_impute,parallelism = "future",jobs = 2, console_log_file = "post_impute_qc.out", resources = list(partition = "sgg"))
+make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "cluster"))
+
+
+
+### some useful code
+
+c(init_analysis %>% dplyr::select(target))
+outdated(drake_config(init_analysis))
+make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "cluster"))
+
+
+
+
 #### run gwas and GRS computation
 ### to be grabble from `GWAS.sh` and `PRSice.sh`
 )
 
+
+
+
+
+
+
+
+
 ####
 visualize <- drake_plan(
   dim(dups) #30 2
-  table(sex_info3$Sexe, exclude=NULL)
+  table(sex_info3$Sexe, exclude = NULL)
   #    F    M
   # 1298 1469
-  table(eth_info3$Ethnie, exclude=NULL)
+  table(eth_info3$Ethnie, exclude = NULL)
   # africain  africain + caucasien       amerique du sud
   #      101                     1                     1
   # Antilles                 arabe     arabe + caucasien
@@ -160,7 +227,7 @@ visualize <- drake_plan(
   #NONE
 
     ## anyone missign?
-    no_sex_eth <- fam[which(!fam[,2] %in% sex_info4[,2]),c(1,2)]
+    no_sex_eth <- fam[which(!fam[,2] %in% sex_info4[,2]), c(1,2)]
     no_sex_eth
     # empty
 

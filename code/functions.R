@@ -240,6 +240,36 @@ munge_pheno_follow <-  function(pheno_baseline) {
   return(out)
 }
 
+create_GWAS_pheno <- function(pheno_baseline, pheno_followup){
+
+  na_to_none <- function(x) ifelse(is.na(x),'NONE',x)
+  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'))
+  linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20'))
+
+  list_covar <- list(linear=linear_covar)
+  list_pheno <- list(linear=linear_pheno)
+  for(sub in names(pheno_followup))
+  {
+    data_drug <- pheno_followup[[sub]]
+    all_var <- data_drug %>% dplyr::select(matches('^FID$|^IID$|bmi_change$|^high_inducer$|^age_|^follow_up_time',ignore.case = F)) %>%
+      mutate_at("high_inducer", as.character) %>%
+      mutate(high_inducer=dplyr::recode(high_inducer, "0" = "NoDrug", "1" = "Drug")) %>%
+      rename_at(vars(-FID,-IID),function(x) paste0(x,"_",sub)) %>%
+      mutate_if(.predicate = is.character,.funs = na_to_none)
+
+    pheno_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^bmi_change|^high_inducer',ignore.case = F))
+    covar_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^age_|^high_inducer|^follow_up_time',ignore.case = F))
+    list_pheno[[sub]] <- pheno_var
+    list_covar[[sub]] <- covar_var
+  }
+
+  full_pheno <- reduce(list_pheno, left_join, by = c("FID","IID")) %>%
+    mutate_if(.predicate = is.character,.funs = na_to_none)
+  full_covar <- reduce(list_covar, left_join, by = c("FID","IID")) %>%
+    mutate_if(.predicate = is.character,.funs = na_to_none)
+  out <- list(full_pheno = full_pheno, full_covar = full_covar)
+}
+
 split_followup <- function(pheno_followup){
   out <- list()
   for(i in 1:dim(test_drugs)[1])
@@ -271,12 +301,130 @@ write_followup_data <- function(pheno_followup_split){
   }
 }
 
-create_analysis_dirs <- function(){
-  dir.create("analysis/GWAS",showWarnings=F)
-  dir.create("analysis/GWAS/interaction",showWarnings=F)
-  dir.create("analysis/GWAS/linear",showWarnings=F)
+create_analysis_dirs <- function(top_level){
+  dir.create(top_level,showWarnings=F)
+  to_create <- c("analysis/GWAS/interaction","analysis/GWAS/full","analysis/GWAS/subgroup")
+  for(dir in to_create){
+    dir.create(dir,showWarnings=F)
+    for (eth in eths){
+      dir.create(file.path(dir, eth),showWarnings=F)
+    }
+  }
+
   dir.create("analysis/GRS",showWarnings=F)
   return(TRUE)
+}
+
+define_baseline_inputs <- function(GWAS_input){
+  linear_vars<- c(baseline_vars)
+  linear_covars <- rep(list(c(standard_covars,baseline_covars)),length(baseline_vars))
+  for(i in 1:length(drug_classes)){
+    linear_vars <- c(linear_vars,
+      colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0("bmi_change","_",drug_classes[i]))])
+    covars <- c(standard_covars)
+    covars <- c(covars, colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
+        dplyr::select(starts_with("age")))))
+
+    linear_covars[[length(linear_covars)+1]]  <- covars
+  }
+
+  baseline_gwas_info <- tibble ( pheno = linear_vars,
+                                 covars = linear_covars )
+  return(baseline_gwas_info)
+}
+
+define_interaction_inputs <- function(){
+  interaction_vars <- numeric()
+  interaction_covars <- list()
+  interaction_pams <- numeric()
+  for(i in 1:length(drug_classes)){
+
+   interaction_vars <- c(interaction_vars,
+     colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0("bmi_change","_",drug_classes[i]))])
+   covars <- c(standard_covars)
+   covars <- c(covars,
+     colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i]))))
+
+
+   interaction_covars[[length(interaction_covars)+1]]  <- covars
+  }
+
+  interaction_pams <- rep("1-27, 49", length(drug_classes)) ## to check
+  interaction_gwas_info <- tibble ( pheno = interaction_vars,
+                                    covars = interaction_covars,
+                                    parameters = interaction_pams)
+
+  return(interaction_gwas_info)
+
+}
+
+define_subgroup_inputs <- function(){
+  subgroup_vars <- numeric()
+  subgroup_covars <- list()
+  subgroup_pheno <- list()
+  for(i in 1:length(drug_classes)){
+    pheno <- c(paste0("bmi_change_",drug_classes[i]),paste0("high_inducer_",drug_classes[i]))
+    subgroup_vars <- c(subgroup_vars,
+      colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0("high_inducer","_",drug_classes[i]))])
+    covars <- c(standard_covars)
+    covars <- c(covars,
+      colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
+      dplyr::select(-starts_with("high_inducer"))))
+
+    subgroup_covars[[length(subgroup_covars)+1]]  <- covars
+    subgroup_pheno[[length(subgroup_pheno)+1]]  <- pheno
+  }
+  subgroup_gwas_info <- tibble( pheno = subgroup_pheno,
+                                subgroup = subgroup_vars,
+                                covar = subgroup_covars)
+  return(subgroup_gwas_info)
+
+}
+
+
+
+run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eths,
+  eth_sample_file, output_dir, output,
+  remove_sample_file=NULL,threads=1,group="full",
+  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL){
+
+  write_dir <- file.path(output_dir, group)
+  # eth_sample_file : in the form of "keep_this_ETH.txt"
+  # deafault option: --variance-standardize
+  if(group=="subgroup")
+  {
+    subgroup_commands <- c("--loop-cats", subgroup_var, "--debug")
+    output <- paste0(output,"_",subgroup_var)
+  } else subgroup_commands <- NULL
+  if(interaction==TRUE)
+  {
+    analysis_commands <- c("--glm", "interaction", "--parameters", parameters)
+  } else analysis_commands <- c("--glm", "hide-covar")
+
+  if(!is.null(remove_sample_file)){
+    remove_commands <- c("--remove",remove_sample_file)
+  } else remove_commands <- NULL
+
+  general_commands <- c("--pfile", pfile,"--pheno", pheno_file, "--pheno-name", pheno_name, "--covar",covar_file,
+          "--covar-name", covar_names,
+          "--threads", threads, "--variance-standardize")
+
+  out <- list()
+  for (eth in eths)
+  {
+    keep_file <- str_replace(eth_sample_file, "ETH", eth)
+    eth_count <- dim(fread(keep_file))[1]
+    #if(eth_count > 100)
+    #{
+      real_output <- file.path(write_dir,eth,paste0(output,"_",eth))
+      eth_commands <- c("--keep", keep_file, "--out", real_output)
+
+      plink_input <- c(general_commands, analysis_commands, remove_commands, subgroup_commands,eth_commands)
+      temp_out <- processx::run(command="plink2",plink_input, error_on_status=F)
+      out[[eth]] <- temp_out
+    #}
+  }
+  return(out)
 }
 
 meta_interaction <- function(run_gwas_interaction){

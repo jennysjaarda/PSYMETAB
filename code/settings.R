@@ -23,9 +23,20 @@ source("code/packages.R")
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
 drake_hpc_template_file("slurm_clustermq.tmpl")
 
+library(drake)
+library(future.batchtools)
+future::plan(batchtools_slurm, template = "slurm_batchtools.tmpl")
+make(plan, parallelism = "future", jobs = 2)
+
+
 ### data sources
 plink_ped_raw <- "data/raw/PLINK_091019_0920/PSYMETAB_GWAS"
-plink_bed_out <- "data/processed/PLINK_091019_0920/PSYMETAB_GWAS"
+plink_bed_out <- str_replace(plink_ped_raw,"raw","processed")
+dir.create(plink_bed_out,showWarnings = F)
+dir.create("data/processed/phenotype_data/GWAS_input", showWarnings = F)
+create_analysis_dirs("analysis/GWAS")
+
+
 rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
 pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_241019_noaccent.csv"
@@ -75,8 +86,12 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 "Flupentixol", "Fluphenazine","Haloperidol","Lurasidone", "Pipamperone", "Sertindole", "Sulpiride", "Tiapride")
 
 
-test_drugs <- tibble(class=c("all_high_inducers", "olanzapine_clozapine", "valproate"), drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c( "Valproate")))
+drug_classes <- c("all", "olanz_cloz", "valproate")
+test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c( "Valproate")))
 baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
+
+standard_covars <- c(paste0("PC", 1:20), "sex")
+baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
 
 GWAS_models <- tibble(outcome_variable=c(rep("bmi_change", dim(test_drugs)[1]),baseline_vars),
                       interaction_variable=c(dplyr::pull(test_drugs, class),rep(NA, length(baseline_vars))),

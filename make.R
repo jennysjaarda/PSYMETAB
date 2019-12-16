@@ -19,3 +19,7 @@ source("code/settings.R")
 source("code/plan.R")
 
 # Run analyses ----
+
+make(pre_impute,parallelism = "future",jobs = 1, console_log_file = "pre_impute_qc.out", template = list(partition = "sgg"))
+
+### download files and impute on Michigan server

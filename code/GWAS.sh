@@ -39,7 +39,7 @@ for eth in CEU EA MIXED NA YRI ; do
 	plink2 --pfile $QC_dir/15_final_processing/${eth}/${output_name}.${eth} \
     --pheno $pheno_file \
     --pheno-name ${variable} \
-		--linear 'hide-covar' \
+		--glm 'hide-covar' \
 		--keep $QC_dir/12_ethnicity_admixture/pca/${output_name}_${eth}_samples.txt \
 		--remove $QC_dir/11_relatedness/${output_name}_related_ids.txt \
 		--covar $covar_file \
