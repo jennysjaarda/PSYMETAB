@@ -146,7 +146,7 @@ munge_pheno <- function(pheno_raw){
     mutate_at(paste0( baseline_vars, "_start"), destring) %>%
     group_by(GEN) %>%
     mutate(Drug_Number=paste0("Drug_",row_number())) %>%
-    pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug")), names_from=Drug_Number, values_from=c("AP1", "Age","Date", "BMI_start", "LDL_start","Glucose_start","Creatinine_start",
+    pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug")), names_from=Drug_Number, values_from=c("AP1", "Age","Date", paste0(baseline_vars, "_start"),
         "AP1_duration", "BMI_change","Num_followups")) %>%
     dplyr::select(matches('GEN|sex|AP1|Age|Date|BMI|_start_Drug_1|Num_followups|_ever_drug')) %>%
     ungroup() %>%
@@ -316,7 +316,8 @@ create_analysis_dirs <- function(top_level){
 }
 
 define_baseline_inputs <- function(GWAS_input){
-  linear_vars<- c(baseline_vars)
+  col_match<- paste(paste0(baseline_vars,"_start_Drug_1"), collapse = "|")
+  linear_vars <- colnames(dplyr::select(GWAS_input$full_pheno,matches(col_match)))
   linear_covars <- rep(list(c(standard_covars,baseline_covars)),length(baseline_vars))
   for(i in 1:length(drug_classes)){
     linear_vars <- c(linear_vars,
@@ -333,7 +334,7 @@ define_baseline_inputs <- function(GWAS_input){
   return(baseline_gwas_info)
 }
 
-define_interaction_inputs <- function(){
+define_interaction_inputs <- function(GWAS_input){
   interaction_vars <- numeric()
   interaction_covars <- list()
   interaction_pams <- numeric()
@@ -358,7 +359,7 @@ define_interaction_inputs <- function(){
 
 }
 
-define_subgroup_inputs <- function(){
+define_subgroup_inputs <- function(GWAS_input){
   subgroup_vars <- numeric()
   subgroup_covars <- list()
   subgroup_pheno <- list()
