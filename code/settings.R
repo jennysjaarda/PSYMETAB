@@ -21,7 +21,10 @@ source(paste0(SGG_generic,"/scripts/settings.r"))
 
 ## register clustermq and future plans
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
-future::plan(batchtools_slurm, template = "slurm_batchtools.tmpl")
+
+
+template = system.file("templates", "slurm-simple.tmpl", package = "batchtools")
+future::plan(batchtools_slurm, template = template)
 
 
 ### data sources
@@ -39,8 +42,6 @@ post_imputation_script <- "code/post_imputation_qc.sh"
 download_imputation_script <- "code/download_imputation.sh"
 check_imputation_script <- "code/check_imputation.sh"
 final_processing_script <-  "code/final_processing.sh"
-gwas_linear_script <-  "code/GWAS.sh"
-gwas_interaction_script <-  "code/GWAS_interaction.sh"
 
 ### define variables
 
