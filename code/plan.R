@@ -118,28 +118,25 @@ make(analysis_prep)
 
 init_analysis <- drake_plan(
   # run initial GWAS ---------------------------
-  baseline_gwas_info = define_baseline_inputs(GWAS_input),
-  interaction_gwas_info = define_interaction_inputs(GWAS_input),
-  subgroup_gwas_info = define_subgroup_inputs(GWAS_input),
   linear_out = target({
     run_final_processing
     run_gwas(pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
-                covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
-                threads = 16, pheno_name = pheno, covar_names = covars, eths = !!eths,
-                eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-                remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
-                output_dir = file_in("analysis/GWAS"), output = "PSYMETAB_GWAS")},
-    transform = map(.data = baseline_gwas_info, .id = pheno),resources = list(ncpus = 16)),
+               covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
+               threads = 16, pheno_name = pheno, covar_names = covars, eths = !!eths,
+               eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+               remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
+               output_dir = file_in("analysis/GWAS"), output = "PSYMETAB_GWAS")},
+    transform = map(.data = !!baseline_gwas_info, .id = pheno),resources = list(ncpus = 16)),
 
   interaction_out = target({
     run_final_processing
     run_gwas(pfile = "analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL", pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
                 covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
-                threads = 16, pheno_name = pheno, covar_names = covars, parameters = parameters, interaction = TRUE,
+                threads = 16, pheno_name = pheno, covar_names = covars, parameters = parameters, interaction = TRUE, interaction_name = interaction_var_name,
                 eths = !!eths, eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt",  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
                 output_dir = file_out("analysis/GWAS"), output = "PSYMETAB_GWAS")},
-    transform = map(.data = interaction_gwas_info, .id = pheno),resources = list(ncpus = 16)),
+    transform = map(.data = !!interaction_gwas_info, .id = interaction_var_name),resources = list(ncpus = 16)),
   subgroup_out = target({
     run_final_processing
     run_gwas(pfile = "analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL", pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
@@ -148,15 +145,19 @@ init_analysis <- drake_plan(
                 eths = !!eths, eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt",  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
                 output_dir = file_out("analysis/GWAS"), output = "PSYMETAB_GWAS")},
-    transform = map(.data = subgroup_gwas_info, .id = pheno),resources = list(ncpus = 16))
+    transform = map(.data = !!subgroup_gwas_info, .id = subgroup),resources = list(ncpus = 16))
 )
 
-vis_drake_graph(drake_config(init_analysis))
+post_impute <- bind_plans(post_impute,analysis_prep,init_analysis)
 
-future::plan(batchtools_slurm, template = "~/slurm/slurm_batchtools_savio.tmpl")
+vis_drake_graph(drake_config(post_impute))
+outdated(drake_config(init_analysis))
+
 make(init_analysis,parallelism = "future",jobs = 4, console_log_file = "init.out")
-make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "cluster"))
 
+make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "sgg"))
+
+pull(init_analysis %>% dplyr::select(command))
 
 process_init <- drake_plan(
 
