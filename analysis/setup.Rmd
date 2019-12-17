@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r knitr-opts, include=FALSE}
-knitr::opts_chunk$set(comment = "#",collapse = TRUE)
+knitr::opts_chunk$set(echo = TRUE, comment = "#")
 ```
 
 **Last updated:** `r Sys.Date()`
@@ -58,7 +58,7 @@ cd ~/Dropbox/UNIL/projects/
 git clone https://GitHub.com/jennysjaarda/PSYMETAB.git PSYMETAB
  ```
 
-Open project in atom (or preferred text editor) and modify the following files:
+Open project in Atom (or preferred text editor) and modify the following files:
 
 - Because Terminal cannot generate a preview and `workflowr` doesn't like the sysgit, to the `.Rprofile` file, add:
   - `options(workflowr.sysgit = "")`
@@ -105,15 +105,15 @@ PSYMETAB/
 ├── data/
 │   ├── README.md
 │   ├── raw/
-|       ├── phenotype_data/
-|       ├── reference_files/
-|       └── extraction/
-│   └── processed/
-|       ├── phenotype_data/
-|       ├── reference_files/
-|       └── extraction/
+│   │   ├── phenotype_data/
+│   │   ├── reference_files/
+│   │   └── extraction/
+│   ├── processed/
+│   │   ├── phenotype_data/
+│   │   ├── reference_files/
+│   │   └── extraction/
 ├── docs/
-|       └── assets/
+│   └── assets/
 ├── myproject.Rproj
 ├── output/
 │   └── README.md
@@ -123,33 +123,62 @@ PSYMETAB/
 Raw PLINK (`ped` and `map` files) data were copied from the CHUV folder (`L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`) after being built in genomestudio to the `data/` drive.
 
 ## Step 4: Run and summarize analyses.
+*Note that Part A and B are happening in parallel.*
 
 ### Part A: Setup drake and execute plan.
 
-**Note that Part A and B are happening in parallel.**
 
 ```{r eval=FALSE}
 library(drake)
 ```
 
-For execution of drake plan: see [`make.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/make.R)
-For drake plan see: [`code/plan.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R)
+For execution of drake plan: see [`make.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/make.R).  
+For drake plan(s) see: [`code/plan.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R).  
 
-Configure a slurm template
+To run drake plans on slurm nodes with parallel backends, there are two options:
+
+  1. [`clustermq`](https://cran.r-project.org/web/packages/clustermq/vignettes/userguide.html)
+  - Requires `zeromq` installation.
+  - Faster.
+  - Does not allow for transient workers (possible work in progress, see this [issue](https://github.com/HenrikBengtsson/future/issues/204#issuecomment-565033349).
+  - Can modify `template` using `template` argument within `make`.
+
+  2. [`future`](https://github.com/HenrikBengtsson/future) / [`future.batchtools`](https://github.com/HenrikBengtsson/future.batchtools)
+  - Slower.
+  - Easier intallation.
+  - Allows for transient workers.
+  - Unable to modify `template` within `make` directly.
+
+For either option, a template needs to be registered and edited manually according to our cluster's requirements/needs.
+We will prepare both templates, because we will use both backends, depending on the plan.
+
 ```{r eval=FALSE}
-options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
+# load and save template from `drake`  using `drake_hpc_template_file` function, edit manually.
+drake_hpc_template_file("slurm_clustermq.tmpl")
+drake_hpc_template_file("slurm_batchtools.tmpl")
 
-drake_hpc_template_file("slurm_batchtools.tmpl") # Edit by hand.
+# register the plans
+options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
 future::plan(batchtools_slurm, template = "slurm_batchtools.tmpl")
 
-drake_hpc_template_file("slurm_clustermq.tmpl")
-drake_hpc_template_file("slurm_batchtools.tmpl") # Edit by hand.
-# Write the file slurm_clustermq.tmpl. and edit manually
 ```
-The file created using the `clustermq` template was edited manually to match [`slurm_clustermq.tmpl`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/slurm_clustermq.tmpl)
+
+The files created above were edited manually to match [`slurm_clustermq.tmpl`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/slurm_clustermq.tmpl)
+and [`slurm_batchtools.tmpl`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/slurm_batchtools.tmpl).
 
 ```{r comment=''}
 cat(readLines('slurm_clustermq.tmpl'), sep = '\n')
+2 + 2
+head(1:100)
+```
+
+```{r}
+2 + 2
+head(1:100)
+```
+
+```{r comment=''}
+#cat(readLines('slurm_batchtools.tmpl'), sep = '\n')
 ```
 
 ### Part B: Build and maintain website.

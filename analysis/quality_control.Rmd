@@ -6,15 +6,31 @@ output:
     toc: true
 ---
 
-The following document outlines and summarizes the quality control and processing procedure that was followed to create a clean, imputed dataset.
+**The following document outlines and summarizes the quality control and processing procedure that was followed to create a clean, imputed dataset.**
 
-## randomize_IDs.r
-- Script run on CHUV computer before building GenomeStudio project.
+## Step 1: Prepare and cluster genomestudio files.
+*see [Data Processing in GenomeStudio](data_processing_in_genomestudio.html) for further details*
+
+### Part A: Randomize IDs.
+- Genetic sampleIDs were recoded according to GPCR algorithm to ensure genetic participants are not identifiable.
+- `code/radomize_IDs.r` was run on CHUV computer before building GenomeStudio project.
 - Creates a new csv file which was used to create a GenomeStudio project with data provided by lab in Geneva.
 - Requires manual addition of header before uploading to GenomeStudio.
-- Some samples were found to be duplicates (i.e. 2 samples at 2 different time points were analyzed for the same individual) and they were recoded to have ID ${ID}002.
+- Some samples were found to be duplicates (i.e. 2 samples at 2 different time points were analyzed for the same individual) and they were recoded to have ID as: `${ID}002`.
 
-## Pre quality control data prep
+### Part B: Create GenomeStudio files:
+- Using
+
+### Part C: Clustering and PLINK conversion:
+- X
+- Y
+- Z
+
+### Part D: Copy files to SGG server using FileZilla.
+
+## Step 2: Pre-quality control data prep.
+**Results of Step 2-5 are saved to `analysis/QC`**
+
 - Processes sex and ethnicity files to be used in QC scripts.
 - Sex file was created according to the input specified on plink man page (FID, IID, sex [M/F]).
 - Ethnicity input file to be used in R script for comparison to genetically derived ethnic groups (by snpWeights).
@@ -22,17 +38,20 @@ The following document outlines and summarizes the quality control and processin
   - Changes French codes to English.
   - Changes missing to unknown.
   - Groups small ethnic groups to missing.
-- A1 rsid conversion file was updated to remove all SNPs labeled with a [.] (see 'data/README.md').
+- A1 rsid conversion file was updated to remove all SNPs labeled with a [.] (see [data sources](data_sources.html)).
 
-## Quality control steps
+## Step 3: Pre-imputation quality control.
 
-**results are saved to `analysis/QC`**
-
+### Initial steps:
 0. Preprocessing
 1. Strand alignment
 2. MAF zero
 3. Missingness
 4. Sex check
+
+## Step 4: Imputation:
+
+
 5. Imputation (preparation and run)
 6. Run and download imputation
 ![](assets/michigan_imputation_screenshot.PNG)

@@ -30,7 +30,7 @@ output: workflowr::wflow_html
 ## Clustering and PLINK conversion
 - Data saved on CHUV servers at the following location: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\GS_project_26092019`.
 - `GS_project_26092019.bsc` was opened (requires Genome Studio) and used for clustering.
-- Clustering was performed according to the guidelines in the webinar (see [Notes on creating custom cluster files](create_custom_cluster_files.html)) with the following procedure:
+- Clustering was performed according to the guidelines in the webinar (see [notes on creating custom cluster files](create_custom_cluster_files.html)) with the following procedure:
   1. Cluster: cluster all SNPs, evaluate samples.
      1. Once data was opened, all SNPs were clustered by clicking "Cluster all SNPs button" in the top panel (icon with 3 red, purple, blue ovals). SNP statistics and heritability estimate updates were ignored.
      2. In the samples table (bottom left panel) call rate was recalculated by clicking "Calculate" (calculator icon) to recalculate SNP call rates with new cluster positions. SNP statistics and heritability estimate updates were ignored.
@@ -84,7 +84,7 @@ output: workflowr::wflow_html
   - We requested with Mylene to create a new project with the new IDs, but she suggested to create our own GS project.
   - She provided all relevant data to create our own GS project.
   - The description above reflects these changes.
-- As of October 11, all GS file were created, clustered and exported as PLINK files and subsequently moved to the Zoltan's.
+- As of October 11, all GS file were created, clustered and exported as PLINK files and subsequently moved to the sgg server.
 
 ## Creating full data table for use in penncnv
 - Instructions to create data for penncnv input were followed [here](http://penncnv.openbioinformatics.org/en/latest/user-guide/input/)
