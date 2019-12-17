@@ -9,7 +9,7 @@ library(purrr)
 library(rlang)
 library(tibble)
 library(processx)
-
+library(future.batchtools)
 library(pacman)
 library(clustermq)
 Packages <- c("dplyr", "data.table", "R.utils", "rbgen","devtools",
