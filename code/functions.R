@@ -6,7 +6,6 @@ read_fam <- function(create_bed_out)
   read.table(paste0(plink_bed_out,".fam"))
 }
 
-
 munge_fam <- function(fam_raw, id_code){
   colnames(fam_raw) <- c("FID", "IID", "fatherID", "motherID", "sex", "pheno")
   fam_id <- merge(fam_raw, id_code, by.x="IID", by.y="randomizedID")
@@ -46,16 +45,12 @@ format_sex_file <- function(sex_info){
 }
 
 format_eth_file <- function(eth_info){
-
   colnames(eth_info) <- c("FID", "IID", "ETH")
   eth_info$ETH <- as.factor(eth_info$ETH)
   eth_info$ETH2 <- vector(length=nrow(eth_info))
-
   eth_info$ETH2 <- replace(eth_info$ETH2, eth_info$ETH=="caucasien", 1)
   eth_info$ETH2 <- replace(eth_info$ETH2, eth_info$ETH=="arabe + caucasien", 1)
-
   eth_info$ETH2 <- replace(eth_info$ETH2, eth_info$ETH=="africain", 2)
-
   eth_info$ETH2 <- replace(eth_info$ETH2, eth_info$ETH=="amerique du sud", 3)
   ### South America -> Latin
   eth_info$ETH2 <- replace(eth_info$ETH2, eth_info$ETH=="Antilles", 3)
@@ -69,11 +64,9 @@ format_eth_file <- function(eth_info){
   eth_info$ETH2 <- replace(eth_info$ETH2, eth_info$ETH=="africain + caucasien", 6)
   eth_info$ETH2 <- replace(eth_info$ETH2, eth_info$ETH=="inconnu", 7)
   eth_info$ETH2 <- replace(eth_info$ETH2, is.na(eth_info$ETH), 7)
-
   eth_info$ETH2 <- factor(eth_info$ETH2, levels=c(1:7), labels=c("EUROPEAN","AFRICAN", "LATIN", "SOUTH_ASIAN", "EAST_ASIAN", "OTHER", "UNKNOWN"))
   eth_info <- eth_info[,c(1,2,4)]
   colnames(eth_info) <- c("FID", "IID", "ETH")
-
   return(eth_info)
 }
 
@@ -96,18 +89,23 @@ rename_meds <- function(x)
 
 bmi_diff <- function(x){n_obs <- length(x); x[n_obs]-x[1]}
 
-check_sex <- function(x){out <- NA
-  if(("M" %in% x) & ("F" %in% x)) {out <- NA} else {
-                            if("M" %in% x) {out <- "M"}
-                            if("F" %in% x) {out <- "F"}}
-                        return(out)
-                      }
+check_sex <- function(x){
+  out <- NA
+  if(("M" %in% x) & ("F" %in% x)) {
+    out <- NA
+  } else {
+    if("M" %in% x) {out <- "M"}
+    if("F" %in% x) {out <- "F"}
+  }
+  return(out)
+}
+
 check_height <- function(x){
-                        if(all(is.na(x))) {out <- NA} else{
-                          out <- mean(x, na.rm=T)
-                        }
-                        return(out)
-                      }
+  if(all(is.na(x))) {out <- NA} else{
+    out <- mean(x, na.rm=T)
+  }
+  return(out)
+}
 
 ever_drug <- function(x) {
   if(any(x==1)){out <- 1} else{
@@ -115,7 +113,6 @@ ever_drug <- function(x) {
   }
   return(out)
 }
-
 
 munge_pheno <- function(pheno_raw){
   pheno_raw %>%
@@ -152,7 +149,6 @@ munge_pheno <- function(pheno_raw){
     ungroup() %>%
     mutate(Age_sq_Drug_1 = Age_Drug_1^2) %>%
     mutate_at(vars(starts_with("AP1_Drug_")) , as.factor)
-
 }
 
 read_pcs <- function(pc_dir){
@@ -161,7 +157,6 @@ read_pcs <- function(pc_dir){
   for (eth in eths)
   {
     PC_temp<- fread(file.path(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))
-
     PC_temp <- PC_temp %>%
       separate(FID, c("counter", "GPCR"), sep="_")  %>%
       mutate(eth = eth)  %>%
@@ -205,12 +200,10 @@ classify_drugs <- function(x, case_categories, preferential_control_categories) 
   bmi_change <- dplyr::pull(drug_info[best_match,"bmi_change"])
   age_started <- dplyr::pull(drug_info[best_match,"age_started"])
   return(list(case=case, drug_num=best_match, drug_name=drug_temp,age_started=age_started ,bmi_diff=bmi_change, duration=time_temp))
-
 }
 
 
 munge_pheno_follow <-  function(pheno_baseline) {
-
   out <- list()
   for(i in 1:dim(test_drugs)[1])
   {
@@ -236,12 +229,10 @@ munge_pheno_follow <-  function(pheno_baseline) {
 
     out[[drug_class]] <- followup_data
   }
-
   return(out)
 }
 
 create_GWAS_pheno <- function(pheno_baseline, pheno_followup){
-
   na_to_none <- function(x) ifelse(is.na(x),'NONE',x)
   linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'))
   linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20'))
@@ -266,7 +257,9 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup){
   full_pheno <- reduce(list_pheno, left_join, by = c("FID","IID")) %>%
     mutate_if(.predicate = is.character,.funs = na_to_none)
   full_covar <- reduce(list_covar, left_join, by = c("FID","IID")) %>%
-    mutate_if(.predicate = is.character,.funs = na_to_none)
+    mutate_if(.predicate = is.character,.funs = na_to_none) %>%
+    mutate_at(vars(starts_with("high_inducer_")), function(x) case_when(x == "NONE" ~ NA_real_, x == "Drug" ~ 1, x == "NoDrug" ~ 0))  %>%
+    mutate_at("sex", function(x) case_when(x == "NONE" ~ NA_real_, x == "F" ~ 1, x == "M" ~ 0))
   out <- list(full_pheno = full_pheno, full_covar = full_covar)
 }
 
@@ -284,17 +277,14 @@ split_followup <- function(pheno_followup){
     out[[drug_class]] <- temp_list
   }
   return(out)
-
 }
 
 write_followup_data <- function(pheno_followup_split){
-
   for(i in 1:dim(test_drugs)[1])
   {
     drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
     drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
     data_drug <- pheno_followup_split[[drug_class]]
-
     out_interaction_pheno = write.table(data_drug$pheno, file_out(paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_pheno_input.txt")), row.names=F, quote=F, col.names=T)
     out_interaction_covar = write.table(data_drug$covar, file_out( paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_covar_input.txt")), row.names=F, quote=F, col.names=T)
 
@@ -310,7 +300,6 @@ create_analysis_dirs <- function(top_level){
       dir.create(file.path(dir, eth),showWarnings=F)
     }
   }
-
   dir.create("analysis/GRS",showWarnings=F)
   return(TRUE)
 }
@@ -345,18 +334,15 @@ define_interaction_inputs <- function(GWAS_input){
    covars <- c(standard_covars)
    covars <- c(covars,
      colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i]))))
-
-
    interaction_covars[[length(interaction_covars)+1]]  <- covars
   }
 
-  interaction_pams <- rep("1-27, 49", length(drug_classes)) ## to check
-  interaction_gwas_info <- tibble ( pheno = interaction_vars,
-                                    covars = interaction_covars,
-                                    parameters = interaction_pams)
-
+  interaction_pams <- rep("1-27,49", length(drug_classes)) ## to check
+  interaction_gwas_info <- tibble ( pheno = interaction_vars, ## this is y
+                                    covars = interaction_covars, ## these are the x'x
+                                    parameters = interaction_pams, ## this is passed to PLINK
+                                    interaction_var_name = drug_classes) ## this will be the output name
   return(interaction_gwas_info)
-
 }
 
 define_subgroup_inputs <- function(GWAS_input){
@@ -371,40 +357,41 @@ define_subgroup_inputs <- function(GWAS_input){
     covars <- c(covars,
       colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
       dplyr::select(-starts_with("high_inducer"))))
-
     subgroup_covars[[length(subgroup_covars)+1]]  <- covars
     subgroup_pheno[[length(subgroup_pheno)+1]]  <- pheno
   }
   subgroup_gwas_info <- tibble( pheno = subgroup_pheno,
                                 subgroup = subgroup_vars,
-                                covar = subgroup_covars)
+                                covars = subgroup_covars)
   return(subgroup_gwas_info)
-
 }
-
 
 
 run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eths,
   eth_sample_file, output_dir, output,
   remove_sample_file=NULL,threads=1,group="full",
-  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL){
+  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, interaction_name=""){
 
-  write_dir <- file.path(output_dir, group)
   # eth_sample_file : in the form of "keep_this_ETH.txt"
   # deafault option: --variance-standardize
+  file_name <- output
+
   if(group=="subgroup")
   {
     subgroup_commands <- c("--loop-cats", subgroup_var, "--debug")
     output <- paste0(output,"_",subgroup_var)
   } else subgroup_commands <- NULL
-  if(interaction==TRUE)
-  {
-    analysis_commands <- c("--glm", "interaction", "--parameters", parameters)
-  } else analysis_commands <- c("--glm", "hide-covar")
 
   if(!is.null(remove_sample_file)){
     remove_commands <- c("--remove",remove_sample_file)
   } else remove_commands <- NULL
+
+  if(interaction==TRUE)
+  {
+    analysis_commands <- c("--glm", "interaction", "--parameters", parameters)
+    group <- "interaction"
+    file_name <- paste0(file_name,"_int_",interaction_name)
+  } else analysis_commands <- c("--glm", "hide-covar")
 
   general_commands <- c("--pfile", pfile,"--pheno", pheno_file, "--pheno-name", pheno_name, "--covar",covar_file,
           "--covar-name", covar_names,
@@ -415,11 +402,13 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
   {
     keep_file <- str_replace(eth_sample_file, "ETH", eth)
     eth_count <- dim(fread(keep_file))[1]
+    file_name <- paste0(file_name,"_",eth)
+    write_dir <- file.path(output_dir, group)
+    full_output <- file.path(write_dir,eth,file_name)
+    eth_commands <- c("--keep", keep_file, "--out", full_output)
+
     #if(eth_count > 100)
     #{
-      real_output <- file.path(write_dir,eth,paste0(output,"_",eth))
-      eth_commands <- c("--keep", keep_file, "--out", real_output)
-
       plink_input <- c(general_commands, analysis_commands, remove_commands, subgroup_commands,eth_commands)
       temp_out <- processx::run(command="plink2",plink_input, error_on_status=F)
       out[[eth]] <- temp_out
@@ -429,7 +418,6 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
 }
 
 meta_interaction <- function(run_gwas_interaction){
-
     input_char <- deparse(substitute(run_gwas_interaction))
     inter_variable <- sub("run_meta_interaction_", "", input_char)
     folder <- paste0("analysis/GWAS/interaction/",inter_variable)
@@ -448,7 +436,6 @@ meta_interaction <- function(run_gwas_interaction){
 }
 
 meta_linear <- function(run_gwas_linear){
-
   input_char <- deparse(substitute(run_gwas_linear))
   variable <- sub("run_gwas_linear_", "", input_char)
 
@@ -466,9 +453,7 @@ combine_targets <- function(...)
 {
   temp <- substitute(list(...))[-1]
   c(sapply(temp, deparse))
-
 }
-
 
 
 #### TO BE REVISED
@@ -520,8 +505,6 @@ process_gwas <- function(outcome_variable,interaction_variable,model){
     png("interaction_qq2.png", width=2000, height=1000, pointsize=18)
     qq(joint_maf$P)
     dev.off()
-
-
     qq(gwas_result2$P)
   }
 
