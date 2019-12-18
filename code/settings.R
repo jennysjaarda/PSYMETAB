@@ -22,8 +22,9 @@ source(paste0(SGG_generic,"/scripts/settings.r"))
 ## register clustermq and future plans
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
 
-
+library(future.batchtools)
 template = system.file("templates", "slurm-simple.tmpl", package = "batchtools")
+template <-  "slurm_batchtools_personal.tmpl"
 future::plan(batchtools_slurm, template = template)
 
 
