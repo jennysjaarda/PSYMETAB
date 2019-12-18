@@ -10,7 +10,7 @@
 ## cpus [integer(1)]:         Number of required cpus per task,
 ##                            Set larger than 1 if you want to further parallelize
 ##                            with multicore/parallel within each task.
-## memory [integer(1)]:       Memory in megabytes for each cpu. 
+## memory [integer(1)]:       Memory in megabytes for each cpu.
 ##                            Default is 7900 Mo/core
 ## partition [string(1)]:     Partition requested.
 ##                            Default is "sgg".
@@ -29,7 +29,7 @@ log.file = fs::path_expand(log.file)
 #SBATCH --error=<%= log.file %>
 #SBATCH --ntasks=1
 #SBATCH --account=sgg
-<%= if (!is.null(resources[["cpus"]])) sprintf(paste0("#SBATCH --pus-per-task='", resources[["cpus"]], "'")) %>
+<%= if (!is.null(resources[["cpus"]])) sprintf(paste0("#SBATCH --cpus-per-task='", resources[["cpus"]], "'")) %>
 <%= if (!is.null(resources[["partition"]])) sprintf(paste0("#SBATCH --partition='", resources[["partition"]], "'")) %>
 <%= if (array.jobs) sprintf("#SBATCH --array=1-%i", nrow(jobs)) else "" %>
 <%= if (!is.null(resources[["memory"]])) sprintf(paste0("#SBATCH --mem-per-cpu='", resources[["memory"]], "'")) %>
