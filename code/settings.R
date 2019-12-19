@@ -21,16 +21,12 @@ source(paste0(SGG_generic,"/scripts/settings.r"))
 
 ## register clustermq and future plans
 options(clustermq.scheduler = "slurm", clustermq.template = "slurm_clustermq.tmpl")
-
-library(future.batchtools)
-template = system.file("templates", "slurm-simple.tmpl", package = "batchtools")
-template <-  "slurm_batchtools_personal.tmpl"
-future::plan(batchtools_slurm, template = template)
-
+future::plan(batchtools_slurm, template = "slurm_batchtools.tmpl")
 
 ### data sources
 plink_ped_raw <- "data/raw/PLINK_091019_0920/PSYMETAB_GWAS"
 plink_bed_out <- str_replace(plink_ped_raw,"raw","processed")
+mkdir(dirname(plink_bed_out),warnings=F)
 
 rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
