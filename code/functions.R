@@ -319,7 +319,8 @@ define_baseline_inputs <- function(GWAS_input){
   }
 
   baseline_gwas_info <- tibble ( pheno = linear_vars,
-                                 covars = linear_covars )
+                                 covars = linear_covars,
+                                 output_suffix = linear_vars)
   return(baseline_gwas_info)
 }
 
@@ -341,7 +342,7 @@ define_interaction_inputs <- function(GWAS_input){
   interaction_gwas_info <- tibble ( pheno = interaction_vars, ## this is y
                                     covars = interaction_covars, ## these are the x'x
                                     parameters = interaction_pams, ## this is passed to PLINK
-                                    interaction_var_name = drug_classes) ## this will be the output name
+                                    output_suffix = drug_classes) ## this will be the output name
   return(interaction_gwas_info)
 }
 
@@ -362,35 +363,34 @@ define_subgroup_inputs <- function(GWAS_input){
   }
   subgroup_gwas_info <- tibble( pheno = subgroup_pheno,
                                 subgroup = subgroup_vars,
-                                covars = subgroup_covars)
+                                covars = subgroup_covars,
+                                output_suffix = drug_classes)
   return(subgroup_gwas_info)
 }
 
 
 run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eths,
   eth_sample_file, output_dir, output,
-  remove_sample_file=NULL,threads=1,group="full",
-  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, interaction_name=""){
+  remove_sample_file=NULL,threads=1,type="full",
+  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, output_suffix=""){
 
   # eth_sample_file : in the form of "keep_this_ETH.txt"
   # deafault option: --variance-standardize
   file_name <- output
-
-  if(group=="subgroup")
+  file_name <- paste0(file_name,"_",output_suffix)
+  if(type=="subgroup")
   {
-    subgroup_commands <- c("--loop-cats", subgroup_var, "--debug")
-    output <- paste0(output,"_",subgroup_var)
+    subgroup_commands <- c("--loop-cats", subgroup_var)
   } else subgroup_commands <- NULL
 
   if(!is.null(remove_sample_file)){
     remove_commands <- c("--remove",remove_sample_file)
   } else remove_commands <- NULL
 
-  if(interaction==TRUE)
+  if(type=="interaction")
   {
     analysis_commands <- c("--glm", "interaction", "--parameters", parameters)
-    group <- "interaction"
-    file_name <- paste0(file_name,"_int_",interaction_name)
+    file_name <- paste0(file_name,"_int")
   } else analysis_commands <- c("--glm", "hide-covar")
 
   general_commands <- c("--pfile", pfile,"--pheno", pheno_file, "--pheno-name", pheno_name, "--covar",covar_file,
@@ -403,7 +403,7 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
     keep_file <- str_replace(eth_sample_file, "ETH", eth)
     eth_count <- dim(fread(keep_file))[1]
     file_name <- paste0(file_name,"_",eth)
-    write_dir <- file.path(output_dir, group)
+    write_dir <- file.path(output_dir, type)
     full_output <- file.path(write_dir,eth,file_name)
     eth_commands <- c("--keep", keep_file, "--out", full_output)
 
