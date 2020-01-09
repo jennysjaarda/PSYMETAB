@@ -108,11 +108,11 @@ PSYMETAB/
 │   ├── raw/
 │   │   ├── phenotype_data/
 │   │   ├── reference_files/
-│   │   └── extraction/
+│   │   └── extractions/
 │   ├── processed/
 │   │   ├── phenotype_data/
 │   │   ├── reference_files/
-│   │   └── extraction/
+│   │   └── extractions/
 ├── docs/
 │   └── assets/
 ├── myproject.Rproj

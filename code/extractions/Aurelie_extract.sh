@@ -10,8 +10,8 @@
 #SBATCH --partition=sgg                                            # runs on the sggg nodes
 
 project_dir="/data/sgg2/jenny/projects/PSYMETAB"
-input=$projects/PSYMETAB/data/raw/extraction/Aurelie
-output=$projects/PSYMETAB/data/processed/extraction/Aurelie
+input=$projects/PSYMETAB/data/raw/extractions/Aurelie
+output=$projects/PSYMETAB/data/processed/extractions/Aurelie
 QC_dir=$project_dir/analysis/QC
 qc_data=${QC_dir}/15_final_processing/CEU/PSYMETAB_GWAS.CEU
 pc_data=${QC_dir}/15_final_processing/final_pca/CEU/pcs.PSYMETAB_GWAS_CEU_unrelated.txt
