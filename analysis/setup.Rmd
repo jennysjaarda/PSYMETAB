@@ -4,12 +4,17 @@ site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
     toc: true
+    toc_float: true
     number_sections: true
 
 ---
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, comment = "#")
+```
+
+```{css, echo=FALSE}
+pre, code {white-space:pre !important; overflow-x:auto}
 ```
 
 **Last updated:** `r Sys.Date()`
@@ -22,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE, comment = "#")
 
 ***
 
-## Initiate project on remote server.
+# Initiate project on remote server.
 
 All processing scripts were run from the root sgg directory.
 Project was initialized using `workflowr` rpackage, see [here](https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html).
@@ -51,7 +56,7 @@ You have now successfully created a GitHub repository for your project that is a
 
 Next setup a local copy.
 
-## Create local copy on personal computer.
+# Create local copy on personal computer.
 
 Within terminal of personal computer, clone the git repository.
 
@@ -74,7 +79,7 @@ Open project in Atom (or preferred text editor) and modify the following files:
 - Save and push these changes to GitHub.
 - Pull to the server.
 
-## Create internal project folders.
+# Create internal project folders.
 
 Return to sgg server and run the following:
 
@@ -124,7 +129,7 @@ PSYMETAB/
 
 Raw PLINK (`ped` and `map` files) data were copied from the CHUV folder (`L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`) after being built in genomestudio to the `data/` drive.
 
-## Initialize a packrat directory
+# Initialize a packrat directory
 
 [Packrat](https://rstudio.github.io/packrat/) is a dependency management system for R. It is useful for making your project:
 1. Isolated.
@@ -144,10 +149,10 @@ Now, everytime you launch `R` from this directory or run `install.packages()`, `
 Likely, we won't need to do anymore than this, but some [additional functions exist](https://rstudio.github.io/packrat/commands.html), that are useful if we need to move our project to a new disk/computer.
 
 
-## Run and summarize analyses.
+# Run and summarize analyses.
 *Note that Part A and B are happening in parallel.*
 
-### Part A: Setup drake and execute plan.
+## Setup drake and execute plan.
 
 
 ```{r eval=FALSE}
@@ -196,7 +201,7 @@ cat(readLines('slurm_clustermq.tmpl'), sep = '\n')
 cat(readLines('slurm_batchtools.tmpl'), sep = '\n')
 ```
 
-### Part B: Build and maintain website.
+## Build and maintain website.
 
 Follow the general workflow outlined by [workflowr](https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html#the-workflow), with some minor revisions to accomodate workflow between personal computer and remote server:
 
