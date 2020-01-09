@@ -20,6 +20,7 @@ source("code/plan.R")
 
 # Create output folders  ---
 dir.create(plink_bed_out,showWarnings = F)
+dir.create("analysis/QC", showWarnings = F)
 dir.create("data/processed/phenotype_data/GWAS_input", showWarnings = F)
 create_analysis_dirs("analysis/GWAS")
 

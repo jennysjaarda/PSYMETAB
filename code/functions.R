@@ -485,7 +485,7 @@ process_gwas <- function(outcome_variable,interaction_variable,model){
     if(eth!="META")
     {
       gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
-      freq <- fread(paste0("analysis/QC/15_final_processing/,",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T)
+      freq <- fread(paste0("analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T)
       joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
       sig <- joint %>%
               mutate_at("P", as.numeric) %>%
