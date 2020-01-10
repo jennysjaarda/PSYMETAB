@@ -2,7 +2,6 @@
 
 #SBATCH --job-name=extract_PSYMETAB_Aurelie                             # Job name (this name will appear in the queue)
 #SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB               # The Working Directory of the job
-#SBATCH --mail-type=ALL                                            # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --ntasks=1                                                 # Run on a single core
 #SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
 #SBATCH --output=data/processed/extractions                        # Standard output and error log (%j: job allocation number)
