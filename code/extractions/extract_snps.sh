@@ -11,7 +11,7 @@ clean_file=$output/${out_name}/${out_name}_rsids.txt
 snp_info=$output/${out_name}/${out_name}_SNP_info.txt
 
   #clean input file
-tr -d '\r' < $file | sed '/^$/d' > $clean_file
+tr -d '\r' < $snp_file | sed '/^$/d' > $clean_file
 
 num=$(awk 'NR>0 {ORS=" ";print NR}' $clean_file)
 awk 'FNR==NR {a[$1]; next}; $3 in a' $clean_file $data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab > $snp_info
