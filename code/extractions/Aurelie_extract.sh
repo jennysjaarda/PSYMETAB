@@ -4,7 +4,7 @@
 #SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB               # The Working Directory of the job
 #SBATCH --ntasks=1                                                 # Run on a single core
 #SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
-#SBATCH --output=data/processed/extractions                        # Standard output and error log (%j: job allocation number)
+#SBATCH --output=data/processed/extractions/%x.out                        # Standard output and error log (%j: job allocation number)
 #SBATCH --account=sgg                                              # runs on the sggg nodes.
 #SBATCH --partition=sgg                                            # runs on the sggg nodes
 
