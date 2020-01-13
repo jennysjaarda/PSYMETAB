@@ -24,7 +24,7 @@ FILES=$input/*.txt
 
 for file in $FILES
 do
-  sh extract_snps.sh $file $output $qc_data $pc_data
+  sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data
 
 done
 
