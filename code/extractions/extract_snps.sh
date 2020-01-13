@@ -30,4 +30,4 @@ do
   fi
 done
 
-Rscript $PSYMETAB/clean_extraction.r $output $outname $pc_data
+Rscript code/extractions/pc_merge.r $output $outname $pc_data
