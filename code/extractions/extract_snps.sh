@@ -32,4 +32,4 @@ do
   fi
 done
 
-Rscript code/extractions/pc_merge.r $output $outname $pc_data
+Rscript code/extractions/pc_merge.r $output $out_name $pc_data
