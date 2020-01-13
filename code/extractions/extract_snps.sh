@@ -6,7 +6,9 @@ pc_data=${4} #$output/${out_name}/
 
 file_start=$(echo $snp_file | cut -f1 -d.)
 out_name=$(basename $file_start)
-mkdir $output/$out_name
+if [ ! -d "${output}/${out_name}" ] ; then
+  mkdir $output/$out_name
+fi
 clean_file=$output/${out_name}/${out_name}_rsids.txt
 snp_info=$output/${out_name}/${out_name}_SNP_info.txt
 
