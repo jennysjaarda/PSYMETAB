@@ -82,10 +82,10 @@ mkdir $project_dir/data/raw
 mkdir $project_dir/data/processed
 mkdir $project_dir/data/raw/reference_files
 mkdir $project_dir/data/raw/phenotype_data
-mkdir $project_dir/data/raw/extraction
+mkdir $project_dir/data/raw/extractions
 mkdir $project_dir/data/processed/reference_files
 mkdir $project_dir/data/processed/phenotype_data
-mkdir $project_dir/data/processed/extraction
+mkdir $project_dir/data/processed/extractions
 mkdir $project_dir/docs/assets
 ```
 
