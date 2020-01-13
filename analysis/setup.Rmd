@@ -4,10 +4,17 @@ site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
     toc: true
+    toc_float: true
+    number_sections: true
+
 ---
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, comment = "#")
+```
+
+```{css, echo=FALSE}
+pre, code {white-space:pre !important; overflow-x:auto}
 ```
 
 **Last updated:** `r Sys.Date()`
@@ -20,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE, comment = "#")
 
 ***
 
-## Step 1: initiate project on remote server.
+# Initiate project on remote server.
 
 All processing scripts were run from the root sgg directory.
 Project was initialized using `workflowr` rpackage, see [here](https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html).
@@ -49,7 +56,7 @@ You have now successfully created a GitHub repository for your project that is a
 
 Next setup a local copy.
 
-## Step 2: Create local copy on personal computer.
+# Create local copy on personal computer.
 
 Within terminal of personal computer, clone the git repository.
 
@@ -72,7 +79,7 @@ Open project in Atom (or preferred text editor) and modify the following files:
 - Save and push these changes to GitHub.
 - Pull to the server.
 
-## Step 3: Create internal project folders.
+# Create internal project folders.
 
 Return to sgg server and run the following:
 
@@ -83,7 +90,6 @@ mkdir $project_dir/data/processed
 mkdir $project_dir/data/raw/reference_files
 mkdir $project_dir/data/raw/phenotype_data
 mkdir $project_dir/data/raw/extraction
-mkdir $project_dir/data/processed/reference_files
 mkdir $project_dir/data/processed/phenotype_data
 mkdir $project_dir/data/processed/extraction
 mkdir $project_dir/docs/assets
@@ -123,10 +129,30 @@ PSYMETAB/
 
 Raw PLINK (`ped` and `map` files) data were copied from the CHUV folder (`L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`) after being built in genomestudio to the `data/` drive.
 
-## Step 4: Run and summarize analyses.
+# Initialize a packrat directory
+
+[Packrat](https://rstudio.github.io/packrat/) is a dependency management system for R. It is useful for making your project:
+1. Isolated.
+2. Portable.
+3. Reproducible.
+
+Initialize a `packrat` project by simply running:
+
+```{r eval=FALSE}
+packrat::init("/data/sgg2/jenny/projects/PSYMETAB")
+```
+
+This creates a `packrat` directory in your project folder.
+
+Now, everytime you launch `R` from this directory or run `install.packages()`, `packrat` will automatically keep track of your packages and versions. You are no longer in an ordinary R project; you’re in a Packrat project. The main difference is that a packrat project has its own private package library. Any packages you install from inside a packrat project are only available to that project; and packages you install outside of the project are not available to the project.
+
+Likely, we won't need to do anymore than this, but some [additional functions exist](https://rstudio.github.io/packrat/commands.html), that are useful if we need to move our project to a new disk/computer.
+
+
+# Run and summarize analyses.
 *Note that Part A and B are happening in parallel.*
 
-### Part A: Setup drake and execute plan.
+## Setup drake and execute plan.
 
 
 ```{r eval=FALSE}
@@ -169,20 +195,13 @@ and [`slurm_batchtools.tmpl`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/mast
 
 ```{r comment=''}
 cat(readLines('slurm_clustermq.tmpl'), sep = '\n')
-2 + 2
-head(1:100)
-```
-
-```{r}
-2 + 2
-head(1:100)
 ```
 
 ```{r comment=''}
-#cat(readLines('slurm_batchtools.tmpl'), sep = '\n')
+cat(readLines('slurm_batchtools.tmpl'), sep = '\n')
 ```
 
-### Part B: Build and maintain website.
+## Build and maintain website.
 
 Follow the general workflow outlined by [workflowr](https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html#the-workflow), with some minor revisions to accomodate workflow between personal computer and remote server:
 
