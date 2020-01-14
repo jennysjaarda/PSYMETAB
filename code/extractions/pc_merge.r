@@ -42,6 +42,7 @@ pc_data <- fread(pc_file, data.table=F) %>% separate(FID, into = c("ID", "GPCR")
 extraction_list[["pcs"]] <-pc_data
 ## get list of frequencies for each SNP for each eth with n >100
 result <- extraction_list %>%
-  reduce(left_join, by = c("GPCR"))
+  reduce(right_join, by = c("GPCR")) # right join ensures that only individuals in PC file are in final file
+                                     # these individuals will be unrelated if that is the specified pc file.
 
 write.table(result, paste0(workdir,"/",outname, "/", outname,"_extraction.txt"), row.names=F, col.names=T, quote=F)
