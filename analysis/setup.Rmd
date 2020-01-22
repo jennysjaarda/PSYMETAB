@@ -89,9 +89,9 @@ mkdir $project_dir/data/raw
 mkdir $project_dir/data/processed
 mkdir $project_dir/data/raw/reference_files
 mkdir $project_dir/data/raw/phenotype_data
-mkdir $project_dir/data/raw/extraction
+mkdir $project_dir/data/raw/extractions
 mkdir $project_dir/data/processed/phenotype_data
-mkdir $project_dir/data/processed/extraction
+mkdir $project_dir/data/processed/extractions
 mkdir $project_dir/docs/assets
 ```
 
@@ -114,11 +114,11 @@ PSYMETAB/
 │   ├── raw/
 │   │   ├── phenotype_data/
 │   │   ├── reference_files/
-│   │   └── extraction/
+│   │   └── extractions/
 │   ├── processed/
 │   │   ├── phenotype_data/
 │   │   ├── reference_files/
-│   │   └── extraction/
+│   │   └── extractions/
 ├── docs/
 │   └── assets/
 ├── myproject.Rproj
@@ -140,6 +140,7 @@ Initialize a `packrat` project by simply running:
 
 ```{r eval=FALSE}
 packrat::init("/data/sgg2/jenny/projects/PSYMETAB")
+packrat::set_opts(auto.snapshot = T)
 ```
 
 This creates a `packrat` directory in your project folder.
