@@ -11,10 +11,7 @@ if (requireNamespace("workflowr", quietly = TRUE)) {
 options("workflowr.view" = FALSE)
 # disable system executable
 options(workflowr.sysgit = "")
-<<<<<<< HEAD
-=======
 
->>>>>>> b0dbdbacfd8dbb4454a9811a75747f6da5b0e52a
 #### -- Packrat Autoloader (version 0.5.0) -- ####
 source("packrat/init.R")
 #### -- End Packrat Autoloader -- ####
