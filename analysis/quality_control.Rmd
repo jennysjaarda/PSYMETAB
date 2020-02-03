@@ -8,30 +8,161 @@ output:
 
 **The following document outlines and summarizes the quality control and processing procedure that was followed to create a clean, imputed dataset.**
 
-## Step 1: Prepare and cluster genomestudio files.
-*see [Data Processing in GenomeStudio](data_processing_in_genomestudio.html) for further details*
+# Step 1: Prepare and cluster genomestudio files.
 
-### Part A: Randomize IDs.
+*Step 1 was performed entirely on CHUV computer*
+
+## Part A: Randomize IDs.
+
 - Genetic sampleIDs were recoded according to GPCR algorithm to ensure genetic participants are not identifiable.
 - `code/radomize_IDs.r` was run on CHUV computer before building GenomeStudio project.
 - Creates a new csv file which was used to create a GenomeStudio project with data provided by lab in Geneva.
 - Requires manual addition of header before uploading to GenomeStudio.
+
+```{r eval=FALSE}
+
+[Header],,,,,,,,,,,,,
+Investigator Name,,,,,,,,,,,,,
+Project Name,,,,,,,,,,,,,
+Experiment Name,,,,,,,,,,,,,
+Date,,,,,,,,,,,,,
+[Manifests],,,,,,,,,,,,,
+A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
+[Data],,,,,,,,,,,,,
+
+```
+
 - Some samples were found to be duplicates (i.e. 2 samples at 2 different time points were analyzed for the same individual) and they were recoded to have ID as: `${ID}002`.
 
-### Part B: Create GenomeStudio files:
-- Using
+## Part B: Create GenomeStudio files.
 
-### Part C: Clustering and PLINK conversion:
-- X
-- Y
-- Z
+- Instructions can be found [here](https://support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/genomestudio/genomestudio-2-0/genomestudio-genotyping-module-v2-user-guide-11319113-01.pdf).
+- Required files:
+  - Sample sheet: as csv file (created above).
+  - Data repository: as idat files.
+  - Manifest file: as bpm file.
+  - Cluster file: as egt file.
+- Data provided from Mylene Docquier, copied from sftp and saved here:  `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data`.
+- Create new IDs based on GPCR randomization (see code/randomize_IDs.r), and save to above folder as: `Eap0819_1t26_27to29corrected_7b9b_randomizedID.csv`.
+- Note that original IDs can be found in the same folder at the file: `Eap0819_1t26_27to29corrected_7b9.csv`, if needed.
+- Create empty folder here: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`, named: `GS_project_26092019` (data of creation).
+- Using new IDs, create genome studio project as follows:
+  1. Open GenomeStudio.
+  2. Select: File > New Genotyping Project.
+  3. Select `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS` as project repository.
+  4. Under project name: use "GS_project_26092019" and click "Next".
+  5. Select "Use sample sheet to load intensities" and click "Next".
+  6. Select sample, data and manifests as specified below and click "Next":
+     - Sample sheet:  `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data\Eap0819_1t26_27to29corrected_7b9b_randomizedID.csv`,
+     - Data repository: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data`,
+     - Manifest repository: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data`.
+  7. Select "Import cluster positions from cluster file" and choose cluster file located here: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data\GSPMA24v1_0-A_4349HNR_Samples.egt` and click "Finish".
 
-### Part D: Copy files to SGG server using FileZilla.
+- Genome studio files were created using the following required files:
+  - Sample sheet: as csv file (created above).
+  - Data repository: as idat files (provided from Mylene Docquier).
+  - Manifest file: as bpm file (provided from Mylene Docquier).
+  - Cluster file: as egt file (provided from Mylene Docquier).
+- For detailed description see [Data Processing in Genome Studio](data_processing_in_genomestudio.html) (section: *Creating GenomeStudio file*)
 
-## Step 2: Pre-quality control data prep.
-**Results of Step 2-5 are saved to `analysis/QC`**
 
-- Processes sex and ethnicity files to be used in QC scripts.
+## Part C: Clustering and PLINK conversion.
+
+- Data saved on CHUV servers at the following location: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\GS_project_26092019`.
+- `GS_project_26092019.bsc` was opened (requires Genome Studio) and used for clustering.
+- Clustering was performed according to the guidelines in the webinar (see [notes on creating custom cluster files](create_custom_cluster_files.html)) with the following procedure:
+  1. Cluster: cluster all SNPs, evaluate samples.
+     1. Once data was opened, all SNPs were clustered by clicking "Cluster all SNPs button" in the top panel (icon with 3 red, purple, blue ovals). SNP statistics and heritability estimate updates were ignored.
+     2. In the samples table (bottom left panel) call rate was recalculated by clicking "Calculate" (calculator icon) to recalculate SNP call rates with new cluster positions. SNP statistics and heritability estimate updates were ignored.
+     3. The sample table was then sorted by the "Call Rate" column and samples with call rate <95% were selected and removed from downstream processing (right click, select "Exclude Selected Samples"), 8 samples fell below this cut-off. Updates were ignored. In "SNP Graph" right click and deselect "Show Excluded Samples".
+  2. Recluster: cluster sex chromosomes, cluster autosomes.
+     1. "SNP Table" was filtered by ("Chr" = Y) using filter icon.
+     2. Using the 3rd and 7th SNP (index 3010 and 3014, 3 samples had missing values for 3010 and sex was determined to be female using 3014), males were selected as those with high intensities (females have no Y chromosome) and set to have an aux value of 101 by right clicking the selected samples in the "Samples Table". Similarly, females were selected and set to have an aux value of 102.
+     3. "Samples Table" was filtered to have ("Aux" > 100).
+     4. "Samples Table" was sorted on "Aux" column and females were selected (value 102) and excluded. Updates were ignored.
+     5. In "SNP Table", all SNPs were selected and Y-snps were clustered (right click and "Cluster Selected SNPs") on only male samples. Updates were ignored.
+     6. Females were re-added to the project in the "Samples Table".
+     7. "SNP Table" was filtered by ("Chr" = X) using filter icon.
+     8. In "Samples Table", males were selected (Aux value 101) and excluded. Updates were ignored.
+     9. In "SNP Table", all SNPs were selected and X-SNPs were clustered (right click and "Cluster Selected SNPs") on only female samples. Updates were ignored.
+     10. Males were re-added to the project in the "Samples Table".
+     11. "SNP Table" was filtered by [ !("Chr" = X ) AND !("Chr" = Y ) ], using filter icon.
+     12. In "SNP Table", all SNPs were selected and autosomal SNPs were clustered (right click and "Cluster Selected SNPs") on all good quality samples. Update SNP statistics.
+     13. In the samples table (bottom left panel) call rate was recalculated by clicking "Calculate" (calculator icon) to recalculate SNP call rates with new cluster positions. SNP statistics and heritability estimate updates were ignored.
+     14. SNP statistics were updated ("Analysis" > "Update SNP statistics").
+  3. Review and edit: use filters and scores to evaluate SNPs, correct or zero SNPs as needed. No manual editing was performed.
+- New genome studio was exported to the following location: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`, and named:  `GS_project_26092019_cluster`.
+- Remove filtered individuals:
+  - In samples table, remove filter for "Aux" > 100.
+  - Recalculate SNP statistics for these 8 samples only (to save time).
+  - Note that sample call rates have increased with new clustering positions.
+- Project was exported as PLINK file to the following location: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`, and named: `PLINK_091019_0920`.
+- Individual PLINK files within above folder were named according to parent directory as: PSYMETAB_GWAS.ped and PSYMETAB_GWAS.map.
+- Ultimately, the final ped/map files reside here: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PLINK_091019_0920`.
+
+### Notes on GenomeStudio.
+- Processing data within GS software is *slow* in comparison to the rest of the pipeline.
+- There is no command line version, only a licensed, GUI version availabe.
+- It is impossible to fully automate and/or parallize.
+
+### Data updates and releases.
+- Initial data was received on April 8, 2019:
+  - Final two plates were received on May 17, 2019.
+  - Processing began with initial files.
+- July 18, 2019 update:
+  - It came to our attention that 15 participants were genotyped that did not consent.
+  - This list was sent to Mylene to be removed.
+  - Plates 27 to 29 were re-provided on 08/08/2019 without these 15 individuals (list below, and provided by Severine in email).
+```
+013CB
+017CB
+074CB
+095CB
+150CRV
+192CRV
+193CRV
+156CSM
+181CSM
+191CSM
+224UAS
+234GL
+058GP
+246GP
+089PP
+```
+  - Until new file was provided, these participants were removed using PLINK to avoid any further analysis of these individuals.
+  - The new genomestudio file was copied to: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PSYMETAB_GS2\Plates27to29_0819`.
+  - The same process above was followed (data opened in GS, cluster positions imported, and data saved to `Plates27to29_0819_cluster`, and `PLINK_270819_0457`).
+  - Old files were deleted to remove all data containing these individuals.
+  - Updated files were then copied to PSYMETAB_GS1.
+- August 28, 2019 update:
+  - Mylene provided one single genome studio file with all samples (excluding the list from Severine).
+  - These files were copied to UPPC folders and custom clustering was re-performed.
+  - These changes are reflected in the above description.
+  - All old files were subsequently deleted to ensure the data from these participants is completely removed from all databases.
+  - As of September 3, 2019, all clustering was complete and final PLINK files (`PLINK_030919_0149`) were copied to SGG directory (names of plink files according to parent directory: `DATA`).
+- September 6, 2019 update:
+  - It was decided that all IDs part of PSYMETAB should be randomized to ensure they are not identifiable.
+  - We had a meeting to discuss (Celine, Fred, Chin, Nermine, and Claire), and decided to use a CHUV program (GPCR) for the randomization process.
+  - We requested with Mylene to create a new project with the new IDs, but she suggested to create our own GS project.
+  - She provided all relevant data to create our own GS project.
+  - The description above reflects these changes.
+- As of October 11, all GS file were created, clustered and exported as PLINK files and subsequently moved to the sgg server.
+
+## Part D: Copy files to SGG server.
+- PLINK files were copied to SGG servers using FileZilla
+- Host name: `je4649@hpc1.chuv.ch`
+- Password: `<chuv-password>`
+- Port: `22`
+- Drage `/data/sgg2/jenny/projects/PSYMETAB_GWAS/data/raw`.
+
+*All subsequent steps were performed on the `sgg` server and run using `drake` plan*
+
+# Step 2: Pre-quality control data prep.
+
+*Results of Step 2-5 are saved to `analysis/QC`*
+
+- Processed sex and ethnicity files to be used in QC scripts.
 - Sex file was created according to the input specified on plink man page (FID, IID, sex [M/F]).
 - Ethnicity input file to be used in R script for comparison to genetically derived ethnic groups (by snpWeights).
 - Recodes ethnic groups as follows:
@@ -39,12 +170,55 @@ output:
   - Changes missing to unknown.
   - Groups small ethnic groups to missing.
 - A1 rsid conversion file was updated to remove all SNPs labeled with a [.] (see [data sources](data_sources.html)).
-
+- Create duplicates file
 ## Step 3: Pre-imputation quality control.
 
 ### Initial steps:
+
+*Each step corresponds to one folder within `analysis/QC`*
+
+```{r setup, include=FALSE}
+library(drake)
+project_dir <- "/data/sgg2/jenny/projects/PSYMETAB"
+plink_data <- "PLINK_091019_0920"
+source("code/settings.R")
+input_chip <-plink_bed_out
+output_name <- "PSYMETAB_GWAS"
+sex_file <- read.table('data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt', header=F)
+loadd(dups)
+```
+
 0. Preprocessing
+  1. Create binary PLINK files (if necessary).
+    - `r system(paste0("wc -l <", input_chip, ".bim"))` variants initially.
+    - `r system(paste0("wc -l <", input_chip, ".fam"))` individuals initially.
+  2. Exclude Y and MT variants:
+    - `r system(paste0("wc -l < analysis/QC/00_preprocessing/non_autosome_or_x_variants"))` Y/MT variants removed.
+    - `r system(paste0("wc -l < analysis/QC/00_preprocessing/temp1.bim"))` variants remaining.
+  3. Remove duplicate variants.
+    - `r system(paste0("wc -l < analysis/QC/00_preprocessing/duplicate_variants"))` duplicates removed.
+    - `r system(paste0("wc -l < analysis/QC/00_preprocessing/temp2.bim"))` variants remaining.
+  4. Update sex.
+    - Using the file located at: `data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt` (created above).
+    ```{r}
+    table(sex_file[,3])
+    ```
+  5. Remove duplicate individuals that were identified previously (i.e. two different IDs for the same participant).
+    - `r length(dups$dups)` duplicates identified and removed
+    - `r system(paste0("wc -l < analysis/QC/00_preprocessing/", study_name, ".preprocessing.fam"))` indviduals remaining.
+  6. Sanity check: ensure that duplicates have the same genetic info.
+  ```{r comment=''}
+  cat(readLines(paste0("analysis/QC/00_preprocessing/", study_name, ".duplicates.kin0"), sep = '\n')
+  ```
+
+
 1. Strand alignment
+  1. Update chromosome
+  2. Update position
+  3. Flip alleles on negative strand
+  4. Extract SNPs in the position file.
+  5. Remove any non autosome / X chromosomal variants (might have changed due to the pos and chr update)
+  6. Update rsids using `data/processed/reference_files/rsid_conversion.txt`
 2. MAF zero
 3. Missingness
 4. Sex check

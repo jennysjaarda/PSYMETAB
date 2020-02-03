@@ -1,0 +1,13 @@
+---
+title: "CNV Analysis"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+
+## Creating full data table for use in penncnv
+- Instructions to create data for penncnv input were followed [here](http://penncnv.openbioinformatics.org/en/latest/user-guide/input/)
+- `GS_project_26092019_cluster.bsc`, located here: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\GS_project_26092019_cluster`, was used to create the full data table.
+- Output file was named the default name of `Full Data Table.txt` and saved in the same location.
+- The output was then moved to the server to and run on with penncnv.
