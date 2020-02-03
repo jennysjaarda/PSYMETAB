@@ -456,9 +456,141 @@ combine_targets <- function(...)
 }
 
 
+process_subgroup <- function(pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
+
+  # pheno_list <- subgroup_gwas_info$pheno
+  # output_suffix <- subgroup_gwas_info$output_suffix
+  in_folder <- file.path("analysis/GWAS/subgroup/CEU")
+  gwas_files <- list.files(in_folder, ".linear")
+  eth <- "CEU"
+
+  info <- fread("analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
+  eth="CEU"
+  freq <- fread(paste0("analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T) %>%
+    rename(CHROM = "#CHROM")
+
+
+  snp_metrics <- full_join(info, freq, by = c("CHROM", "ID", "REF", "ALT"))
+
+  for(k in 1:length(pheno_list))
+  {
+
+    outcome_var <- pheno_list[[k]][1]
+    suffix <- output_suffix[k]
+    file_drug <- paste0(output,"_", suffix,"_", eth, ".Drug.", outcome_var, ".glm.linear" )
+    file_nodrug <- paste0(output,"_", suffix,"_", eth, ".NoDrug.", outcome_var, ".glm.linear" )
+    if(file_drug %in% gwas_files & file_nodrug %in% gwas_files){
+
+    nodrug <- fread(file.path(in_folder,file_nodrug), data.table=F, stringsAsFactors=F) %>%
+      rename(BP = POS) %>% filter(!is.na(P))
+    drug <- fread(file.path(in_folder,file_drug), data.table=F, stringsAsFactors=F) %>%
+      rename(BP = POS) %>% filter(!is.na(P))
+
+    joint <- inner_join(nodrug, drug, by = c("#CHROM", "BP", "ID", "TEST"), suffix = c("_nodrug", "_drug")) %>%
+      rename(CHROM = "#CHROM") %>% left_join(snp_metrics, by = c("CHROM", "ID"))
+
+    filter <- joint %>% filter(R2 > info_threshold) %>%
+      filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold))
+
+    het_out <- numeric()
+    for(snp in 619655:dim(filter)[1] ){
+      rsid <- as.character(filter[snp,"ID"])
+      beta_D <-  as.numeric(as.character(filter[snp,"BETA_drug"]))
+      beta_ND <-   as.numeric(as.character(filter[snp,"BETA_nodrug"]))
+      SE_D <-  as.numeric(as.character(filter[snp,"SE_drug"]))
+      SE_ND <-  as.numeric(as.character(filter[snp,"SE_nodrug"]))
+      se <- sqrt( (SE_D^2) + (SE_ND^2) )
+      t <- (beta_D-beta_ND)/se
+      p_het <- 2*pnorm(-abs(t))
+      temp <- cbind(rsid, p_het)
+      het_out <- rbind(het_out,temp)
+      if((snp %% 50000)==0){print(snp)}
+
+    }
+
+
+    sig_list <- which(as.numeric(het_out[,2]) < 5e-08)
+    length(sig_list)
+      #### GWAS
+      sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
+      sig_drug <- drug[which(drug$P < 5e-08),]
+      for(data in c("nodrug", "drug"))
+      {
+        gwas_result <- get(data)
+        joint <- reduce(list(gwas_result,freq,info), full_join, by = "ID")
+        sig <- joint %>%
+                mutate_at("P", as.numeric) %>%
+                filter(P < 5e-06) %>%
+                filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
+                filter(R2 > info_threshold)
+
+        joint_maf <- joint %>% filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1- maf_threshold))%>% mutate_at("P", as.numeric)
+        sig <- joint_maf  %>% filter(P < gw_sig)
+        png("man_interaction.png", width=2000, height=1000, pointsize=18)
+        manhattan(joint_maf)
+        dev.off()
+
+        png("interaction_qq2.png", width=2000, height=1000, pointsize=18)
+        qq(joint_maf$P)
+        dev.off()
+
+
+              qq(gwas_result2$P)
+      # sig_nodrug <- sig
+      }
+
+
+
+
+
+    }
+
+  }
+
+
+  gwas_result <- fread(result, data.table=F, stringsAsFactors=F)
+  gwas_result2 <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+
+
+  #### GWAS
+  sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
+  sig_drug <- drug[which(drug$P < 5e-08),]
+
+  for(data in c("nodrug", "drug"))
+  {
+  gwas_result <- get(data)
+  gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+  joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
+  sig <- joint %>%
+          mutate_at("P", as.numeric) %>%
+          filter(P < 5e-06) %>%
+          filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
+          filter(R2 > info_threshold)
+  # sig_nodrug <- sig
+  }
+
+
+  for(pam in pams )
+  {
+    beta_F <-  as.numeric(as.character(trait_result[pam,"female"]))
+    beta_M <-   as.numeric(as.character(trait_result[pam,"male"]))
+    SE_F <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"female"]))
+    SE_M <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"male"]))
+    se <- sqrt( (SE_F^2) + (SE_M^2) )
+    t <- (beta_F-beta_M)/se
+    p_het <- 2*pnorm(-abs(t))
+    het_out <- cbind(het_out, p_het)
+  }
+
+}
 #### TO BE REVISED
 process_gwas <- function(outcome_variable,interaction_variable,model){
 
+  if(model=="subgroup"){
+    out_folder <- file.path("analysis/GWAS/interaction",model)
+
+
+  }
   if(model=="interaction"){
     out_folder <- file.path("analysis/GWAS/interaction",interaction_variable, outcome_variable)
     eth_gwas_files <- list.files(path=out_folder, pattern = "\\.filter$",full.names=T)

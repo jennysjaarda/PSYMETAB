@@ -171,23 +171,24 @@ init_analysis <- drake_plan(
 # vis_drake_graph(config)
 
 
+process_init <- drake_plan(
+
+  ## read from sort_gwas.r
+  gwas_figures = target(
+    process_meta(outcome_variable,interaction_variable,model="subgroup", output_dir = ("analysis/GWAS")),
+    dynamic = map(subgroup_gwas_info)
+  )
+
+
+
+)
 
 
 ### A MESS
 
 pull(init_analysis %>% dplyr::select(command))
 
-process_init <- drake_plan(
 
-  ## read from sort_gwas.r
-  gwas_figures = target(
-    process_meta(outcome_variable,interaction_variable,model),
-    transform = map(.data =!!!GWAS_models)
-  )
-
-
-
-)
 
 post_impute <- bind_plans(pre_impute_qc, init_analysis, process_init)
 
