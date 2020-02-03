@@ -26,11 +26,29 @@ create_analysis_dirs("analysis/GWAS")
 
 # Run analyses ----
 
-make(pre_impute,parallelism = "future",jobs = 1, console_log_file = "pre_impute_qc.out", template = list(partition = "sgg"))
+## Run plans with different requirements seperately because the `future` backend is so slow
 
-baseline_gwas_info = define_baseline_inputs(GWAS_input)
-interaction_gwas_info = define_interaction_inputs(GWAS_input)
-subgroup_gwas_info = define_subgroup_inputs(GWAS_input)
-make(pre_impute,parallelism = "future",jobs = 4, console_log_file = "post_impute.out", template = list(partition = "sgg"))
+make(qc_prep, console_log_file = "qc_prep.log", cache_log_file = "cache_log.csv")
+
+make(pre_impute_qc, console_log_file = "pre_impute_qc.log", cache_log_file = "cache_log.csv",
+  parallelism = "clustermq", jobs = 1, template = list(cpus =16, partition = "cluster",
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/pre_impute_qc_%a_clustermq.out"))
 
 ### download files and impute on Michigan server
+
+make(post_impute, console_log_file = "post_impute.log", cache_log_file = "cache_log.csv",
+  parallelism = "clustermq", jobs = 1, template = list(cpus =16, partition = "cluster",
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/post_impute_%a_clustermq.out"))
+
+make(analysis_prep, console_log_file = "analysis_prep.log", cache_log_file = "cache_log.csv",
+  parallelism = "clustermq", jobs = 4)
+
+make(init_analysis, console_log_file = "init_analysis.log", cache_log_file = "cache_log.csv",
+  parallelism = "clustermq", jobs = 3, template = list(cpus =16, partition = "cluster",
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/init_analysis_%a_clustermq.out"))
+
+
+# Now definied within dynamic target
+# baseline_gwas_info = define_baseline_inputs(GWAS_input)
+# interaction_gwas_info = define_interaction_inputs(GWAS_input)
+# subgroup_gwas_info = define_subgroup_inputs(GWAS_input)

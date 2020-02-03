@@ -5,3 +5,21 @@ output:
   workflowr::wflow_html:
     toc: true
 ---
+
+# found that GYYEHMDR is listed as both Male and Female -> should be female only.
+
+loadd(pheno_raw)
+
+# temp <-   pheno_raw %>%
+#     mutate(Date = as.Date(Date, format = '%d.%m.%Y'))  %>% filter(!is.na(Date)) %>% arrange(Date)  %>%
+#     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>%## merge retard/depot with original
+#     group_by(GEN) %>%  mutate(sex = check_sex(Sexe))
+# temp %>% filter(is.na(sex)) %>% dplyr::select(sex, Sexe) %>% filter(!is.na(Sexe))
+#
+# GEN      sex   Sexe
+#   <chr>    <chr> <chr>
+# 1 GYYEHMDR NA    M
+# 2 GYYEHMDR NA    M
+# 3 GYYEHMDR NA    M
+# 4 GYYEHMDR NA    F
+# 5 GYYEHMDR NA    F
