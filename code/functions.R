@@ -644,12 +644,12 @@ process_gwas <- function(outcome_variable,interaction_variable,model){
 
 
 #### GWAS
-sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
-sig_drug <- drug[which(drug$P < 5e-08),]
-
-info <- fread("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
-eth="CEU"
-freq <- fread(paste0("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T)
+# sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
+# sig_drug <- drug[which(drug$P < 5e-08),]
+#
+# info <- fread("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
+# eth="CEU"
+# freq <- fread(paste0("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T)
 
 for(data in c("nodrug", "drug"))
 {
