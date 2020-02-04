@@ -651,18 +651,18 @@ process_gwas <- function(outcome_variable,interaction_variable,model){
 # eth="CEU"
 # freq <- fread(paste0("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T)
 
-for(data in c("nodrug", "drug"))
-{
-gwas_result <- get(data)
-gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
-joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
-sig <- joint %>%
-        mutate_at("P", as.numeric) %>%
-        filter(P < 5e-06) %>%
-        filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
-        filter(R2 > info_threshold)
-# sig_nodrug <- sig
-}
+# for(data in c("nodrug", "drug"))
+# {
+# gwas_result <- get(data)
+# gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+# joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
+# sig <- joint %>%
+#         mutate_at("P", as.numeric) %>%
+#         filter(P < 5e-06) %>%
+#         filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
+#         filter(R2 > info_threshold)
+# # sig_nodrug <- sig
+# }
 
 
 for(pam in pams )
