@@ -664,15 +664,15 @@ process_gwas <- function(outcome_variable,interaction_variable,model){
 # # sig_nodrug <- sig
 # }
 
-
-for(pam in pams )
-{
-  beta_F <-  as.numeric(as.character(trait_result[pam,"female"]))
-  beta_M <-   as.numeric(as.character(trait_result[pam,"male"]))
-  SE_F <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"female"]))
-  SE_M <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"male"]))
-  se <- sqrt( (SE_F^2) + (SE_M^2) )
-  t <- (beta_F-beta_M)/se
-  p_het <- 2*pnorm(-abs(t))
-  het_out <- cbind(het_out, p_het)
-}
+#
+# for(pam in pams )
+# {
+#   beta_F <-  as.numeric(as.character(trait_result[pam,"female"]))
+#   beta_M <-   as.numeric(as.character(trait_result[pam,"male"]))
+#   SE_F <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"female"]))
+#   SE_M <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"male"]))
+#   se <- sqrt( (SE_F^2) + (SE_M^2) )
+#   t <- (beta_F-beta_M)/se
+#   p_het <- 2*pnorm(-abs(t))
+#   het_out <- cbind(het_out, p_het)
+# }
