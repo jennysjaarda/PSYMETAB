@@ -456,7 +456,7 @@ combine_targets <- function(...)
 }
 
 
-process_subgroup <- function(pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
+process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
 
   # pheno_list <- subgroup_gwas_info$pheno
   # output_suffix <- subgroup_gwas_info$output_suffix
@@ -493,7 +493,7 @@ process_subgroup <- function(pheno_list, output = "PSYMETAB_GWAS", output_suffix
       filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold))
 
     het_out <- numeric()
-    for(snp in 619655:dim(filter)[1] ){
+    for(snp in 1:dim(filter)[1] ){
       rsid <- as.character(filter[snp,"ID"])
       beta_D <-  as.numeric(as.character(filter[snp,"BETA_drug"]))
       beta_ND <-   as.numeric(as.character(filter[snp,"BETA_nodrug"]))

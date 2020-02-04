@@ -11,3 +11,4 @@ data/*
 !data/*.md
 .drake/
 .git/
+packrat/lib*/
