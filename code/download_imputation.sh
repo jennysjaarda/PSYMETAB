@@ -33,21 +33,21 @@ cd ${output_dir}/06_imputation_get
 
 
 ## QC report
-curl -sL https://imputationserver.sph.umich.edu/get/1640984/764cffab51cb0833521050cef2d98bc | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1726437/8094e644a19bb19eb29746a7a6bd49e1 | bash
 
 ## QC stats
-curl -sL https://imputationserver.sph.umich.edu/get/1640988/1fcd9a0e4f8b6c4c52510d0146a720fa | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1726441/b6a64d1b662fdeec38a12018e35ae622 | bash
 
 ## Logs
-curl -sL https://imputationserver.sph.umich.edu/get/1640991/d20e8108c6966e7cc2c76f92c368b2a2 | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1726444/76a2cd8d988008cb4014ada07012a6ce | bash
 
 ## Imputation results
-curl -sL https://imputationserver.sph.umich.edu/get/1640990/7aaf768775a0b8c7f58afbf109627ac | bash
+curl -sL https://imputationserver.sph.umich.edu/get/1726443/a8df83675382c503e2ebc746f10009b3 | bash
 
 
 ## password provided in email from Michigan imputation server
 for chr in {1..22}
 do
-  unzip -P 'v35orVrSjBKI6W' chr_$chr.zip
+  unzip -P 'nlCogWNE68vpI' chr_$chr.zip
   gunzip chr$chr.info.gz
 done
