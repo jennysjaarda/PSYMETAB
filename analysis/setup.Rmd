@@ -93,11 +93,12 @@ mkdir $project_dir/data/raw/extractions
 mkdir $project_dir/data/processed/phenotype_data
 mkdir $project_dir/data/processed/extractions
 mkdir $project_dir/docs/assets
+mkdir $project_dir/docs/generated_reports
 ```
 
 This will create the following directory structure in `PSYMETAB/`:
 
-```
+```{r, engine = 'bash', eval = FALSE}
 PSYMETAB/
 ├── .gitignore
 ├── .Rprofile
@@ -120,6 +121,7 @@ PSYMETAB/
 │   │   ├── reference_files/
 │   │   └── extractions/
 ├── docs/
+│   ├── generated_reports/
 │   └── assets/
 ├── myproject.Rproj
 ├── output/
