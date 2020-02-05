@@ -31,13 +31,13 @@ create_analysis_dirs("analysis/GWAS")
 make(qc_prep, console_log_file = "qc_prep.log", cache_log_file = "cache_log.csv")
 
 make(pre_impute_qc, console_log_file = "pre_impute_qc.log", cache_log_file = "cache_log.csv",
-  parallelism = "clustermq", jobs = 1, template = list(cpus =16, partition = "cluster",
+  parallelism = "clustermq", jobs = 1, template = list(cpus =16, partition = "sgg",
   log_file = "/data/sgg2/jenny/projects/PSYMETAB/pre_impute_qc_%a_clustermq.out"))
 
 ### download files and impute on Michigan server
 
 make(post_impute, console_log_file = "post_impute.log", cache_log_file = "cache_log.csv",
-  parallelism = "clustermq", jobs = 1, template = list(cpus =16, partition = "cluster",
+  parallelism = "clustermq", jobs = 1, template = list(cpus =16, partition = "sgg",
   log_file = "/data/sgg2/jenny/projects/PSYMETAB/post_impute_%a_clustermq.out"))
 
 make(analysis_prep, console_log_file = "analysis_prep.log", cache_log_file = "cache_log.csv",
