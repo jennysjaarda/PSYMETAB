@@ -126,53 +126,53 @@ plink --merge-list fileset.txt \
  --threads 16 \
  --out ${output_name}.typed
 
-  #############################################################################################################
-  #---------------------------- MERGE INPUTED DATA ACROSS CHROMOSOMES ----------------------------------------#
-  #############################################################################################################
+#############################################################################################################
+#---------------------------- MERGE INPUTED DATA ACROSS CHROMOSOMES ----------------------------------------#
+#############################################################################################################
 
-  ## hitchhikers guide:
-  #https://rstudio-pubs-static.s3.amazonaws.com/452627_d519d1c86bd249e6a2d9638ef1ea836c.html
+## hitchhikers guide:
+#https://rstudio-pubs-static.s3.amazonaws.com/452627_d519d1c86bd249e6a2d9638ef1ea836c.html
 
 
- if [ ! -d "${output_dir}/10_merge_imputed/" ] ; then
-   mkdir ${output_dir}/10_merge_imputed/
+if [ ! -d "${output_dir}/10_merge_imputed/" ] ; then
+ mkdir ${output_dir}/10_merge_imputed/
+fi
+cd ${output_dir}/10_merge_imputed/
+
+# convert to vcf because there is no merge function in plink
+for chr in $(seq 1 22)
+do
+ if [ ! -d "chr${chr}" ] ; then
+   mkdir chr${chr}
  fi
- cd ${output_dir}/10_merge_imputed/
+ plink2 --pfile ../08_plink_convert/chr$chr/chr${chr}_update_ID \
+  --recode vcf id-paste=iid vcf-dosage=HDS \
+  --out chr${chr}/${output_name}.chr$chr \
+  --threads 16
+done
 
- # convert to vcf because there is no merge function in plink
- for chr in $(seq 1 22)
- do
-   if [ ! -d "chr${chr}" ] ; then
-     mkdir chr${chr}
-   fi
-   plink2 --pfile ../08_plink_convert/chr$chr/chr${chr}_update_ID \
-    --recode vcf id-paste=iid vcf-dosage=HDS \
-    --out chr${chr}/${output_name}.chr$chr \
-    --threads 16
- done
+# Write a list of the 22 autosomal filesets to be merged...
+if [ -e "fileset.txt" ] ; then
+ rm fileset.txt
+fi
 
+for chr in $(seq 1 22)
+do
  # Write a list of the 22 autosomal filesets to be merged...
- if [ -e "fileset.txt" ] ; then
-   rm fileset.txt
- fi
+ echo chr${chr}/${output_name}.chr${chr}.vcf >> fileset.txt
+done
 
- for chr in $(seq 1 22)
- do
-   # Write a list of the 22 autosomal filesets to be merged...
-   echo chr${chr}/${output_name}.chr${chr}.vcf >> fileset.txt
- done
+# ...then merge them
+bcftools concat --file-list fileset.txt \
+--threads 16 \
+--output ${output_name}
 
- # ...then merge them
- bcftools concat --file-list fileset.txt \
-  --threads 16 \
-  --output ${output_name}
-
- # convert back to pgen
- plink2 --vcf ${output_name} dosage=HDS \
-  --threads 16 \
-  --double-id \
-  --make-pgen \
-  --out ${output_name}
+# convert back to pgen
+plink2 --vcf ${output_name} dosage=HDS \
+--threads 16 \
+--double-id \
+--make-pgen \
+--out ${output_name}
 
 mv ${output_name} ${output_name}.vcf
 
@@ -231,7 +231,7 @@ awk '$8 >= 0.35' ${output_name}.kin0 > ${output_name}.duplicates
 # JO280	JO276
 # S093	JO426
 
-## This pair of individuals are not the same and the genetic info matches the one on the right (remove left):
+## These pair of individuals are not the same and the genetic info matches the one on the right (remove left):
 
 # JNQSZGGL	XTVNZTRY
 # WIELRZDD	FJNJEXCM
@@ -497,7 +497,8 @@ for eth in CEU EA MIXED NA YRI ; do
     --out $eth/${output_name}.${eth}  \
     --threads 16
 
-  awk '$10 < 0.00000001{print $2}' $eth/${output_name}.${eth}.hardy | sort -u > $eth/${output_name}.${eth}.hardy.sig
+  awk '$10 < 0.
+  {print $2}' $eth/${output_name}.${eth}.hardy | sort -u > $eth/${output_name}.${eth}.hardy.sig
 
   # If size of ethnic group is < 100, don't perform HWE check in that ethnic group
   if [ "$count" -ge 100 ] ; then
