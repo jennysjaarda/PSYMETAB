@@ -43,7 +43,8 @@ pre_impute_qc <- drake_plan(
   run_pre_imputation = target(
     {file_in("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt");
      file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt");
-     file_in("data/processed/reference_files/rsid_conversion.txt"); processx::run(command = "sh", c( pre_imputation_script), error_on_status = F)}
+     file_in("data/processed/reference_files/rsid_conversion.txt"); processx::run(command = "sh", c( pre_imputation_script), error_on_status = F)
+     file_out("analysis/QC/00_preprocessing", "analysis/QC/01_strandflip", "analysis/QC/02_maf_zero", "analysis/QC/03_missingness", "analysis/QC/04_sexcheck")}
   ),
 )
 
@@ -57,29 +58,41 @@ pre_impute_qc <- drake_plan(
 post_impute <- drake_plan(
 
   # run post-imputation quality control and processing ------------
-  download_imputation = target(
-    processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F),
-    ),
+  download_imputation = target({
+      processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
+      file_out("analysis/QC/06_download_imputation")
+  }),
   run_check_imputation = target({
-      download_imputation
+      file_in("analysis/QC/06_download_imputation")
       processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)
+      file_out("analysis/QC/07_imputation_check")
     }),
   run_post_imputation = target({
-      download_imputation
+      file_in("analysis/QC/06_download_imputation", "code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R"))
       processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
+      file_out("analysis/QC/08_plink_convert", "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
+               "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
     }),
   run_final_processing = target({
-      run_post_imputation
+      file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
       processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)
+      file_out("analysis/QC/07_imputation_check")
     }),
   cp_qc_report = target({
-      run_check_imputation
+      file_in("analysis/QC/06_download_imputation")
       processx::run(command = "cp", c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status = F)
     }, hpc = FALSE),
   cp_qc_check = target({
-    run_check_imputation
-    processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
+      file_in("analysis/QC/06_download_imputation")
+      processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
+      file_out("docs/generated_reports/07_imputation_check.html", "docs/generated_reports/CrossCohortReport.html")
   }, hpc = FALSE)
+  # ethnicity_plots = ## create ethnicity plots
+  # cd $project_dir
+  # Rscript $project_dir/code/qc/ethnicity_check.r ${output_name} ${output_dir}/12_ethnicity_admixture/pca \
+  #   ${output_dir}/12_ethnicity_admixture/pca/${output_name}_projections.txt \
+  #   ${output_dir}/12_ethnicity_admixture/snpweights/${output_name}.NA.predpc ${eth_file}
+
 )
 
 # config <- drake_config(post_impute)
