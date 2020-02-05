@@ -59,7 +59,7 @@ do
   --out chr$chr/$input_basename
 
   ### update bim file to include rsIDs instead of chr:bp
-  Rscript $project_dir/code/qc/update_pvar.r $data/dbSNP/dbSNP_SNP_list_chr${chr}.txt chr$chr/${input_basename}.pvar chr${chr}_update_name.txt chr$chr
+  Rscript $project_dir/code/qc/update_pvar.R $data/dbSNP/dbSNP_SNP_list_chr${chr}.txt chr$chr/${input_basename}.pvar chr${chr}_update_name.txt chr$chr
 
   plink2 --pfile chr$chr/$input_basename  \
   --update-name chr$chr/chr${chr}_update_name.txt \
@@ -301,7 +301,7 @@ awk '$8 >= 0.0884' ${output_name}2.kin0 > ${output_name}2.related.filter.smiss #
 awk '$8 >= 0.35' ${output_name}2.kin0 > ${output_name}2.duplicates ## there should be none now
 
 ### R script determines maximal set of unrelated individuals based on kinship results
-Rscript $project_dir/code/qc/relatedness_filter.r "${output_name}2.kin0" 0.0884 "${output_dir}/11_relatedness" "${output_name}_related_ids.txt"
+Rscript $project_dir/code/qc/relatedness_filter.R "${output_name}2.kin0" 0.0884 "${output_dir}/11_relatedness" "${output_name}_related_ids.txt"
 
 ## remove related individuals
 
@@ -450,7 +450,7 @@ $flashpca/flashpca --bfile ${output_name}.pruned.full \
 
 ## create ethnicity plots
 cd $project_dir
-Rscript $project_dir/code/qc/ethnicity_check.r ${output_name} ${output_dir}/12_ethnicity_admixture/pca \
+Rscript $project_dir/code/qc/ethnicity_check.R ${output_name} ${output_dir}/12_ethnicity_admixture/pca \
   ${output_dir}/12_ethnicity_admixture/pca/${output_name}_projections.txt \
   ${output_dir}/12_ethnicity_admixture/snpweights/${output_name}.NA.predpc ${eth_file}
 
@@ -571,7 +571,7 @@ for eth in CEU EA MIXED NA YRI ; do
 done
 
 cd $project_dir
-Rscript $project_dir/code/qc/maf_check.r ${output_name} ${output_dir}/14_mafcheck/ETHNICITY_NAME/${output_name}.ETHNICITY_NAME.afreq \
+Rscript $project_dir/code/qc/maf_check.R ${output_name} ${output_dir}/14_mafcheck/ETHNICITY_NAME/${output_name}.ETHNICITY_NAME.afreq \
   ${output_dir}/14_mafcheck/ETHNICITY_NAME/${output_name}.ETHNICITY_NAME.psam \
   ${output_dir}/14_mafcheck 0.01 100
 
