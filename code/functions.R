@@ -584,7 +584,7 @@ process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", outpu
 
 }
 
-pca_plot <- function(col, colname, title){
+pca_plot <- function(data_clean, col, colname, title){
   ggplot(data_clean) +
   # add scatter points
   geom_point(aes_string(x = "PC1", y = "PC2", col = col),
@@ -604,11 +604,11 @@ pca_plot <- function(col, colname, title){
   theme(legend.position = "top")
 }
 
-munge_snpweights <- function(study_name, output_dir, pc_data, snp_weights){
+munge_snpweights <- function(study_name, pc_data, snp_weights, eth_file){
 
   colnames(snp_weights) <- c("FID", "IID", "num_SNPs",  paste0("snpweights_PC",1:3), "YRI_perc", "CEU_perc", "EA_perc", "NA_perc")
 
-  pheno_eth <- read.table(as.character(args[5]),header=F) # reported ethnicity
+  pheno_eth <- read.table(eth_file,header=F) # reported ethnicity
   colnames(pheno_eth) <- c(  "FID", "IID", "ETH")
   pheno_eth <- pheno_eth %>%
     unite("ID2", FID:IID, remove = FALSE, sep="_")

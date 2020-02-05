@@ -33,9 +33,9 @@ study_name<-as.character(args[1]) # OUTPUT_NAME
 output_dir <- as.character(args[2])
 pc_data<-read.table(as.character(args[3]),header=T) # pcs from plink --pca head
 snp_weights<-read.table(as.character(args[4]),header=F) # snpweights result using snpwt.NA file
+eth_file <- as.character(args[5])
 
-
-data_clean <- munge_snpweights(study_name, output_dir, pc_data, snp_weights)
+data_clean <- munge_snpweights(study_name, pc_data, snp_weights, eth_file)
 
 for(eth_var in unique(data_clean$genetic_eth))
 {
