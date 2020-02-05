@@ -36,7 +36,7 @@ eths <- for (eth in c("CEU","EA","MIXED", "NA", "YRI"))
   sample_file <- gsub("ETHNICITY_NAME", eth, args[3])
   samples <- fread(sample_file, data.table=F, header=T)
   n_samples <- dim(samples)[1]
-  if (n_samples >=100)
+  if (n_samples >=n_threshold)
   {
   freqs <- fread(freq_file, data.table=F, header=T)
   new_col <- paste0("FREQ_", eth)
