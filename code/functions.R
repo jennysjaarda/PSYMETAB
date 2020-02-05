@@ -583,6 +583,72 @@ process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", outpu
   }
 
 }
+
+pca_plot <- function(col, colname, title){
+  ggplot(data_clean) +
+  # add scatter points
+  geom_point(aes_string(x = "PC1", y = "PC2", col = col),
+             alpha = 0.5) +
+
+  # change labels
+  labs(title = title,
+       x = "PC1",
+       y = "PC2",
+       #size = "Percent European",
+       col = colname) +
+  # change the size scale
+  scale_size(range = c(0.1, 10)) +
+  # add a nicer theme
+  theme_classic() +
+  # place legend at top and grey axis lines
+  theme(legend.position = "top")
+}
+
+munge_snpweights <- function(study_name, output_dir, pc_data, snp_weights){
+
+  colnames(snp_weights) <- c("FID", "IID", "num_SNPs",  paste0("snpweights_PC",1:3), "YRI_perc", "CEU_perc", "EA_perc", "NA_perc")
+
+  pheno_eth <- read.table(as.character(args[5]),header=F) # reported ethnicity
+  colnames(pheno_eth) <- c(  "FID", "IID", "ETH")
+  pheno_eth <- pheno_eth %>%
+    unite("ID2", FID:IID, remove = FALSE, sep="_")
+    #mutate_at("ID2", as.factor)
+
+  data <- merge(snp_weights, pc_data, by=c("FID", "IID"))
+
+  factor_eths <- function(x) {ifelse(x< 0.8, FALSE, TRUE)}
+  factor_yri <- function(x) {ifelse(x< 0.7, FALSE, TRUE)}
+
+  data_clean <- data %>%
+      mutate_at(c("CEU_perc","EA_perc","NA_perc"), list(factor=factor_eths)) %>%
+      mutate_at(c("YRI_perc"), list(YRI_perc_factor=factor_yri)) %>%
+
+      rename_at(vars(ends_with("_factor")),
+        list( ~ str_replace(., "_perc", ""))) %>%
+      dplyr::select(ends_with("_factor"), FID)  %>%
+      tidyr::gather(eth, value, -FID) %>%
+      filter(value==TRUE) %>%
+      dplyr::select(-value) %>%
+      left_join(data %>% dplyr::select(-ends_with("_factor")), .) %>%
+      arrange(IID)  %>%
+      mutate_at(c("YRI_perc","CEU_perc","EA_perc","NA_perc"), list(factor=factor_eths)) %>%
+      rename_at(vars(ends_with("_factor")),
+        list( ~ str_replace(., "_perc", "")))  %>%
+      replace_na(list(eth = "MIXED"))  %>%
+      mutate(genetic_eth = recode(eth, CEU_factor = "CEU",
+           EA_factor = "EA",
+           NA_factor = "NA",
+           YRI_factor = "YRI"
+       )) %>%
+       mutate_at("IID", as.character) %>%
+       left_join(., pheno_eth %>% dplyr::select(ID2,ETH), by = c("IID" = "ID2") ) %>%
+       dplyr::rename(reported_eth = ETH)
+
+  return(data_clean)
+
+}
+
+
 #### TO BE REVISED
 process_gwas <- function(outcome_variable,interaction_variable,model){
 
