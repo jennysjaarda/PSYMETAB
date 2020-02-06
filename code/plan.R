@@ -51,6 +51,14 @@ pre_impute_qc <- drake_plan(
 # config <- drake_config(pre_impute_qc)
 # vis_drake_graph(config)
 
+download_impute <- drake_plan(
+
+  # download imputation ------------
+  download_imputation = target({
+      processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
+      file_out("analysis/QC/06_download_imputation")
+  }),
+)
 ################################################################
 ## here download output and upload to Michigan server
 ################################################################
@@ -58,17 +66,13 @@ pre_impute_qc <- drake_plan(
 post_impute <- drake_plan(
 
   # run post-imputation quality control and processing ------------
-  download_imputation = target({
-      processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
-      file_out("analysis/QC/06_download_imputation")
-  }),
   run_check_imputation = target({
       file_in("analysis/QC/06_download_imputation")
       processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)
       file_out("analysis/QC/07_imputation_check")
-    }),
+    }, hpc = FALSE),
   run_post_imputation = target({
-      file_in("analysis/QC/06_download_imputation", "code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R"))
+      file_in("analysis/QC/06_download_imputation", "code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
       processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
       file_out("analysis/QC/08_plink_convert", "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
                "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
