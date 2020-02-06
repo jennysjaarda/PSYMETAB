@@ -1,0 +1,62 @@
+node13.cluster | 138363 | 2020-02-03 12:57:08.592799 +0100 GMT |  | begin drake_config()
+node13.cluster | 138363 | 2020-02-03 12:57:08.612795 +0100 GMT |  | cache /data/sgg2/jenny/projects/PSYMETAB/.drake
+node13.cluster | 138363 | 2020-02-03 12:57:08.615833 +0100 GMT |  | analyze environment
+node13.cluster | 138363 | 2020-02-03 12:57:47.478008 +0100 GMT |  | get knitr hash
+node13.cluster | 138363 | 2020-02-03 12:58:28.066892 +0100 GMT |  | set knitr files
+node13.cluster | 138363 | 2020-02-03 12:58:28.075011 +0100 GMT |  | create graph edges
+node13.cluster | 138363 | 2020-02-03 12:58:28.082612 +0100 GMT |  | connect output files
+node13.cluster | 138363 | 2020-02-03 12:58:28.083947 +0100 GMT | file data/processed/reference_files/rsid_conversion.txt | file_out
+node13.cluster | 138363 | 2020-02-03 12:58:28.086026 +0100 GMT | file data/processed/PLINK_091019_0920 | file_out
+node13.cluster | 138363 | 2020-02-03 12:58:28.087416 +0100 GMT | file data/processed/PLINK_091019_0920/PSYMETAB_GWAS.fam | file_out
+node13.cluster | 138363 | 2020-02-03 12:58:28.088647 +0100 GMT | file data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt | file_out
+node13.cluster | 138363 | 2020-02-03 12:58:28.090037 +0100 GMT | file data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt | file_out
+node13.cluster | 138363 | 2020-02-03 12:58:28.091385 +0100 GMT | file data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt | file_out
+node13.cluster | 138363 | 2020-02-03 12:58:28.092569 +0100 GMT | file data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt | file_out
+node13.cluster | 138363 | 2020-02-03 12:58:28.101267 +0100 GMT |  | end drake_config()
+node13.cluster | 138363 | 2020-02-03 12:58:28.102480 +0100 GMT |  | begin make()
+node13.cluster | 138363 | 2020-02-03 12:58:29.378458 +0100 GMT | format_sex_file | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.445355 +0100 GMT | munge_qc_pheno | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.564383 +0100 GMT | dplyr::select | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.596248 +0100 GMT | processx::run | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.625823 +0100 GMT | file data/raw/ID_key.csv | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.761954 +0100 GMT | munge_fam | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.823390 +0100 GMT | file data/raw/PLINK_091019_0920 | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.956095 +0100 GMT | file data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt | import
+node13.cluster | 138363 | 2020-02-03 12:58:29.989698 +0100 GMT | file data/raw/phenotype_data/QC_sex_eth.xlsx | import
+node13.cluster | 138363 | 2020-02-03 12:58:30.021654 +0100 GMT | format_eth_file | import
+node13.cluster | 138363 | 2020-02-03 12:58:30.091739 +0100 GMT | dplyr::rename | import
+node13.cluster | 138363 | 2020-02-03 12:58:30.172920 +0100 GMT | find_dups | import
+node13.cluster | 138363 | 2020-02-03 12:58:30.285772 +0100 GMT |  | begin outdated()
+node13.cluster | 138363 | 2020-02-03 12:58:30.295709 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:30.305293 +0100 GMT | id_code | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.313044 +0100 GMT | rs_conversion | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.320783 +0100 GMT | ped_folder | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.327069 +0100 GMT | qc_pheno_raw | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.328511 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:30.334088 +0100 GMT | rs_conversion_munge | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.882481 +0100 GMT | create_bed_out | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.883986 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:30.890415 +0100 GMT | fam_raw | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.897175 +0100 GMT | out_rs_conversion | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.898526 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:30.905481 +0100 GMT | fam_munge | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.906976 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:30.936471 +0100 GMT | qc_pheno_munge | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.937836 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:30.955084 +0100 GMT | sex_info | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.960128 +0100 GMT | dups | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.963627 +0100 GMT | eth_info | skip
+node13.cluster | 138363 | 2020-02-03 12:58:30.964919 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:30.992647 +0100 GMT | out_dups_set | skip
+node13.cluster | 138363 | 2020-02-03 12:58:31.009284 +0100 GMT | sex_format | skip
+node13.cluster | 138363 | 2020-02-03 12:58:31.023168 +0100 GMT | eth_format | skip
+node13.cluster | 138363 | 2020-02-03 12:58:31.044059 +0100 GMT | out_dups | skip
+node13.cluster | 138363 | 2020-02-03 12:58:31.045445 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:31.066068 +0100 GMT | out_sex | skip
+node13.cluster | 138363 | 2020-02-03 12:58:31.095973 +0100 GMT | out_eth | skip
+node13.cluster | 138363 | 2020-02-03 12:58:31.097613 +0100 GMT |  | find more outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:31.099932 +0100 GMT |  | find downstream outdated targets
+node13.cluster | 138363 | 2020-02-03 12:58:31.101443 +0100 GMT |  | end outdated()
+node13.cluster | 138363 | 2020-02-03 12:58:31.102431 +0100 GMT |  | isolate oudated targets
+node13.cluster | 138363 | 2020-02-03 12:58:31.104301 +0100 GMT |  | All targets are already up to date.
+node13.cluster | 138363 | 2020-02-03 12:58:33.729483 +0100 GMT |  | end make()
