@@ -42,7 +42,7 @@ curl -sL https://imputationserver.sph.umich.edu/get/1726441/b6a64d1b662fdeec38a1
 curl -sL https://imputationserver.sph.umich.edu/get/1726444/76a2cd8d988008cb4014ada07012a6ce | bash
 
 ## Imputation results
-curl -sL https://imputationserver.sph.umich.edu/get/1726443/a8df83675382c503e2ebc746f10009b3 | bash
+#curl -sL https://imputationserver.sph.umich.edu/get/1726443/a8df83675382c503e2ebc746f10009b3 | bash
 
 wget nohup https://imputationserver.sph.umich.edu/share/results/c43efa9ddd59f323a0ff8a96965101ac/chr_1.zip &
 wget nohup https://imputationserver.sph.umich.edu/share/results/701a2663a79134d6bad1ecc054d0c1ae/chr_2.zip &
@@ -68,7 +68,7 @@ wget nohup https://imputationserver.sph.umich.edu/share/results/2a66757a414962e0
 wget nohup https://imputationserver.sph.umich.edu/share/results/a5e2c9a79cd0667dbe109040aa972286/chr_19.zip &
 wget nohup https://imputationserver.sph.umich.edu/share/results/9685ea3375c0d0b8581eec46df7d3475/chr_20.zip &
 wget nohup https://imputationserver.sph.umich.edu/share/results/d2e5f48fe0d4b2157298cb5f8f7daf01/chr_21.zip &
-wget nohup https://imputationserver.sph.umich.edu/share/results/9eb608f0dd90c962b2b70b998eae5dd9/chr_22.zip & 
+wget nohup https://imputationserver.sph.umich.edu/share/results/9eb608f0dd90c962b2b70b998eae5dd9/chr_22.zip &
 
 wait
 
