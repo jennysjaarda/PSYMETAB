@@ -202,84 +202,84 @@ process_init <- drake_plan(
 
 
 ### A MESS
-
-pull(init_analysis %>% dplyr::select(command))
-
-
-
-post_impute <- bind_plans(pre_impute_qc, init_analysis, process_init)
-
-make(post_impute,parallelism = "future",jobs = 2, console_log_file = "post_impute_qc.out", resources = list(partition = "sgg"))
-make(init_analysis,parallelism = "clustermq",jobs = 4, template = list(cpus = 16, partition = "cluster"))
-
-
-
-### some useful code
-
-c(init_analysis %>% dplyr::select(target))
-outdated(drake_config(init_analysis))
-make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "cluster"))
-
-
-
-
-#### run gwas and GRS computation
-### to be grabble from `GWAS.sh` and `PRSice.sh`
-)
-
-
-
-
-
-
-
-
-
-####
-visualize <- drake_plan(
-  dim(dups) #30 2
-  table(sex_info3$Sexe, exclude = NULL)
-  #    F    M
-  # 1298 1469
-  table(eth_info3$Ethnie, exclude = NULL)
-  # africain  africain + caucasien       amerique du sud
-  #      101                     1                     1
-  # Antilles                 arabe     arabe + caucasien
-  #        1                    60                     3
-  # asiatique asiatique + caucasien                 autre
-  #       25                     1                   178
-  # caucasien               inconnu                  <NA>
-  #     1667                   458                   271
-
-  ## double check no duplicates
-  sex_info4 <- unique(sex_info)
-  dim(sex_info)==dim(sex_info4)
-  sex_info4[which(duplicated(sex_info4[,2])),]
-  duplicate_IDs <- sex_info4[which(duplicated(sex_info4[,2])),2]
-  sex_info4[which(sex_info4[,2]==duplicate_IDs),]
-  #TRUE
-
-  eth_info4 <- unique(eth_info)
-  dim(eth_info3)==dim(eth_info4)
-  #TRUE
-  eth_info4[which(duplicated(eth_info4[,2])),]
-  #NONE
-
-    ## anyone missign?
-    no_sex_eth <- fam[which(!fam[,2] %in% sex_info4[,2]), c(1,2)]
-    no_sex_eth
-    # empty
-
-    ### dimensions of PC data
-    print(eth)
-    print(dim(PC_temp))
-
-    drug_list <- unique(unlist(full_pheno %>% dplyr::select(starts_with("AP1_Drug_"))))
-    ### list of drugs included in phenofile
-
-
-
-  create_report(pheno_baseline, config = configure_report(add_plot_prcomp = FALSE))
-
-
-)
+#
+# pull(init_analysis %>% dplyr::select(command))
+#
+#
+#
+# post_impute <- bind_plans(pre_impute_qc, init_analysis, process_init)
+#
+# make(post_impute,parallelism = "future",jobs = 2, console_log_file = "post_impute_qc.out", resources = list(partition = "sgg"))
+# make(init_analysis,parallelism = "clustermq",jobs = 4, template = list(cpus = 16, partition = "cluster"))
+#
+#
+#
+# ### some useful code
+#
+# c(init_analysis %>% dplyr::select(target))
+# outdated(drake_config(init_analysis))
+# make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "cluster"))
+#
+#
+#
+#
+# #### run gwas and GRS computation
+# ### to be grabble from `GWAS.sh` and `PRSice.sh`
+# )
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# ####
+# visualize <- drake_plan(
+#   dim(dups) #30 2
+#   table(sex_info3$Sexe, exclude = NULL)
+#   #    F    M
+#   # 1298 1469
+#   table(eth_info3$Ethnie, exclude = NULL)
+#   # africain  africain + caucasien       amerique du sud
+#   #      101                     1                     1
+#   # Antilles                 arabe     arabe + caucasien
+#   #        1                    60                     3
+#   # asiatique asiatique + caucasien                 autre
+#   #       25                     1                   178
+#   # caucasien               inconnu                  <NA>
+#   #     1667                   458                   271
+#
+#   ## double check no duplicates
+#   sex_info4 <- unique(sex_info)
+#   dim(sex_info)==dim(sex_info4)
+#   sex_info4[which(duplicated(sex_info4[,2])),]
+#   duplicate_IDs <- sex_info4[which(duplicated(sex_info4[,2])),2]
+#   sex_info4[which(sex_info4[,2]==duplicate_IDs),]
+#   #TRUE
+#
+#   eth_info4 <- unique(eth_info)
+#   dim(eth_info3)==dim(eth_info4)
+#   #TRUE
+#   eth_info4[which(duplicated(eth_info4[,2])),]
+#   #NONE
+#
+#     ## anyone missign?
+#     no_sex_eth <- fam[which(!fam[,2] %in% sex_info4[,2]), c(1,2)]
+#     no_sex_eth
+#     # empty
+#
+#     ### dimensions of PC data
+#     print(eth)
+#     print(dim(PC_temp))
+#
+#     drug_list <- unique(unlist(full_pheno %>% dplyr::select(starts_with("AP1_Drug_"))))
+#     ### list of drugs included in phenofile
+#
+#
+#
+#   create_report(pheno_baseline, config = configure_report(add_plot_prcomp = FALSE))
+#
+#
+# )
