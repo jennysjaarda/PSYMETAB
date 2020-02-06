@@ -1,0 +1,27 @@
+---
+title: "Project"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+
+```{r setup, include = FALSE}
+options(scipen=999)
+source("code/packages.R")
+source("code/settings.R")
+source("code/plan.R")
+library(R.utils)
+library(kableExtra)
+project_dir <- "/data/sgg2/jenny/projects/PSYMETAB"
+output_name <- "PSYMETAB_GWAS"
+```
+
+```{r plans}
+
+vis_drake_plan(qc_prep)
+vis_drake_plan(pre_impute_qc)
+vis_drake_plan(download_impute)
+vis_drake_plan(post_impute)
+
+```
