@@ -12,3 +12,5 @@ data/*
 .drake/
 .git/
 packrat/lib*/
+*clustermq.out
+._*
