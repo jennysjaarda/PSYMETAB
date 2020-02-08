@@ -51,43 +51,46 @@ pre_impute_qc <- drake_plan(
 # config <- drake_config(pre_impute_qc)
 # vis_drake_graph(config)
 
+################################################################
+## here download output and upload to Michigan server
+################################################################
+
+
 download_impute <- drake_plan(
 
   # download imputation ------------
   download_imputation = target({
       processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
-      file_out("analysis/QC/06_download_imputation")
+      file_out("analysis/QC/06_imputation_get")
   }),
 )
-################################################################
-## here download output and upload to Michigan server
-################################################################
 
 post_impute <- drake_plan(
 
   # run post-imputation quality control and processing ------------
   run_check_imputation = target({
-      file_in("analysis/QC/06_download_imputation")
+      #file_in("analysis/QC/06_imputation_get")
       processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)
       file_out("analysis/QC/07_imputation_check")
-    }, hpc = FALSE),
+    }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get"))),
   run_post_imputation = target({
-      file_in("analysis/QC/06_download_imputation", "code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
+      file_in("code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
       processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
-      file_out("analysis/QC/08_plink_convert", "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
-               "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
-    }),
+      #file_out("analysis/QC/08_plink_convert", "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
+      #         "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
+    }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get"))),
   run_final_processing = target({
-      file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
+      run_post_imputation
+      #file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
       processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)
-      file_out("analysis/QC/07_imputation_check")
-    }),
+      #file_out("analysis/QC/15_final_processing")
+    }, trigger = trigger(change = file.mtime("analysis/QC/11_relatedness"))),
   cp_qc_report = target({
-      file_in("analysis/QC/06_download_imputation")
+      #file_in("analysis/QC/06_imputation_get")
       processx::run(command = "cp", c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status = F)
-    }, hpc = FALSE),
+    }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get")), hpc = FALSE),
   cp_qc_check = target({
-      file_in("analysis/QC/06_download_imputation")
+      file_in("analysis/QC/07_imputation_check")
       processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
       file_out("docs/generated_reports/07_imputation_check.html", "docs/generated_reports/CrossCohortReport.html")
   }, hpc = FALSE)
