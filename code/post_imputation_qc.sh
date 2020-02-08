@@ -301,10 +301,11 @@ awk '$8 >= 0.0884' ${output_name}2.kin0 > ${output_name}2.related.filter.smiss #
 awk '$8 >= 0.35' ${output_name}2.kin0 > ${output_name}2.duplicates ## there should be none now
 
 ### R script determines maximal set of unrelated individuals based on kinship results
+cd $project_dir
 Rscript $project_dir/code/qc/relatedness_filter.R "${output_name}2.kin0" 0.0884 "${output_dir}/11_relatedness" "${output_name}_related_ids.txt"
 
 ## remove related individuals
-
+cd ${output_dir}/11_relatedness
 plink2 --pfile ${output_name}_remove_dups \
   --remove ${output_name}_related_ids.txt \
   --threads 16 \
