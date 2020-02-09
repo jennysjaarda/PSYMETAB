@@ -187,6 +187,7 @@ init_analysis <- drake_plan(
   )
 )
 
+analysis <- bind_plans(analysis_prep, init_analysis)
 # config <- drake_config(init_analysis)
 # vis_drake_graph(config)
 
