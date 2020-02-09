@@ -50,16 +50,19 @@ wget -nv https://imputationserver.sph.umich.edu/share/results/cc49f514a282c3320d
 wget -nv https://imputationserver.sph.umich.edu/share/results/bb603f3028ad7a543ab81c046dc9101d/chr_4.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/31381560d0e97e2afa6790179bad364/chr_5.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/3f68159152474a191458728832bf593/chr_6.zip &
+
+wait
+
 wget -nv https://imputationserver.sph.umich.edu/share/results/2e5ca1e4371006d654791a51ebf6d8a6/chr_7.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/481423d92193fde5517851d4227bec61/chr_8.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/8c05e2ec128f6e0eca6eb38193b7f612/chr_9.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/27d241e922cf5ac63f1fa163f4a0b341/chr_10.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/b99c30a2919f9aa7fe2133233b741b83/chr_11.zip &
+wget -nv https://imputationserver.sph.umich.edu/share/results/6e445a9bd9f4a77617034a4c4b517c7b/chr_12.zip &
+wget -nv https://imputationserver.sph.umich.edu/share/results/f90c45d66266fc5ac07b5dd28304f8/chr_13.zip &
 
 wait
 
-wget -nv https://imputationserver.sph.umich.edu/share/results/6e445a9bd9f4a77617034a4c4b517c7b/chr_12.zip &
-wget -nv https://imputationserver.sph.umich.edu/share/results/f90c45d66266fc5ac07b5dd28304f8/chr_13.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/dcd3568a56cf942ae147063494dd5fe/chr_14.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/ea4352733eedb74a15eada79229b9997/chr_15.zip &
 wget -nv https://imputationserver.sph.umich.edu/share/results/c0468e116797376b66a9c56d9c851baf/chr_16.zip &
@@ -78,5 +81,5 @@ wait
 for chr in {1..22}
 do
   unzip -P 'nlCogWNE68vpI' chr_$chr.zip
-  gunzip chr$chr.info.gz
+  #gunzip chr$chr.info.gz
 done
