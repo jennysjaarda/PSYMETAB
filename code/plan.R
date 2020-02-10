@@ -76,14 +76,14 @@ post_impute <- drake_plan(
   run_post_imputation = target({
       file_in("code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
       processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
-      #file_out("analysis/QC/08_plink_convert", "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
-      #         "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
+      file_out("analysis/QC/08_plink_convert", "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
+               "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
     }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get"))),
   run_final_processing = target({
       run_post_imputation
       #file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
       processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)
-      #file_out("analysis/QC/15_final_processing")
+      file_out("analysis/QC/15_final_processing")
     }, trigger = trigger(change = file.mtime("analysis/QC/11_relatedness"))),
   cp_qc_report = target({
       #file_in("analysis/QC/06_imputation_get")
@@ -94,11 +94,6 @@ post_impute <- drake_plan(
       processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
       file_out("docs/generated_reports/07_imputation_check.html", "docs/generated_reports/CrossCohortReport.html")
   }, hpc = FALSE)
-  # ethnicity_plots = ## create ethnicity plots
-  # cd $project_dir
-  # Rscript $project_dir/code/qc/ethnicity_check.r ${output_name} ${output_dir}/12_ethnicity_admixture/pca \
-  #   ${output_dir}/12_ethnicity_admixture/pca/${output_name}_projections.txt \
-  #   ${output_dir}/12_ethnicity_admixture/snpweights/${output_name}.NA.predpc ${eth_file}
 
 )
 
