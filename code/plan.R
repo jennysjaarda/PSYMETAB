@@ -122,7 +122,7 @@ analysis_prep <- drake_plan(
   dplyr::select(COUNT,GPCR,eth ), file_out("data/processed/phenotype_data/PSYMETAB_GWAS_inferred_eths.txt"), row.names = F, quote = F, col.names = T),
 
 
-  pheno_followup = munge_pheno_follow(pheno_baseline, !!test_drug), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  pheno_followup = munge_pheno_follow(pheno_baseline, !!test_drugs), #names(pheno_followup) is the names defined in `test_drugs`: tibble
   GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup),
   baseline_gwas_info = define_baseline_inputs(GWAS_input, !!baseline_vars, !!drug_classes),
   interaction_gwas_info = define_interaction_inputs(GWAS_input, !!drug_classes),
