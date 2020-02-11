@@ -69,24 +69,26 @@ post_impute <- drake_plan(
 
   # run post-imputation quality control and processing ------------
   run_check_imputation = target({
-      #file_in("analysis/QC/06_imputation_get")
+      # file_in("analysis/QC/06_imputation_get")
       processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)
       file_out("analysis/QC/07_imputation_check")
     }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get"))),
   run_post_imputation = target({
       file_in("code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
       processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
-      file_out("analysis/QC/08_plink_convert", "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
-               "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
+      # file_out("analysis/QC/08_plink_convert"), "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
+      #         "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
+      # these files are too big to track
     }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get"))),
   run_final_processing = target({
       run_post_imputation
-      #file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
+      # file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
       processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)
-      file_out("analysis/QC/15_final_processing")
+      # file_out("analysis/QC/15_final_processing")
+      # these files are too big to track
     }, trigger = trigger(change = file.mtime("analysis/QC/11_relatedness"))),
   cp_qc_report = target({
-      #file_in("analysis/QC/06_imputation_get")
+      # file_in("analysis/QC/06_imputation_get")
       processx::run(command = "cp", c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status = F)
     }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get")), hpc = FALSE),
   cp_qc_check = target({
@@ -108,7 +110,6 @@ analysis_prep <- drake_plan(
   # found that GYYEHMDR is listed as both Male and Female -> should be female only.
   pheno_man = pheno_raw %>% filter(!(GEN=="GYYEHMDR" & Sexe=="M")),
   bgen_sample_file = target({
-    run_final_processing
     readr::read_delim(file_in("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL.sample"),
       col_types = cols(.default = col_character()), delim = " ") %>% type_convert()
     }),
@@ -123,9 +124,9 @@ analysis_prep <- drake_plan(
 
   pheno_followup = munge_pheno_follow(pheno_baseline), #names(pheno_followup) is the names defined in `test_drugs`: tibble
   GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup),
-  baseline_gwas_info = define_baseline_inputs(GWAS_input),
-  interaction_gwas_info = define_interaction_inputs(GWAS_input),
-  subgroup_gwas_info = define_subgroup_inputs(GWAS_input),
+  baseline_gwas_info = define_baseline_inputs(GWAS_input, !!drug_classes),
+  interaction_gwas_info = define_interaction_inputs(GWAS_input, !!drug_classes),
+  subgroup_gwas_info = define_subgroup_inputs(GWAS_input, !!drug_classes),
 
   ## linear model GWAS:
   #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),

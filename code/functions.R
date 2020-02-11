@@ -114,10 +114,10 @@ ever_drug <- function(x) {
   return(out)
 }
 
-munge_pheno <- function(pheno_raw){
+munge_pheno <- function(pheno_raw, baseline_vars){
   pheno_raw %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%Y'))  %>% filter(!is.na(Date)) %>% arrange(Date)  %>%
-    mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>%## merge retard/depot with original
+    mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
     group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
     mutate_at("PatientsTaille", as.numeric) %>% mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
     mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %>% ungroup() %>%  ### create ever on any drug
@@ -203,7 +203,7 @@ classify_drugs <- function(x, case_categories, preferential_control_categories) 
 }
 
 
-munge_pheno_follow <-  function(pheno_baseline) {
+munge_pheno_follow <-  function(pheno_baseline, test_drugs) {
   out <- list()
   for(i in 1:dim(test_drugs)[1])
   {
@@ -263,7 +263,7 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup){
   out <- list(full_pheno = full_pheno, full_covar = full_covar)
 }
 
-split_followup <- function(pheno_followup){
+split_followup <- function(pheno_followup, test_drugs){
   out <- list()
   for(i in 1:dim(test_drugs)[1])
   {
@@ -279,7 +279,7 @@ split_followup <- function(pheno_followup){
   return(out)
 }
 
-write_followup_data <- function(pheno_followup_split){
+write_followup_data <- function(pheno_followup_split, test_drugs){
   for(i in 1:dim(test_drugs)[1])
   {
     drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
@@ -304,7 +304,7 @@ create_analysis_dirs <- function(top_level){
   return(TRUE)
 }
 
-define_baseline_inputs <- function(GWAS_input){
+define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes){
   col_match<- paste(paste0(baseline_vars,"_start_Drug_1"), collapse = "|")
   linear_vars <- colnames(dplyr::select(GWAS_input$full_pheno,matches(col_match)))
   linear_covars <- rep(list(c(standard_covars,baseline_covars)),length(baseline_vars))
@@ -324,7 +324,7 @@ define_baseline_inputs <- function(GWAS_input){
   return(baseline_gwas_info)
 }
 
-define_interaction_inputs <- function(GWAS_input){
+define_interaction_inputs <- function(GWAS_input, drug_classes){
   interaction_vars <- numeric()
   interaction_covars <- list()
   interaction_pams <- numeric()
@@ -346,7 +346,7 @@ define_interaction_inputs <- function(GWAS_input){
   return(interaction_gwas_info)
 }
 
-define_subgroup_inputs <- function(GWAS_input){
+define_subgroup_inputs <- function(GWAS_input, drug_classes){
   subgroup_vars <- numeric()
   subgroup_covars <- list()
   subgroup_pheno <- list()
@@ -472,13 +472,13 @@ process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", outpu
 
   snp_metrics <- full_join(info, freq, by = c("CHROM", "ID", "REF", "ALT"))
 
-  for(k in 1:length(pheno_list))
-  {
+  for(k in 1:length(pheno_list)){
 
     outcome_var <- pheno_list[[k]][1]
     suffix <- output_suffix[k]
     file_drug <- paste0(output,"_", suffix,"_", eth, ".Drug.", outcome_var, ".glm.linear" )
     file_nodrug <- paste0(output,"_", suffix,"_", eth, ".NoDrug.", outcome_var, ".glm.linear" )
+
     if(file_drug %in% gwas_files & file_nodrug %in% gwas_files){
 
     nodrug <- fread(file.path(in_folder,file_nodrug), data.table=F, stringsAsFactors=F) %>%
@@ -503,86 +503,18 @@ process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", outpu
       t <- (beta_D-beta_ND)/se
       p_het <- 2*pnorm(-abs(t))
       temp <- cbind(rsid, p_het)
-      het_out <- rbind(het_out,temp)
+      #het_out <- rbind(het_out,temp)
+      write.table(temp, paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,"_", eth, ".", outcome_var, ".het"), append=T, col.names=F, row.names=F)
       if((snp %% 50000)==0){print(snp)}
 
     }
 
-
-    sig_list <- which(as.numeric(het_out[,2]) < 5e-08)
-    length(sig_list)
-      #### GWAS
-      sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
-      sig_drug <- drug[which(drug$P < 5e-08),]
-      for(data in c("nodrug", "drug"))
-      {
-        gwas_result <- get(data)
-        joint <- reduce(list(gwas_result,freq,info), full_join, by = "ID")
-        sig <- joint %>%
-                mutate_at("P", as.numeric) %>%
-                filter(P < 5e-06) %>%
-                filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
-                filter(R2 > info_threshold)
-
-        joint_maf <- joint %>% filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1- maf_threshold))%>% mutate_at("P", as.numeric)
-        sig <- joint_maf  %>% filter(P < gw_sig)
-        png("man_interaction.png", width=2000, height=1000, pointsize=18)
-        manhattan(joint_maf)
-        dev.off()
-
-        png("interaction_qq2.png", width=2000, height=1000, pointsize=18)
-        qq(joint_maf$P)
-        dev.off()
-
-
-              qq(gwas_result2$P)
-      # sig_nodrug <- sig
-      }
-
-
-
-
-
     }
-
-  }
-
-
-  gwas_result <- fread(result, data.table=F, stringsAsFactors=F)
-  gwas_result2 <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
-
-
-  #### GWAS
-  sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
-  sig_drug <- drug[which(drug$P < 5e-08),]
-
-  for(data in c("nodrug", "drug"))
-  {
-  gwas_result <- get(data)
-  gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
-  joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
-  sig <- joint %>%
-          mutate_at("P", as.numeric) %>%
-          filter(P < 5e-06) %>%
-          filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
-          filter(R2 > info_threshold)
-  # sig_nodrug <- sig
-  }
-
-
-  for(pam in pams )
-  {
-    beta_F <-  as.numeric(as.character(trait_result[pam,"female"]))
-    beta_M <-   as.numeric(as.character(trait_result[pam,"male"]))
-    SE_F <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"female"]))
-    SE_M <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"male"]))
-    se <- sqrt( (SE_F^2) + (SE_M^2) )
-    t <- (beta_F-beta_M)/se
-    p_het <- 2*pnorm(-abs(t))
-    het_out <- cbind(het_out, p_het)
   }
 
 }
+
+
 
 pca_plot <- function(data_clean, col, colname, title){
   ggplot(data_clean) +
