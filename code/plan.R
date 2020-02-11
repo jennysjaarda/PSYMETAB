@@ -115,23 +115,23 @@ analysis_prep <- drake_plan(
     }),
   bgen_nosex_out = write.table(bgen_sample_file[,1:3],file_out("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample"),row.names = F, quote = F, col.names = T),
   pc_raw = read_pcs(file_in(pc_dir)) %>% as_tibble(),
-  pheno_munge = munge_pheno(pheno_man), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
+  pheno_munge = munge_pheno(pheno_man, !!baseline_vars), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
   pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character) , pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
     replace_na(list(sex='NONE')),
   pheno_eths_out = write.table(pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
   dplyr::select(COUNT,GPCR,eth ), file_out("data/processed/phenotype_data/PSYMETAB_GWAS_inferred_eths.txt"), row.names = F, quote = F, col.names = T),
 
 
-  pheno_followup = munge_pheno_follow(pheno_baseline), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  pheno_followup = munge_pheno_follow(pheno_baseline, !!test_drug), #names(pheno_followup) is the names defined in `test_drugs`: tibble
   GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup),
-  baseline_gwas_info = define_baseline_inputs(GWAS_input, !!drug_classes),
+  baseline_gwas_info = define_baseline_inputs(GWAS_input, !!baseline_vars, !!drug_classes),
   interaction_gwas_info = define_interaction_inputs(GWAS_input, !!drug_classes),
   subgroup_gwas_info = define_subgroup_inputs(GWAS_input, !!drug_classes),
 
   ## linear model GWAS:
   #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
   #linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
-  #pheno_followup_split = split_followup(pheno_followup),
+  #pheno_followup_split = split_followup(pheno_followup, !!test_drugs),
   #followup_data_write = if(!is.null(create_pheno_folder)){ write_followup_data(pheno_followup_split)},
   out_linear_pheno =  target({
     write.table(GWAS_input$full_pheno, file_out("data/processed/phenotype_data/GWAS_input/pheno_input.txt"), row.names = F, quote = F, col.names = T)}),

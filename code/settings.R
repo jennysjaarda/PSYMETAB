@@ -74,8 +74,8 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 "Flupentixol", "Fluphenazine","Haloperidol","Lurasidone", "Pipamperone", "Sertindole", "Sulpiride", "Tiapride")
 
 
-drug_classes <- c("all", "olanz_cloz", "valproate")
-test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c( "Valproate")))
+drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloz")
+test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"), c("Clozapine")))
 baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
 
 standard_covars <- c(paste0("PC", 1:20), "sex")
