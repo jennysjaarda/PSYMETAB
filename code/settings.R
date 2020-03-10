@@ -15,7 +15,7 @@
 
 project_dir <- "/data/sgg2/jenny/projects/PSYMETAB/"
 SGG_generic <- "/data/sgg2/jenny/SGG_generic/"
-consorta_dir <- "/data/sgg2/data/consortia"
+consortia_dir <- "/data/sgg2/jenny/data/consortia"
 
 source(paste0(SGG_generic,"/scripts/settings.r"))
 
@@ -84,7 +84,7 @@ baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
 GWAS_models <- tibble(outcome_variable=c(rep("bmi_change", dim(test_drugs)[1]),baseline_vars),
                       interaction_variable=c(dplyr::pull(test_drugs, class),rep(NA, length(baseline_vars))),
                       model=c(rep("interaction", dim(test_drugs)[1]), rep("linear", length(baseline_vars))))
-GRS_vars <- list.files(path=consorta_dir, pattern=".txt")
+
 
 gw_sig <- 5e-08
 maf_threshold <- 0.05
