@@ -52,20 +52,27 @@ do
   input_basename=chr${chr}
 
   plink2 --vcf ../06_imputation_get/chr${chr}.dose.vcf.gz  dosage=HDS \
-  --exclude-if-info "R2<=0.3"	\
-  --threads 16 \
-  --double-id \
-  --make-pgen \
-  --out chr$chr/$input_basename
+    --exclude-if-info "R2<=0.3"	\
+    --threads 1 \
+    --double-id \
+    --make-pgen \
+    --out chr$chr/${input_basename}_test
+
+  plink2 --pfile chr$chr/$input_basename  \
+     --extract-if "R2 >= 0.1" \
+     --threads 1 \
+     --double-id \
+     --make-pgen \
+     --out chr$chr/${input_basename}_test
 
   ### update bim file to include rsIDs instead of chr:bp
   Rscript $project_dir/code/qc/update_pvar.R $data/dbSNP/dbSNP_SNP_list_chr${chr}.txt chr$chr/${input_basename}.pvar chr${chr}_update_name.txt chr$chr
 
   plink2 --pfile chr$chr/$input_basename  \
-  --update-name chr$chr/chr${chr}_update_name.txt \
-  --make-pgen \
-  --threads 16 \
-  --out chr$chr/${input_basename}_update_ID
+    --update-name chr$chr/chr${chr}_update_name.txt \
+    --make-pgen \
+    --threads 16 \
+    --out chr$chr/${input_basename}_update_ID
 
 done
 
@@ -164,15 +171,15 @@ done
 
 # ...then merge them
 bcftools concat --file-list fileset.txt \
---threads 16 \
---output ${output_name}
+  --threads 16 \
+  --output ${output_name}
 
 # convert back to pgen
 plink2 --vcf ${output_name} dosage=HDS \
---threads 16 \
---double-id \
---make-pgen \
---out ${output_name}
+  --threads 16 \
+  --double-id \
+  --make-pgen \
+  --out ${output_name}
 
 mv ${output_name} ${output_name}.vcf
 
