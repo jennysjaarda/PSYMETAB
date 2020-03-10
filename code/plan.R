@@ -95,7 +95,38 @@ post_impute <- drake_plan(
       file_in("analysis/QC/07_imputation_check")
       processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
       file_out("docs/generated_reports/07_imputation_check.html", "docs/generated_reports/CrossCohortReport.html")
-  }, hpc = FALSE)
+  }, hpc = FALSE),
+  snp_weights = target({
+    run_post_imputation
+    read.table(file_in(!!paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".NA.predpc")))
+  }, hpc = FALSE),
+  related_inds = target({
+    run_post_imputation
+    read.table(file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
+  }, hpc = FALSE),
+  snp_weights_munge = target(munge_snp_weights(snp_weights, related_inds), hpc = FALSE),
+  snp_weights_out = target(write.table(snp_weights_munge, !!paste0("data/processed/extractions/", study_name, ".snpweights")), hpc = FALSE)
+
+)
+
+qc_process <- drake_plan(
+
+  imputed_var = count_imputed_var(),
+
+  missingness_variants_removed = {countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.bim"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_10.bim"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_10.bim"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_05.bim"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_05.bim"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_01.bim"))[1]},
+
+   missingness_indiv_removed = {countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_10.fam"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_05.fam"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_05.fam"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_01.fam"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness.step3.fam"))[1]}
+
 
 )
 
@@ -127,7 +158,6 @@ analysis_prep <- drake_plan(
   baseline_gwas_info = define_baseline_inputs(GWAS_input, !!baseline_vars, !!drug_classes),
   interaction_gwas_info = define_interaction_inputs(GWAS_input, !!drug_classes),
   subgroup_gwas_info = define_subgroup_inputs(GWAS_input, !!drug_classes),
-
   ## linear model GWAS:
   #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
   #linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
@@ -187,6 +217,17 @@ analysis <- bind_plans(analysis_prep, init_analysis)
 # config <- drake_config(init_analysis)
 # vis_drake_graph(config)
 
+prs <- drake_plan(
+  prs_info = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),
+  prsice_out = target({
+    run_prsice(base_file=prs_info$base_file,
+      threads=16, memory="100000", out_file=prs_info$out_file, bgen_file="analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL",
+      sample_file="analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample")},
+    dynamic = map(prs_info)
+  ),
+
+
+)
 
 process_init <- drake_plan(
 
