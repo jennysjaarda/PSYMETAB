@@ -56,14 +56,7 @@ do
     --threads 1 \
     --double-id \
     --make-pgen \
-    --out chr$chr/${input_basename}_test
-
-  plink2 --pfile chr$chr/$input_basename  \
-     --extract-if "R2 >= 0.1" \
-     --threads 1 \
-     --double-id \
-     --make-pgen \
-     --out chr$chr/${input_basename}_test
+    --out chr$chr/${input_basename}
 
   ### update bim file to include rsIDs instead of chr:bp
   Rscript $project_dir/code/qc/update_pvar.R $data/dbSNP/dbSNP_SNP_list_chr${chr}.txt chr$chr/${input_basename}.pvar chr${chr}_update_name.txt chr$chr
