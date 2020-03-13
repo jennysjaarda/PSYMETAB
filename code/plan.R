@@ -61,7 +61,6 @@ download_impute <- drake_plan(
   # download imputation ------------
   download_imputation = target({
       processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
-      file_out("analysis/QC/06_imputation_get")
   }),
 )
 
@@ -70,27 +69,29 @@ post_impute <- drake_plan(
   # run post-imputation quality control and processing ------------
   run_check_imputation = target({
       # file_in("analysis/QC/06_imputation_get")
+      # this file will get zipped later so we cannot track it
       processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)
       file_out("analysis/QC/07_imputation_check")
-    }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get"))),
+    }),
   run_post_imputation = target({
       file_in("code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
       processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
       # file_out("analysis/QC/08_plink_convert"), "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
       #         "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
       # these files are too big to track
-    }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get"))),
+    }),
   run_final_processing = target({
       run_post_imputation
       # file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
       processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)
       # file_out("analysis/QC/15_final_processing")
       # these files are too big to track
-    }, trigger = trigger(change = file.mtime("analysis/QC/11_relatedness"))),
+    }),
   cp_qc_report = target({
-      # file_in("analysis/QC/06_imputation_get")
+      file_in("analysis/QC/06_imputation_get/qcreport.html")
       processx::run(command = "cp", c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status = F)
-    }, trigger = trigger(change = file.mtime("analysis/QC/06_imputation_get")), hpc = FALSE),
+      file_out("docs/generated_reports/qcreport.html")
+    }, hpc = FALSE),
   cp_qc_check = target({
       file_in("analysis/QC/07_imputation_check")
       processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
@@ -98,14 +99,14 @@ post_impute <- drake_plan(
   }, hpc = FALSE),
   snp_weights = target({
     run_post_imputation
-    read.table(file_in(!!paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".NA.predpc")))
+    read.table((!!paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".NA.predpc")))
   }, hpc = FALSE),
   related_inds = target({
     run_post_imputation
-    read.table(file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
+    read.table((!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
   }, hpc = FALSE),
   snp_weights_munge = target(munge_snp_weights(snp_weights, related_inds), hpc = FALSE),
-  snp_weights_out = target(write.table(snp_weights_munge, !!paste0("data/processed/extractions/", study_name, ".snpweights")), hpc = FALSE)
+  snp_weights_out = target(write.table(snp_weights_munge, file_out(!!paste0("data/processed/extractions/", study_name, ".snpweights"))), hpc = FALSE)
 
 )
 

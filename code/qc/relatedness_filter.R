@@ -11,7 +11,7 @@
 ##
 #####################################################################################
 
-args <- commandArgs(trailingOnly = TRUE) #args <- c("chr1-22.kin0",0.0884 )
+args <- commandArgs(trailingOnly = TRUE) #args <- c("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/11_relatedness/PSYMETAB_GWAS2.kin0",0.0884, "/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/11_relatedness/", "PSYMETAB_GWAS_related_ids.txt" )
 source("code/packages.R")
 source("code/functions.R")
 source("code/settings.R")
@@ -23,7 +23,7 @@ out_name <- as.character(args[4])
 
 library(data.table)
 library(dplyr)
-kin_table <- fread(kin_file, data.table=F)
+kin_table <- fread(kin_file, data.table=F) %>% rename(ID1 = IID1) %>% rename(ID2 = IID2)
 
 
 
