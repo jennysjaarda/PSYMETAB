@@ -48,7 +48,7 @@ for eth in CEU EA MIXED NA YRI ; do
     --threads 16
 
   plink2 --pfile $eth/${output_name}.${eth} \
-    --export bgen-1.2 id-paste=iid \
+    --export bgen-1.2 bits=8 id-paste=iid \
     --out $eth/${output_name}.${eth} \
     --threads 16
 
@@ -72,7 +72,7 @@ plink2 --pfile ../14_mafcheck/${output_name}.mafcheck.step14 \
   --freq
 
 plink2 --pfile FULL/${output_name}.FULL \
-  --export bgen-1.2 id-paste=iid \
+  --export bgen-1.2 bits=8 id-paste=iid \
   --out FULL/${output_name}.FULL \
   --threads 16
 
