@@ -70,6 +70,23 @@ format_eth_file <- function(eth_info){
   return(eth_info)
 }
 
+count_imputed_var <- function(){
+
+  imputed_var <- numeric()
+  for (chr in 20:22){
+
+    temp <- countLines(paste0("analysis/QC/06_imputation_get/chr", chr, ".info.gz"))[1] - 1
+    temp <- cbind(chr, temp)
+    imputed_var <- rbind(imputed_var, temp)
+
+  }
+  total <- cbind("all", sum(imputed_var[,2]))
+  imputed_var <- rbind(imputed_var, total)
+  colnames(imputed_var) <- c("Chr", "Num imputed variants")
+  imputed_var <- as.data.frame(imputed_var)
+  return(imputed_var)
+
+}
 
 rename_meds <- function(x)
 {
@@ -100,6 +117,16 @@ check_sex <- function(x){
   return(out)
 }
 
+check_drug <- function(PatientRec, Drug){
+  if(any(is.na(PatientRec)) |
+     any(is.na(Drug))) {out <- "missing Drug or PatientRec"}
+  else if(length(unique(na.omit(PatientRec)))==1 &
+     length(unique(na.omit(Drug)))==1) {out <- "sensible"} else{
+    out <- "non-match"
+  }
+  return(out)
+
+}
 check_height <- function(x){
   if(all(is.na(x))) {out <- NA} else{
     out <- mean(x, na.rm=T)
@@ -169,6 +196,16 @@ read_pcs <- function(pc_dir){
   return(PC_data)
 }
 
+munge_snp_weights <- function(snp_weights, related_inds){
+  colnames(snp_weights) <- c("sample_ID", "population_label", "n_SNPs",
+    "PC1", "PC2", "PC3", "YRI%", "CEU%", "EA%", "NA%")
+  t <- snp_weights  %>%
+    filter(!sample_ID %in% related_inds[,1]) %>%
+    separate(sample_ID, into = c("ID", "GPCR"), sep = "_") %>%
+    dplyr::select(-population_label)
+  return(t)
+
+}
 
 clean_drugs <- function(x){
   drugs <- as.character(unlist(x %>% dplyr::select(starts_with("AP1_Drug_"))))
@@ -300,7 +337,7 @@ create_analysis_dirs <- function(top_level){
       dir.create(file.path(dir, eth),showWarnings=F)
     }
   }
-  dir.create("analysis/GRS",showWarnings=F)
+  dir.create("analysis/PRS",showWarnings=F)
   return(TRUE)
 }
 
@@ -375,7 +412,7 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
   subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, output_suffix=""){
 
   # eth_sample_file : in the form of "keep_this_ETH.txt"
-  # deafault option: --variance-standardize
+  # default option: --variance-standardize
   file_name <- output
   file_name <- paste0(file_name,"_",output_suffix)
   if(type=="subgroup")
@@ -449,12 +486,10 @@ meta_linear <- function(run_gwas_linear){
   return(out)
 }
 
-combine_targets <- function(...)
-{
+combine_targets <- function(...){
   temp <- substitute(list(...))[-1]
   c(sapply(temp, deparse))
 }
-
 
 process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
 
@@ -513,8 +548,6 @@ process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", outpu
   }
 
 }
-
-
 
 pca_plot <- function(data_clean, col, colname, title){
   ggplot(data_clean) +
@@ -580,6 +613,43 @@ munge_snpweights <- function(study_name, pc_data, snp_weights, eth_file){
 
 }
 
+define_prs_inputs <- function(consortia_dir, output_folder){
+
+  prs_base_files <- list.files(paste0(consortia_dir, "/formatted"), full.names=T)
+  prs_names <- paste0(output_folder, "/", gsub(".txt", "", list.files(paste0(consortia_dir, "/formatted"))))
+
+  prs_info <- tibble( base_file = prs_base_files,
+                      out_file = prs_names)
+  return(prs_info)
+
+}
+
+run_prsice <- function(base_file, threads=1, memory="7900", out_file, PRSice_dir="/data/sgg2/jenny/bin/PRSice/",
+  snp_col="SNP", chr_col="CHR", effect_allele_col="EFFECT_ALLELE",
+  other_allele_col="OTHER_ALLELE", beta_or_col="BETA", p_col="PVAL",
+  data_type="bgen", bgen_file="", sample_file="", plink_file="",
+  pheno_file="", pheno_col="",
+  bar_levels="0.00000005,0.0000005,0.000005,0.00005,0.0005,0.005,0.05,0.1", no_regress=TRUE){
+  if(data_type=="plink"){
+    data_spec_commands <- c("--target", plink_file)
+  }
+  if(data_type=="bgen"){
+    data_spec_commands <- c("--target", paste0(bgen_file, ",", sample_file), "--type", "bgen")
+  }
+  general_commands <- c(paste0(PRSice_dir, "PRSice.R"), "--dir", ".", "--prsice", paste0(PRSice_dir, "PRSice_linux"),
+    "--base", base_file, "--thread", threads, "--snp", snp_col, "--chr", chr_col, "--A1", effect_allele_col, "--A2",
+    other_allele_col, "--stat", beta_or_col, "--pvalue", p_col, "--out", out_file, "--bar-levels", bar_levels)
+  if(no_regress==TRUE){
+    regress_commands <- c("--no-regress")
+  }
+  if(no_regress==FALSE){
+    regress_commands <- c("--pheno-file", pheno_file, "--pheno-col", pheno_col,
+    "--ignore-fid")
+  }
+  prsice_input <- c(general_commands, data_spec_commands, regress_commands)
+  out <- processx::run(command="Rscript", prsice_input, error_on_status=F)
+  return(out)
+}
 
 #### TO BE REVISED
 process_gwas <- function(outcome_variable,interaction_variable,model){
