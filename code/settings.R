@@ -29,7 +29,7 @@ plink_bed_out <- str_replace(plink_ped_raw,"raw","processed")
 
 rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
-pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_241019_noaccent.csv"
+pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_160420_noaccent.csv"
 pc_dir <- "analysis/QC/15_final_processing/final_pca"
 
 ### location of codes
