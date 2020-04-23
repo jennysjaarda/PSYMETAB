@@ -316,14 +316,14 @@ split_followup <- function(pheno_followup, test_drugs){
   return(out)
 }
 
-write_followup_data <- function(pheno_followup_split, test_drugs){
+write_followup_data <- function(pheno_followup_split, test_drugs, interaction_pheno, interaction_covar){
   for(i in 1:dim(test_drugs)[1])
   {
     drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
     drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
     data_drug <- pheno_followup_split[[drug_class]]
-    out_interaction_pheno = write.table(data_drug$pheno, file_out(paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_pheno_input.txt")), row.names=F, quote=F, col.names=T)
-    out_interaction_covar = write.table(data_drug$covar, file_out( paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_covar_input.txt")), row.names=F, quote=F, col.names=T)
+    out_interaction_pheno = write.table(data_drug$pheno, interaction_pheno, row.names=F, quote=F, col.names=T) #file_out(paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_pheno_input.txt"))
+    out_interaction_covar = write.table(data_drug$covar, interaction_covar, row.names=F, quote=F, col.names=T) #file_out( paste0("data/processed/phenotype_data/GWAS_input/",drug_class,"_interaction_covar_input.txt"))
 
   }
 }
