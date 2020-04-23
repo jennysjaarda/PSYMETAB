@@ -672,7 +672,7 @@ process_gwas <- function(outcome_variable,interaction_variable,model){
 
   eths <- sapply(eth_gwas_files,function(x){ gsub(".*PSYMETAB_GWAS_(.*?)\\_.*", "\\1", x)})
 
-  meta_file <- file_in(list.files(path=out_folder, pattern=".meta", full.names=T))
+  meta_file <- (list.files(path=out_folder, pattern=".meta", full.names=T))
   gwas_files <- tibble(eth=c(eths,"META"), file=c(eth_gwas_files,meta_file))
 
   info <- fread("analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
