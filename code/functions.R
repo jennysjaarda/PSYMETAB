@@ -629,7 +629,7 @@ run_prsice <- function(base_file, threads=1, memory="7900", out_file, PRSice_dir
   other_allele_col="OTHER_ALLELE", beta_or_col="BETA", p_col="PVAL",
   data_type="bgen", bgen_file="", sample_file="", plink_file="",
   pheno_file="", pheno_col="",
-  bar_levels="0.00000005,0.0000005,0.000005,0.00005,0.0005,0.005,0.05,0.1", no_regress=TRUE){
+  bar_levels="0.00000005,0.0000005,0.000005,0.00005,0.0005,0.005,0.05,0.1,0.2,0.3,0.4,0.5,1", no_regress=TRUE, fastscore=TRUE){
   if(data_type=="plink"){
     data_spec_commands <- c("--target", plink_file)
   }
@@ -638,7 +638,7 @@ run_prsice <- function(base_file, threads=1, memory="7900", out_file, PRSice_dir
   }
   general_commands <- c(paste0(PRSice_dir, "PRSice.R"), "--dir", ".", "--prsice", paste0(PRSice_dir, "PRSice_linux"),
     "--base", base_file, "--thread", threads, "--snp", snp_col, "--chr", chr_col, "--A1", effect_allele_col, "--A2",
-    other_allele_col, "--stat", beta_or_col, "--pvalue", p_col, "--out", out_file, "--bar-levels", bar_levels)
+    other_allele_col, "--stat", beta_or_col, "--pvalue", p_col, "--out", out_file, "--bar-levels", bar_levels, "--fastscore", fastscore)
   if(no_regress==TRUE){
     regress_commands <- c("--no-regress")
   }
@@ -648,7 +648,15 @@ run_prsice <- function(base_file, threads=1, memory="7900", out_file, PRSice_dir
   }
   prsice_input <- c(general_commands, data_spec_commands, regress_commands)
   out <- processx::run(command="Rscript", prsice_input, error_on_status=F)
-  return(out)
+  return(prsice_input)
+}
+
+format_prs <- function(all_score_file, out_file){
+  prs_data <- fread(all_score_file, data.table=F, header=T)
+  prs_format <- prs_data  %>%
+    separate(FID, into = c("ID", "GPCR"), sep = "_") %>%
+    dplyr::select(-IID)
+  write.table(prs_format, out_file, row.names=F, quote=F)
 }
 
 #### TO BE REVISED
