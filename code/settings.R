@@ -25,12 +25,13 @@ future::plan(batchtools_slurm, template = "slurm_batchtools.tmpl")
 
 ### data sources
 plink_ped_raw <- "data/raw/PLINK_091019_0920/PSYMETAB_GWAS"
-plink_bed_out <- str_replace(plink_ped_raw,"raw","processed")
+plink_bed_out <- str_replace(plink_ped_raw,"raw","processed") #same as input_chip
 
 rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids.txt"
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
 pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_160420_noaccent.csv"
 pc_dir <- "analysis/QC/15_final_processing/final_pca"
+caffeine_file <- "data/raw/phenotype_data/Code_GEN_CG_11.03.2020.xlsx"
 
 ### location of codes
 pre_imputation_script <- "code/pre_imputation_qc.sh"
