@@ -178,19 +178,20 @@ munge_pheno <- function(pheno_raw, baseline_vars){
     mutate_at(vars(starts_with("AP1_Drug_")) , as.factor)
 }
 
-read_pcs <- function(pc_dir){
+read_pcs <- function(pc_dir, study_name, eths){
 
   pclist = list()
   for (eth in eths)
   {
-    PC_temp<- fread(file.path(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))
-    PC_temp <- PC_temp %>%
-      separate(FID, c("counter", "GPCR"), sep="_")  %>%
-      mutate(eth = eth)  %>%
-      mutate(FID = IID)  %>%
-      dplyr::select(FID, IID, counter, GPCR, eth, everything())
-    pclist[[eth]] <- PC_temp # add it to your list
-
+    if(file.exists(file.path(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))){
+      PC_temp<- fread(file.path(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))
+      PC_temp <- PC_temp %>%
+        separate(FID, c("counter", "GPCR"), sep="_")  %>%
+        mutate(eth = eth)  %>%
+        mutate(FID = IID)  %>%
+        dplyr::select(FID, IID, counter, GPCR, eth, everything())
+      pclist[[eth]] <- PC_temp # add it to your list
+    }
   }
   PC_data <- dplyr::bind_rows(pclist)
   return(PC_data)
