@@ -31,7 +31,7 @@ rsconv_raw_file <- "data/raw/reference_files/GSAMD-24v2-0_20024620_A1_b151_rsids
 qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
 pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_160420_noaccent.csv"
 pc_dir <- "analysis/QC/15_final_processing/final_pca"
-caffeine_file <- "data/raw/phenotype_data/Code_GEN_CG_11.03.2020.xlsx"
+caffeine_file <- "data/raw/phenotype_data/CAF_Sleep_Jenny_05_05_2020_CG.xlsx"
 
 ### location of codes
 pre_imputation_script <- "code/pre_imputation_qc.sh"
@@ -78,6 +78,7 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloz")
 test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"), c("Clozapine")))
 baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
+caffeine_vars <-  c("logCAF_mean", "logTHEOBR_mean", "logPARAX_mean", "Sleep_disorder")
 
 standard_covars <- c(paste0("PC", 1:20), "sex")
 baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
