@@ -141,7 +141,35 @@ ever_drug <- function(x) {
   return(out)
 }
 
-munge_pheno <- function(pheno_raw, baseline_vars){
+check_sleep_disorder <- function(x, caf){
+  max_caf <- which.max(caf)
+  out <- NA
+  if((0 %in% x) & (1 %in% x)) {
+    out <- x[max_caf]
+  } else {
+    if(0 %in% x) {out <- 0}
+    if(1 %in% x) {out <- 1}
+  }
+  return(out)
+}
+
+munge_caffeine <- function(caffeine_raw){
+  caffeine_raw %>%
+    rename(Sleep_disorder = Sleep_disorders) %>%
+    mutate(Date = as.Date(Date)) %>%
+    group_by(GEN) %>%
+    mutate(max_caffeine = max(CAF)) %>%
+    mutate(Sleep_disorder_keep = check_sleep_disorder(Sleep_disorder, CAF)) %>%
+    mutate(Sleep_disorder_diff = case_when(length(unique(Sleep_disorder)) == 1 ~ 0,
+                                                TRUE ~ 1)) %>%
+    filter(Sleep_disorder_keep == Sleep_disorder) %>%
+    mutate_at( vars(-GEN, -starts_with("Sleep_disorder")), list(mean = mean)) %>%
+    dplyr::select(GEN, Date, starts_with("Sleep_disorder"), ends_with("_mean")) %>%
+    unique()
+
+}
+
+munge_pheno <- function(pheno_raw, baseline_vars, caffeine_vars){
   pheno_raw %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%Y'))  %>% filter(!is.na(Date)) %>% arrange(Date)  %>%
     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
@@ -170,9 +198,9 @@ munge_pheno <- function(pheno_raw, baseline_vars){
     mutate_at(paste0( baseline_vars, "_start"), destring) %>%
     group_by(GEN) %>%
     mutate(Drug_Number=paste0("Drug_",row_number())) %>%
-    pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug")), names_from=Drug_Number, values_from=c("AP1", "Age","Date", paste0(baseline_vars, "_start"),
+    pivot_wider(id_cols=c(GEN,sex, !!caffeine_vars, ends_with("_ever_drug")), names_from=Drug_Number, values_from=c("AP1", "Age","Date", paste0(baseline_vars, "_start"),
         "AP1_duration", "BMI_change","Num_followups")) %>%
-    dplyr::select(matches('GEN|sex|AP1|Age|Date|BMI|_start_Drug_1|Num_followups|_ever_drug')) %>%
+    dplyr::select(matches('GEN|sex|AP1|Age|Date|BMI|_start_Drug_1|Num_followups|_ever_drug'), caffeine_vars) %>%
     ungroup() %>%
     mutate(Age_sq_Drug_1 = Age_Drug_1^2) %>%
     mutate_at(vars(starts_with("AP1_Drug_")) , as.factor)
@@ -270,9 +298,9 @@ munge_pheno_follow <-  function(pheno_baseline, test_drugs) {
   return(out)
 }
 
-create_GWAS_pheno <- function(pheno_baseline, pheno_followup){
+create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars){
   na_to_none <- function(x) ifelse(is.na(x),'NONE',x)
-  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'))
+  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'), caffeine_vars)
   linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20'))
 
   list_covar <- list(linear=linear_covar)
@@ -342,7 +370,7 @@ create_analysis_dirs <- function(top_level){
   return(TRUE)
 }
 
-define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes){
+define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes, caffeine_vars){
   col_match<- paste(paste0(baseline_vars,"_start_Drug_1"), collapse = "|")
   linear_vars <- colnames(dplyr::select(GWAS_input$full_pheno,matches(col_match)))
   linear_covars <- rep(list(c(standard_covars,baseline_covars)),length(baseline_vars))
