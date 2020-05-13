@@ -155,21 +155,17 @@ check_sleep_disorder <- function(x, caf){
 
 munge_caffeine <- function(caffeine_raw){
   caffeine_raw %>%
-    rename(Sleep_disorder = Sleep_disorders) %>%
     mutate(Date = as.Date(Date)) %>%
+    rename(Sleep_disorder = Sleep_disorders) %>%
     group_by(GEN) %>%
-    mutate(max_caffeine = max(CAF)) %>%
-    mutate(Sleep_disorder_keep = check_sleep_disorder(Sleep_disorder, CAF)) %>%
-    mutate(Sleep_disorder_diff = case_when(length(unique(Sleep_disorder)) == 1 ~ 0,
-                                                TRUE ~ 1)) %>%
-    filter(Sleep_disorder_keep == Sleep_disorder) %>%
-    mutate_at( vars(-GEN, -starts_with("Sleep_disorder")), list(mean = mean)) %>%
-    dplyr::select(GEN, Date, starts_with("Sleep_disorder"), ends_with("_mean")) %>%
+    filter(Date == min(Date)) %>%
+    mutate_at( vars(-GEN, -Sexe, -starts_with("Sleep_disorder")), mean) %>%
+    rename(Date_caffeine = Date) %>%
     unique()
 
 }
 
-munge_pheno <- function(pheno_raw, baseline_vars, caffeine_vars){
+munge_pheno <- function(pheno_raw, baseline_vars, caffeine_vars, leeway_time){
   pheno_raw %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%Y'))  %>% filter(!is.na(Date)) %>% arrange(Date)  %>%
     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
