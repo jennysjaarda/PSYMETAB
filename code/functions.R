@@ -159,15 +159,36 @@ munge_caffeine <- function(caffeine_raw){
     rename(Sleep_disorder = Sleep_disorders) %>%
     group_by(GEN) %>%
     filter(Date == min(Date)) %>%
-    mutate_at( vars(-GEN, -Sexe, -starts_with("Sleep_disorder")), mean) %>%
+    mutate_at( vars(-GEN, -Sexe, -age, -starts_with("Sleep_disorder")), mean) %>%
+    mutate(Sexe = case_when(Sexe == "Women" ~ "F",
+                            Sexe == "Men" ~ "M")) %>%
     rename(Date_caffeine = Date) %>%
+    rename(Age_caffeine = age) %>%
     unique()
+
+}
+
+merge_pheno <- function(pheno, caffeine){
+
+  fuzzy_full_join(
+    pheno_man, caffeine_munge,
+    by = c(
+      "GEN" = "GEN",
+      "Date" = "Date_caffeine",
+      "Date_temp" = "Date_caffeine"
+      ),
+    match_fun = list(`==`, `<=`, `>=`)
+  ) %>%
+  filter(!(Sexe.x != Sexe.y) | any(is.na(Sexe.x), is.na(Sexe.y))) %>% #remove sex's that don't match between the two databases
+  dplyr::select(-GEN.y, -Sexe.y, -Date_temp) %>%
+  rename(GEN = GEN.x) %>% rename(Sexe = Sexe.x)
 
 }
 
 munge_pheno <- function(pheno_raw, baseline_vars, caffeine_vars, leeway_time){
   pheno_raw %>%
-    mutate(Date = as.Date(Date, format = '%d.%m.%Y'))  %>% filter(!is.na(Date)) %>% arrange(Date)  %>%
+    #mutate(Date = as.Date(Date, format = '%d.%m.%y'))  %>%
+    filter(!is.na(Date)) %>% arrange(Date)  %>%
     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
     group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
     mutate_at("PatientsTaille", as.numeric) %>% mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
