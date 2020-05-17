@@ -168,21 +168,30 @@ munge_caffeine <- function(caffeine_raw){
 
 }
 
-merge_pheno <- function(pheno, caffeine){
+merge_pheno_caffeine <- function(pheno, caffeine, anonymization_error){
 
-  fuzzy_full_join(
-    pheno_man, caffeine_munge,
-    by = c(
-      "GEN" = "GEN",
-      "Date" = "Date_caffeine",
-      "Date_temp" = "Date_caffeine"
-      ),
-    match_fun = list(`==`, `<=`, `>=`)
-  ) %>%
-  filter(!(Sexe.x != Sexe.y) | any(is.na(Sexe.x), is.na(Sexe.y))) %>% #remove sex's that don't match between the two databases
-  dplyr::select(-GEN.y, -Sexe.y, -Date_temp) %>%
-  rename(GEN = GEN.x) %>% rename(Sexe = Sexe.x)
+  pheno_temp <- pheno %>% mutate(Date = as.Date(Date, format = '%d.%m.%y')) %>%
+    mutate(Date_temp_start = Date - anonymization_error) %>%
+    mutate(Date_temp_end = Date + anonymization_error)
 
+  caffeine_temp <- caffeine %>%
+    mutate(Date_temp_start = Date_caffeine - anonymization_error) %>%
+    mutate(Date_temp_end = Date_caffeine + anonymization_error)
+
+  out <- fuzzy_full_join(
+      pheno_temp, caffeine_temp,
+      by = c(
+        "GEN" = "GEN",
+        "Date_temp_start" = "Date_temp_end",
+        "Date_temp_end" = "Date_temp_start"
+        ),
+      match_fun = list(`==`, `<=`, `>=`)
+    ) %>%
+    filter(!(Sexe.x != Sexe.y) | any(is.na(Sexe.x), is.na(Sexe.y))) %>% #remove sex's that don't match between the two databases
+    dplyr::select(-GEN.y, -Sexe.y, -starts_with("Date_temp")) %>%
+    rename(GEN = GEN.x) %>% rename(Sexe = Sexe.x)
+
+  return(out)
 }
 
 munge_pheno <- function(pheno_raw, baseline_vars, caffeine_vars, leeway_time){
