@@ -126,7 +126,19 @@ qc_process <- drake_plan(
     countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_05.fam"))[1] -
     countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_05.fam"))[1] +
     countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_01.fam"))[1] -
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness.step3.fam"))[1]}
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness.step3.fam"))[1]},
+
+  initial_variants = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.bim"))[1],
+  initial_ind = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1]
+
+  preprocess_var_init = countLines(paste0(!!plink_bed_out, ".bim")),
+  preprocess_ind_init = countLines(paste0(!!plink_bed_out, ".bim")),
+
+  preprocess_non_x = countLines(paste0("analysis/QC/00_preprocessing/non_autosome_or_x_variants")),
+  preprocess_non_x_remain = countLines(paste0("analysis/QC/00_preprocessing/temp1.bim")),
+
+  preprocess_var_dups = countLines(paste0("analysis/QC/00_preprocessing/duplicate_variants")),
+  preprocess_var_dups_remain = countLines(paste0("analysis/QC/00_preprocessing/temp2.bim")),
 
 
 )
@@ -137,26 +149,36 @@ qc_process <- drake_plan(
 analysis_prep <- drake_plan(
   # prepare phenotype files for analysis in GWAS/GRS etc. ------------
 
-  pheno_raw = readr::read_delim(file_in(!!pheno_file), col_types = cols(.default = col_character()), delim = ";") %>% type_convert(),
-
+  pheno_raw = readr::read_delim(file_in(!!pheno_file), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
+  pheno_man = target(pheno_raw %>% filter(!(GEN=="GYYEHMDR" & Sexe=="M")),
+    hpc = FALSE),
   # found that GYYEHMDR is listed as both Male and Female -> should be female only.
-  pheno_man = pheno_raw %>% filter(!(GEN=="GYYEHMDR" & Sexe=="M")),
+
+  caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet=1) %>% type_convert(),
+    hpc = FALSE),
+  caffeine_man = target(caffeine_raw %>% mutate(age=replace(age, GEN=="WIFRYNSK" & as.Date(Date)=="2009-01-07", 21)),
+    hpc = FALSE),
+  # found a mistake that the age of WIFRYNSK was wrong at one instance.
+
+  caffeine_munge = munge_caffeine(caffeine_man),
   bgen_sample_file = target({
     readr::read_delim(file_in("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL.sample"),
       col_types = cols(.default = col_character()), delim = " ") %>% type_convert()
     }),
-  bgen_nosex_out = write.table(bgen_sample_file[,1:3],file_out("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample"),row.names = F, quote = F, col.names = T),
-  pc_raw = read_pcs(file_in(pc_dir)) %>% as_tibble(),
-  pheno_munge = munge_pheno(pheno_man, !!baseline_vars), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
-  pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character) , pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
+  bgen_nosex_out = write.table(bgen_sample_file[,1:3],file_out(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),row.names = F, quote = F, col.names = T),
+  pc_raw = read_pcs(file_in(!!pc_dir), !!study_name, !!eths) %>% as_tibble(),
+  pheno_merge = merge_pheno_caffeine(pheno_man, caffeine_munge, !!anonymization_error),
+
+  pheno_munge = munge_pheno(pheno_merge, !!baseline_vars, !!caffeine_vars, !!leeway_time), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
+
+  pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character), pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
     replace_na(list(sex='NONE')),
   pheno_eths_out = write.table(pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
-  dplyr::select(COUNT,GPCR,eth ), file_out("data/processed/phenotype_data/PSYMETAB_GWAS_inferred_eths.txt"), row.names = F, quote = F, col.names = T),
-
+    dplyr::select(COUNT,GPCR,eth ), file_out("data/processed/phenotype_data/PSYMETAB_GWAS_inferred_eths.txt"), row.names = F, quote = F, col.names = T),
 
   pheno_followup = munge_pheno_follow(pheno_baseline, !!test_drugs), #names(pheno_followup) is the names defined in `test_drugs`: tibble
-  GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup),
-  baseline_gwas_info = define_baseline_inputs(GWAS_input, !!baseline_vars, !!drug_classes),
+  GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars),
+  baseline_gwas_info = define_baseline_inputs(GWAS_input, !!baseline_vars, !!drug_classes, !!caffeine_vars),
   interaction_gwas_info = define_interaction_inputs(GWAS_input, !!drug_classes),
   subgroup_gwas_info = define_subgroup_inputs(GWAS_input, !!drug_classes),
   ## linear model GWAS:
@@ -184,7 +206,7 @@ init_analysis <- drake_plan(
                covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
                threads = 16, pheno_name = baseline_gwas_info$pheno, covar_names = baseline_gwas_info$covars, eths = !!eths, output_suffix = baseline_gwas_info$output_suffix,
                eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-               remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
+               remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
                output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")},
     dynamic = map(baseline_gwas_info)
   ),
@@ -196,7 +218,7 @@ init_analysis <- drake_plan(
                 covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),type = "interaction",
                 threads = 16, pheno_name = interaction_gwas_info$pheno, covar_names = interaction_gwas_info$covars, parameters = interaction_gwas_info$parameters, output_suffix = interaction_gwas_info$output_suffix,
                 eths = !!eths, eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt",  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-                remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
+                remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
                 output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")},
     dynamic = map(interaction_gwas_info)
   ),
@@ -208,7 +230,7 @@ init_analysis <- drake_plan(
                 covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
                 threads = 16, pheno_name = subgroup_gwas_info$pheno, covar_names = subgroup_gwas_info$covars, subgroup_var = subgroup_gwas_info$subgroup, type = "subgroup", output_suffix = interaction_gwas_info$output_suffix,
                 eths = !!eths, eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt",  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-                remove_sample_file = "analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt",
+                remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
                 output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")},
     dynamic = map(subgroup_gwas_info)
   )
@@ -222,13 +244,30 @@ prs <- drake_plan(
   prs_info = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),
   prsice_out = target({
     run_prsice(base_file=prs_info$base_file,
-      threads=16, memory="100000", out_file=prs_info$out_file, bgen_file="analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL",
-      sample_file="analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL_nosex.sample")},
-    dynamic = map(prs_info)
+      threads=16, memory="100000", out_file=prs_info$out_file,
+      bgen_file=paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL"),
+      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")))
+    c(paste0(prs_info$out_file, ".log"), paste0(prs_info$out_file, ".all.score"), paste0(prs_info$out_file, ".prsice"))
+  },
+    dynamic = map(prs_info),
+    format = "file"
+  ),
+  prs_format = target({
+    prsice_out
+    format_prs(all_score_file=paste0(prs_info$out_file, ".all.score"), out_file=paste0(prs_info$out_file, ".format"))
+    paste0(prs_info$out_file, ".format")
+  },
+  dynamic = map(prs_info), hpc = FALSE,
+  format = "file"
   ),
 
 
 )
+
+run_prsice(base_file,
+  threads=16, memory="100000", out_file,
+  bgen_file=paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL"),
+  sample_file=file_in(paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")))
 
 process_init <- drake_plan(
 
