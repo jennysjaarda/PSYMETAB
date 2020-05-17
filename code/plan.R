@@ -129,7 +129,7 @@ qc_process <- drake_plan(
     countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness.step3.fam"))[1]},
 
   initial_variants = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.bim"))[1],
-  initial_ind = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1]
+  initial_ind = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1],
 
   preprocess_var_init = countLines(paste0(!!plink_bed_out, ".bim")),
   preprocess_ind_init = countLines(paste0(!!plink_bed_out, ".bim")),
