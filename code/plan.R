@@ -264,11 +264,6 @@ prs <- drake_plan(
 
 )
 
-run_prsice(base_file,
-  threads=16, memory="100000", out_file,
-  bgen_file=paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL"),
-  sample_file=file_in(paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")))
-
 process_init <- drake_plan(
 
   ## read from sort_gwas.r
