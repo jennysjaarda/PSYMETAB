@@ -44,9 +44,13 @@ final_processing_script <-  "code/final_processing.sh"
 
 eths <- c("CEU", "EA", "MIXED", "NA", "YRI")
 study_name <- "PSYMETAB_GWAS"
+
 leeway_time <- 90 ## plus or minus on follow-up to double check that the "Mois" column make sense.
 # For example, if one visit is marked month 3 on September 5/15; and the previous visit marked month 0 on June 15/19, the script below will check if:
 # the difference between the two dates (September 5/15 - June 15/19) is within the difference between the two months (3 = 90 days) +/- the 'leeway_time'
+
+anonymization_error <- 7 ## the anonymization procedure adds a random number of days to each visit date and it makes it very difficult to join two datasets
+# instead of a exact merge (default R merge function), use `fuzzy_join` which will join more loosely. See example of it's use in `merge_pheno_caffeine` function in `code\functions.R`
 
 min_follow_up <- 14
 
@@ -78,7 +82,7 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloz")
 test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"), c("Clozapine")))
 baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
-caffeine_vars <-  c("logCAF_mean", "logTHEOBR_mean", "logPARAX_mean", "Sleep_disorder")
+caffeine_vars <-  c("logCAF", "logTHEOBR", "logPARAX", "Sleep_disorder")
 
 standard_covars <- c(paste0("PC", 1:20), "sex")
 baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
