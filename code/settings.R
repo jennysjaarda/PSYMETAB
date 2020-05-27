@@ -16,7 +16,6 @@
 project_dir <- "/data/sgg2/jenny/projects/PSYMETAB/"
 SGG_generic <- "/data/sgg2/jenny/SGG_generic/"
 consortia_dir <- "/data/sgg2/jenny/data/consortia"
-
 source(paste0(SGG_generic,"/scripts/settings.r"))
 
 ## register clustermq and future plans
@@ -69,6 +68,10 @@ min_follow_up <- 14
 
 # AP3 pour risque élevé de prise de poids :
 # Clozapine, Olanzapine, Valproate
+
+ukbb_files <- tibble(
+  name = c("coffee_consumed"),
+  file = c("IVs/clump/100240.gwas.imputed_v3.both_sexes.IVs/100240.gwas.imputed_v3.both_sexes.IVs_unpruned.txt"))
 
 high_inducers <- c("Olanzapine", "Clozapine" ,"Valproate")
 
