@@ -415,6 +415,7 @@ create_analysis_dirs <- function(top_level){
       dir.create(file.path(dir, eth),showWarnings=F)
     }
     dir.create(file.path(dir, "META"),showWarnings=F)
+    dir.create(file.path(dir, "processed"),showWarnings=F)
   }
   dir.create("analysis/PRS",showWarnings=F)
   return(TRUE)
@@ -811,25 +812,33 @@ define_baseline_files <- function(info = baseline_gwas_info, output = "PSYMETAB_
   pheno_names <- numeric()
   eth_keep <- numeric()
   eth_list <- numeric()
+  write_keep <- numeric()
   for(eth in c(eths, "META")){
     eth_dir <- file.path(output_dir, type)
     if(eth!="META"){
       file_name_eth <- paste0(file_name,"_",eth)
       eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
+      write_file <- gsub(".glm.linear", ".GWAS.txt", eth_output)
+
     }
     if(eth=="META"){
       file_name_eth <- file_name
       eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".meta"))
+      write_file <- gsub(".meta", ".GWAS.txt", eth_output)
     }
+
     eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
     eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
     pheno_names <- c(pheno_names, pheno[which(file.exists(eth_output))])
+    write_keep <- c(write_keep, write_file[which(file.exists(eth_output))])
+    write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
   }
 
   out <- tibble(eth = eth_list,
                 pheno = pheno_names,
                 drug = NA,
-                file = eth_keep)
+                file = eth_keep,
+                write_file = write_keep)
   return(out)
 }
 
@@ -843,6 +852,7 @@ define_interaction_files <- function(info = interaction_gwas_info, output = "PSY
   pheno_names <- numeric()
   eth_keep <- numeric()
   eth_list <- numeric()
+  write_keep <- numeric()
   for(eth in c(eths, "META")){
     eth_dir <- file.path(output_dir, type)
 
@@ -850,20 +860,25 @@ define_interaction_files <- function(info = interaction_gwas_info, output = "PSY
       file_name_eth <- paste0(file_name,"_int_",eth)
       #eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
       eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear.interaction"))
+      write_file <- gsub(".glm.linear.interaction", ".GWAS.txt", eth_output)
     }
     if(eth=="META"){
       file_name_eth <- paste0(file_name,"_int")
       eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".meta"))
+      write_file <- gsub(".meta", ".GWAS.txt", eth_output)
     }
     eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
     eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
     pheno_names <- c(pheno_names, pheno[which(file.exists(eth_output))])
+    write_keep <- c(write_keep, write_file[which(file.exists(eth_output))])
+    write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
   }
 
   out <- tibble(eth = eth_list,
                 pheno = pheno_names,
                 drug = NA,
-                file = eth_keep)
+                file = eth_keep,
+                write_file = write_keep)
 
   return(out)
 
@@ -880,6 +895,8 @@ define_subgroup_files <- function(info = subgroup_gwas_info, output = "PSYMETAB_
   eth_keep <- numeric()
   eth_list <- numeric()
   drug_keep <- numeric()
+  write_keep <- numeric()
+
   for(eth in c(eths, "META")){
     eth_dir <- file.path(output_dir, type)
 
@@ -889,6 +906,8 @@ define_subgroup_files <- function(info = subgroup_gwas_info, output = "PSYMETAB_
       file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
       eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno, ".glm.linear"))
       eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno, ".glm.linear"))
+      write_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
+      write_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
     }
     if(eth=="META"){
       file_name_eth <- file_name
@@ -896,6 +915,8 @@ define_subgroup_files <- function(info = subgroup_gwas_info, output = "PSYMETAB_
       file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
       eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".meta"))
       eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".meta"))
+      write_file_drug <- gsub(".meta", ".GWAS.txt", eth_output_drug)
+      write_file_nodrug <- gsub(".meta", ".GWAS.txt", eth_output_nodrug)
 
     }
     eth_output <- c(eth_output_drug, eth_output_nodrug)
@@ -904,19 +925,22 @@ define_subgroup_files <- function(info = subgroup_gwas_info, output = "PSYMETAB_
     eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
     eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
     pheno_names <- c(pheno_names, c(pheno,pheno)[which(file.exists(eth_output))])
+    write_keep <- c(write_keep, c(write_file_drug, write_file_nodrug)[which(file.exists(eth_output))])
+    write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
   }
 
   out <- tibble(eth = eth_list,
                 pheno = pheno_names,
                 drug = drug_keep,
-                file = eth_keep)
+                file = eth_keep,
+                write_file = write_keep)
 
   return(out)
 
 }
 
 process_gwas <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
-  info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", gw_sig){
+  info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file){
 
   #outcome_variable,interaction_variable,model,
   info <- fread(info_file)
@@ -942,13 +966,35 @@ process_gwas <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", outpu
       filter(!is.na(P)) %>%
       dplyr::select(CHR, BP, SNP, REF, ALT, BETA, P)
   }
-  title <- ifelse(is.na(drug), pheno, paste0(pheno, "_", drug))
-  manhattan_file_name <- paste0(write_dir, "/", output, "_", pheno, "_manhattan.png")
-  qq_file_name <- paste0(write_dir, "/", output, "_", pheno, "_qq.png")
-  return(list(joint=joint, manhattan_file_name=manhattan_file_name, qq_file_name=qq_file_name, title=title))
+  fwrite(joint, out_file, sep="\t")
+  #return(list(manhattan_file_name=manhattan_file_name, qq_file_name=qq_file_name, title=title))
 }
 
-create_figures <- function(joint, manhattan_file_name, qq_file_name, title){
+gwas_figures_input <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
+  info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file){
+
+  write_dir <- file.path(output_dir, type, "processed")
+
+  title <- ifelse(is.na(drug), pheno, paste0(pheno, "_", drug))
+  manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_manhattan.png")
+  qq_file_name <- paste0(write_dir, "/", output, "_", title, "_qq.png")
+  return(list(joint_file=out_file, manhattan_file_name=manhattan_file_name, qq_file_name=qq_file_name, title=title))
+
+}
+
+create_figures <- function(joint_file, manhattan_file_name, qq_file_name, title){
+
+  #eth, pheno, drug, file, output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
+  #info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file){
+
+  #write_dir <- file.path(output_dir, type, "processed")
+
+  #title <- ifelse(is.na(drug), pheno, paste0(pheno, "_", drug))
+  #manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_manhattan.png")
+  #qq_file_name <- paste0(write_dir, "/", output, "_", title, "_qq.png")
+
+
+  joint <- fread(joint_file, data.table=F)
 
   png(manhattan_file_name, width=2000, height=1000, pointsize=18)
   manhattan(joint, main=title)

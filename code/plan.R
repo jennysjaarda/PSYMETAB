@@ -257,39 +257,74 @@ analysis <- bind_plans(analysis_prep, init_analysis)
 process_init <- drake_plan(
   # define endpoint, covars and outputs ---------------------------
 
-  baseline_gwas_files = target(define_baseline_files(readd(baseline_gwas_info), output = "PSYMETAB_GWAS", eths,
-    output_dir = "analysis/GWAS", type = "full"),
+  GWAS_input_process = target(list(full_pheno = read_table2(file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt")),
+                                    full_covar = read_table2(file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"))),
+    hpc = FALSE), # this should be identical to GWAS_input above, but needs to be a different name
+
+  # define endpoint, covars and outputs ---------------------------
+  baseline_gwas_process = target(define_baseline_inputs(GWAS_input_process, !!baseline_vars, !!drug_classes, !!caffeine_vars),
     hpc = FALSE),
-  interaction_gwas_files = target(define_interaction_files(readd(interaction_gwas_info),  output = "PSYMETAB_GWAS", eths,
-    output_dir = "analysis/GWAS", type = "interaction"),
+  interaction_gwas_process = target(define_interaction_inputs(GWAS_input_process, !!drug_classes),
     hpc = FALSE),
-  subgroup_gwas_files = target(define_subgroup_files(readd(subgroup_gwas_info), output = "PSYMETAB_GWAS", eths,
-    output_dir = "analysis/GWAS", type = "subgroup"),
+  subgroup_gwas_process = target(define_subgroup_inputs(GWAS_input_process, !!drug_classes),
+    hpc = FALSE),
+
+  baseline_gwas_files = target({
+    define_baseline_files(baseline_gwas_process, output = "PSYMETAB_GWAS", eths,
+    output_dir = "analysis/GWAS", type = "full")},
+    hpc = FALSE),
+  interaction_gwas_files = target({
+    define_interaction_files(interaction_gwas_process,  output = "PSYMETAB_GWAS", eths,
+    output_dir = "analysis/GWAS", type = "interaction")},
+    hpc = FALSE),
+  subgroup_gwas_files = target({
+    define_subgroup_files(subgroup_gwas_process, output = "PSYMETAB_GWAS", eths,
+    output_dir = "analysis/GWAS", type = "subgroup")},
     hpc = FALSE),
 
   process_baseline_gwas = target({
     process_gwas(eth = baseline_gwas_files$eth, pheno=baseline_gwas_files$pheno, drug=baseline_gwas_files$drug, file=baseline_gwas_files$file,
-    output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
-    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", !!gw_sig)
+    output = !!study_name, output_dir = "analysis/GWAS", type = "full",
+    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = baseline_gwas_files$write_file)
+    baseline_gwas_files$write_file
     },
-    dynamic = map(baseline_gwas_files)
+    dynamic = map(baseline_gwas_files), format = "file"
   ),
+  baseline_gwas_figures_input = target(gwas_figures_input(
+    eth = baseline_gwas_files$eth, pheno=baseline_gwas_files$pheno, drug=baseline_gwas_files$drug, file=baseline_gwas_files$file,
+    output = !!study_name, output_dir = "analysis/GWAS", type = "full",
+    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = baseline_gwas_files$write_file),
+    dynamic = map(baseline_gwas_files)),
+
   baseline_gwas_figures = target({
-    create_figures(process_baseline_gwas$joint, process_baseline_gwas$manhattan_file_name,
-      process_baseline_gwas$qq_file_name, process_baseline_gwas$title)
-    c(process_baseline_gwas$manhattan_file_name, process_baseline_gwas$qq_file_name)
+    create_figures(
+      baseline_gwas_figures_input$joint_file, baseline_gwas_figures_input$manhattan_file_name,
+      baseline_gwas_figures_input$qq_file_name, baseline_gwas_figures_input$title)
+
+    #eth = baseline_gwas_files$eth, pheno=baseline_gwas_files$pheno, drug=baseline_gwas_files$drug, file=baseline_gwas_files$file,
+    #output = !!study_name, output_dir = "analysis/GWAS", type = "full",
+    #info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = baseline_gwas_files$write_file)
+    c(baseline_gwas_figures_input$manhattan_file_name, baseline_gwas_figures_input$qq_file_name)
     },
-    dynamic = map(process_baseline_gwas),
-    format = "file"
+    #dynamic = map(baseline_gwas_figures_input)
+    dynamic = map(baseline_gwas_figures_input) ,format = "file"
   ),
+
 
   process_interaction_gwas = target({
     process_gwas(eth = interaction_gwas_files$eth, pheno=interaction_gwas_files$pheno, drug=interaction_gwas_files$drug, file=interaction_gwas_files$file,
-    output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "interaction",
-    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", !!gw_sig)
+    output = !!study_name, output_dir = "analysis/GWAS", type = "interaction",
+    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = interaction_gwas_files$write_file)
+    interaction_gwas_files$write_file
     },
-    dynamic = map(interaction_gwas_files)
+    dynamic = map(interaction_gwas_files), format = "file"
   ),
+  interaction_gwas_figures_input = target(gwas_figures_input(
+    eth = interaction_gwas_files$eth, pheno=interaction_gwas_files$pheno, drug=interaction_gwas_files$drug, file=interaction_gwas_files$file,
+    output = !!study_name, output_dir = "analysis/GWAS", type = "full",
+    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = interaction_gwas_files$write_file),
+    dynamic = map(interaction_gwas_files)),
+
   interaction_gwas_figures = target({
     create_figures(process_interaction_gwas$joint, process_interaction_gwas$manhattan_file_name,
       process_interaction_gwas$qq_file_name, process_interaction_gwas$title)
@@ -301,11 +336,17 @@ process_init <- drake_plan(
 
   process_subgroup_gwas = target({
     process_gwas(eth = subgroup_gwas_files$eth, pheno=subgroup_gwas_files$pheno, drug=subgroup_gwas_files$drug, file=subgroup_gwas_files$file,
-    output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "subgroup",
-    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", !!gw_sig)
+    output = !!study_name, output_dir = "analysis/GWAS", type = "subgroup",
+    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = subgroup_gwas_files$write_file)
+    subgroup_gwas_files$write_file
     },
-    dynamic = map(subgroup_gwas_files)
+    dynamic = map(subgroup_gwas_files), format = "file"
   ),
+  subgroup_gwas_figures_input = target(gwas_figures_input(
+    eth = subgroup_gwas_files$eth, pheno=subgroup_gwas_files$pheno, drug=subgroup_gwas_files$drug, file=subgroup_gwas_files$file,
+    output = !!study_name, output_dir = "analysis/GWAS", type = "full",
+    info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = subgroup_gwas_files$write_file),
+    dynamic = map(subgroup_gwas_files)),
   subgroup_gwas_figures = target({
     create_figures(process_subgroup_gwas$joint, process_subgroup_gwas$manhattan_file_name,
       process_subgroup_gwas$qq_file_name, process_subgroup_gwas$title)
