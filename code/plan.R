@@ -325,9 +325,9 @@ process_init <- drake_plan(
 
 )
 
-process_gwas(eth = baseline_gwas_files$eth[1], pheno=baseline_gwas_files$pheno[1], drug=baseline_gwas_files$drug[1], file=baseline_gwas_files$file[1],
-output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
-info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", gw_sig)
+# process_gwas(eth = baseline_gwas_files$eth[1], pheno=baseline_gwas_files$pheno[1], drug=baseline_gwas_files$drug[1], file=baseline_gwas_files$file[1],
+# output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
+# info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", gw_sig)
 
 prs <- drake_plan(
   prs_info = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),
