@@ -414,6 +414,7 @@ create_analysis_dirs <- function(top_level){
     for (eth in eths){
       dir.create(file.path(dir, eth),showWarnings=F)
     }
+    dir.create(file.path(dir, "META"),showWarnings=F)
   }
   dir.create("analysis/PRS",showWarnings=F)
   return(TRUE)
@@ -534,100 +535,89 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
   #return(paste(plink_input, collapse="|"))
 }
 
-meta_interaction <- function(run_gwas_interaction){
-    input_char <- deparse(substitute(run_gwas_interaction))
-    inter_variable <- sub("run_meta_interaction_", "", input_char)
-    folder <- paste0("analysis/GWAS/interaction/",inter_variable)
-    subfolders <- list.files(path=folder,full.names = T)
-    out <- list()
-    for(result_dir in subfolders)
-    {
-      output_var <- basename(result_dir)
-      gwas_results <- list.files(path=result_dir, pattern=".filter", full.names=T)
 
-      temp_out <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "no-map",
-        "--meta-analysis-snp-field", "ID", "--out", file.path(result_dir, paste0(inter_variable, ".", output_var)), "--threads", "16"), error_on_status=F)
-      out[[output_var]] <- temp_out
+meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/GWAS", type = "full",
+  threads=1){
+
+  write_dir <- file.path(output_dir, type, "META")
+  file_name <- output
+  file_name <- paste0(file_name,"_",output_suffix)
+  if(type=="interaction")
+  {
+    file_name <- paste0(file_name,"_int")
+    awk_col7 <- paste0("'NR==1 || $7 == ", '"ADDxhigh_inducer_', output_suffix, '" { print $0 }', "'")
+
+  }
+
+  out <- list()
+  gwas_results <- numeric()
+  gwas_results_drug <- numeric()
+  gwas_results_nodrug <- numeric()
+  for(eth in eths){
+
+    file_name_eth <- paste0(file_name,"_",eth)
+    eth_dir <- file.path(output_dir, type)
+
+    if(type=="subgroup"){
+      file_name_eth_drug <- paste0(file_name_eth, ".Drug")
+      file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
+      eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno[[1]][1], ".glm.linear"))
+      eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno[[1]][1], ".glm.linear"))
+
+      if(file.exists(eth_output_drug)){
+        gwas_results_drug <- c(gwas_results_drug, eth_output_drug)
+        file_name_drug <- paste0(file_name, ".Drug")
+      }
+      if(file.exists(eth_output_nodrug)){
+        gwas_results_nodrug <- c(gwas_results_nodrug, eth_output_nodrug)
+        file_name_nodrug <- paste0(file_name, ".NoDrug")
+      }
     }
 
-}
+    if(type=="interaction"){
 
-meta_linear <- function(run_gwas_linear){
-  input_char <- deparse(substitute(run_gwas_linear))
-  variable <- sub("run_gwas_linear_", "", input_char)
+      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
+      eth_subset_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear.interaction"))
 
-  folder <- paste0("analysis/GWAS/linear/",variable)
-  result_dir <-folder
-  gwas_results <- list.files(path=folder, pattern=".linear", full.names=T)
+      if(file.exists(eth_output)){
+        system(paste0("awk ", awk_col7, " ", eth_output, " > ", eth_subset_output))
+        gwas_results <- c(gwas_results, eth_subset_output)
+      }
+    }
 
-  out <-  processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "no-map",
-  "--meta-analysis-snp-field", "ID", "--out", file.path(result_dir, paste0(variable)), "--threads", "16"), error_on_status=F)
+    if(type=="full"){
+      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
+
+      if(file.exists(eth_output)){
+        gwas_results <- c(gwas_results, eth_output)
+      }
+    }
+
+  }
+
+  full_output <- file.path(write_dir,file_name)
+  full_output_drug <- file.path(write_dir,file_name_drug)
+  full_output_nodrug <- file.path(write_dir,file_name_nodrug)
+
+  if(type == "interaction" | type == "full"){
+  out[["meta_out"]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "report-all", "no-map",
+    "--meta-analysis-snp-field", "ID", "--out", full_output, "--threads", threads), error_on_status=F)
+  }
+
+  if(type=="subgroup"){
+    out[["meta_out_drug"]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_drug,  "+", "qt", "report-all", "no-map",
+      "--meta-analysis-snp-field", "ID", "--out", full_output_drug, "--threads", threads), error_on_status=F)
+    out[["meta_out_nodrug"]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_nodrug,  "+", "qt", "report-all", "no-map",
+      "--meta-analysis-snp-field", "ID", "--out", full_output_nodrug, "--threads", threads), error_on_status=F)
+  }
 
   return(out)
+
 }
 
 combine_targets <- function(...){
   temp <- substitute(list(...))[-1]
   c(sapply(temp, deparse))
-}
-
-process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
-
-  # pheno_list <- subgroup_gwas_info$pheno
-  # output_suffix <- subgroup_gwas_info$output_suffix
-  in_folder <- file.path("analysis/GWAS/subgroup/CEU")
-  gwas_files <- list.files(in_folder, ".linear")
-  eth <- "CEU"
-
-  info <- fread("analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
-  eth="CEU"
-  freq <- fread(paste0("analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T) %>%
-    rename(CHROM = "#CHROM")
-
-
-  snp_metrics <- full_join(info, freq, by = c("CHROM", "ID", "REF", "ALT"))
-
-  for(k in 1:length(pheno_list)){
-
-    outcome_var <- pheno_list[[k]][1]
-    suffix <- output_suffix[k]
-    file_drug <- paste0(output,"_", suffix,"_", eth, ".Drug.", outcome_var, ".glm.linear" )
-    file_nodrug <- paste0(output,"_", suffix,"_", eth, ".NoDrug.", outcome_var, ".glm.linear" )
-
-    if(file_drug %in% gwas_files & file_nodrug %in% gwas_files){
-
-    nodrug <- fread(file.path(in_folder,file_nodrug), data.table=F, stringsAsFactors=F) %>%
-      rename(BP = POS) %>% filter(!is.na(P))
-    drug <- fread(file.path(in_folder,file_drug), data.table=F, stringsAsFactors=F) %>%
-      rename(BP = POS) %>% filter(!is.na(P))
-
-    joint <- inner_join(nodrug, drug, by = c("#CHROM", "BP", "ID", "TEST"), suffix = c("_nodrug", "_drug")) %>%
-      rename(CHROM = "#CHROM") %>% left_join(snp_metrics, by = c("CHROM", "ID"))
-
-    filter <- joint %>% filter(R2 > info_threshold) %>%
-      filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold))
-
-    unlink(paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,"_", eth, ".", outcome_var, ".het"))
-    het_out <- numeric()
-    for(snp in 1:dim(filter)[1] ){
-      rsid <- as.character(filter[snp,"ID"])
-      beta_D <-  as.numeric(as.character(filter[snp,"BETA_drug"]))
-      beta_ND <-   as.numeric(as.character(filter[snp,"BETA_nodrug"]))
-      SE_D <-  as.numeric(as.character(filter[snp,"SE_drug"]))
-      SE_ND <-  as.numeric(as.character(filter[snp,"SE_nodrug"]))
-      se <- sqrt( (SE_D^2) + (SE_ND^2) )
-      t <- (beta_D-beta_ND)/se
-      p_het <- 2*pnorm(-abs(t))
-      temp <- cbind(rsid, p_het)
-      #het_out <- rbind(het_out,temp)
-      write.table(temp, paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,"_", eth, ".", outcome_var, ".het"), append=T, col.names=F, row.names=F)
-      if((snp %% 50000)==0){print(snp)}
-
-    }
-
-    }
-  }
-
 }
 
 pca_plot <- function(data_clean, col, colname, title){
@@ -705,6 +695,17 @@ define_prs_inputs <- function(consortia_dir, output_folder){
 
 }
 
+define_ukbb_inputs <- function(Neale_summary_dir, ukbb_files, output_folder){
+
+  prs_base_files <- paste0(Neale_summary_dir, "/", ukbb_files$file)
+  prs_names <- paste0(output_folder, "/", ukbb_files$name, "_Neale_UKBB")
+
+  prs_info <- tibble( base_file = prs_base_files,
+                      out_file = prs_names)
+  return(prs_info)
+
+}
+
 run_prsice <- function(base_file, threads=1, memory="7900", out_file, PRSice_dir="/data/sgg2/jenny/bin/PRSice/",
   snp_col="SNP", chr_col="CHR", effect_allele_col="EFFECT_ALLELE",
   other_allele_col="OTHER_ALLELE", beta_or_col="BETA", p_col="PVAL",
@@ -741,30 +742,101 @@ format_prs <- function(all_score_file, out_file){
 }
 
 #### TO BE REVISED
-process_gwas <- function(outcome_variable,interaction_variable,model){
+
+process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
+
+  # pheno_list <- subgroup_gwas_info$pheno
+  # output_suffix <- subgroup_gwas_info$output_suffix
+  in_folder <- file.path("analysis/GWAS/subgroup/CEU")
+  gwas_files <- list.files(in_folder, ".linear")
+  eth <- "CEU"
+
+  info <- fread("analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
+  eth="CEU"
+  freq <- fread(paste0("analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T) %>%
+    rename(CHROM = "#CHROM")
+
+
+  snp_metrics <- full_join(info, freq, by = c("CHROM", "ID", "REF", "ALT"))
+
+  for(k in 1:length(pheno_list)){
+
+    outcome_var <- pheno_list[[k]][1]
+    suffix <- output_suffix[k]
+    file_drug <- paste0(output,"_", suffix,"_", eth, ".Drug.", outcome_var, ".glm.linear" )
+    file_nodrug <- paste0(output,"_", suffix,"_", eth, ".NoDrug.", outcome_var, ".glm.linear" )
+
+    if(file_drug %in% gwas_files & file_nodrug %in% gwas_files){
+
+    nodrug <- fread(file.path(in_folder,file_nodrug), data.table=F, stringsAsFactors=F) %>%
+      rename(BP = POS) %>% filter(!is.na(P))
+    drug <- fread(file.path(in_folder,file_drug), data.table=F, stringsAsFactors=F) %>%
+      rename(BP = POS) %>% filter(!is.na(P))
+
+    joint <- inner_join(nodrug, drug, by = c("#CHROM", "BP", "ID", "TEST"), suffix = c("_nodrug", "_drug")) %>%
+      rename(CHROM = "#CHROM") %>% left_join(snp_metrics, by = c("CHROM", "ID"))
+
+    filter <- joint %>% filter(R2 > info_threshold) %>%
+      filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold))
+
+    unlink(paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,"_", eth, ".", outcome_var, ".het"))
+    het_out <- numeric()
+    for(snp in 1:dim(filter)[1] ){
+      rsid <- as.character(filter[snp,"ID"])
+      beta_D <-  as.numeric(as.character(filter[snp,"BETA_drug"]))
+      beta_ND <-   as.numeric(as.character(filter[snp,"BETA_nodrug"]))
+      SE_D <-  as.numeric(as.character(filter[snp,"SE_drug"]))
+      SE_ND <-  as.numeric(as.character(filter[snp,"SE_nodrug"]))
+      se <- sqrt( (SE_D^2) + (SE_ND^2) )
+      t <- (beta_D-beta_ND)/se
+      p_het <- 2*pnorm(-abs(t))
+      temp <- cbind(rsid, p_het)
+      #het_out <- rbind(het_out,temp)
+      write.table(temp, paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,"_", eth, ".", outcome_var, ".het"), append=T, col.names=F, row.names=F)
+      if((snp %% 50000)==0){print(snp)}
+
+    }
+
+    }
+  }
+
+}
+
+process_gwas <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/GWAS", type = "full",
+  info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info"){
+  #outcome_variable,interaction_variable,model,
+  info <- fread("analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
+  write_dir <- file.path(output_dir, type, "processed")
+  input_dir <- file.path(output_dir, type)
+  file_name <- output
+  file_name <- paste0(file_name,"_",output_suffix)
+
+  for(eth in c(eths, "META")){
+    file_name_eth <- paste0(file_name,"_",eth)
+    eth_dir <- file.path(output_dir, type)
+
+
+
+  }
 
   if(model=="subgroup"){
     out_folder <- file.path("analysis/GWAS/interaction",model)
-
-
   }
   if(model=="interaction"){
     out_folder <- file.path("analysis/GWAS/interaction",interaction_variable, outcome_variable)
     eth_gwas_files <- list.files(path=out_folder, pattern = "\\.filter$",full.names=T)
   }
-  if(model=="linear"){
-    out_folder <- file.path("analysis/GWAS/interaction", outcome_variable)
+  if(model=="full"){
+    out_folder <- file.path("analysis/GWAS/full", outcome_variable)
     eth_gwas_files <- list.files(path=out_folder, pattern = "\\.linear$",full.names=T)
-
   }
-
 
   eths <- sapply(eth_gwas_files,function(x){ gsub(".*PSYMETAB_GWAS_(.*?)\\_.*", "\\1", x)})
 
   meta_file <- (list.files(path=out_folder, pattern=".meta", full.names=T))
   gwas_files <- tibble(eth=c(eths,"META"), file=c(eth_gwas_files,meta_file))
 
-  info <- fread("analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
+
   for(i in 1:dim(gwas_files)[1])
   {
     result <- dplyr::pull(gwas_files %>% dplyr::select(file))[i]
