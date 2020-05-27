@@ -236,7 +236,17 @@ init_analysis <- drake_plan(
                 remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
                 output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")},
     dynamic = map(subgroup_gwas_info)
-  )
+  ),
+  linear_meta_out = target(
+    meta(output = "PSYMETAB_GWAS", output_suffix = baseline_gwas_info$output_suffix, eths = eths, pheno = baseline_gwas_info$pheno, threads = 8),
+    dynamic = map(baseline_gwas_info)),
+  interaction_meta_out = target(
+    meta(output = "PSYMETAB_GWAS", output_suffix = interaction_gwas_info$output_suffix, eth = eths, pheno = interaction_gwas_info$pheno, type = "interaction", threads = 8),
+    dynamic = map(interaction_gwas_info)),
+  subgroup_meta_out = target(
+    meta(output = "PSYMETAB_GWAS", output_suffix = subgroup_gwas_info$output_suffix, eth = eths, pheno = subgroup_gwas_info$pheno, type = "subgroup", threads = 8),
+    dynamic = map(subgroup_gwas_info)),
+
 )
 
 analysis <- bind_plans(analysis_prep, init_analysis)
@@ -245,17 +255,21 @@ analysis <- bind_plans(analysis_prep, init_analysis)
 
 
 process_init <- drake_plan(
+  # define endpoint, covars and outputs ---------------------------
+  baseline_gwas_info = target(define_baseline_inputs(GWAS_input_analysis, !!baseline_vars, !!drug_classes, !!caffeine_vars),
+    hpc = FALSE),
+  interaction_gwas_info = target(define_interaction_inputs(GWAS_input_analysis, !!drug_classes),
+    hpc = FALSE),
+  subgroup_gwas_info = target(define_subgroup_inputs(GWAS_input_analysis, !!drug_classes),
+    hpc = FALSE),
 
+  ## create meta directories
   ## read from sort_gwas.r
-  meta_subgroup_out = X,
-  meta_linear_out = meta_linear(),
-  meta_interaction_out = meta_interaction(),
-  gwas_figures = target(
-    process_meta(outcome_variable,interaction_variable,model="subgroup", output_dir = ("analysis/GWAS")),
-    dynamic = map(subgroup_gwas_info)
-  )
 
-
+  # gwas_figures = target(
+  #   process_meta(outcome_variable,interaction_variable,model="subgroup", output_dir = ("analysis/GWAS")),
+  #   dynamic = map(subgroup_gwas_info)
+  # )
 
 )
 
@@ -263,6 +277,7 @@ process_init <- drake_plan(
 
 prs <- drake_plan(
   prs_info = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),
+  prs_ukbb_info = target(define_ukbb_inputs(!!Neale_summary_dir, !!ukbb_files, "analysis/PRS"), hpc = FALSE),
   prsice_out = target({
     run_prsice(base_file=prs_info$base_file,
       threads=16, memory="100000", out_file=prs_info$out_file,
@@ -282,6 +297,26 @@ prs <- drake_plan(
   format = "file"
   ),
 
+  prsice_ukbb_out = target({
+    run_prsice(base_file=prs_ukbb_info$base_file,
+      threads=16, memory="100000", out_file=prs_ukbb_info$out_file,
+      bgen_file=paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL"),
+      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),
+      snp_col="SNP", chr_col="CHR", effect_allele_col="EFFECT_ALLELE",
+      other_allele_col="OTHER_ALLELE", beta_or_col="BETA", p_col="PVAL")
+    c(paste0(prs_ukbb_info$out_file, ".log"), paste0(prs_ukbb_info$out_file, ".all.score"), paste0(prs_ukbb_info$out_file, ".prsice"))
+  },
+    dynamic = map(prs_ukbb_info),
+    format = "file"
+  ),
+  prs_ukbb_format = target({
+    prsice_out
+    format_prs(all_score_file=paste0(prs_ukbb_info$out_file, ".all.score"), out_file=paste0(prs_ukbb_info$out_file, ".format"))
+    paste0(prs_ukbb_info$out_file, ".format")
+  },
+  dynamic = map(prs_ukbb_info), hpc = FALSE,
+  format = "file"
+  )
 
 )
 
