@@ -22,9 +22,9 @@ source("code/settings.R")
 
 
 # args <- c("PSYMETAB_GWAS",
-#  "/data/sgg2/jenny/projects/PSYMETAB_GWAS/pipeline/QC/14_mafcheck/ETHNICITY_NAME/PSYMETAB_GWAS.ETHNICITY_NAME.afreq",
-#  "/data/sgg2/jenny/projects/PSYMETAB_GWAS/pipeline/QC/14_mafcheck/ETHNICITY_NAME/PSYMETAB_GWAS.ETHNICITY_NAME.psam",
-#  "/data/sgg2/jenny/projects/PSYMETAB_GWAS/pipeline/QC/14_mafcheck",
+#  "/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/14_mafcheck/ETHNICITY_NAME/PSYMETAB_GWAS.ETHNICITY_NAME.afreq",
+#  "/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/14_mafcheck/ETHNICITY_NAME/PSYMETAB_GWAS.ETHNICITY_NAME.psam",
+#  "/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/14_mafcheck",
 #  0.01,100
 # )
 
@@ -46,7 +46,11 @@ eths <- for (eth in c("CEU","EA","MIXED", "NA", "YRI"))
   snp_data <- freqs %>% mutate_at("ALT_FREQS", as.numeric) %>%
     dplyr::select(ID, ALT_FREQS) %>%
     rename(!!new_col := ALT_FREQS)
-   out[[eth]] <- snp_data
+  exclude_snps <- freqs %>%
+    filter(as.numeric(ALT_FREQS) < maf_threshold | as.numeric(ALT_FREQS)> (1-maf_threshold)) %>%
+    dplyr::select(ID)
+  write.table(exclude_snps, paste0(output_dir, "/", args[1], "_", eth, "_low_maf_snps.txt"), row.names=F, col.names=F, quote=F)
+  out[[eth]] <- snp_data
  }
 
 }
