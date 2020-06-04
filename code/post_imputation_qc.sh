@@ -553,9 +553,10 @@ for eth in CEU EA MIXED NA YRI ; do
     mkdir ${eth}
   fi
 
-  #2. identify freq of variants in each eth
+  #2. identify freq of variants in each eth excluding related individuals
   plink2 --pfile ../13_hwecheck/${output_name}.hwecheck.step13 \
     --keep ../12_ethnicity_admixture/pca/${output_name}_${eth}_samples.txt \
+    --remove ../11_relatedness/${output_name}_related_ids.txt \
     --freq \
     --make-pfile \
     --out $eth/${output_name}.${eth} \
