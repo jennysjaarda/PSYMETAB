@@ -486,16 +486,22 @@ define_subgroup_inputs <- function(GWAS_input, drug_classes){
   return(subgroup_gwas_info)
 }
 
-
 run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eths,
   eth_sample_file, output_dir, output,
   remove_sample_file=NULL,threads=1,type="full",
-  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, output_suffix=""){
+  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, output_suffix="",
+  freq_file="analysis/QC/15_final_processing/CEU/PSYMETAB_GWAS.CEU.afreq",
+  eth_low_maf_file){
 
   # eth_sample_file : in the form of "keep_this_ETH.txt"
   # default option: --variance-standardize
   file_name <- output
   file_name <- paste0(file_name,"_",output_suffix)
+
+  sample_file <- read.table(paste0(pfile, ".psam"), header=T)
+  nsamples <- dim(sample_file)[1]
+
+
   if(type=="subgroup")
   {
     subgroup_commands <- c("--loop-cats", subgroup_var)
@@ -503,6 +509,7 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
 
   if(!is.null(remove_sample_file)){
     remove_commands <- c("--remove",remove_sample_file)
+    remove_samples <- read.table(remove_sample_file, header=F)
   } else remove_commands <- NULL
 
   if(type=="interaction")
@@ -511,31 +518,43 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
     file_name <- paste0(file_name,"_int")
   } else analysis_commands <- c("--glm", "hide-covar")
 
-  general_commands <- unlist(c("--pfile", pfile,"--pheno", pheno_file, "--pheno-name", pheno_name, "--covar",covar_file,
+  general_commands <- unlist(c("--pfile", pfile, "--read-freq", freq_file, "--pheno", pheno_file, "--pheno-name", pheno_name, "--covar", covar_file,
           "--covar-name", unlist(covar_names),
           "--threads", threads, "--variance-standardize"))
+  #maf_input <- unlist(c("--pfile", pfile, "--make-pfile", "--threads", threads, "--maf", maf_threshold))
+
 
   out <- list()
   for (eth in eths)
   {
     keep_file <- str_replace(eth_sample_file, "ETH", eth)
-    eth_count <- dim(fread(keep_file))[1]
+    low_maf_eth_file <- str_replace(eth_low_maf_file, "ETH", eth)
+    eth_samples <- read.table(keep_file, header=F)
+
     file_name_eth <- paste0(file_name,"_",eth)
     write_dir <- file.path(output_dir, type)
     full_output <- file.path(write_dir,eth,file_name_eth)
-    eth_commands <- c("--keep", keep_file, "--out", full_output)
 
-    #if(eth_count > 100)
-    #{
+    eth_commands <- c("--keep", keep_file, "--out", full_output, "--exclude", low_maf_eth_file)#, "--maf", maf_threshold)
+
+    final_sample_list <- sample_file %>%
+      filter("#FID" %in% eth_samples$V1) %>%
+      filter(!"#FID" %in% remove_samples$V1)
+
+    eth_count <- dim(final_sample_list)[1]
+    if(eth_count > 100)
+    {
+
+      #maf_filter <- processx::run(command="plink2", c(maf_input, eth_commands), error_on_status=F)
+
       plink_input <- c(general_commands, analysis_commands, remove_commands, subgroup_commands,eth_commands)
       temp_out <- processx::run(command="plink2",plink_input, error_on_status=F)
       out[[eth]] <- temp_out
-    #}
+    }
   }
   return(out)
   #return(paste(plink_input, collapse="|"))
 }
-
 
 meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/GWAS", type = "full",
   threads=1){
@@ -543,6 +562,8 @@ meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/G
   write_dir <- file.path(output_dir, type, "META")
   file_name <- output
   file_name <- paste0(file_name,"_",output_suffix)
+  file_name_drug <- NA
+  file_name_nodrug <- NA
   if(type=="interaction")
   {
     file_name <- paste0(file_name,"_int")
@@ -975,7 +996,7 @@ gwas_figures_input <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS",
 
   write_dir <- file.path(output_dir, type, "processed")
 
-  title <- ifelse(is.na(drug), pheno, paste0(pheno, "_", drug))
+  title <- ifelse(is.na(drug), paste0(pheno, "_", eth), paste0(pheno, "_", drug, "_", eth))
   manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_manhattan.png")
   qq_file_name <- paste0(write_dir, "/", output, "_", title, "_qq.png")
   return(list(joint_file=out_file, manhattan_file_name=manhattan_file_name, qq_file_name=qq_file_name, title=title))
@@ -983,16 +1004,6 @@ gwas_figures_input <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS",
 }
 
 create_figures <- function(joint_file, manhattan_file_name, qq_file_name, title){
-
-  #eth, pheno, drug, file, output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
-  #info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file){
-
-  #write_dir <- file.path(output_dir, type, "processed")
-
-  #title <- ifelse(is.na(drug), pheno, paste0(pheno, "_", drug))
-  #manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_manhattan.png")
-  #qq_file_name <- paste0(write_dir, "/", output, "_", title, "_qq.png")
-
 
   joint <- fread(joint_file, data.table=F)
 
