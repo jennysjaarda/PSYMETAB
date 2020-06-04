@@ -579,6 +579,6 @@ Rscript $project_dir/code/qc/maf_check.R ${output_name} ${output_dir}/14_mafchec
 cd ${output_dir}/14_mafcheck
 plink2 --pfile ../13_hwecheck/${output_name}.hwecheck.step13 \
   --make-pfile \
-  --remove ${output_name}_low_maf_snps.txt \
+  --exclude ${output_name}_low_maf_snps.txt \
   --out ${output_name}.mafcheck.step14 \
   --threads 16
