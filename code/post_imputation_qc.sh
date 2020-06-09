@@ -498,8 +498,7 @@ for eth in CEU EA MIXED NA YRI ; do
     --out $eth/${output_name}.${eth}  \
     --threads 16
 
-  awk '$10 < 0.
-  {print $2}' $eth/${output_name}.${eth}.hardy | sort -u > $eth/${output_name}.${eth}.hardy.sig
+  awk '$10 < 0.00000001 {print $2}' $eth/${output_name}.${eth}.hardy | sort -u > $eth/${output_name}.${eth}.hardy.sig
 
   # If size of ethnic group is < 100, don't perform HWE check in that ethnic group
   if [ "$count" -ge 100 ] ; then
@@ -528,7 +527,7 @@ sort -u ${output_name}.hardy.sig.all > ${output_name}.hardy.sig.unique
 #4. Remove HWE violations
 plink2 --pfile ${output_name}.remove_dups \
   --make-pfile \
-  --remove ${output_name}.hardy.sig.unique \
+  --exclude ${output_name}.hardy.sig.unique \
   --out ${output_name}.hwecheck.step13 \
   --threads 16
 
