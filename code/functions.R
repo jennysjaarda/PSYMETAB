@@ -135,7 +135,7 @@ check_height <- function(x){
 }
 
 ever_drug <- function(x) {
-  if(any(x==1)){out <- 1} else{
+  if(any(x==1, na.rm=TRUE)){out <- 1} else{
     out <- 0
   }
   return(out)
@@ -498,7 +498,7 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
   file_name <- output
   file_name <- paste0(file_name,"_",output_suffix)
 
-  sample_file <- read.table(paste0(pfile, ".psam"), header=T)
+  sample_file <- read.table(paste0(pfile, ".psam"), header=F)
   nsamples <- dim(sample_file)[1]
 
 
@@ -538,8 +538,8 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
     eth_commands <- c("--keep", keep_file, "--out", full_output, "--exclude", low_maf_eth_file)#, "--maf", maf_threshold)
 
     final_sample_list <- sample_file %>%
-      filter("#FID" %in% eth_samples$V1) %>%
-      filter(!"#FID" %in% remove_samples$V1)
+      filter(V1 %in% eth_samples$V1) %>%
+      filter(!(V1 %in% remove_samples$V1))
 
     eth_count <- dim(final_sample_list)[1]
     if(eth_count > 100)
@@ -763,6 +763,89 @@ format_prs <- function(all_score_file, out_file){
   write.table(prs_format, out_file, row.names=F, quote=F)
 }
 
+
+full_model_summary <- function(model){
+
+  nr <- length(which(is.na(coef(model))))
+  nc <- 4
+  rnames <- names(which(summary(model)$aliased))
+  cnames <- colnames(summary(model)$coefficients)
+  mat_na <- matrix(data = NA,nrow = nr,ncol = nc,
+         dimnames = list(rnames,cnames))
+  mat_coef <- rbind(summary(model)$coefficients,mat_na)
+  return(mat_coef)
+
+}
+
+
+extract_model_stats <- function(model_summary, coef_list){
+  summary <- numeric()
+  for(coef in coef_list)
+  {
+    beta <- model_summary[coef,1]
+    se <- model_summary[coef,2]
+    pval <- model_summary[coef,4]
+    temp <- cbind(beta, se, pval)
+    colnames(temp) <- paste0(coef, c("_beta", "_se","_pval"))
+    summary <- cbind (summary,  temp)
+  }
+  return(summary)
+
+}
+
+analyze_prs <- function(prs_file, pheno_file, pc_eth_data, linear_pheno_columns, glm_pheno_columns, covars){
+
+  prs_data <- fread(prs_file, data.table=F)
+  pheno_data <- fread(pheno_file, data.table=F)
+  colnames(prs_data) <- c("ID", "GEN", "PRS_5e08", "PRS_5e07", "PRS_5e06", "PRS_5e05", "PRS_5e04", "PRS_5e03", "PRS_5e02", "PRS_0.1")
+
+  output <- numeric()
+  pc_data <- pc_eth_data[,c("GPCR", "eth", paste0("PC", 1:10))] %>% rename("GEN" = "GPCR")
+  eths <- unique(pc_data$eth)
+  for(prs in c("PRS_5e08", "PRS_5e07", "PRS_5e06", "PRS_5e05", "PRS_5e04", "PRS_5e03", "PRS_5e02", "PRS_0.1")){
+    prs_sub_data <- prs_data[,c("GEN", prs)] %>% rename("prs" = prs)
+    for(eth in eths){
+      pc_sub_data <- pc_data %>% filter(eth==!!eth) %>% dplyr::select(-eth)
+      for(var in linear_pheno_columns){
+        model_type <- "linear"
+        outcome_data <- pheno_data[,c("GEN", var)] %>% rename("outcome" = var)
+        covar_data <- pheno_data[,c("GEN", covars)]
+
+        joint <- reduce(list(outcome_data,prs_sub_data,covar_data,pc_sub_data), inner_join, by = "GEN") %>%
+          dplyr::select(-GEN) %>%
+          mutate(prs = scale(prs))
+        model <- (lm(outcome ~ ., data=joint))
+        model_summary <- full_model_summary(model)
+        model_stats <- extract_model_stats(model_summary, c("prs"))
+        row <- cbind(prs, eth, var, model_type, model_stats)
+        output <- rbind(output, row)
+      }
+
+      for(var in glm_pheno_columns){
+        model_type <- "logistic"
+        outcome_data <- pheno_data[,c("GEN", var)] %>% rename("outcome" = var)
+        covar_data <- pheno_data[,c("GEN", covars)]
+
+        joint <- reduce(list(outcome_data,prs_sub_data,covar_data,pc_sub_data), inner_join, by = "GEN") %>%
+          dplyr::select(-GEN) %>%
+          mutate(prs = scale(prs))
+        model <- (glm(outcome ~ ., data=joint, family="binomial"))
+
+        model <- (glm(outcome ~ prs + Age_caffeine, data=joint, family="binomial"))
+
+        model_summary <- full_model_summary(model)
+        model_stats <- extract_model_stats(model_summary, c("prs"))
+        row <- cbind(prs, eth, var, model_type, model_stats)
+        output <- rbind(output, row)
+      }
+
+    }
+  }
+  return(output)
+
+
+
+}
 #### TO BE REVISED
 
 process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
