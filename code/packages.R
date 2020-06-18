@@ -36,3 +36,5 @@ library(kableExtra)
 # packrat::install_local("png")
 # packrat::install_local("servr")
 library(fuzzyjoin)
+library(OpenImageR) # https://stackoverflow.com/questions/50937921/save-and-load-a-ggplot-plot
+library(tidylog)
