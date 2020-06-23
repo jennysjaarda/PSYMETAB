@@ -121,12 +121,21 @@ check_drug <- function(PatientRec, Drug){
   if(any(is.na(PatientRec)) |
      any(is.na(Drug))) {out <- "missing Drug or PatientRec"}
   else if(length(unique(na.omit(PatientRec)))==1 &
-     length(unique(na.omit(Drug)))==1) {out <- "sensible"} else{
+     length(unique(na.omit(Drug)))==1) {out <- "sensible"}
+  else if (length(unique(na.omit(PatientRec)))==1 &
+     length(unique(na.omit(Drug)))==2 & "Paliperidone" %in% Drug & "Risperidone" %in% Drug) {
+       out <- "sensible"
+     }
+ else if (length(unique(na.omit(PatientRec)))==1 &
+    length(unique(na.omit(Drug)))==2 & "Risperdal" %in% Drug & "Risperidone" %in% Drug) {
+      out <- "sensible"
+    } else{
     out <- "non-match"
   }
   return(out)
 
 }
+
 check_height <- function(x){
   if(all(is.na(x))) {out <- NA} else{
     out <- mean(x, na.rm=T)
