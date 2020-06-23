@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Phenotypic data quality control and processing</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PSYMETAB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="setup.html">Setup</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jennysjaarda/PSYMETAB">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Phenotypic data quality control and processing</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-06-23
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191126code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191126)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191126code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191126)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree9c2cda4fcf07c802c211c9c09625194ddb4631e6targetblank9c2cda4a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/9c2cda4fcf07c802c211c9c09625194ddb4631e6" target="_blank">9c2cda4</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree9c2cda4fcf07c802c211c9c09625194ddb4631e6targetblank9c2cda4a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    ._docs
+    Ignored:    .drake/
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/._GWAS.Rmd
+    Ignored:    analysis/._data_processing_in_genomestudio.Rmd
+    Ignored:    analysis/._quality_control.Rmd
+    Ignored:    analysis/GWAS/
+    Ignored:    analysis/PRS/
+    Ignored:    analysis/QC/
+    Ignored:    analysis/figure/
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    data/processed/
+    Ignored:    data/raw/
+    Ignored:    download_impute_1_clustermq.out
+    Ignored:    init_analysis_1_clustermq.out
+    Ignored:    init_analysis_2_clustermq.out
+    Ignored:    init_analysis_3_clustermq.out
+    Ignored:    init_analysis_4_clustermq.out
+    Ignored:    init_analysis_5_clustermq.out
+    Ignored:    init_analysis_6_clustermq.out
+    Ignored:    packrat/lib-R/
+    Ignored:    packrat/lib-ext/
+    Ignored:    packrat/lib/
+    Ignored:    post_impute_1_clustermq.out
+    Ignored:    pre_impute_qc_1_clustermq.out
+    Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_12_clustermq.out
+    Ignored:    process_init_13_clustermq.out
+    Ignored:    process_init_14_clustermq.out
+    Ignored:    process_init_15_clustermq.out
+    Ignored:    process_init_16_clustermq.out
+    Ignored:    process_init_17_clustermq.out
+    Ignored:    process_init_18_clustermq.out
+    Ignored:    process_init_19_clustermq.out
+    Ignored:    process_init_1_clustermq.out
+    Ignored:    process_init_20_clustermq.out
+    Ignored:    process_init_21_clustermq.out
+    Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_23_clustermq.out
+    Ignored:    process_init_24_clustermq.out
+    Ignored:    process_init_25_clustermq.out
+    Ignored:    process_init_26_clustermq.out
+    Ignored:    process_init_27_clustermq.out
+    Ignored:    process_init_28_clustermq.out
+    Ignored:    process_init_29_clustermq.out
+    Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_30_clustermq.out
+    Ignored:    process_init_31_clustermq.out
+    Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_9_clustermq.out
+    Ignored:    prs_1_clustermq.out
+    Ignored:    prs_2_clustermq.out
+    Ignored:    prs_3_clustermq.out
+    Ignored:    prs_4_clustermq.out
+
+Untracked files:
+    Untracked:  analysis/genetic_quality_control.Rmd
+    Untracked:  analysis/plans.Rmd
+    Untracked:  analysis_prep.log
+    Untracked:  download_impute.log
+    Untracked:  grs.log
+    Untracked:  init_analysis.log
+    Untracked:  process_init.log
+    Untracked:  prs.log
+
+Unstaged changes:
+    Modified:   analysis/GWAS.Rmd
+    Modified:   analysis/data_sources.Rmd
+    Deleted:    analysis/project.Rmd
+    Modified:   analysis/quality_control.Rmd
+    Modified:   cache_log.csv
+    Modified:   post_impute.log
+    Modified:   slurm_clustermq.tmpl
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/9c2cda4fcf07c802c211c9c09625194ddb4631e6/analysis/pheno_quality_control.Rmd" target="_blank">9c2cda4</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-06-23
+</td>
+<td>
+wflow_publish(“analysis/pheno_quality_control.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p><strong>The following document outlines and summarizes the phenotypic quality control and processing procedure that was followed to create a clean dataset.</strong></p>
+<ul>
+<li>Phenoptyic data was extracted and provided by Celine (see <a href="data_sources.html">Data sources</a>).</li>
+<li>In January 2020, Celine detected various problems with the phenotype data with unknown explanation (possible manual error).</li>
+<li>After discussion with Celine, Chin, and Enrique (manager of the database), it was decided that we need to make a few changes to way data is entered into the database to help avoid manual errors.</li>
+<li><p>Summary of the agreed changes is below (email correspondance between Celine and Enrique on 13/02/2020 and translation):</p>
+Je fais un petit résumé de ce dont on a convenu :
+<ol style="list-style-type: decimal">
+<li>Modifier l’entrée d’un nouveau mois, pour que ce soit uniquement possible de choisir une entrée proposée (0-1-2-3-6-…) et non taper un autre chiffre</li>
+<li>Ajouter un champ pour l’identité de la personne qui entre ou modifie un bilan et un champ pour la date à laquelle a lieu cette modification (emplacement proposé : en dessous de « contrôle » ?)</li>
+<li>Eliminer l’option de reprendre les données d’un mois précédent et à la place : vider tous les champs SAUF ceux entrés dans les fenêtres « Antipsychotiques » et « Co-Médication »</li>
+<li>Ajouter une validation de la date d’évaluation au moment de sauver les données d’un bilan entré</li>
+</ol>
+A short summary of what we agreed:
+<ol style="list-style-type: decimal">
+<li>Modify the entry for a new month, so that it is only possible to choose a proposed entry (0-1-2-3-6 -…) and not enter another number</li>
+<li>Add a field for the identity of the person entering or modifying a balance sheet and a field for the date on which this modification takes place (proposed location: below “control”?)</li>
+<li>Eliminate the option to resume data from a previous month and instead: empty all fields EXCEPT those entered in the “Antipsychotics” and “Co-Medication” windows</li>
+<li>Add validation of the evaluation date when saving the data of an entered balance sheet</li>
+</ol></li>
+<li><p>After this update and manual revisions, new data was provided on 16/03/2020: <code>data/raw/phenotype_data/PHENO_GWAS_160320_noaccent.csv</code></p></li>
+</ul>
+<pre class="r"><code>pheno_file &lt;- &quot;data/raw/phenotype_data/PHENO_GWAS_160320_noaccent.csv&quot;
+
+pheno_raw &lt;- readr::read_delim(pheno_file, col_types = cols(.default = col_character()), delim = &quot;,&quot;) %&gt;% type_convert(col_types = cols())
+
+process_pheno_raw &lt;- function(pheno_raw) {
+  
+  output &lt;- pheno_raw %&gt;%
+    
+    mutate(Date = as.Date(Date, format = &#39;%d.%m.%Y&#39;)) %&gt;% arrange(Date)  %&gt;%
+    mutate(AP1 = gsub(&quot; &quot;, &quot;_&quot;, AP1)) %&gt;% mutate_at(&quot;AP1&quot;, as.factor) %&gt;%
+    mutate(AP1 = gsub(&quot;_.*$&quot;, &quot;&quot;, AP1)) %&gt;%
+    mutate(AP1 = na_if(AP1, &quot;&quot;)) %&gt;% ## merge retard/depot with original
+    group_by(GEN) %&gt;%
+    mutate(sex = check_sex(Sexe)) %&gt;%
+    mutate_at(&quot;PatientsTaille&quot;, as.numeric) %&gt;%
+    mutate(height = check_height(PatientsTaille)) %&gt;% ### take average of all heights
+    mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %&gt;%
+    ungroup() %&gt;%  ### create ever on any drug
+    mutate(BMI = Poids / (PatientsTaille / 100) ^ 2) %&gt;%
+    group_by(GEN, PatientsRecNum) %&gt;% mutate(drug_instance = row_number()) %&gt;%
+    mutate(date_difference = as.numeric(difftime(lag(Date), Date, units = &quot;days&quot;))) %&gt;%
+    mutate(
+      follow_up = case_when(
+        Mois &gt; 12 ~ &quot;greater_12months&quot;,
+        date_difference &gt; 0 ~ &quot;month_descrepency&quot;,
+        Mois == 0 ~ &quot;new_regimen&quot;,
+        abs(date_difference) &gt;= (Mois - lag(Mois)) *
+          30 - leeway_time &amp;
+          abs(date_difference) &lt;= (Mois - lag(Mois)) * 30 + leeway_time ~ &quot;sensible&quot;,
+        is.na(date_difference) ~ &quot;NA&quot;,
+        ### these are follow-ups that didn&#39;t start at month 0
+        TRUE ~ &quot;leeway_exceeds&quot;
+      )
+    ) %&gt;%
+    mutate(AP1_mod = paste0(AP1, &quot;_round&quot;, rename_meds(follow_up))) %&gt;%
+    mutate(problems = case_when(Mois &lt; lag(Mois) |
+                                  date_difference &gt;= 0 ~ &quot;problem&quot;,
+                                TRUE ~ &quot;fine&quot;)) %&gt;%
+    mutate(drug_match = check_drug(PatientsRecNum, AP1))
+  
+  return(output)
+
+}
+
+options(&quot;tidylog.display&quot; = list())  # turn off
+
+t &lt;- process_pheno_raw(pheno_raw)
+
+options(&quot;tidylog.display&quot; = NULL)    # turn on
+
+## missing date
+missing_date &lt;- t %&gt;% filter(is.na(Date)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;missing_Date&quot;)</code></pre>
+<pre><code>filter (grouped): removed 10,000 rows (&gt;99%), 19 rows remaining</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>## missing sex
+na_sex &lt;- t %&gt;% filter(is.na(sex)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;sex_problem&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,780 rows (98%), 239 rows remaining
+mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>## missing AP1
+missing_AP1 &lt;- t %&gt;% filter(is.na(AP1)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;missing_AP1&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,987 rows (&gt;99%), 32 rows remaining
+mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>## missing PatientsRecNum (none)
+missing_patrec &lt;- t %&gt;% filter(is.na(PatientsRecNum)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;missing_PatientsRecNum&quot;)</code></pre>
+<pre><code>filter (grouped): removed all rows (100%)</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with 0 unique values and 100% NA</code></pre>
+<pre class="r"><code>## month mismatch
+leeway_exceeds &lt;- t %&gt;% filter(follow_up == &quot;leeway_exceeds&quot;) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;month_mismatch&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,813 rows (98%), 206 rows remaining</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>head(leeway_exceeds)</code></pre>
+<pre><code># A tibble: 6 x 4
+# Groups:   GEN, PatientsRecNum [6]
+  GEN      Date       PatientsRecNum problem_category
+  &lt;chr&gt;    &lt;date&gt;              &lt;dbl&gt; &lt;chr&gt;           
+1 YSFHMSHX 7-07-18                56 month_mismatch  
+2 QFIDUFIG 8-08-24               169 month_mismatch  
+3 BSBZPQOV 8-09-03                28 month_mismatch  
+4 QCXAFXPK 8-09-16               190 month_mismatch  
+5 LHORDBHE 8-09-21                 3 month_mismatch  
+6 SHHQLBQL 8-12-08               150 month_mismatch  </code></pre>
+<pre class="r"><code>t %&gt;% filter(GEN==&quot;YSFHMSHX&quot;) %&gt;% dplyr::select(follow_up, Date, date_difference, Mois)</code></pre>
+<pre><code>filter (grouped): removed 10,003 rows (&gt;99%), 16 rows remaining</code></pre>
+<pre><code>Adding missing grouping variables: `GEN`, `PatientsRecNum`</code></pre>
+<pre><code># A tibble: 16 x 6
+# Groups:   GEN, PatientsRecNum [3]
+   GEN      PatientsRecNum follow_up        Date       date_difference  Mois
+   &lt;chr&gt;             &lt;dbl&gt; &lt;chr&gt;            &lt;date&gt;               &lt;dbl&gt; &lt;dbl&gt;
+ 1 YSFHMSHX             56 new_regimen      7-01-14                 NA     0
+ 2 YSFHMSHX             56 leeway_exceeds   7-07-18               -185     3
+ 3 YSFHMSHX             56 sensible         7-10-28               -102     6
+ 4 YSFHMSHX             56 sensible         8-01-28                -92     9
+ 5 YSFHMSHX             56 sensible         8-04-27                -90    12
+ 6 YSFHMSHX             57 new_regimen      8-10-30                 NA     0
+ 7 YSFHMSHX             57 sensible         8-11-26                -27     1
+ 8 YSFHMSHX             57 sensible         8-12-28                -32     3
+ 9 YSFHMSHX             58 new_regimen      9-02-19                 NA     0
+10 YSFHMSHX             58 sensible         9-03-18                -27     1
+11 YSFHMSHX             58 sensible         9-04-19                -32     2
+12 YSFHMSHX             58 sensible         9-05-25                -36     3
+13 YSFHMSHX             58 sensible         9-08-31                -98     6
+14 YSFHMSHX             58 sensible         9-12-07                -98     9
+15 YSFHMSHX             58 sensible         10-03-15               -98    12
+16 YSFHMSHX             58 greater_12months 17-02-22             -2536  1204</code></pre>
+<pre class="r"><code>## month discrepency
+problem_ids &lt;- t %&gt;% filter(problems == &quot;problem&quot;) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;month_discrepency&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,980 rows (&gt;99%), 39 rows remaining</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>head(problem_ids)</code></pre>
+<pre><code># A tibble: 6 x 4
+# Groups:   GEN, PatientsRecNum [6]
+  GEN      Date       PatientsRecNum problem_category 
+  &lt;chr&gt;    &lt;date&gt;              &lt;dbl&gt; &lt;chr&gt;            
+1 JWWJQJGS 10-03-01             2762 month_discrepency
+2 YTYDZYJH 10-03-14             6880 month_discrepency
+3 CZAFDOTO 10-10-07              476 month_discrepency
+4 PBAIFEMQ 13-06-11             1425 month_discrepency
+5 UGCKMMCC 14-03-26             1663 month_discrepency
+6 TIEQMSVB 15-02-04             2592 month_discrepency</code></pre>
+<pre class="r"><code>t %&gt;% filter(GEN==&quot;JWWJQJGS&quot;) %&gt;% dplyr::select(follow_up, Date, date_difference, Mois, problems)</code></pre>
+<pre><code>filter (grouped): removed 10,010 rows (&gt;99%), 9 rows remaining</code></pre>
+<pre><code>Adding missing grouping variables: `GEN`, `PatientsRecNum`</code></pre>
+<pre><code># A tibble: 9 x 7
+# Groups:   GEN, PatientsRecNum [2]
+  GEN      PatientsRecNum follow_up    Date       date_difference  Mois problems
+  &lt;chr&gt;             &lt;dbl&gt; &lt;chr&gt;        &lt;date&gt;               &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   
+1 JWWJQJGS           2762 NA           10-01-24                NA    12 fine    
+2 JWWJQJGS           2762 leeway_exce… 10-03-01               -36     2 problem 
+3 JWWJQJGS            493 new_regimen  10-03-02                NA     0 fine    
+4 JWWJQJGS            493 sensible     10-03-21               -19     1 fine    
+5 JWWJQJGS            493 sensible     10-06-17               -88     3 fine    
+6 JWWJQJGS           2762 sensible     10-06-17              -108     6 fine    
+7 JWWJQJGS            493 sensible     10-09-21               -96     6 fine    
+8 JWWJQJGS           2762 sensible     10-09-21               -96     9 fine    
+9 JWWJQJGS            493 sensible     11-01-24              -125    12 fine    </code></pre>
+<pre class="r"><code># drug mismatch
+problem_drugs &lt;- t %&gt;% filter(drug_match==&quot;non-match&quot;) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;drug_mismatch&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,979 rows (&gt;99%), 40 rows remaining</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>flagged_rows &lt;- rbind(missing_date, na_sex, missing_AP1, leeway_exceeds, problem_ids, problem_drugs)
+write.table(flagged_rows, &quot;data/raw/phenotype_data/PHENO_GWAS_160320_flagged_rows.txt&quot;, row.names = F,  col.names = T, quote = T)
+
+table(flagged_rows$problem_category)</code></pre>
+<pre><code>
+    drug_mismatch       missing_AP1      missing_Date month_discrepency 
+               40                32                19                39 
+   month_mismatch       sex_problem 
+              206               239 </code></pre>
+<ul>
+<li>Summary of problems identified:
+<ol style="list-style-type: decimal">
+<li><strong>Missing date</strong>: empty date column, 19 individuals/19 rows, e.g. <em>DMLWTARC.</em></li>
+<li><strong>Sex problems</strong>: either sex is missing for all instances of an individual, or both sexes are listed for one individual, 47 individuals/239 rows, e.g <em>GYYEHMDR</em> (both sexes are listed), <em>IDDAXPMK</em> (empty sex fields).</li>
+<li><strong>Missing AP1</strong>: follow-up drug is missing, 28 individuals/32 rows, e.g. <em>YSTTKYJE.</em></li>
+<li><strong>Month discrepancy</strong>: if participant data is sorted by date, <code>Mois</code> column is less than the previous row (for e.g. month 3 occurs on January 1/2010, but month 0 occurs on March 1/2010 for the same <code>PatientsRecNum</code>), 38 individuals/39 rows, e.g. JWWJQJGS on 01-03-2010 indicates month 2 which occurs after month 12 on 01-24-2010 at the same <code>PatientsRecNum</code> of <code>2762</code>.</li>
+<li><strong>Month mismatch</strong>: date between two follow-ups is &gt; 90 days off based on the <code>Date</code> and <code>Mois</code> column, these may not be as big of a problem - but I have still flagged them (for e.g. say participant has the following entries: month 0 on January 1, and month 3 on September 1. The number of days between those two dates is 244 which is greater than 3 - the month follow-up it was supposed to be based on the <code>Mois</code> column - times 30 + 90 days, in this case 3*30 + 90 = 180. Since 244 is greater than 180, this follow-up for at the month 3 mark would be flagged). Note that I chose 90 days as an arbitrary cutoff. There are 162 individuals in this category/206 rows, e.g. <em>YSFHMSHX</em> on 07-07-2018.</li>
+<li><strong>Drug mis-match</strong>: two drugs listed for the same <code>GEN</code> and <code>PatientsRecNum</code>, 25 individuals, not sure the number of rows as it’s unclear which ones are correct, e.g. <em>BPOCXXYD</em> has both aripiprazole and amisulpride listed for <code>PatientsRecNum</code> 18.</li>
+</ol></li>
+<li>Sent <code>data/raw/phenotype_data/PHENO_GWAS_160320_flagged_rows.txt</code> to Celine for revision (along with help of Claire, Marianna and Nermine).</li>
+<li>New data received on 16/04/2020: <code>PHENO_GWAS_160420.xlsx</code> (processed according to description at <a href="data_sources.html">Data Sources page</a>).</li>
+<li>Procedure above was repeated to see if all problems were solved.</li>
+</ul>
+<pre class="r"><code>pheno_file2 &lt;- &quot;data/raw/phenotype_data/PHENO_GWAS_160420_noaccent.csv&quot;
+pheno_raw2 &lt;- readr::read_delim(pheno_file2, col_types = cols(.default = col_character()), delim = &quot;,&quot;) %&gt;% type_convert(col_types = cols())
+
+options(&quot;tidylog.display&quot; = list())  # turn off
+
+t &lt;- process_pheno_raw(pheno_raw2)
+
+options(&quot;tidylog.display&quot; = NULL)    # turn on
+
+## repeat above procedure to see if all problems are fixed
+
+## missing date
+missing_date &lt;- t %&gt;% filter(is.na(Date)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;missing_Date&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,864 rows (&gt;99%), 10 rows remaining</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>## missing sex
+na_sex &lt;- t %&gt;% filter(is.na(sex)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;sex_problem&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,872 rows (&gt;99%), 2 rows remaining
+mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>## missing AP1
+missing_AP1 &lt;- t %&gt;% filter(is.na(AP1)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;missing_AP1&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,867 rows (&gt;99%), 7 rows remaining
+mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>## missing PatientsRecNum (none)
+missing_patrec &lt;- t %&gt;% filter(is.na(PatientsRecNum)) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;missing_PatientsRecNum&quot;)</code></pre>
+<pre><code>filter (grouped): removed all rows (100%)</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with 0 unique values and 100% NA</code></pre>
+<pre class="r"><code>## month mismatch
+leeway_exceeds &lt;- t %&gt;% filter(follow_up == &quot;leeway_exceeds&quot;) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;month_mismatch&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,687 rows (98%), 187 rows remaining</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>## month discrepency
+problem_ids &lt;- t %&gt;% filter(problems == &quot;problem&quot;) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;month_discrepency&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,851 rows (&gt;99%), 23 rows remaining
+mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code># drug mismatch
+problem_drugs &lt;- t %&gt;% filter(drug_match==&quot;non-match&quot;) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;drug_mismatch&quot;)</code></pre>
+<pre><code>filter (grouped): removed 9,857 rows (&gt;99%), 17 rows remaining
+mutate (grouped): new variable &#39;problem_category&#39; with one unique value and 0% NA</code></pre>
+<pre class="r"><code>flagged_rows2 &lt;- rbind(missing_date, na_sex, missing_AP1, leeway_exceeds, problem_ids, problem_drugs)
+
+table(flagged_rows2$problem_category)</code></pre>
+<pre><code>
+    drug_mismatch       missing_AP1      missing_Date month_discrepency 
+               17                 7                10                23 
+   month_mismatch       sex_problem 
+              187                 2 </code></pre>
+<pre class="r"><code>t %&gt;% filter(drug_match==&quot;non-match&quot;) %&gt;% dplyr::select(AP1, drug_match) %&gt;% unique %&gt;% arrange(GEN)</code></pre>
+<pre><code>filter (grouped): removed 9,857 rows (&gt;99%), 17 rows remaining</code></pre>
+<pre><code>Adding missing grouping variables: `GEN`, `PatientsRecNum`</code></pre>
+<pre><code># A tibble: 8 x 4
+# Groups:   GEN, PatientsRecNum [4]
+  GEN      PatientsRecNum AP1          drug_match
+  &lt;chr&gt;             &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;     
+1 BPOCXXYD             18 Aripiprazole non-match 
+2 BPOCXXYD             18 Amisulpride  non-match 
+3 JTEXKBJN           5374 Mirtazapine  non-match 
+4 JTEXKBJN           5374 Lithium      non-match 
+5 KOPRATFS           3418 Mirtazapine  non-match 
+6 KOPRATFS           3418 Quetiapine   non-match 
+7 VGWWZXDK            311 Amisulpride  non-match 
+8 VGWWZXDK            311 Risperidone  non-match </code></pre>
+<ul>
+<li>Still a few problems remained:
+<ol style="list-style-type: decimal">
+<li><strong>Missing date</strong>: visits with missing date should be removed.</li>
+<li><strong>Sex problems</strong>: participants with missing sex information or both sexes listed under different visits should be removed.</li>
+<li><strong>Missing AP1</strong>: visits with missing AP1 information should be removed.</li>
+<li><strong>Month discrepancy</strong>: patients who have visits after a previous visit (according to the <code>Date</code> column), but the <code>Mois</code> column suggests this visit occured before a previous visit have been checked and the <code>Mois</code> column should be ignored. Celine’s explanation for why these were not all corrected <em>…we can not correct the month entry without deleting and reentering all data from one visit… thus we only checked that the dates were correct! It means that the mistakes you still have with month mismatchs, you should use dates without considering the mois column.</em></li>
+<li><strong>Month mismatch</strong>: similar to (4), <code>Mois</code> column should be ignored.</li>
+<li><strong>Drug mis-match</strong>: 4 participants identified with multiple drugs listed for the same <code>PatientsRecNum</code>, these were sent to Celine and corrected in subsequent data extraction (see table above for list of particpants corrected).</li>
+</ol></li>
+<li>New data received on 16/04/2020: <code>PHENO_GWAS_160420_corr.xlsx</code> (processed according to description at <a href="data_sources.html">Data Sources page</a>).</li>
+<li>Procedure above was repeated to confirm that <strong>Drug mis-match</strong> issues were solved (no other changes were made to the database).</li>
+</ul>
+<pre class="r"><code>pheno_file3 &lt;- &quot;data/raw/phenotype_data/PHENO_GWAS_160420_corr_noaccent.csv&quot;
+pheno_raw3 &lt;- readr::read_delim(pheno_file3, col_types = cols(.default = col_character()), delim = &quot;,&quot;) %&gt;% type_convert(col_types = cols())
+
+options(&quot;tidylog.display&quot; = list())  # turn off
+
+t &lt;- process_pheno_raw(pheno_raw3)
+
+options(&quot;tidylog.display&quot; = NULL)    # turn on
+
+# drug mismatch
+problem_drugs &lt;- t %&gt;% filter(drug_match==&quot;non-match&quot;) %&gt;% dplyr::select(GEN, Date, PatientsRecNum) %&gt;%
+  mutate(problem_category = &quot;drug_mismatch&quot;)</code></pre>
+<pre><code>filter (grouped): removed all rows (100%)</code></pre>
+<pre><code>mutate (grouped): new variable &#39;problem_category&#39; with 0 unique values and 100% NA</code></pre>
+<pre class="r"><code>t %&gt;% filter(drug_match==&quot;non-match&quot;) %&gt;% dplyr::select(AP1, drug_match) %&gt;% unique %&gt;% arrange(GEN)</code></pre>
+<pre><code>filter (grouped): removed all rows (100%)</code></pre>
+<pre><code>Adding missing grouping variables: `GEN`, `PatientsRecNum`</code></pre>
+<pre><code># A tibble: 0 x 4
+# Groups:   GEN, PatientsRecNum [0]
+# … with 4 variables: GEN &lt;chr&gt;, PatientsRecNum &lt;dbl&gt;, AP1 &lt;chr&gt;,
+#   drug_match &lt;chr&gt;</code></pre>
+<pre class="r"><code># empty table </code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.3 (2019-03-11)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRblas.so
+LAPACK: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRlapack.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] tidylog_1.0.1           OpenImageR_1.1.6        fuzzyjoin_0.1.5        
+ [4] kableExtra_1.1.0        R.utils_2.9.2           R.oo_1.23.0            
+ [7] R.methodsS3_1.7.1       TwoSampleMR_0.4.25      reader_1.0.6           
+[10] NCmisc_1.1.6            optparse_1.6.4          readxl_1.3.1           
+[13] ggthemes_4.2.0          tryCatchLog_1.1.6       futile.logger_1.4.3    
+[16] DataExplorer_0.8.0      taRifx_1.0.6.1          qqman_0.1.4            
+[19] MASS_7.3-51.5           bit64_0.9-7             bit_1.1-14             
+[22] rslurm_0.5.0            rmeta_3.0               devtools_2.2.1         
+[25] usethis_1.5.1           data.table_1.12.8       clustermq_0.8.8.1      
+[28] future.batchtools_0.8.1 future_1.15.1           rlang_0.4.5            
+[31] knitr_1.26              drake_7.12.0.9000       forcats_0.4.0          
+[34] stringr_1.4.0           dplyr_0.8.3             purrr_0.3.3            
+[37] readr_1.3.1             tidyr_1.0.3             tibble_2.1.3           
+[40] ggplot2_3.2.1           tidyverse_1.3.0         pacman_0.5.1           
+[43] processx_3.4.1          workflowr_1.6.0        
+
+loaded via a namespace (and not attached):
+  [1] backports_1.1.6      plyr_1.8.5           igraph_1.2.5        
+  [4] lazyeval_0.2.2       storr_1.2.1          listenv_0.8.0       
+  [7] digest_0.6.25        htmltools_0.4.0      tiff_0.1-5          
+ [10] fansi_0.4.1          magrittr_1.5         checkmate_1.9.4     
+ [13] memoise_1.1.0        base64url_1.4        remotes_2.1.0       
+ [16] globals_0.12.5       modelr_0.1.5         prettyunits_1.1.0   
+ [19] jpeg_0.1-8.1         colorspace_1.4-1     rvest_0.3.5         
+ [22] rappdirs_0.3.1       haven_2.2.0          xfun_0.11           
+ [25] callr_3.4.0          crayon_1.3.4         jsonlite_1.6        
+ [28] brew_1.0-6           glue_1.4.0           gtable_0.3.0        
+ [31] webshot_0.5.2        pkgbuild_1.0.6       scales_1.1.0        
+ [34] futile.options_1.0.1 DBI_1.1.0            Rcpp_1.0.3          
+ [37] xtable_1.8-4         viridisLite_0.3.0    progress_1.2.2      
+ [40] txtq_0.2.0           clisymbols_1.2.0     htmlwidgets_1.5.1   
+ [43] httr_1.4.1           getopt_1.20.3        calibrate_1.7.5     
+ [46] ellipsis_0.3.0       pkgconfig_2.0.3      dbplyr_1.4.2        
+ [49] utf8_1.1.4           tidyselect_0.2.5     reshape2_1.4.3      
+ [52] later_1.0.0          munsell_0.5.0        cellranger_1.1.0    
+ [55] tools_3.5.3          cli_2.0.1            generics_0.0.2      
+ [58] broom_0.5.3          fastmap_1.0.1        evaluate_0.14       
+ [61] yaml_2.2.0           fs_1.3.1             packrat_0.5.0       
+ [64] nlme_3.1-143         mime_0.8             whisker_0.4         
+ [67] formatR_1.7          proftools_0.99-2     xml2_1.2.2          
+ [70] compiler_3.5.3       rstudioapi_0.10      png_0.1-7           
+ [73] filelock_1.0.2       testthat_2.3.1       reprex_0.3.0        
+ [76] stringi_1.4.5        ps_1.3.0             desc_1.2.0          
+ [79] lattice_0.20-38      vctrs_0.2.4          pillar_1.4.3        
+ [82] lifecycle_0.1.0      networkD3_0.4        httpuv_1.5.2        
+ [85] R6_2.4.1             promises_1.1.0       gridExtra_2.3       
+ [88] sessioninfo_1.1.1    codetools_0.2-16     lambda.r_1.2.4      
+ [91] assertthat_0.2.1     pkgload_1.0.2        rprojroot_1.3-2     
+ [94] withr_2.1.2          batchtools_0.9.12    parallel_3.5.3      
+ [97] hms_0.5.3            grid_3.5.3           rmarkdown_1.18      
+[100] git2r_0.26.1         shiny_1.4.0          lubridate_1.7.4     </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
