@@ -25,7 +25,7 @@ See [Setup](setup.html) for details on setting up the analyses for this project.
 **Result shortcuts**
 
 1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
-2. [Quality control](quality_control.html)
+2. [Genotype quality control](genetic_quality_control.html) and [phenotype quality control](pheno_quality_control.html)
 3. [Imputation report](GWAS.html)
 4. [GWAS]()
 

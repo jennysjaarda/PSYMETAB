@@ -5,6 +5,13 @@ output: workflowr::wflow_html
 ---
 
 
+```{r setup, include = FALSE}
+options(scipen=999)
+source("code/packages.R")
+source("code/functions.R")
+source("code/settings.R")
+
+```
 
 *provided from iGE3*
 
@@ -57,9 +64,11 @@ output: workflowr::wflow_html
 - [Chipendium](http://mccarthy.well.ox.ac.uk/chipendium/ui/) was used to comfirm that bim files are on the TOP strand .
 - Contacted William Rayner (wrayner@well.ox.ac.uk) to find out what to do about custom SNPs, all correspondence on 22/07/2019.
   - Query:
+  
   >The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?
 
   - Response:
+  
   >If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching).
 
   - Trying to obtain such .csv file from Mylene or Smita at Illumina (spathak@illumina.com) who designed the chip.
@@ -71,12 +80,115 @@ output: workflowr::wflow_html
   - Zipped strand files were copied to SGG server (${project_dir}/data/raw/reference_files/) and subsequently unzipped and used in QC (only b37 files was needed).
 
 ## Phenotype data
-- Sex and ethnicity data provided by Celine (via email) for each batch on July 18, 2019: GSA_sex-ethnicity.xlsx
+### Sex/ethnicity data
+- Provided by Celine (via email) for each batch on July 18, 2019: `GSA_sex-ethnicity.xlsx`.
+- Used for genetic quality control. 
 - Downloaded and saved to UPPC folder (Jenny/PSYMETAB_GWAS/).
-- Opened, manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv/xlsx file (with 'no_accents') for easier use in R.
+- Opened, manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv/xlsx file (with `no_accents`) for easier use in R.
 - Moved to SGG folders via filezilla (manually).
-- Name was changed (see 'Master.sh'), as follows:
-
-```
+- Name was changed, as follows:
+```{r, engine = 'bash', eval = FALSE}
 mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex_eth.xlsx
 ```
+
+### Full phenotype data 
+- Phenotype data to be used in GWAS (and other) analyses.
+- All data was saved on sgg folders to: `PSYMETAB/data/raw/phenotype_data/`.
+- Iniitial data provided by Celine (via email) on October 24, 2019: `PHENO_GWAS_241019.xlsx`.
+  - Saved to sgg folder `PSYMETAB/data/phenotype_data/`.
+  - Opened in excel, saved as a `.csv` file.
+  - Manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv file (with extension `_no_accents.csv`) for easier use in R.
+- Discovered problems with phenotype database in early 2020, new phenotype data was provided on March 16, 2020: `PHENO_GWAS_160320.xlsx`.
+  - Same process as above was followed to remove accents and convert to csv file. 
+  - Details on problems detected can be found on the [Phenotype Quality Control page](pheno_quality_control.html).
+- Additional problems were discovered and a new dataset was provided on April 16, 2020: `PHENO_GWAS_160420.xlsx` (processed the same as above).
+
+### Caffeine data
+- Requested to perform analysis using Nermine's caffeine data. 
+- All data was saved on sgg folders to: `PSYMETAB/data/raw/phenotype_data/`.
+- Initial data provided by Claire (via email) on March 11, 2020: `Code_GEN_CG_11.03.2020.xlsx`.
+- New variables (data of blood draw and age) were provided by Claire on May 5, 2020: `CAF_Sleep_Jenny_05_05_2020_CG.xlsx`.
+  - Noticed that there was a problem with the data set (email describing problem to Nermine on 07/05/2020):
+  
+  >I am a bit confused by the age and date columns in some cases. For example, for the participant below we have measurements at 4 time points: age 34, 52, 53 and 39 and the date of measurement in the next column. Does the date correspond to the date the blood draw took place? If so, I don't understand why in 2018 (row 4) this participant was 39 and in 2012 (row 3) they were 53! Or does this column represent the date caffeine was measured (which could be very different from date of extraction)? Ideally I need the age the participant was when the extraction took place.  
+    
+    ```{r, echo=F}
+    data <-
+      read_excel("data/raw/phenotype_data/CAF_Sleep_Jenny_05_05_2020_CG.xlsx",
+                 sheet = 1) %>% type_convert(col_types = cols()) 
+
+    data %>% dplyr::filter(GEN == "UXEWHQEZ") %>% dplyr::select(GEN, age, Date) %>% 
+      kable() %>%
+      kable_styling(full_width = F, position = "left")
+
+    ```
+  - After discussing with Nermine and Claire, Claire discovered the problem (as per email on 07/05/2020):
+  
+  >I spotted the problem, it was a mismatch in the ambulatory codes as some of them are written XXXAMB instead of AMBXXX or XXX+letter. I will send Jenny a new version of the file with paying attention to these codes  if ok for you?
+  
+- A New dataset was provided by Cliare on May 7, 2020: `CAF_Sleep_Jenny_07_05_2020_CG.xlsx`.
+  - There were still issues with this dataset (as per email on 07/07/2020):
+  
+  >Il y a toujours un petit problème avec les IDs : GAWZCNNL et WIFRYNSK. Je mets les problèmes en dessous. Je crois que deux participants ont reçu le meme GEN ID. Peut-être il y avait encore un problème avec le merge ? 
+   
+    ```{r, echo=F}
+    data <-
+      read_excel("data/raw/phenotype_data/CAF_Sleep_Jenny_07_05_2020_CG.xlsx",
+                 sheet = 1) %>% type_convert(col_types = cols()) 
+    
+    check_caff_data <- function(data){
+      data %>%
+      
+      mutate(Date = as.Date(Date)) %>%
+      rename(Sleep_disorder = Sleep_disorders) %>%
+      arrange(Date) %>%
+      group_by(GEN) %>%
+      dplyr::select(GEN, Date, age) %>%
+      mutate(Date2 = Date) %>%
+      mutate(age2 = age) %>%
+      tidyr::expand(nesting(Date, age), nesting(age2, Date2)) %>%
+      filter(!(Date == Date2 & age == age2)) %>%
+      filter(Date < Date2) %>%
+      mutate(days_difference = as.numeric(difftime(Date2, Date, units = "days"))) %>%
+      mutate(age_plus_days = age + days_difference / 365) %>%
+      mutate(
+        age_check = case_when (
+          ceiling(age_plus_days) < age | age_plus_days > age2 + 1 ~ "problem",
+          is.na(days_difference) ~ "NA",
+          TRUE ~ "sensible"
+        )
+      ) 
+    }
+    t <- check_caff_data(data)
+    
+    t %>% group_by(GEN) %>% filter("problem" %in% age_check) %>% as.data.table() %>% 
+      kable() %>% 
+      kable_styling(full_width = F, position = "left") %>% scroll_box(width = "100%") 
+    ```
+- Celine performed the anonymization to compare to Claire's data to see if the same problems arose: `GEN_CAF_Sleep_Jenny_05_05_2020.xlsx`.
+  - There was still one issue with the dataset at ID WIFRYNSK. 
+    ```{r, echo=F}
+    data <-
+      read_excel("data/raw/phenotype_data/GEN_CAF_Sleep_Jenny_05_05_2020.xlsx",
+                 sheet = 1) %>% type_convert(col_types = cols()) 
+    
+    t <- check_caff_data(data)
+    t %>% group_by(GEN) %>% filter("problem" %in% age_check) %>% as.data.table() %>% 
+      kable() %>%
+      kable_styling(full_width = F, position = "left")
+
+    ```
+  - After asking Celine about this problem (08/05/2020), she said: 
+  
+  >Okay alors j’ai vérifié et cette erreur est déjà présente dans le fichier que Nermine nous a envoyé, donc ce n’est pas un problème lié au changement de codes.
+  
+  - Nermine responded (08/05/2020) with the explanation: 
+  
+  >Je viens de vérifier et en effet j'avais changé l'âge manuellement et il était changé dans les deux observations même si j'ai précisé la date de l'observation... je ne sais pas comment j'ai fais. Alors à la date du 22.12.2008, le patient avait 21 ans, et à la date du 13.08.2018 le patient avait 31 ans.
+  
+  - The following line was added to the script to manually change this entry: `caffeine_raw %>% mutate(age=replace(age, GEN=="WIFRYNSK" & as.Date(Date)=="2009-01-07", 21)`
+
+
+
+  
+  

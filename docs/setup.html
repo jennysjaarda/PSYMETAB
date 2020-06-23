@@ -390,7 +390,7 @@ div.section {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -399,7 +399,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -408,22 +408,22 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-12-19
+<strong>Last updated:</strong> 2020-06-23
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
 <div id="checks" class="tab-pane fade">
-<div id="workflowr-checks" class="panel-group">
+<div class="panel-group" id="workflowr-checks">
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
@@ -487,33 +487,135 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongabsolute"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>File paths:</strong> absolute </a>
 </p>
 </div>
-<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div id="strongFilepathsstrongabsolute" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+<p>
+Using absolute paths to the files within your workflowr project makes it difficult for you and others to run your code on a different machine. Change the absolute path(s) below to the suggested relative path(s) to make your code more reproducible.
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+absolute
+</th>
+<th style="text-align:left;">
+relative
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+/data/sgg2/jenny/projects/PSYMETAB
+</td>
+<td style="text-align:left;">
+.
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree817ea9e66aa0f7a2c06b79d657bc7551f5ec0c37targetblank817ea9ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/817ea9e66aa0f7a2c06b79d657bc7551f5ec0c37" target="_blank">817ea9e</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree468f89ecd55d9e84ca3bdd041921a20f764ee2edtargetblank468f89ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/468f89ecd55d9e84ca3bdd041921a20f764ee2ed" target="_blank">468f89e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree817ea9e66aa0f7a2c06b79d657bc7551f5ec0c37targetblank817ea9ea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree468f89ecd55d9e84ca3bdd041921a20f764ee2edtargetblank468f89ea" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    .Rhistory
-    Ignored:    .Rproj.user/
+    Ignored:    ._docs
+    Ignored:    .drake/
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/._GWAS.Rmd
+    Ignored:    analysis/._data_processing_in_genomestudio.Rmd
+    Ignored:    analysis/._quality_control.Rmd
+    Ignored:    analysis/GWAS/
+    Ignored:    analysis/PRS/
+    Ignored:    analysis/QC/
+    Ignored:    analysis/figure/
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    data/processed/
+    Ignored:    data/raw/
+    Ignored:    download_impute_1_clustermq.out
+    Ignored:    init_analysis_1_clustermq.out
+    Ignored:    init_analysis_2_clustermq.out
+    Ignored:    init_analysis_3_clustermq.out
+    Ignored:    init_analysis_4_clustermq.out
+    Ignored:    init_analysis_5_clustermq.out
+    Ignored:    init_analysis_6_clustermq.out
+    Ignored:    packrat/lib-R/
+    Ignored:    packrat/lib-ext/
+    Ignored:    packrat/lib/
+    Ignored:    post_impute_1_clustermq.out
+    Ignored:    pre_impute_qc_1_clustermq.out
+    Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_12_clustermq.out
+    Ignored:    process_init_13_clustermq.out
+    Ignored:    process_init_14_clustermq.out
+    Ignored:    process_init_15_clustermq.out
+    Ignored:    process_init_16_clustermq.out
+    Ignored:    process_init_17_clustermq.out
+    Ignored:    process_init_18_clustermq.out
+    Ignored:    process_init_19_clustermq.out
+    Ignored:    process_init_1_clustermq.out
+    Ignored:    process_init_20_clustermq.out
+    Ignored:    process_init_21_clustermq.out
+    Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_23_clustermq.out
+    Ignored:    process_init_24_clustermq.out
+    Ignored:    process_init_25_clustermq.out
+    Ignored:    process_init_26_clustermq.out
+    Ignored:    process_init_27_clustermq.out
+    Ignored:    process_init_28_clustermq.out
+    Ignored:    process_init_29_clustermq.out
+    Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_30_clustermq.out
+    Ignored:    process_init_31_clustermq.out
+    Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_9_clustermq.out
+    Ignored:    prs_1_clustermq.out
+    Ignored:    prs_2_clustermq.out
+    Ignored:    prs_3_clustermq.out
+    Ignored:    prs_4_clustermq.out
+
+Untracked files:
+    Untracked:  analysis/genetic_quality_control.Rmd
+    Untracked:  analysis/plans.Rmd
+    Untracked:  analysis_prep.log
+    Untracked:  download_impute.log
+    Untracked:  grs.log
+    Untracked:  init_analysis.log
+    Untracked:  process_init.log
+    Untracked:  prs.log
 
 Unstaged changes:
-    Modified:   PSYMETAB.Rproj
+    Modified:   analysis/GWAS.Rmd
+    Modified:   analysis/data_sources.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/pheno_quality_control.Rmd
+    Deleted:    analysis/project.Rmd
+    Modified:   cache_log.csv
+    Modified:   post_impute.log
+    Modified:   slurm_clustermq.tmpl
 
 </code></pre>
 <p>
@@ -552,6 +654,159 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/cb27d68fc1a654cbc0e4d6e8a915964f40419d0a/analysis/setup.Rmd" target="_blank">cb27d68</a>
+</td>
+<td>
+Jenny
+</td>
+<td>
+2020-02-05
+</td>
+<td>
+include generated reports/
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/bc8b30eab8028ff683ec7a792cc3c6b3889109b5/analysis/setup.Rmd" target="_blank">bc8b30e</a>
+</td>
+<td>
+Sjaarda Jennifer Lynn
+</td>
+<td>
+2020-01-22
+</td>
+<td>
+typo in folder creation
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/015e3ac5a432c8bb9189789546367a811e2053a6/analysis/setup.Rmd" target="_blank">015e3ac</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-01-13
+</td>
+<td>
+revert to older setup instructions with packrat
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/44475147754653f015956db2260e3564a1254d01/analysis/setup.Rmd" target="_blank">4447514</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-01-13
+</td>
+<td>
+revert to old setup instruction
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/642f3f1f51c3973c5c8f1a0ee506379f6c3d97e9/analysis/setup.Rmd" target="_blank">642f3f1</a>
+</td>
+<td>
+Jenny
+</td>
+<td>
+2020-01-13
+</td>
+<td>
+change extraction folder name
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/b7954e703a08173eb9218fd23f15fc481c3c1b58/analysis/setup.Rmd" target="_blank">b7954e7</a>
+</td>
+<td>
+Sjaarda Jennifer Lynn
+</td>
+<td>
+2020-01-09
+</td>
+<td>
+change extraction folder name to extractions
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/8537feec373b3bb3afd83902916e579b035bc753/analysis/setup.Rmd" target="_blank">8537fee</a>
+</td>
+<td>
+Sjaarda Jennifer Lynn
+</td>
+<td>
+2020-01-09
+</td>
+<td>
+misc typos
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/253277c7bffb180ba43e4e31349539bea0d1f51d/analysis/setup.Rmd" target="_blank">253277c</a>
+</td>
+<td>
+Jenny
+</td>
+<td>
+2020-01-09
+</td>
+<td>
+update project details
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/81ca4edba24670c7da7fbbaf485f599711dd9100/docs/setup.html" target="_blank">81ca4ed</a>
+</td>
+<td>
+Jenny
+</td>
+<td>
+2019-12-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -882,13 +1137,16 @@ modify git ignore
 </div>
 </div>
 </div>
-<p><strong>Last updated:</strong> 2019-12-19</p>
-<p><strong>Code version:</strong> 817ea9e66aa0f7a2c06b79d657bc7551f5ec0c37</p>
+<style type="text/css">
+pre, code {white-space:pre !important; overflow-x:auto}
+</style>
+<p><strong>Last updated:</strong> 2020-06-23</p>
+<p><strong>Code version:</strong> 468f89ecd55d9e84ca3bdd041921a20f764ee2ed</p>
 <p><strong>To reproduce the results from this project, please follow these instructions.</strong></p>
 <p><em>In general, <code>drake</code> was used to manage long-running code and <code>workflowr</code> was used to manage the <a href="https://jennysjaarda.github.io/PSYMETAB/index.html">website</a>.</em></p>
 <hr />
-<div id="initiate-project-on-remote-server." class="section level2">
-<h2><span class="header-section-number">0.1</span> Initiate project on remote server.</h2>
+<div id="initiate-project-on-remote-server." class="section level1">
+<h1><span class="header-section-number">1</span> Initiate project on remote server.</h1>
 <p>All processing scripts were run from the root sgg directory. Project was initialized using <code>workflowr</code> rpackage, see <a href="https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html">here</a>.</p>
 <p>On sgg server:</p>
 <pre class="r"><code>project_name &lt;- &quot;PSYMETAB&quot;
@@ -909,8 +1167,8 @@ wflow_git_push()</code></pre>
 <p>You have now successfully created a GitHub repository for your project that is accessible on GitHub and the servers.</p>
 <p>Next setup a local copy.</p>
 </div>
-<div id="create-local-copy-on-personal-computer." class="section level2">
-<h2><span class="header-section-number">0.2</span> Create local copy on personal computer.</h2>
+<div id="create-local-copy-on-personal-computer." class="section level1">
+<h1><span class="header-section-number">2</span> Create local copy on personal computer.</h1>
 <p>Within terminal of personal computer, clone the git repository.</p>
 <pre class="bash"><code>cd ~/Dropbox/UNIL/projects/
 git clone https://GitHub.com/jennysjaarda/PSYMETAB.git PSYMETAB</code></pre>
@@ -933,20 +1191,21 @@ git clone https://GitHub.com/jennysjaarda/PSYMETAB.git PSYMETAB</code></pre>
 <li>Pull to the server.</li>
 </ul>
 </div>
-<div id="create-internal-project-folders." class="section level2">
-<h2><span class="header-section-number">0.3</span> Create internal project folders.</h2>
+<div id="create-internal-project-folders." class="section level1">
+<h1><span class="header-section-number">3</span> Create internal project folders.</h1>
 <p>Return to sgg server and run the following:</p>
 <pre class="bash"><code>project_dir=/data/sgg2/jenny/projects/PSYMETAB
 mkdir $project_dir/data/raw
 mkdir $project_dir/data/processed
 mkdir $project_dir/data/raw/reference_files
 mkdir $project_dir/data/raw/phenotype_data
-mkdir $project_dir/data/raw/extraction
+mkdir $project_dir/data/raw/extractions
 mkdir $project_dir/data/processed/phenotype_data
-mkdir $project_dir/data/processed/extraction
-mkdir $project_dir/docs/assets</code></pre>
+mkdir $project_dir/data/processed/extractions
+mkdir $project_dir/docs/assets
+mkdir $project_dir/docs/generated_reports</code></pre>
 <p>This will create the following directory structure in <code>PSYMETAB/</code>:</p>
-<pre><code>PSYMETAB/
+<pre class="bash"><code>PSYMETAB/
 ├── .gitignore
 ├── .Rprofile
 ├── _workflowr.yml
@@ -962,12 +1221,13 @@ mkdir $project_dir/docs/assets</code></pre>
 │   ├── raw/
 │   │   ├── phenotype_data/
 │   │   ├── reference_files/
-│   │   └── extraction/
+│   │   └── extractions/
 │   ├── processed/
 │   │   ├── phenotype_data/
 │   │   ├── reference_files/
-│   │   └── extraction/
+│   │   └── extractions/
 ├── docs/
+│   ├── generated_reports/
 │   └── assets/
 ├── myproject.Rproj
 ├── output/
@@ -975,20 +1235,21 @@ mkdir $project_dir/docs/assets</code></pre>
 └── README.md</code></pre>
 <p>Raw PLINK (<code>ped</code> and <code>map</code> files) data were copied from the CHUV folder (<code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS</code>) after being built in genomestudio to the <code>data/</code> drive.</p>
 </div>
-<div id="initialize-a-packrat-directory" class="section level2">
-<h2><span class="header-section-number">0.4</span> Initialize a packrat directory</h2>
+<div id="initialize-a-packrat-directory" class="section level1">
+<h1><span class="header-section-number">4</span> Initialize a packrat directory</h1>
 <p><a href="https://rstudio.github.io/packrat/">Packrat</a> is a dependency management system for R. It is useful for making your project: 1. Isolated. 2. Portable. 3. Reproducible.</p>
 <p>Initialize a <code>packrat</code> project by simply running:</p>
-<pre class="r"><code>packrat::init(&quot;/data/sgg2/jenny/projects/PSYMETAB&quot;)</code></pre>
+<pre class="r"><code>packrat::init(&quot;/data/sgg2/jenny/projects/PSYMETAB&quot;)
+packrat::set_opts(auto.snapshot = T)</code></pre>
 <p>This creates a <code>packrat</code> directory in your project folder.</p>
 <p>Now, everytime you launch <code>R</code> from this directory or run <code>install.packages()</code>, <code>packrat</code> will automatically keep track of your packages and versions. You are no longer in an ordinary R project; you’re in a Packrat project. The main difference is that a packrat project has its own private package library. Any packages you install from inside a packrat project are only available to that project; and packages you install outside of the project are not available to the project.</p>
 <p>Likely, we won’t need to do anymore than this, but some <a href="https://rstudio.github.io/packrat/commands.html">additional functions exist</a>, that are useful if we need to move our project to a new disk/computer.</p>
 </div>
-<div id="run-and-summarize-analyses." class="section level2">
-<h2><span class="header-section-number">0.5</span> Run and summarize analyses.</h2>
+<div id="run-and-summarize-analyses." class="section level1">
+<h1><span class="header-section-number">5</span> Run and summarize analyses.</h1>
 <p><em>Note that Part A and B are happening in parallel.</em></p>
-<div id="part-a-setup-drake-and-execute-plan." class="section level3">
-<h3><span class="header-section-number">0.5.1</span> Part A: Setup drake and execute plan.</h3>
+<div id="setup-drake-and-execute-plan." class="section level2">
+<h2><span class="header-section-number">5.1</span> Setup drake and execute plan.</h2>
 <pre class="r"><code>library(drake)</code></pre>
 <p>For execution of drake plan: see <a href="https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/make.R"><code>make.R</code></a>. For drake plan(s) see: <a href="https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R"><code>code/plan.R</code></a>.</p>
 <p>To run drake plans on slurm nodes with parallel backends, there are two options:</p>
@@ -1026,7 +1287,7 @@ future::plan(batchtools_slurm, template = &quot;slurm_batchtools.tmpl&quot;)</co
 #SBATCH --partition={{ partition }}                 # partition
 #SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
 #SBATCH --error={{ log_file | /dev/null }}  # log file
-####SBATCH --mem-per-cpu={{ memory | 4096 }}   # memory
+#SBATCH --mem-per-cpu={{ memory | 7900 }}   # memory
 #SBATCH --array=1-{{ n_jobs }}              # job array
 #SBATCH --cpus-per-task={{ cpus }}
 # module load R                             # Uncomment if R is an environment module.
@@ -1082,8 +1343,8 @@ if (!&quot;partition&quot; %in% names(resources)) {
 ## Run R:
 Rscript -e &#39;batchtools::doJobCollection(&quot;&lt;%= uri %&gt;&quot;)&#39;</code></pre>
 </div>
-<div id="part-b-build-and-maintain-website." class="section level3">
-<h3><span class="header-section-number">0.5.2</span> Part B: Build and maintain website.</h3>
+<div id="build-and-maintain-website." class="section level2">
+<h2><span class="header-section-number">5.2</span> Build and maintain website.</h2>
 <p>Follow the general workflow outlined by <a href="https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html#the-workflow">workflowr</a>, with some minor revisions to accomodate workflow between personal computer and remote server:</p>
 <ol style="list-style-type: decimal">
 <li>Open a new or existing R Markdown file in <code>analysis/</code> (optionally using <code>wflow_open()</code>). (Usually created manually on personal computer and push to server to build later.) If creating manually, add the following to the top of the R Markdown file with an appropriate name for <code>Title</code>:</li>
@@ -1122,30 +1383,36 @@ wflow_publish(rmd_commit,
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code># R version 3.6.1 (2019-07-05)
-# Platform: x86_64-apple-darwin15.6.0 (64-bit)
-# Running under: macOS Catalina 10.15.2
+<pre><code># R version 3.5.3 (2019-03-11)
+# Platform: x86_64-pc-linux-gnu (64-bit)
+# Running under: CentOS Linux 7 (Core)
 # 
 # Matrix products: default
-# BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-# LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+# BLAS: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRblas.so
+# LAPACK: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRlapack.so
 # 
 # locale:
-# [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+# [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 # 
 # attached base packages:
 # [1] stats     graphics  grDevices utils     datasets  methods   base     
 # 
 # other attached packages:
-# [1] workflowr_1.5.0
+# [1] workflowr_1.6.0
 # 
 # loaded via a namespace (and not attached):
-#  [1] Rcpp_1.0.3      rprojroot_1.3-2 digest_0.6.23   later_0.8.0    
-#  [5] R6_2.4.1        backports_1.1.5 git2r_0.26.1    magrittr_1.5   
-#  [9] evaluate_0.14   stringi_1.4.3   rlang_0.4.2     fs_1.3.1       
-# [13] promises_1.0.1  whisker_0.4     rmarkdown_2.0   tools_3.6.1    
-# [17] stringr_1.4.0   glue_1.3.1      httpuv_1.5.2    xfun_0.11      
-# [21] yaml_2.2.0      compiler_3.6.1  htmltools_0.4.0 knitr_1.26</code></pre>
+#  [1] Rcpp_1.0.3      rprojroot_1.3-2 packrat_0.5.0   digest_0.6.25  
+#  [5] later_1.0.0     R6_2.4.1        backports_1.1.6 git2r_0.26.1   
+#  [9] magrittr_1.5    evaluate_0.14   highr_0.8       stringi_1.4.5  
+# [13] rlang_0.4.5     fs_1.3.1        promises_1.1.0  whisker_0.4    
+# [17] rmarkdown_1.18  tools_3.5.3     stringr_1.4.0   glue_1.4.0     
+# [21] yaml_2.2.0      httpuv_1.5.2    xfun_0.11       compiler_3.5.3 
+# [25] htmltools_0.4.0 knitr_1.26</code></pre>
 </div>
 </div>
 </div>

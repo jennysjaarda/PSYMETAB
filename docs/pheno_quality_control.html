@@ -390,7 +390,7 @@ div.section {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -399,7 +399,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -411,7 +411,7 @@ div.section {
 <strong>Last updated:</strong> 2020-06-23
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -427,12 +427,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -499,10 +499,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree9c2cda4fcf07c802c211c9c09625194ddb4631e6targetblank9c2cda4a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/9c2cda4fcf07c802c211c9c09625194ddb4631e6" target="_blank">9c2cda4</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree55b0a65463c2a86fab310892f4f1bb68a6087013targetblank55b0a65a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/55b0a65463c2a86fab310892f4f1bb68a6087013" target="_blank">55b0a65</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree9c2cda4fcf07c802c211c9c09625194ddb4631e6targetblank9c2cda4a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree55b0a65463c2a86fab310892f4f1bb68a6087013targetblank55b0a65a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -518,7 +518,6 @@ Ignored files:
     Ignored:    analysis/GWAS/
     Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
-    Ignored:    analysis/figure/
     Ignored:    analysis_prep_1_clustermq.out
     Ignored:    analysis_prep_2_clustermq.out
     Ignored:    analysis_prep_3_clustermq.out
@@ -586,6 +585,8 @@ Untracked files:
 Unstaged changes:
     Modified:   analysis/GWAS.Rmd
     Modified:   analysis/data_sources.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/pheno_quality_control.Rmd
     Deleted:    analysis/project.Rmd
     Modified:   analysis/quality_control.Rmd
     Modified:   cache_log.csv
@@ -629,6 +630,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/55b0a65463c2a86fab310892f4f1bb68a6087013/docs/pheno_quality_control.html" target="_blank">55b0a65</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-06-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -919,7 +937,7 @@ table(flagged_rows2$problem_category)</code></pre>
 <li><strong>Missing date</strong>: visits with missing date should be removed.</li>
 <li><strong>Sex problems</strong>: participants with missing sex information or both sexes listed under different visits should be removed.</li>
 <li><strong>Missing AP1</strong>: visits with missing AP1 information should be removed.</li>
-<li><strong>Month discrepancy</strong>: patients who have visits after a previous visit (according to the <code>Date</code> column), but the <code>Mois</code> column suggests this visit occured before a previous visit have been checked and the <code>Mois</code> column should be ignored. Celine’s explanation for why these were not all corrected <em>…we can not correct the month entry without deleting and reentering all data from one visit… thus we only checked that the dates were correct! It means that the mistakes you still have with month mismatchs, you should use dates without considering the mois column.</em></li>
+<li><strong>Month discrepancy</strong>: patients who have visits after a previous visit (according to the <code>Date</code> column), but the <code>Mois</code> column suggests this visit occured before a previous visit have been checked and the <code>Mois</code> column should be ignored. Celine’s explanation for why these were not all corrected: <em>…we can not correct the month entry without deleting and reentering all data from one visit… thus we only checked that the dates were correct! It means that the mistakes you still have with month mismatchs, you should use dates without considering the mois column.</em></li>
 <li><strong>Month mismatch</strong>: similar to (4), <code>Mois</code> column should be ignored.</li>
 <li><strong>Drug mis-match</strong>: 4 participants identified with multiple drugs listed for the same <code>PatientsRecNum</code>, these were sent to Celine and corrected in subsequent data extraction (see table above for list of particpants corrected).</li>
 </ol></li>
