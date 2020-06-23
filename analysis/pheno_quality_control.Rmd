@@ -1,0 +1,230 @@
+---
+title: "Phenotypic data quality control and processing"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+
+```{css include=FALSE}
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+options(width = 150)
+
+
+```
+
+```{r setup, include = FALSE}
+options(scipen=999)
+source("code/packages.R")
+source("code/functions.R")
+source("code/settings.R")
+```
+
+**The following document outlines and summarizes the phenotypic quality control and processing procedure that was followed to create a clean dataset.**
+	
+- Phenoptyic data was extracted and provided by Celine (see [Data sources](data_sources.html)).
+- In January 2020, Celine detected various problems with the phenotype data with unknown explanation (possible manual error). 
+- After discussion with Celine, Chin, and Enrique (manager of the database), it was decided that we need to make a few changes to way data is entered into the database to help avoid manual errors. 
+- Summary of the agreed changes is below (email correspondance between Celine and Enrique on 13/02/2020 and translation):
+
+  Je fais un petit résumé de ce dont on a convenu :
+  1. Modifier l’entrée d’un nouveau mois, pour que ce soit uniquement possible de choisir une entrée proposée (0-1-2-3-6-...) et non taper un autre chiffre
+  2. Ajouter un champ pour l’identité de la personne qui entre ou modifie un bilan et un champ pour la date à laquelle a lieu cette modification (emplacement proposé : en dessous de « contrôle » ?)
+  3. Eliminer l’option de reprendre les données d’un mois précédent et à la place : vider tous les champs SAUF ceux entrés dans les fenêtres « Antipsychotiques » et « Co-Médication »
+  4. Ajouter une validation de la date d’évaluation au moment de sauver les données d’un bilan entré
+
+  A short summary of what we agreed:
+  1. Modify the entry for a new month, so that it is only possible to choose a proposed entry (0-1-2-3-6 -...) and not enter another number
+  2. Add a field for the identity of the person entering or modifying a balance sheet and a field for the date on which this modification takes place (proposed location: below "control"?)
+  3. Eliminate the option to resume data from a previous month and instead: empty all fields EXCEPT those entered in the "Antipsychotics" and "Co-Medication" windows
+  4. Add validation of the evaluation date when saving the data of an entered balance sheet 
+  
+- After this update and manual revisions, new data was provided on 16/03/2020: `data/raw/phenotype_data/PHENO_GWAS_160320_noaccent.csv`
+
+```{r sort_problems, eval=T, echo=T}
+
+pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_160320_noaccent.csv"
+
+pheno_raw <- readr::read_delim(pheno_file, col_types = cols(.default = col_character()), delim = ",") %>% type_convert(col_types = cols())
+
+process_pheno_raw <- function(pheno_raw) {
+  
+  output <- pheno_raw %>%
+    
+    mutate(Date = as.Date(Date, format = '%d.%m.%Y')) %>% arrange(Date)  %>%
+    mutate(AP1 = gsub(" ", "_", AP1)) %>% mutate_at("AP1", as.factor) %>%
+    mutate(AP1 = gsub("_.*$", "", AP1)) %>%
+    mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
+    group_by(GEN) %>%
+    mutate(sex = check_sex(Sexe)) %>%
+    mutate_at("PatientsTaille", as.numeric) %>%
+    mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
+    mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %>%
+    ungroup() %>%  ### create ever on any drug
+    mutate(BMI = Poids / (PatientsTaille / 100) ^ 2) %>%
+    group_by(GEN, PatientsRecNum) %>% mutate(drug_instance = row_number()) %>%
+    mutate(date_difference = as.numeric(difftime(lag(Date), Date, units = "days"))) %>%
+    mutate(
+      follow_up = case_when(
+        Mois > 12 ~ "greater_12months",
+        date_difference > 0 ~ "month_descrepency",
+        Mois == 0 ~ "new_regimen",
+        abs(date_difference) >= (Mois - lag(Mois)) *
+          30 - leeway_time &
+          abs(date_difference) <= (Mois - lag(Mois)) * 30 + leeway_time ~ "sensible",
+        is.na(date_difference) ~ "NA",
+        ### these are follow-ups that didn't start at month 0
+        TRUE ~ "leeway_exceeds"
+      )
+    ) %>%
+    mutate(AP1_mod = paste0(AP1, "_round", rename_meds(follow_up))) %>%
+    mutate(problems = case_when(Mois < lag(Mois) |
+                                  date_difference >= 0 ~ "problem",
+                                TRUE ~ "fine")) %>%
+    mutate(drug_match = check_drug(PatientsRecNum, AP1))
+  
+  return(output)
+
+}
+
+options("tidylog.display" = list())  # turn off
+
+t <- process_pheno_raw(pheno_raw)
+
+options("tidylog.display" = NULL)    # turn on
+
+## missing date
+missing_date <- t %>% filter(is.na(Date)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "missing_Date")
+
+## missing sex
+na_sex <- t %>% filter(is.na(sex)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "sex_problem")
+
+## missing AP1
+missing_AP1 <- t %>% filter(is.na(AP1)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "missing_AP1")
+
+## missing PatientsRecNum (none)
+missing_patrec <- t %>% filter(is.na(PatientsRecNum)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "missing_PatientsRecNum")
+
+## month mismatch
+leeway_exceeds <- t %>% filter(follow_up == "leeway_exceeds") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "month_mismatch")
+
+head(leeway_exceeds)
+t %>% filter(GEN=="YSFHMSHX") %>% dplyr::select(follow_up, Date, date_difference, Mois)
+
+## month discrepency
+problem_ids <- t %>% filter(problems == "problem") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "month_discrepency")
+
+head(problem_ids)
+t %>% filter(GEN=="JWWJQJGS") %>% dplyr::select(follow_up, Date, date_difference, Mois, problems)
+
+# drug mismatch
+problem_drugs <- t %>% filter(drug_match=="non-match") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "drug_mismatch")
+
+flagged_rows <- rbind(missing_date, na_sex, missing_AP1, leeway_exceeds, problem_ids, problem_drugs)
+write.table(flagged_rows, "data/raw/phenotype_data/PHENO_GWAS_160320_flagged_rows.txt", row.names = F,  col.names = T, quote = T)
+
+table(flagged_rows$problem_category)
+```
+
+- Summary of problems identified: 
+  1. **Missing date**: empty date column, 19 individuals/19 rows, e.g. *DMLWTARC.*
+  2. **Sex problems**: either sex is missing for all instances of an individual, or both sexes are listed for one individual, 47 individuals/239 rows, e.g _GYYEHMDR_ (both sexes are listed), _IDDAXPMK_ (empty sex fields).
+  3. **Missing AP1**: follow-up drug is missing, 28 individuals/32 rows, e.g. *YSTTKYJE.*
+  4. **Month discrepancy**: if participant data is sorted by date, `Mois` column is less than the previous row (for e.g. month 3 occurs on January 1/2010, but month 0 occurs on March 1/2010 for the same `PatientsRecNum`), 38 individuals/39 rows, e.g. JWWJQJGS on 01-03-2010 indicates month 2 which occurs after month 12 on 01-24-2010 at the same `PatientsRecNum` of `2762`.
+  5. **Month mismatch**: date between two follow-ups is > 90 days off based on the `Date` and `Mois` column, these may not be as big of a problem - but I have still flagged them (for e.g. say participant has the following entries: month 0 on January 1, and month 3 on September 1. The number of days between those two dates is 244 which is greater than 3 - the month follow-up it was supposed to be based on the `Mois` column - times 30 + 90 days, in this case 3*30 + 90 = 180. Since 244 is greater than 180, this follow-up for at the month 3 mark would be flagged). Note that I chose 90 days as an arbitrary cutoff. There are 162 individuals in this category/206 rows, e.g. _YSFHMSHX_ on 07-07-2018.
+  6. **Drug mis-match**: two drugs listed for the same `GEN` and `PatientsRecNum`, 25 individuals, not sure the number of rows as it's unclear which ones are correct, e.g. _BPOCXXYD_ has both aripiprazole and amisulpride listed for `PatientsRecNum` 18.
+- Sent `data/raw/phenotype_data/PHENO_GWAS_160320_flagged_rows.txt` to Celine for revision (along with help of Claire, Marianna and Nermine). 
+- New data received on 16/04/2020: `PHENO_GWAS_160420.xlsx` (processed according to description at [Data Sources page](data_sources.html)). 
+- Procedure above was repeated to see if all problems were solved. 
+
+```{r sort_problems2, eval=T, echo=T}
+
+pheno_file2 <- "data/raw/phenotype_data/PHENO_GWAS_160420_noaccent.csv"
+pheno_raw2 <- readr::read_delim(pheno_file2, col_types = cols(.default = col_character()), delim = ",") %>% type_convert(col_types = cols())
+
+options("tidylog.display" = list())  # turn off
+
+t <- process_pheno_raw(pheno_raw2)
+
+options("tidylog.display" = NULL)    # turn on
+
+## repeat above procedure to see if all problems are fixed
+
+## missing date
+missing_date <- t %>% filter(is.na(Date)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "missing_Date")
+
+## missing sex
+na_sex <- t %>% filter(is.na(sex)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "sex_problem")
+
+## missing AP1
+missing_AP1 <- t %>% filter(is.na(AP1)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "missing_AP1")
+
+## missing PatientsRecNum (none)
+missing_patrec <- t %>% filter(is.na(PatientsRecNum)) %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "missing_PatientsRecNum")
+
+## month mismatch
+leeway_exceeds <- t %>% filter(follow_up == "leeway_exceeds") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "month_mismatch")
+
+## month discrepency
+problem_ids <- t %>% filter(problems == "problem") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "month_discrepency")
+
+# drug mismatch
+problem_drugs <- t %>% filter(drug_match=="non-match") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "drug_mismatch")
+
+flagged_rows2 <- rbind(missing_date, na_sex, missing_AP1, leeway_exceeds, problem_ids, problem_drugs)
+
+table(flagged_rows2$problem_category)
+
+t %>% filter(drug_match=="non-match") %>% dplyr::select(AP1, drug_match) %>% unique %>% arrange(GEN)
+
+```
+
+- Still a few problems remained:
+  1. **Missing date**: visits with missing date should be removed. 
+  2. **Sex problems**: participants with missing sex information or both sexes listed under different visits should be removed.
+  3. **Missing AP1**: visits with missing AP1 information should be removed.
+  4. **Month discrepancy**: patients who have visits after a previous visit (according to the `Date` column), but the `Mois` column suggests this visit occured before a previous visit have been checked and the `Mois` column should be ignored. Celine's explanation for why these were not all corrected *...we can not correct the month entry without deleting and reentering all data from one visit… thus we only checked that the dates were correct! It means that the mistakes you still have with month mismatchs, you should use dates without considering the mois column.*
+  5. **Month mismatch**: similar to (4), `Mois` column should be ignored.
+  6. **Drug mis-match**: 4 participants identified with multiple drugs listed for the same `PatientsRecNum`, these were sent to Celine and corrected in subsequent data extraction (see table above for list of particpants corrected). 
+- New data received on 16/04/2020: `PHENO_GWAS_160420_corr.xlsx` (processed according to description at [Data Sources page](data_sources.html)). 
+- Procedure above was repeated to confirm that **Drug mis-match** issues were solved (no other changes were made to the database).
+
+
+```{r sort_problems3, eval=T, echo=T}
+
+pheno_file3 <- "data/raw/phenotype_data/PHENO_GWAS_160420_corr_noaccent.csv"
+pheno_raw3 <- readr::read_delim(pheno_file3, col_types = cols(.default = col_character()), delim = ",") %>% type_convert(col_types = cols())
+
+options("tidylog.display" = list())  # turn off
+
+t <- process_pheno_raw(pheno_raw3)
+
+options("tidylog.display" = NULL)    # turn on
+
+# drug mismatch
+problem_drugs <- t %>% filter(drug_match=="non-match") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+  mutate(problem_category = "drug_mismatch")
+
+t %>% filter(drug_match=="non-match") %>% dplyr::select(AP1, drug_match) %>% unique %>% arrange(GEN)
+
+# empty table 
+```
