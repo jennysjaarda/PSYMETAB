@@ -246,6 +246,7 @@ init_analysis <- drake_plan(
                 eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
                 output_dir = ("analysis/GWAS"), output = !!study_name)},
+
     dynamic = map(subgroup_gwas_info)
   ),
   linear_meta_out = target({
@@ -445,6 +446,7 @@ process_init <- drake_plan(
   # )
 
 )
+
 #
 # ## GARBAGE
 # process_gwas(eth = baseline_gwas_files$eth[19], pheno=baseline_gwas_files$pheno[19], drug=baseline_gwas_files$drug[19], file=baseline_gwas_files$file[19],
