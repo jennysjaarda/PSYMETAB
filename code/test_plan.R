@@ -447,3 +447,179 @@ process_init <- drake_plan(
   # )
 
 )
+
+
+
+#
+# ## GARBAGE
+# process_gwas(eth = baseline_gwas_files$eth[19], pheno=baseline_gwas_files$pheno[19], drug=baseline_gwas_files$drug[19], file=baseline_gwas_files$file[19],
+# output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
+# info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = baseline_gwas_files$write_file[19])
+#
+# create_figures(
+#   baseline_gwas_figures_input$joint_file[1], baseline_gwas_figures_input$manhattan_file_name[1],
+#   baseline_gwas_figures_input$qq_file_name[1], baseline_gwas_figures_input$title[1])
+
+######
+
+prs <- drake_plan(
+  prs_info = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),
+  prs_ukbb_info = target(define_ukbb_inputs(!!Neale_summary_dir, !!ukbb_files, "analysis/PRS"), hpc = FALSE),
+  prsice_out = target({
+    run_prsice(base_file=prs_info$base_file,
+      threads=16, memory="100000", out_file=prs_info$out_file,
+      bgen_file=paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
+      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL_nosex.sample")))
+    c(paste0(prs_info$out_file, ".log"), paste0(prs_info$out_file, ".all.score"), paste0(prs_info$out_file, ".prsice"))
+  },
+    dynamic = map(prs_info),
+    format = "file"
+  ),
+  prs_format = target({
+    prsice_out
+    format_prs(all_score_file=paste0(prs_info$out_file, ".all.score"), out_file=paste0(prs_info$out_file, ".format"))
+    paste0(prs_info$out_file, ".format")
+  },
+  dynamic = map(prs_info), hpc = FALSE,
+  format = "file"
+  ),
+
+  prsice_ukbb_out = target({
+    run_prsice(base_file=prs_ukbb_info$base_file,
+      threads=16, memory="100000", out_file=prs_ukbb_info$out_file,
+      bgen_file=paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
+      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL_nosex.sample")),
+      snp_col="SNP", chr_col="CHR", effect_allele_col="EFFECT_ALLELE",
+      other_allele_col="OTHER_ALLELE", beta_or_col="BETA", p_col="PVAL")
+    c(paste0(prs_ukbb_info$out_file, ".log"), paste0(prs_ukbb_info$out_file, ".all.score"), paste0(prs_ukbb_info$out_file, ".prsice"))
+  },
+    dynamic = map(prs_ukbb_info),
+    format = "file"
+  ),
+  prs_ukbb_format = target({
+    prsice_out
+    format_prs(all_score_file=paste0(prs_ukbb_info$out_file, ".all.score"), out_file=paste0(prs_ukbb_info$out_file, ".format"))
+    paste0(prs_ukbb_info$out_file, ".format")
+  },
+  dynamic = map(prs_ukbb_info), hpc = FALSE,
+  format = "file"
+),
+
+  analyze_ukbb_prs = target({
+    analyze_prs(prs_file = prs_ukbb_format, pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"),
+      pc_eth_data = pc_raw,
+      linear_pheno_columns = c("logCAF", "logPARAX", "logTHEOPH", "logTHEOBR", "logCAFPARAX", "logCAFPARAXTHEOPH"),
+      glm_pheno_columns = c("Sleep_disorder"), covars = c("Age_caffeine", "Age_caffeine_sq", "sex"))
+  }, dynamic = map(prs_ukbb_format))
+
+
+)
+
+prs_analysis <- drake_plan(
+  prs_info_analysis = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),
+  prs_ukbb_info_analysis = target(define_ukbb_inputs(!!Neale_summary_dir, !!ukbb_files, "analysis/PRS"), hpc = FALSE),
+  prs_files = target(paste0(prs_info_analysis$out_file, ".format"),
+    dynamic = map(prs_info_analysis), hpc = FALSE, format = "file"
+  ),
+  prs_ukbb_files = target(paste0(prs_ukbb_info_analysis$out_file, ".format"),
+    dynamic = map(prs_ukbb_info_analysis), hpc = FALSE,
+    format = "file"
+  ),
+
+  # merge ukbb_files with ukbb_prs_analysis which adds out_file
+  # file target for out_file
+  analyze_ukbb_prs = target({
+    analys_prs(prs_file = prs_ukbb_format, pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"),
+      pc_raw,
+      linear_pheno_columns = c("logCAF", "logPARAX", "logTHEOPH", "logTHEOBR", "logCAFPARAX", "logCAFPARAXTHEOPH"),
+      glm_pheno_columns = c("Sleep_disorder"), covars = c("Age_caffeine", "Age_caffeine_sq"))
+  }, dynamic = map(prs_ukbb_format))
+
+
+)
+
+#prs_analysis <- bind_plans(analysis_prep, prs)
+
+
+### A MESS
+#
+# pull(init_analysis %>% dplyr::select(command))
+#
+#
+#
+# post_impute <- bind_plans(pre_impute_qc, init_analysis, process_init)
+#
+# make(post_impute,parallelism = "future",jobs = 2, console_log_file = "post_impute_qc.out", resources = list(partition = "sgg"))
+# make(init_analysis,parallelism = "clustermq",jobs = 4, template = list(cpus = 16, partition = "cluster"))
+#
+#
+#
+# ### some useful code
+#
+# c(init_analysis %>% dplyr::select(target))
+# outdated(drake_config(init_analysis))
+# make(init_analysis,parallelism = "clustermq",jobs = 4, console_log_file = "init_analysis.out", template = list(cpus = 16, partition = "cluster"))
+#
+#
+#
+#
+# #### run gwas and GRS computation
+# ### to be grabble from `GWAS.sh` and `PRSice.sh`
+# )
+#
+#
+#
+#
+#
+#
+#
+#
+#
+# ####
+# visualize <- drake_plan(
+#   dim(dups) #30 2
+#   table(sex_info3$Sexe, exclude = NULL)
+#   #    F    M
+#   # 1298 1469
+#   table(eth_info3$Ethnie, exclude = NULL)
+#   # africain  africain + caucasien       amerique du sud
+#   #      101                     1                     1
+#   # Antilles                 arabe     arabe + caucasien
+#   #        1                    60                     3
+#   # asiatique asiatique + caucasien                 autre
+#   #       25                     1                   178
+#   # caucasien               inconnu                  <NA>
+#   #     1667                   458                   271
+#
+#   ## double check no duplicates
+#   sex_info4 <- unique(sex_info)
+#   dim(sex_info)==dim(sex_info4)
+#   sex_info4[which(duplicated(sex_info4[,2])),]
+#   duplicate_IDs <- sex_info4[which(duplicated(sex_info4[,2])),2]
+#   sex_info4[which(sex_info4[,2]==duplicate_IDs),]
+#   #TRUE
+#
+#   eth_info4 <- unique(eth_info)
+#   dim(eth_info3)==dim(eth_info4)
+#   #TRUE
+#   eth_info4[which(duplicated(eth_info4[,2])),]
+#   #NONE
+#
+#     ## anyone missign?
+#     no_sex_eth <- fam[which(!fam[,2] %in% sex_info4[,2]), c(1,2)]
+#     no_sex_eth
+#     # empty
+#
+#     ### dimensions of PC data
+#     print(eth)
+#     print(dim(PC_temp))
+#
+#     drug_list <- unique(unlist(full_pheno %>% dplyr::select(starts_with("AP1_Drug_"))))
+#     ### list of drugs included in phenofile
+#
+#
+#
+#   create_report(pheno_baseline, config = configure_report(add_plot_prcomp = FALSE))
+#
+#
+# )
