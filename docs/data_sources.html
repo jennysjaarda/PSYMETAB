@@ -26,6 +26,7 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -392,7 +393,7 @@ div.section {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -401,7 +402,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -410,17 +411,17 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-12-06
+<strong>Last updated:</strong> 2020-06-12
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -429,41 +430,177 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree16f6c28fc976c5b7dc5ac37ba910ec89089f112atargetblank16f6c28a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/16f6c28fc976c5b7dc5ac37ba910ec89089f112a" target="_blank">16f6c28</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree16f6c28fc976c5b7dc5ac37ba910ec89089f112atargetblank16f6c28a" class="panel-collapse collapse">
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191126code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191126)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191126code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191126)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreeff40613a707596f82f8e567484f57b7ceab5842atargetblankff40613a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/ff40613a707596f82f8e567484f57b7ceab5842a" target="_blank">ff40613</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreeff40613a707596f82f8e567484f57b7ceab5842atargetblankff40613a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    ._docs
     Ignored:    .drake/
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/._GWAS.Rmd
+    Ignored:    analysis/._data_processing_in_genomestudio.Rmd
+    Ignored:    analysis/._quality_control.Rmd
+    Ignored:    analysis/GWAS/
+    Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
+    Ignored:    analysis/figure/
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
     Ignored:    data/processed/
     Ignored:    data/raw/
+    Ignored:    download_impute_1_clustermq.out
+    Ignored:    init_analysis_1_clustermq.out
+    Ignored:    init_analysis_2_clustermq.out
+    Ignored:    init_analysis_3_clustermq.out
+    Ignored:    init_analysis_4_clustermq.out
+    Ignored:    init_analysis_5_clustermq.out
+    Ignored:    init_analysis_6_clustermq.out
+    Ignored:    packrat/lib-R/
+    Ignored:    packrat/lib-ext/
+    Ignored:    packrat/lib/
+    Ignored:    post_impute_1_clustermq.out
+    Ignored:    pre_impute_qc_1_clustermq.out
+    Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_12_clustermq.out
+    Ignored:    process_init_13_clustermq.out
+    Ignored:    process_init_14_clustermq.out
+    Ignored:    process_init_15_clustermq.out
+    Ignored:    process_init_16_clustermq.out
+    Ignored:    process_init_17_clustermq.out
+    Ignored:    process_init_18_clustermq.out
+    Ignored:    process_init_19_clustermq.out
+    Ignored:    process_init_1_clustermq.out
+    Ignored:    process_init_20_clustermq.out
+    Ignored:    process_init_21_clustermq.out
+    Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_23_clustermq.out
+    Ignored:    process_init_24_clustermq.out
+    Ignored:    process_init_25_clustermq.out
+    Ignored:    process_init_26_clustermq.out
+    Ignored:    process_init_27_clustermq.out
+    Ignored:    process_init_28_clustermq.out
+    Ignored:    process_init_29_clustermq.out
+    Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_30_clustermq.out
+    Ignored:    process_init_31_clustermq.out
+    Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_9_clustermq.out
+    Ignored:    prs_1_clustermq.out
+    Ignored:    prs_2_clustermq.out
+    Ignored:    prs_3_clustermq.out
+    Ignored:    prs_4_clustermq.out
 
 Untracked files:
-    Untracked:  post_impute_qc.out
+    Untracked:  analysis/genetic_quality_control.Rmd
+    Untracked:  analysis/pheno_quality_control.Rmd
+    Untracked:  analysis/plans.Rmd
+    Untracked:  analysis_prep.log
+    Untracked:  download_impute.log
+    Untracked:  file1.txt
+    Untracked:  file2.txt
+    Untracked:  file3.txt
+    Untracked:  flagged_rows.txt
+    Untracked:  grs.log
+    Untracked:  init_analysis.log
+    Untracked:  problem_drugs.txt
+    Untracked:  problem_ids.txt
+    Untracked:  process_init.log
+    Untracked:  prs.log
 
 Unstaged changes:
-    Deleted:    post_imputation_qc.log
-    Deleted:    pre_imputation_qc.log
-    Modified:   pre_impute_qc.out
-    Deleted:    qc_part2.out
+    Modified:   analysis/GWAS.Rmd
+    Modified:   analysis/data_sources.Rmd
+    Deleted:    analysis/project.Rmd
+    Modified:   analysis/quality_control.Rmd
+    Modified:   cache_log.csv
+    Modified:   post_impute.log
+    Modified:   slurm_clustermq.tmpl
 
 </code></pre>
 <p>
@@ -502,6 +639,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/e0d60323954813d80b15ff6d9d76c6f2c9187eda/analysis/data_sources.Rmd" target="_blank">e0d6032</a>
+</td>
+<td>
+Sjaarda Jennifer Lynn
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+edit typos
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/46477dd771ba63ffa5d44a0d4f53a1a835a71c87/docs/data_sources.html" target="_blank">46477dd</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -560,11 +731,9 @@ add details on data
 </div>
 </div>
 </div>
-<div id="data" class="section level1">
-<h1>Data</h1>
 <p><em>provided from iGE3</em></p>
-<div id="general-information" class="section level4">
-<h4>General information</h4>
+<div id="general-information" class="section level2">
+<h2>General information</h2>
 <ul>
 <li>Files received from: Mylene Docquier (<a href="mailto:Mylene.Docquier@unige.ch">Mylene.Docquier@unige.ch</a>), iGE3 Genomics Platform Manager, University of Geneva</li>
 <li>ftp server details:
@@ -576,8 +745,8 @@ add details on data
 <li>Genotype data received in genomestudio format on August 28, 2019; for processing and converting to PLINK format see docs/miscellaneous/data_processing.md</li>
 </ul>
 </div>
-<div id="genotype-data" class="section level4">
-<h4>Genotype data</h4>
+<div id="genotype-data" class="section level2">
+<h2>Genotype data</h2>
 <ul>
 <li>Genotype data found in data/raw/genotypes</li>
 <li>Each folder contains:
@@ -588,8 +757,8 @@ add details on data
 </ul></li>
 </ul>
 </div>
-<div id="miscellaneous-gsa-information-provided-in-the-following-files" class="section level4">
-<h4>Miscellaneous GSA information provided in the following files:</h4>
+<div id="miscellaneous-gsa-information-provided-in-the-following-files" class="section level2">
+<h2>Miscellaneous GSA information provided in the following files:</h2>
 <ol style="list-style-type: decimal">
 <li>GSA v2 + MD Consortium.csv</li>
 <li>GSAMD-24v2-0_20024620_A1.csv</li>
@@ -600,10 +769,8 @@ add details on data
 <li>GSAv2_MDConsortium.bpm</li>
 <li>GSPMA24v1_0-A_4349HNR_Samples.egt</li>
 </ol>
-</div>
-</div>
-<div id="details" class="section level1">
-<h1>Details</h1>
+<div id="details" class="section level3">
+<h3>Details</h3>
 <ul>
 <li>Files 1 and 2 appear to be identical and correspond to strand illumina strand information, same file can be found <a href="http://glimdna.org/assets/gsamd-24v2-0_20024620_a1.zip">here</a>.</li>
 <li>xlsx files contain 2 tabs: “Coverage Summary” and “GSAMD-24v2-0_A1-XXX-GeneAnnota”</li>
@@ -611,6 +778,8 @@ add details on data
 <li>egt file corresponds to cluster file for making genotype calls.</li>
 <li>all saved in data/reference_files</li>
 </ul>
+</div>
+</div>
 <div id="chip-details-from-illumina" class="section level2">
 <h2>Chip details from Illumina</h2>
 <ul>
@@ -634,8 +803,18 @@ add details on data
 <li><a href="http://mccarthy.well.ox.ac.uk/chipendium/ui/">Chipendium</a> was used to comfirm that bim files are on the TOP strand .</li>
 <li>Contacted William Rayner (<a href="mailto:wrayner@well.ox.ac.uk">wrayner@well.ox.ac.uk</a>) to find out what to do about custom SNPs, all correspondence on 22/07/2019.
 <ul>
-<li><p>Query: &gt;The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?</p></li>
-<li><p>Response: &gt;If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching).</p></li>
+<li>Query:</li>
+</ul>
+<blockquote>
+<p>The chip used to generate the data was the GSAMD-24v2, however about 10,000 custom SNPs were also added to the chip. Do you have any recommendations for adding such SNPs to the strand file for processing?</p>
+</blockquote>
+<ul>
+<li>Response:</li>
+</ul>
+<blockquote>
+<p>If you have a chip with custom content on it as you do if you are able to send me the .csv annotation file (that contains the TopGenomicSeq information) I can use that to create you a custom strand file that you can then download on a private link, this will ensure the extra SNPs are not lost in the strand update (at the moment they would be removed as non-matching).</p>
+</blockquote>
+<ul>
 <li>Trying to obtain such .csv file from Mylene or Smita at Illumina (<a href="mailto:spathak@illumina.com">spathak@illumina.com</a>) who designed the chip.</li>
 <li>On 15/07/2019 Smita provided such a file: GSA_UPPC_20023490X357589_A1_custom_only.csv.</li>
 <li>The file was downloaded and save to UPPC (Jenny/PSYMETAB_GWAS/GSA).</li>
@@ -644,20 +823,432 @@ add details on data
 <li>GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip</li>
 <li>GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip</li>
 </ul></li>
-<li><p>Zipped strand files were copied to SGG server (${project_dir}/data/raw/reference_files/) and subsequently unzipped and used in QC (only b37 files was needed).</p></li>
+<li>Zipped strand files were copied to SGG server (${project_dir}/data/raw/reference_files/) and subsequently unzipped and used in QC (only b37 files was needed).</li>
 </ul></li>
 </ul>
 </div>
 <div id="phenotype-data" class="section level2">
 <h2>Phenotype data</h2>
+<div id="sexethnicity-data" class="section level3">
+<h3>Sex/ethnicity data</h3>
 <ul>
-<li>Sex and ethnicity data provided by Celine (via email) for each batch on July 18, 2019: GSA_sex-ethnicity.xlsx</li>
+<li>Provided by Celine (via email) for each batch on July 18, 2019: <code>GSA_sex-ethnicity.xlsx</code>.</li>
+<li>Used for genetic quality control.</li>
 <li>Downloaded and saved to UPPC folder (Jenny/PSYMETAB_GWAS/).</li>
-<li>Opened, manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv/xlsx file (with ‘no_accents’) for easier use in R.</li>
+<li>Opened, manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv/xlsx file (with <code>no_accents</code>) for easier use in R.</li>
 <li>Moved to SGG folders via filezilla (manually).</li>
-<li>Name was changed (see ‘Master.sh’), as follows:</li>
+<li>Name was changed, as follows:</li>
 </ul>
-<pre><code>mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex_eth.xlsx</code></pre>
+<pre class="bash"><code>mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex_eth.xlsx</code></pre>
+</div>
+<div id="full-phenotype-data" class="section level3">
+<h3>Full phenotype data</h3>
+<ul>
+<li>Phenotype data to be used in GWAS (and other) analyses.</li>
+<li>All data was saved on sgg folders to: <code>PSYMETAB/data/raw/phenotype_data/</code>.</li>
+<li>Iniitial data provided by Celine (via email) on October 24, 2019: <code>PHENO_GWAS_241019.xlsx</code>.
+<ul>
+<li>Saved to sgg folder <code>PSYMETAB/data/phenotype_data/</code>.</li>
+<li>Opened in excel, saved as a <code>.csv</code> file.</li>
+<li>Manually changed all accents to standard letters (ctrl-F and replace) and re-saved as csv file (with extension <code>_no_accents.csv</code>) for easier use in R.</li>
+</ul></li>
+<li>Discovered problems with phenotype database in early 2020, new phenotype data was provided on March 16, 2020: <code>PHENO_GWAS_160320.xlsx</code>.
+<ul>
+<li>Same process as above was followed to remove accents and convert to csv file.</li>
+<li>Details on problems detected can be found on the <a href="pheno_quality_control.html">Phenotype Quality Control page</a>.</li>
+</ul></li>
+<li>Additional problems were discovered and a new dataset was provided on April 16, 2020: <code>PHENO_GWAS_160420.xlsx</code> (processed the same as above).</li>
+</ul>
+</div>
+<div id="caffeine-data" class="section level3">
+<h3>Caffeine data</h3>
+<ul>
+<li>Requested to perform analysis using Nermine’s caffeine data.</li>
+<li>All data was saved on sgg folders to: <code>PSYMETAB/data/raw/phenotype_data/</code>.</li>
+<li>Initial data provided by Claire (via email) on March 11, 2020: <code>Code_GEN_CG_11.03.2020.xlsx</code>.</li>
+<li>New variables (data of blood draw and age) were provided by Claire on May 5, 2020: <code>CAF_Sleep_Jenny_05_05_2020_CG.xlsx</code>.
+<ul>
+<li>Noticed that there was a problem with the data set (email describing problem to Nermine on 07/05/2020):</li>
+</ul>
+<blockquote>
+<p>I am a bit confused by the age and date columns in some cases. For example, for the participant below we have measurements at 4 time points: age 34, 52, 53 and 39 and the date of measurement in the next column. Does the date correspond to the date the blood draw took place? If so, I don’t understand why in 2018 (row 4) this participant was 39 and in 2012 (row 3) they were 53! Or does this column represent the date caffeine was measured (which could be very different from date of extraction)? Ideally I need the age the participant was when the extraction took place.</p>
+</blockquote>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+GEN
+</th>
+<th style="text-align:right;">
+age
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+UXEWHQEZ
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:left;">
+2011-04-26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UXEWHQEZ
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:left;">
+2013-04-02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UXEWHQEZ
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:left;">
+2011-03-24
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UXEWHQEZ
+</td>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:left;">
+2012-02-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UXEWHQEZ
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:left;">
+2018-05-07
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>After discussing with Nermine and Claire, Claire discovered the problem (as per email on 07/05/2020):</li>
+</ul>
+<blockquote>
+<p>I spotted the problem, it was a mismatch in the ambulatory codes as some of them are written XXXAMB instead of AMBXXX or XXX+letter. I will send Jenny a new version of the file with paying attention to these codes if ok for you?</p>
+</blockquote></li>
+<li>A New dataset was provided by Cliare on May 7, 2020: <code>CAF_Sleep_Jenny_07_05_2020_CG.xlsx</code>.
+<ul>
+<li>There were still issues with this dataset (as per email on 07/07/2020):</li>
+</ul>
+<blockquote>
+<p>Il y a toujours un petit problème avec les IDs : GAWZCNNL et WIFRYNSK. Je mets les problèmes en dessous. Je crois que deux participants ont reçu le meme GEN ID. Peut-être il y avait encore un problème avec le merge ?</p>
+</blockquote>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+GEN
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:right;">
+age
+</th>
+<th style="text-align:right;">
+age2
+</th>
+<th style="text-align:left;">
+Date2
+</th>
+<th style="text-align:right;">
+days_difference
+</th>
+<th style="text-align:right;">
+age_plus_days
+</th>
+<th style="text-align:left;">
+age_check
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+GAWZCNNL
+</td>
+<td style="text-align:left;">
+2011-02-03
+</td>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:left;">
+2018-02-22
+</td>
+<td style="text-align:right;">
+2576
+</td>
+<td style="text-align:right;">
+60.05753
+</td>
+<td style="text-align:left;">
+problem
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GAWZCNNL
+</td>
+<td style="text-align:left;">
+2011-02-03
+</td>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:left;">
+2018-05-08
+</td>
+<td style="text-align:right;">
+2651
+</td>
+<td style="text-align:right;">
+60.26301
+</td>
+<td style="text-align:left;">
+sensible
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GAWZCNNL
+</td>
+<td style="text-align:left;">
+2018-02-22
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:left;">
+2018-05-08
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+22.20548
+</td>
+<td style="text-align:left;">
+sensible
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WIFRYNSK
+</td>
+<td style="text-align:left;">
+2009-01-19
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:left;">
+2018-09-10
+</td>
+<td style="text-align:right;">
+3521
+</td>
+<td style="text-align:right;">
+40.64658
+</td>
+<td style="text-align:left;">
+problem
+</td>
+</tr>
+</tbody>
+</table>
+</div></li>
+<li>Celine performed the anonymization to compare to Claire’s data to see if the same problems arose: <code>GEN_CAF_Sleep_Jenny_05_05_2020.xlsx</code>.
+<ul>
+<li>There was still one issue with the dataset at ID WIFRYNSK.
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+GEN
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:right;">
+age
+</th>
+<th style="text-align:right;">
+age2
+</th>
+<th style="text-align:left;">
+Date2
+</th>
+<th style="text-align:right;">
+days_difference
+</th>
+<th style="text-align:right;">
+age_plus_days
+</th>
+<th style="text-align:left;">
+age_check
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+WIFRYNSK
+</td>
+<td style="text-align:left;">
+2009-01-07
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:left;">
+2018-08-29
+</td>
+<td style="text-align:right;">
+3521
+</td>
+<td style="text-align:right;">
+40.64658
+</td>
+<td style="text-align:left;">
+problem
+</td>
+</tr>
+</tbody>
+</table></li>
+<li>After asking Celine about this problem (08/05/2020), she said:</li>
+</ul>
+<blockquote>
+<p>Okay alors j’ai vérifié et cette erreur est déjà présente dans le fichier que Nermine nous a envoyé, donc ce n’est pas un problème lié au changement de codes.</p>
+</blockquote>
+<ul>
+<li>Nermine responded (08/05/2020) with the explanation:</li>
+</ul>
+<blockquote>
+<p>Je viens de vérifier et en effet j’avais changé l’âge manuellement et il était changé dans les deux observations même si j’ai précisé la date de l’observation… je ne sais pas comment j’ai fais. Alors à la date du 22.12.2008, le patient avait 21 ans, et à la date du 13.08.2018 le patient avait 31 ans.</p>
+</blockquote>
+<ul>
+<li>The following line was added to the script to manually change this entry: <code>caffeine_raw %&gt;% mutate(age=replace(age, GEN==&quot;WIFRYNSK&quot; &amp; as.Date(Date)==&quot;2009-01-07&quot;, 21)</code></li>
+</ul></li>
+</ul>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.3 (2019-03-11)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRblas.so
+LAPACK: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRlapack.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] fuzzyjoin_0.1.5         kableExtra_1.1.0        R.utils_2.9.2          
+ [4] R.oo_1.23.0             R.methodsS3_1.7.1       TwoSampleMR_0.4.25     
+ [7] reader_1.0.6            NCmisc_1.1.6            optparse_1.6.4         
+[10] readxl_1.3.1            ggthemes_4.2.0          tryCatchLog_1.1.6      
+[13] futile.logger_1.4.3     DataExplorer_0.8.0      taRifx_1.0.6.1         
+[16] qqman_0.1.4             MASS_7.3-51.5           bit64_0.9-7            
+[19] bit_1.1-14              rslurm_0.5.0            rmeta_3.0              
+[22] devtools_2.2.1          usethis_1.5.1           data.table_1.12.8      
+[25] clustermq_0.8.8.1       future.batchtools_0.8.1 future_1.15.1          
+[28] rlang_0.4.5             knitr_1.26              drake_7.12.0.9000      
+[31] forcats_0.4.0           stringr_1.4.0           dplyr_0.8.3            
+[34] purrr_0.3.3             readr_1.3.1             tidyr_1.0.3            
+[37] tibble_2.1.3            ggplot2_3.2.1           tidyverse_1.3.0        
+[40] pacman_0.5.1            processx_3.4.1          workflowr_1.6.0        
+
+loaded via a namespace (and not attached):
+ [1] backports_1.1.6      plyr_1.8.5           igraph_1.2.5        
+ [4] lazyeval_0.2.2       storr_1.2.1          listenv_0.8.0       
+ [7] digest_0.6.25        htmltools_0.4.0      fansi_0.4.1         
+[10] magrittr_1.5         checkmate_1.9.4      memoise_1.1.0       
+[13] base64url_1.4        remotes_2.1.0        globals_0.12.5      
+[16] modelr_0.1.5         prettyunits_1.1.0    colorspace_1.4-1    
+[19] rvest_0.3.5          rappdirs_0.3.1       haven_2.2.0         
+[22] xfun_0.11            callr_3.4.0          crayon_1.3.4        
+[25] jsonlite_1.6         brew_1.0-6           glue_1.4.0          
+[28] gtable_0.3.0         webshot_0.5.2        pkgbuild_1.0.6      
+[31] scales_1.1.0         futile.options_1.0.1 DBI_1.1.0           
+[34] Rcpp_1.0.3           viridisLite_0.3.0    progress_1.2.2      
+[37] txtq_0.2.0           htmlwidgets_1.5.1    httr_1.4.1          
+[40] getopt_1.20.3        calibrate_1.7.5      ellipsis_0.3.0      
+[43] pkgconfig_2.0.3      dbplyr_1.4.2         tidyselect_0.2.5    
+[46] reshape2_1.4.3       later_1.0.0          munsell_0.5.0       
+[49] cellranger_1.1.0     tools_3.5.3          cli_2.0.1           
+[52] generics_0.0.2       broom_0.5.3          evaluate_0.14       
+[55] yaml_2.2.0           fs_1.3.1             packrat_0.5.0       
+[58] nlme_3.1-143         whisker_0.4          formatR_1.7         
+[61] proftools_0.99-2     xml2_1.2.2           compiler_3.5.3      
+[64] rstudioapi_0.10      filelock_1.0.2       testthat_2.3.1      
+[67] reprex_0.3.0         stringi_1.4.5        highr_0.8           
+[70] ps_1.3.0             desc_1.2.0           lattice_0.20-38     
+[73] vctrs_0.2.4          pillar_1.4.3         lifecycle_0.1.0     
+[76] networkD3_0.4        httpuv_1.5.2         R6_2.4.1            
+[79] promises_1.1.0       gridExtra_2.3        sessioninfo_1.1.1   
+[82] codetools_0.2-16     lambda.r_1.2.4       assertthat_0.2.1    
+[85] pkgload_1.0.2        rprojroot_1.3-2      withr_2.1.2         
+[88] batchtools_0.9.12    parallel_3.5.3       hms_0.5.3           
+[91] grid_3.5.3           rmarkdown_1.18       git2r_0.26.1        
+[94] lubridate_1.7.4     </code></pre>
+</div>
 </div>
 </div>
 

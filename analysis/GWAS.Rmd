@@ -6,7 +6,172 @@ output:
     toc: true
 ---
 
-# found that GYYEHMDR is listed as both Male and Female -> should be female only.
+```{css include=FALSE}
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+```
+
+```{r setup, include = FALSE}
+options(scipen=999)
+source("code/packages.R")
+source("code/functions.R")
+source("code/settings.R")
+```
+
+**The following document outlines and summarizes the GWAS analyses run in PSYMETAB.**
+
+# Analysis preparation.
+
+
+found that GYYEHMDR is listed as both Male and Female -> should be female only.
+
+
+
+# GWAS. 
+
+## General settings. 
+
+### Drug classification. 
+
+After discussion with others, it was decided to define drugs into three classes
+
+1. AP1 pour faible risque de prise de poids:
+Amisulpride, Aripiprazole, Brexpiprazole, Cariprazine, Carbamazepine, Chlorprothixene, Flupentixol, Fluphenazine, Haloperidol, Lurasidone,
+Pipampérone, Promazine, Sertindole, Sulpiride, Tiapride
+
+2. AP2 pour risque intermédiaire de prise de poids:
+Amitriptyline, Asenapine, Clomipramine, Dibenzepine, Doxepine, Imipramine, Lévomépromazine, Lithium, Mirtazapine,
+Nortriptyline, Opipramol, Palipéridone, Quétiapine, Rispéridone, Trimipramine,  Zuclopenthixol
+
+3. AP3 pour risque élevé de prise de poids:
+Clozapine, Olanzapine, Valproate
+
+
+Specifically, high, medium and low inducers were defined as follows: 
+
+```{r inducer_class}
+
+high_inducers
+med_inducers
+low_inducers
+```
+
+### Check if "Mois" column makes sense.
+
+Plus or minus on follow-up to double check that the "Mois" column make sense.
+
+leeway_time <- 90 
+For example, if one visit is marked month 3 on September 5/15; and the previous visit marked month 0 on June 15/19, the script below will check if:
+the difference between the two dates (September 5/15 - June 15/19) is within the difference between the two months (3 = 90 days) +/- the 'leeway_time'
+
+min_follow_up <- 14
+
+Three types of GWAS were run
+
+
+## Interaction
+
+## Baseline
+
+## Subgroup 
+
+```{r, eval=F}
+het_out <-
+  fread(
+    paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,
+      "_", eth, ".", outcome_var, ".het"),
+    header = F,
+    data.table = F
+  )
+
+sig_list <- which(as.numeric(het_out[, 2]) < 5e-08)
+length(sig_list)
+colnames(het_out) <- c("ID", "P_HET")
+result <- cbind(filter, "P_HET" = het_out$P_HET)
+png(
+  paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix, "_", eth, ".", outcome_var, ".het.manhattan.png"),
+  width = 2000,
+  height = 1000,
+  pointsize = 18
+)
+manhattan(result, p = "P_HET", chr = "CHROM")
+dev.off()
+
+png(
+  paste0(
+    "analysis/GWAS/subgroup/", eth, "/", output, "_", suffix, "_", eth, ".", outcome_var, ".het.qq.png"),
+  width = 2000,
+  height = 1000,
+  pointsize = 18
+)
+qq(result$P_HET)
+dev.off()
+
+
+#### GWAS
+    sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
+    sig_drug <- drug[which(drug$P < 5e-08),]
+    for(data in c("nodrug", "drug"))
+    {
+      gwas_result <- get(data)
+      joint <- reduce(list(gwas_result,freq,info), full_join, by = "ID")
+      sig <- joint %>%
+              mutate_at("P", as.numeric) %>%
+              filter(P < 5e-06) %>%
+              filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
+              filter(R2 > info_threshold)
+
+      joint_maf <- joint %>% filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1- maf_threshold))%>% mutate_at("P", as.numeric)
+      sig <- joint_maf  %>% filter(P < gw_sig)
+      png("man_interaction.png", width=2000, height=1000, pointsize=18)
+      manhattan(joint_maf)
+      dev.off()
+
+      png("interaction_qq2.png", width=2000, height=1000, pointsize=18)
+      qq(joint_maf$P)
+      dev.off()
+
+
+            qq(gwas_result2$P)
+    # sig_nodrug <- sig
+    }
+    
+    gwas_result <- fread(result, data.table=F, stringsAsFactors=F)
+  gwas_result2 <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+
+
+  #### GWAS
+  sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
+  sig_drug <- drug[which(drug$P < 5e-08),]
+
+  for(data in c("nodrug", "drug"))
+  {
+  gwas_result <- get(data)
+  gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+  joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
+  sig <- joint %>%
+          mutate_at("P", as.numeric) %>%
+          filter(P < 5e-06) %>%
+          filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
+          filter(R2 > info_threshold)
+  # sig_nodrug <- sig
+  }
+
+
+
+
+```
+
+
+## Adjustment co-variants 
+
+
+
+```{r, eval = FALSE}
 
 loadd(pheno_raw)
 
@@ -23,3 +188,4 @@ loadd(pheno_raw)
 # 3 GYYEHMDR NA    M
 # 4 GYYEHMDR NA    F
 # 5 GYYEHMDR NA    F
+```
