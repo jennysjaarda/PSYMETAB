@@ -466,7 +466,7 @@ prs <- drake_plan(
     run_prsice(base_file=prs_info$base_file,
       threads=16, memory="100000", out_file=prs_info$out_file,
       bgen_file=paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
-      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL_nosex.sample")))
+      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")))
     c(paste0(prs_info$out_file, ".log"), paste0(prs_info$out_file, ".all.score"), paste0(prs_info$out_file, ".prsice"))
   },
     dynamic = map(prs_info),
@@ -485,7 +485,7 @@ prs <- drake_plan(
     run_prsice(base_file=prs_ukbb_info$base_file,
       threads=16, memory="100000", out_file=prs_ukbb_info$out_file,
       bgen_file=paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
-      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL_nosex.sample")),
+      sample_file=file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),
       snp_col="SNP", chr_col="CHR", effect_allele_col="EFFECT_ALLELE",
       other_allele_col="OTHER_ALLELE", beta_or_col="BETA", p_col="PVAL")
     c(paste0(prs_ukbb_info$out_file, ".log"), paste0(prs_ukbb_info$out_file, ".all.score"), paste0(prs_ukbb_info$out_file, ".prsice"))
