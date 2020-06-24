@@ -272,28 +272,28 @@ init_analysis <- drake_plan(
 
 
  ### GARBAGE
-
-run_gwas(pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
-           covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
-           threads = 8, pheno_name = baseline_gwas_info$pheno[1], covar_names = baseline_gwas_info$covars[1], eths = eths, output_suffix = baseline_gwas_info$output_suffix[1],
-           eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-           eth_low_maf_file = "analysis/QC/14_mafcheck/pca/PSYMETAB_GWAS_ETH_low_maf_snps.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-           remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
-           output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")
-
-pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL")
-pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt")
-covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt")
-threads = 8
-pheno_name = baseline_gwas_info$pheno[1]
-covar_names = baseline_gwas_info$covars[1]
-eths = eths
-output_suffix = baseline_gwas_info$output_suffix[1]
-eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt" ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-eth_low_maf_file = "analysis/QC/14_mafcheck/PSYMETAB_GWAS_ETH_low_maf_snps.txt" ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))
-output_dir = ("analysis/GWAS")
-output = "PSYMETAB_GWAS"
+#
+# run_gwas(pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
+#            covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
+#            threads = 8, pheno_name = baseline_gwas_info$pheno[1], covar_names = baseline_gwas_info$covars[1], eths = eths, output_suffix = baseline_gwas_info$output_suffix[1],
+#            eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+#            eth_low_maf_file = "analysis/QC/14_mafcheck/pca/PSYMETAB_GWAS_ETH_low_maf_snps.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+#            remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+#            output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")
+#
+# pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL")
+# pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt")
+# covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt")
+# threads = 8
+# pheno_name = baseline_gwas_info$pheno[1]
+# covar_names = baseline_gwas_info$covars[1]
+# eths = eths
+# output_suffix = baseline_gwas_info$output_suffix[1]
+# eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt" ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+# eth_low_maf_file = "analysis/QC/14_mafcheck/PSYMETAB_GWAS_ETH_low_maf_snps.txt" ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+# remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))
+# output_dir = ("analysis/GWAS")
+# output = "PSYMETAB_GWAS"
 
 
 process_init <- drake_plan(
@@ -445,15 +445,15 @@ process_init <- drake_plan(
   # )
 
 )
-
-## GARBAGE
-process_gwas(eth = baseline_gwas_files$eth[19], pheno=baseline_gwas_files$pheno[19], drug=baseline_gwas_files$drug[19], file=baseline_gwas_files$file[19],
-output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
-info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = baseline_gwas_files$write_file[19])
-
-create_figures(
-  baseline_gwas_figures_input$joint_file[1], baseline_gwas_figures_input$manhattan_file_name[1],
-  baseline_gwas_figures_input$qq_file_name[1], baseline_gwas_figures_input$title[1])
+#
+# ## GARBAGE
+# process_gwas(eth = baseline_gwas_files$eth[19], pheno=baseline_gwas_files$pheno[19], drug=baseline_gwas_files$drug[19], file=baseline_gwas_files$file[19],
+# output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
+# info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file = baseline_gwas_files$write_file[19])
+#
+# create_figures(
+#   baseline_gwas_figures_input$joint_file[1], baseline_gwas_figures_input$manhattan_file_name[1],
+#   baseline_gwas_figures_input$qq_file_name[1], baseline_gwas_figures_input$title[1])
 
 ######
 
@@ -532,7 +532,8 @@ prs_analysis <- drake_plan(
 
 
 )
-prs_analysis <- bind_plans(analysis_prep, prs)
+
+#prs_analysis <- bind_plans(analysis_prep, prs)
 
 
 ### A MESS
