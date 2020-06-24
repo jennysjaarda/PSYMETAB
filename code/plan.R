@@ -498,7 +498,7 @@ prs <- drake_plan(
   },
   dynamic = map(prs_ukbb_info), hpc = FALSE,
   format = "file"
-  )
+),
 
   analyze_ukbb_prs = target({
     analyze_prs(prs_file = prs_ukbb_format, pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"),
