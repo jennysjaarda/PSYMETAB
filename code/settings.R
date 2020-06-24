@@ -51,6 +51,9 @@ leeway_time <- 90 ## plus or minus on follow-up to double check that the "Mois" 
 anonymization_error <- 7 ## the anonymization procedure adds a random number of days to each visit date and it makes it very difficult to join two datasets
 # instead of a exact merge (default R merge function), use `fuzzy_join` which will join more loosely. See example of it's use in `merge_pheno_caffeine` function in `code\functions.R`
 
+follow_up_limit <- 180 ## restrict GWAS to number of days follow-up
+
+
 min_follow_up <- 14
 
 # extractions
@@ -73,6 +76,13 @@ ukbb_files <- tibble(
   name = c("coffee_consumed"),
   file = c("IVs/clump/100240.gwas.imputed_v3.both_sexes.IVs/100240.gwas.imputed_v3.both_sexes.IVs_unpruned.txt"))
 
+ukbb_prs_analysis <- tibble(
+  name = c("coffee_consumed"),
+  linear_pheno_columns = list(c("logCAF", "logPARAX", "logTHEOPH", "logTHEOBR", "logCAFPARAX", "logCAFPARAXTHEOPH")),
+  glm_pheno_columns = list(c("Sleep_disorder")),
+  covars = list(c("Age_caffeine", "Age_caffeine_sq")),
+)
+
 high_inducers <- c("Olanzapine", "Clozapine" ,"Valproate")
 
 med_inducers <- c("Amitriptyline", "Asenapine", "Clomipramine" ,  "Doxepine", "Levomepromazine" ,
@@ -82,8 +92,8 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 "Flupentixol", "Fluphenazine","Haloperidol","Lurasidone", "Pipamperone", "Sertindole", "Sulpiride", "Tiapride")
 
 
-drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloza")
-test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"), c("Clozapine")))
+drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloza", "risp", "quet")
+test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"), c("Clozapine"), c("Risperidone"), c("Quetiapine")))
 baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
 caffeine_vars <-  c("logCAF", "logTHEOBR", "logPARAX", "Sleep_disorder")
 
@@ -91,9 +101,11 @@ standard_covars <- c(paste0("PC", 1:20), "sex")
 baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
 caffeine_covars <- c("Age_caffeine", "Age_caffeine_sq")
 
-GWAS_models <- tibble(outcome_variable=c(rep("bmi_change", dim(test_drugs)[1]),baseline_vars),
-                      interaction_variable=c(dplyr::pull(test_drugs, class),rep(NA, length(baseline_vars))),
-                      model=c(rep("interaction", dim(test_drugs)[1]), rep("linear", length(baseline_vars))))
+interaction_outcome <- c("bmi_change", "bmi_change_6mo", "bmi_slope", "bmi_slope_weight", "bmi_slope_6mo", "bmi_slope_weight_6mo")
+interaction_outcome_combinations <- expand.grid(interaction_outcome, dplyr::pull(test_drugs, class))
+GWAS_models <- tibble(outcome_variable=c(as.character(interaction_outcome_combinations[,1]),baseline_vars),
+                      interaction_variable=c(as.character(interaction_outcome_combinations[,2]),rep(NA, length(baseline_vars))),
+                      model=c(rep("interaction", dim(test_drugs)[1]*length(interaction_outcome)), rep("linear", length(baseline_vars))))
 
 
 gw_sig <- 5e-08
