@@ -592,7 +592,7 @@ define_interaction_inputs <- function(GWAS_input, drug_classes){
       }
       interaction_covars[[length(interaction_covars)+1]]  <- covars
       interaction_pams <- c(interaction_pams, interactoin_pam_temp)
-      output_suffix <- c(output_suffix, drug_classes[i])
+      output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i] ))
     }
 
 
@@ -626,7 +626,7 @@ define_subgroup_inputs <- function(GWAS_input, drug_classes){
       }
       subgroup_covars[[length(subgroup_covars)+1]]  <- covars
       subgroup_pheno[[length(subgroup_pheno)+1]]  <- pheno
-      output_suffix <- c(output_suffix, drug_classes[i])
+      output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i]))
     }
 
   }
