@@ -1,4 +1,199 @@
 
+# Workflow Plans
+#
+
+qc_prep <- drake_plan (
+  # Load and clean data to prepare for QC ----------------------
+  qc_pheno_raw = read_excel(file_in(!!qc_pheno_file),sheet = 1),
+  id_code = read.csv(file_in("data/raw/ID_key.csv"), header=T),
+  rs_conversion = fread(file_in(!!rsconv_raw_file), data.table = F),
+  fam_raw = read.table(file_in(!!paste0(plink_bed_out,".fam"))), # read the .fam file
+  ped_folder = file_in(!!dirname(plink_ped_raw)),
+  #bed_folder = file_out(!!dirname(plink_bed_out)),
+  #create_dir = dir.create(bed_folder, showWarnings = F),
+  create_bed_out = {
+    in_file <- paste0(ped_folder,"/",basename(!!plink_ped_raw))
+    outfile <- paste0(!!dirname(plink_bed_out),"/",basename(!!plink_bed_out))
+    processx::run(command = "plink", c( "--file", in_file, "--make-bed", "--out", outfile), error_on_status = F)
+    file_out(!!paste0(plink_bed_out,".fam"))
+    file_out(!!dirname(plink_bed_out))},
+
+  fam_munge = munge_fam(fam_raw, id_code),
+  qc_pheno_munge = munge_qc_pheno(qc_pheno_raw,fam_munge),
+  dups = find_dups(qc_pheno_munge, fam_munge),
+  sex_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Sexe)),
+  eth_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Ethnie)),
+  sex_format = format_sex_file(sex_info),
+  eth_format = format_eth_file(eth_info),
+  rs_conversion_munge = rs_conversion %>% mutate(RsID = case_when(RsID=="." ~ Name, TRUE ~ RsID)),
+  out_sex = write.table(sex_format,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"),row.names = F, quote = F, col.names = F),
+  out_eth = write.table(eth_format,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt"),row.names = F, quote = F, col.names = F),
+  out_dups = write.table(dups$dups,file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"),row.names = F, quote = F, col.names = F),
+  out_dups_set = write.table(dups$dups_set, file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"),row.names = F, quote = F, col.names = F),
+  out_rs_conversion = {write.table(rs_conversion_munge, file_out("data/processed/reference_files/rsid_conversion.txt"), row.names = F, quote = F, col.names = F)},
+
+
+)
+
+# config <- drake_config(qc_prep)
+# vis_drake_graph(config)
+
+pre_impute_qc <- drake_plan(
+  # run pre-imupation quality control ----------------------
+  run_pre_imputation = target(
+    {file_in("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt");
+     file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt");
+     file_in("data/processed/reference_files/rsid_conversion.txt"); processx::run(command = "sh", c( pre_imputation_script), error_on_status = F)
+     file_out("analysis/QC/00_preprocessing", "analysis/QC/01_strandflip", "analysis/QC/02_maf_zero", "analysis/QC/03_missingness", "analysis/QC/04_sexcheck")}
+  ),
+)
+
+# config <- drake_config(pre_impute_qc)
+# vis_drake_graph(config)
+
+################################################################
+## here download output and upload to Michigan server
+################################################################
+
+download_impute <- drake_plan(
+
+  # download imputation ------------
+  download_imputation = target({
+      processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
+  }),
+)
+
+post_impute <- drake_plan(
+
+  # run post-imputation quality control and processing ------------
+  run_check_imputation = target({
+      # file_in("analysis/QC/06_imputation_get")
+      # this file will get zipped later so we cannot track it
+      processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)
+      file_out("analysis/QC/07_imputation_check")
+    }),
+  run_post_imputation = target({
+      file_in("code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
+      processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
+      # file_out("analysis/QC/08_plink_convert"), "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
+      #         "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
+      # these files are too big to track
+    }),
+  run_final_processing = target({
+      run_post_imputation
+      file_in(!!(paste0("analysis/QC/14_mafcheck/", study_name, ".mafcheck.step14.log")))
+      # file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
+      processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)
+      # file_out("analysis/QC/15_final_processing")
+      # these files are too big to track
+    }),
+  cp_qc_report = target({
+      file_in("analysis/QC/06_imputation_get/qcreport.html")
+      processx::run(command = "cp", c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status = F)
+      file_out("docs/generated_reports/qcreport.html")
+    }, hpc = FALSE),
+  cp_qc_check = target({
+      file_in("analysis/QC/07_imputation_check")
+      processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
+      file_out("docs/generated_reports/07_imputation_check.html", "docs/generated_reports/CrossCohortReport.html")
+  }, hpc = FALSE),
+  snp_weights = target({
+    run_post_imputation
+    read.table((file_in(!!paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".NA.predpc"))))
+  }, hpc = FALSE),
+  related_inds = target({
+    run_post_imputation
+    read.table((file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))))
+  }, hpc = FALSE),
+  snp_weights_munge = target(munge_snp_weights(snp_weights, related_inds), hpc = FALSE),
+  snp_weights_out = target(write.table(snp_weights_munge, file_out(!!paste0("data/processed/extractions/", study_name, ".snpweights"))), hpc = FALSE)
+
+)
+
+qc_process <- drake_plan(
+
+  imputed_var = count_imputed_var(),
+
+  missingness_variants_removed = {countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.bim"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_10.bim"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_10.bim"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_05.bim"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_05.bim"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_01.bim"))[1]},
+
+   missingness_indiv_removed = {countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_10.fam"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_05.fam"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_05.fam"))[1] +
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_01.fam"))[1] -
+    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness.step3.fam"))[1]},
+
+  initial_variants = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.bim"))[1],
+  initial_ind = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1],
+
+  preprocess_var_init = countLines(paste0(!!plink_bed_out, ".bim")),
+  preprocess_ind_init = countLines(paste0(!!plink_bed_out, ".bim")),
+
+  preprocess_non_x = countLines(paste0("analysis/QC/00_preprocessing/non_autosome_or_x_variants")),
+  preprocess_non_x_remain = countLines(paste0("analysis/QC/00_preprocessing/temp1.bim")),
+
+  preprocess_var_dups = countLines(paste0("analysis/QC/00_preprocessing/duplicate_variants")),
+  preprocess_var_dups_remain = countLines(paste0("analysis/QC/00_preprocessing/temp2.bim")),
+
+
+)
+
+# config <- drake_config(post_impute)
+# vis_drake_graph(config)
+
+analysis_prep <- drake_plan(
+  # prepare phenotype files for analysis in GWAS/GRS etc. ------------
+
+  pheno_raw = readr::read_delim(file_in(!!pheno_file), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
+  caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet=1) %>% type_convert(),
+    hpc = FALSE),
+  caffeine_man = target(caffeine_raw %>% mutate(age=replace(age, GEN=="WIFRYNSK" & as.Date(Date)=="2009-01-07", 21)),
+    hpc = FALSE),
+  # found a mistake that the age of WIFRYNSK was wrong at one instance.
+
+  caffeine_munge = munge_caffeine(caffeine_man),
+  bgen_sample_file = target({
+    readr::read_delim(file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.sample")),
+      col_types = cols(.default = col_character()), delim = " ") %>% type_convert()
+    }),
+  bgen_nosex_out = write.table(bgen_sample_file[,1:3],file_out(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),row.names = F, quote = F, col.names = T),
+  pc_raw = read_pcs(file_in(!!pc_dir), !!study_name, !!eths) %>% as_tibble(),
+
+  pheno_munge = munge_pheno(pheno_raw, !!baseline_vars, !!leeway_time, caffeine_munge, !!follow_up_limit), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
+  #pheno_munge = munge_pheno(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit)
+  pheno_merge = merge_pheno_caffeine(pheno_raw, caffeine_munge, !!anonymization_error), # in the end, we don't use this dataset, but if you want to merge by caffeine with the appropriate date use this data.
+
+  pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character), pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
+    replace_na(list(sex='NONE')),
+  pheno_eths_out = write.table(pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
+    dplyr::select(COUNT,GPCR,eth ), file_out(!!paste0("data/processed/phenotype_data/", study_name, "_inferred_eths.txt")), row.names = F, quote = F, col.names = T),
+
+  pheno_followup = munge_pheno_follow(pheno_baseline, !!test_drugs), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars),
+
+  ## linear model GWAS:
+  #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
+  #linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
+  #pheno_followup_split = split_followup(pheno_followup, !!test_drugs),
+  #followup_data_write = if(!is.null(create_pheno_folder)){ write_followup_data(pheno_followup_split)},
+  out_pheno_munge =  target({
+    write.table(pheno_munge, file_out("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"), row.names = F, quote = F, col.names = T)}),
+
+  out_linear_pheno =  target({
+    write.table(GWAS_input$full_pheno, file_out("data/processed/phenotype_data/GWAS_input/pheno_input.txt"), row.names = F, quote = F, col.names = T)}),
+  out_linear_covar =  target({
+    write.table(GWAS_input$full_covar, file_out("data/processed/phenotype_data/GWAS_input/covar_input.txt"), row.names = F, quote = F, col.names = T)}),
+
+)
+
+# config <- drake_config(analysis_prep)
+# vis_drake_graph(config)
+
 init_analysis <- drake_plan(
 
   GWAS_input_analysis = target(list(full_pheno = read_table2(file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt")),
