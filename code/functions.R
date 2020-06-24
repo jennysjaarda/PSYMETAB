@@ -216,6 +216,7 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge){
     mutate(Date = as.Date(Date, format = '%d.%m.%y'))  %>%
     filter(!is.na(Date)) %>% arrange(Date)  %>%
     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
+    filter(!is.na(AP1)) %>%
     group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
     mutate_at("PatientsTaille", as.numeric) %>% mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
     mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %>% ungroup() %>%  ### create ever on any drug
