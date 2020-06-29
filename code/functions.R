@@ -240,11 +240,12 @@ munge_caffeine <- function(caffeine_raw){
     rename(Sleep_disorder = Sleep_disorders) %>%
     group_by(GEN) %>%
     filter(Date == min(Date)) %>%
-    mutate_at( vars(-GEN, -Sexe, -age, -starts_with("Sleep_disorder")), mean) %>%
-    mutate(Sexe = case_when(Sexe == "Women" ~ "F",
-                            Sexe == "Men" ~ "M")) %>%
-    rename(Date_caffeine = Date) %>%
-    rename(Age_caffeine = age) %>%
+    mutate_at( vars(-GEN, -Sexe, -Age, -Diag, -Hospital_stay, -starts_with("Sleep_disorder")), mean) %>%
+    mutate(Sexe = case_when(Sexe == 1 ~ "F",
+                            Sexe == 0 ~ "M")) %>%
+    rename_at(vars(-GEN),function(x) paste0(x,"_caffeine")) %>%
+    mutate(Diag_caffeine = str_replace_all(Diag_caffeine, "& ", "")) %>%
+    mutate(Diag_caffeine = str_replace_all(Diag_caffeine, " ", "_")) %>%
     unique()
 
 }
@@ -263,14 +264,15 @@ merge_pheno_caffeine <- function(pheno, caffeine, anonymization_error){
       pheno_temp, caffeine_temp,
       by = c(
         "GEN" = "GEN",
+        "Sexe" = "Sexe_caffeine",
         "Date_temp_start" = "Date_temp_end",
         "Date_temp_end" = "Date_temp_start"
         ),
-      match_fun = list(`==`, `<=`, `>=`)
+      match_fun = list(`==`, `==`, `<=`, `>=`)
     ) %>%
-    filter(!(Sexe.x != Sexe.y) | any(is.na(Sexe.x), is.na(Sexe.y))) %>% #remove sex's that don't match between the two databases
-    dplyr::select(-GEN.y, -Sexe.y, -starts_with("Date_temp")) %>%
-    rename(GEN = GEN.x) %>% rename(Sexe = Sexe.x)
+    filter(!(Sexe != Sexe_caffeine) | any(is.na(Sexe), is.na(Sexe_caffeine))) %>% #remove sex's that don't match between the two databases
+    dplyr::select(-GEN.y, -Sexe_caffeine, -starts_with("Date_temp")) %>%
+    rename(GEN = GEN.x)
 
   return(out)
 }
@@ -343,8 +345,8 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     mutate(Age_sq_Drug_1 = Age_Drug_1^2) %>%
     mutate_at(vars(starts_with("AP1_Drug_")) , as.factor) %>%
     left_join(caffeine_munge, by = c("GEN" = "GEN")) %>%
-    filter(!(sex != Sexe) | any(is.na(sex), is.na(Sexe))) %>% #make sure sex from caffeine and pheno data match
-    dplyr::select(-Sexe) %>% #remove sex from caffeine data
+    filter(!(sex != Sexe_caffeine) | any(is.na(sex), is.na(Sexe_caffeine))) %>% #make sure sex from caffeine and pheno data match
+    dplyr::select(-Sexe_caffeine) %>% #remove sex from caffeine data
     mutate(Age_caffeine_sq = Age_caffeine^2)
 }
 
@@ -474,7 +476,7 @@ munge_pheno_follow <-  function(pheno_baseline, test_drugs) {
 
 create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars){
   na_to_none <- function(x) ifelse(is.na(x),'NONE',x)
-  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'), caffeine_vars)
+  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'), paste0(caffeine_vars, "_caffeine"))
   linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20|^Age_caffeine'))
 
   list_covar <- list(linear=linear_covar)
@@ -547,7 +549,7 @@ create_analysis_dirs <- function(top_level){
 }
 
 define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes, caffeine_vars){
-  col_match<- paste(c(paste0(baseline_vars,"_start_Drug_1"), caffeine_vars), collapse = "|")
+  col_match<- paste(c(paste0(baseline_vars,"_start_Drug_1"), paste0(caffeine_vars, "_caffeine")), collapse = "|")
   linear_vars <- colnames(dplyr::select(GWAS_input$full_pheno,matches(col_match)))
   linear_covars <- c(rep(list(c(standard_covars,baseline_covars)),length(baseline_vars)),
     rep(list(c(standard_covars,caffeine_covars)),length(caffeine_vars)))
@@ -577,10 +579,11 @@ define_interaction_inputs <- function(GWAS_input, drug_classes){
   interaction_covars <- list()
   interaction_pams <- numeric()
   output_suffix <- numeric()
+  drug <- numeric()
   for(i in 1:length(drug_classes)){
     for(j in 1:length(interaction_outcome)){
       outcome <- interaction_outcome[j]
-      interactoin_pam_temp <- "1-27,49"
+      interactoin_pam_temp <- "1-27,50"
       interaction_vars <- c(interaction_vars,
         colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0(outcome,"_",drug_classes[i]))])
       covars <- c(standard_covars)
@@ -588,11 +591,12 @@ define_interaction_inputs <- function(GWAS_input, drug_classes){
         colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i]))))
       if(grepl("_6mo$", outcome)){
         covars <- covars[which(!grepl('^follow_up_time_', covars))]
-        interactoin_pam_temp <- "1-25,47"
+        interactoin_pam_temp <- "1-25,48"
       }
       interaction_covars[[length(interaction_covars)+1]]  <- covars
       interaction_pams <- c(interaction_pams, interactoin_pam_temp)
       output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i] ))
+      drug <- c(drug, drug_classes[i])
     }
 
 
@@ -601,7 +605,8 @@ define_interaction_inputs <- function(GWAS_input, drug_classes){
   interaction_gwas_info <- tibble ( pheno = interaction_vars, ## this is y
                                     covars = interaction_covars, ## these are the x'x
                                     parameters = interaction_pams, ## this is passed to PLINK
-                                    output_suffix = output_suffix) ## this will be the output name
+                                    output_suffix = output_suffix,
+                                    drug = drug) ## this will be the output name
   return(interaction_gwas_info)
 }
 
@@ -708,7 +713,7 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
 }
 
 meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/GWAS", type = "full",
-  threads=1){
+  threads=1, interaction_var = NA){
 
   write_dir <- file.path(output_dir, type, "META")
   file_name <- output
@@ -718,7 +723,7 @@ meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/G
   if(type=="interaction")
   {
     file_name <- paste0(file_name,"_int")
-    awk_col7 <- paste0("'NR==1 || $7 == ", '"ADDxhigh_inducer_', output_suffix, '" { print $0 }', "'")
+    awk_col7 <- paste0("'NR==1 || $7 == ", '"ADDxhigh_inducer_', interaction_var, '" { print $0 }', "'")
 
   }
 
