@@ -429,6 +429,14 @@ process_init <- drake_plan(
 
 
 
+  # calc_gw_sig = target({
+  #   process_subgroup_gwas
+  #   gw_sig(interaction_gwas_figures_input$joint_file)
+  #
+  #   gwas <- fread(interaction_gwas_figures_input[[17]])
+  #   sig <- gwas %>% filter(P < 5e-08)
+  #
+  # })
 
   ## create meta directories
   ## read from sort_gwas.r
@@ -439,14 +447,7 @@ process_init <- drake_plan(
   # )
 
 )
-calc_gw_sig = target({
-  process_subgroup_gwas
-  gw_sig(interaction_gwas_figures_input$joint_file)
 
-  gwas <- fread(interaction_gwas_figures_input[[17]])
-  sig <- gwas %>% filter(P < 5e-08)
-
-})
 #
 # ## GARBAGE
 # process_gwas(eth = baseline_gwas_files$eth[19], pheno=baseline_gwas_files$pheno[19], drug=baseline_gwas_files$drug[19], file=baseline_gwas_files$file[19],
