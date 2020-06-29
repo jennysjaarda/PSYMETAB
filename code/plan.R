@@ -153,7 +153,7 @@ analysis_prep <- drake_plan(
   pheno_raw = readr::read_delim(file_in(!!pheno_file), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
   caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet=1) %>% type_convert(),
     hpc = FALSE),
-  caffeine_man = target(caffeine_raw %>% mutate(age=replace(age, GEN=="WIFRYNSK" & as.Date(Date)=="2009-01-07", 21)),
+  caffeine_man = target(caffeine_raw %>% mutate(Age=replace(Age, GEN=="WIFRYNSK" & as.Date(Date)=="2009-01-07", 21)),
     hpc = FALSE),
   # found a mistake that the age of WIFRYNSK was wrong at one instance.
 
@@ -257,7 +257,7 @@ init_analysis <- drake_plan(
   interaction_meta_out = target({
     interaction_out
     meta(output = !!study_name, output_suffix = interaction_gwas_info$output_suffix, eth = !!eths,
-      pheno = interaction_gwas_info$pheno, type = "interaction", threads = 8)},
+      pheno = interaction_gwas_info$pheno, type = "interaction", threads = 8, interaction_var = interaction_gwas_info$drug)},
     dynamic = map(interaction_gwas_info)),
   subgroup_meta_out = target({
     subgroup_out
@@ -427,14 +427,7 @@ process_init <- drake_plan(
     format = "file"
   ),
 
-  calc_gw_sig = target({
-    process_subgroup_gwas
-    gw_sig(interaction_gwas_figures_input$joint_file)
 
-    gwas <- fread(interaction_gwas_figures_input[[17]])
-    sig <- gwas %>% filter(P < 5e-08)
-
-  })
 
 
   ## create meta directories
@@ -446,7 +439,14 @@ process_init <- drake_plan(
   # )
 
 )
+calc_gw_sig = target({
+  process_subgroup_gwas
+  gw_sig(interaction_gwas_figures_input$joint_file)
 
+  gwas <- fread(interaction_gwas_figures_input[[17]])
+  sig <- gwas %>% filter(P < 5e-08)
+
+})
 #
 # ## GARBAGE
 # process_gwas(eth = baseline_gwas_files$eth[19], pheno=baseline_gwas_files$pheno[19], drug=baseline_gwas_files$drug[19], file=baseline_gwas_files$file[19],
@@ -526,10 +526,10 @@ prs_analysis <- drake_plan(
   # merge ukbb_files with ukbb_prs_analysis which adds out_file
   # file target for out_file
   analyze_ukbb_prs = target({
-    analys_prs(prs_file = prs_ukbb_format, pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"),
+    analyze_prs(prs_file = prs_ukbb_format, pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"),
       pc_raw,
       linear_pheno_columns = c("logCAF", "logPARAX", "logTHEOPH", "logTHEOBR", "logCAFPARAX", "logCAFPARAXTHEOPH"),
-      glm_pheno_columns = c("Sleep_disorder"), covars = c("Age_caffeine", "Age_caffeine_sq"))
+      glm_pheno_columns = c("Sleep_disorder"), covars = c("Age_caffeine", "Age_caffeine_sq", "BMI_caffeine", "Hospital_stay_caffeine", "Diag_caffeine"))
   }, dynamic = map(prs_ukbb_format))
 
 
