@@ -37,6 +37,6 @@ library(kableExtra)
 # packrat::install_local("servr")
 library(fuzzyjoin)
 library(OpenImageR) # https://stackoverflow.com/questions/50937921/save-and-load-a-ggplot-plot
-library(tidylog)
-options("tidylog.display" = list())  # turn off
+# library(tidylog)
+# options("tidylog.display" = list())  # turn off
 # options("tidylog.display" = NULL)    # turn on
