@@ -173,9 +173,11 @@ analysis_prep <- drake_plan(
     replace_na(list(sex='NONE')),
   pheno_eths_out = write.table(pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
     dplyr::select(COUNT,GPCR,eth ), file_out(!!paste0("data/processed/phenotype_data/", study_name, "_inferred_eths.txt")), row.names = F, quote = F, col.names = T),
-
-  pheno_followup = munge_pheno_follow(pheno_baseline, !!test_drugs), #names(pheno_followup) is the names defined in `test_drugs`: tibble
-  GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars),
+  test_drugs_num = 1:dim(test_drugs)[1],
+  pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, test_drugs_num),
+    dynamic = map(test_drugs_num)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars, !!test_drugs,
+    !!high_inducers, !!med_inducers, !!low_inducers),
 
   ## linear model GWAS:
   #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
@@ -186,8 +188,10 @@ analysis_prep <- drake_plan(
     write.table(pheno_munge, file_out("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"), row.names = F, quote = F, col.names = T)}),
 
   out_linear_pheno =  target({
+    GWAS_input
     write.table(GWAS_input$full_pheno, file_out("data/processed/phenotype_data/GWAS_input/pheno_input.txt"), row.names = F, quote = F, col.names = T)}),
   out_linear_covar =  target({
+    GWAS_input
     write.table(GWAS_input$full_covar, file_out("data/processed/phenotype_data/GWAS_input/covar_input.txt"), row.names = F, quote = F, col.names = T)}),
 
 )
@@ -202,11 +206,11 @@ init_analysis <- drake_plan(
     hpc = FALSE), # this should be identical to GWAS_input above, but needs to be a different name
 
   # define endpoint, covars and outputs ---------------------------
-  baseline_gwas_info = target(define_baseline_inputs(GWAS_input_analysis, !!baseline_vars, !!drug_classes, !!caffeine_vars),
+  baseline_gwas_info = target(define_baseline_inputs(GWAS_input_analysis, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
     hpc = FALSE),
-  interaction_gwas_info = target(define_interaction_inputs(GWAS_input_analysis, !!drug_classes),
+  interaction_gwas_info = target(define_interaction_inputs(GWAS_input_analysis, !!drug_classes, !!interaction_outcome),
     hpc = FALSE),
-  subgroup_gwas_info = target(define_subgroup_inputs(GWAS_input_analysis, !!drug_classes),
+  subgroup_gwas_info = target(define_subgroup_inputs(GWAS_input_analysis, !!drug_classes, !!interaction_outcome),
     hpc = FALSE),
 
   # run initial GWAS ---------------------------

@@ -157,6 +157,16 @@ calc_slope <- function(x, y, time_limit){
 
 }
 
+calc_duration_short <- function(Date, date_difference_first, time_limit){
+  data <- tibble(Date = Date, date_difference_first = date_difference_first)
+
+  Date_6mo_max <- as.Date(data %>% filter(date_difference_first <= time_limit) %>% filter(Date==max(Date)) %>% pull(Date), format='%d.%m.%y')
+  temp <- data %>% mutate(AP1_duration= case_when(date_difference_first <= time_limit ~ as.numeric(Date_6mo_max-min(Date)),
+                                                  date_difference_first > time_limit ~ NA_real_)) %>%
+                   mutate(AP1_duration = na_if(AP1_duration, 0)) %>% pull(AP1_duration)
+  return(temp)
+}
+
 calc_weighted_slope <- function(x, y, time_limit){
 
   x <- x[which(x <= time_limit)]
@@ -287,7 +297,7 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     filter(remove_outliers(PatientsTaille)) %>%
     filter(remove_outliers(Poids)) %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%y'))  %>%
-    filter(!is.na(Date)) %>% arrange(Date)  %>%
+    filter(!is.na(Date)) %>% arrange(PatientsRecNum, Date)  %>%
     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
     filter(!is.na(AP1)) %>%
     group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
@@ -330,6 +340,8 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     mutate(BMI_slope_6mo=tryCatch(calc_slope(date_difference_first, BMI, follow_up_limit),error=function(e){9999}, warning=function(w){999})) %>%
     mutate(BMI_slope_weight=tryCatch(calc_weighted_slope(date_difference_first, BMI, Inf),error=function(e){9999}, warning=function(w){999})) %>%
     mutate(BMI_slope_weight_6mo=tryCatch(calc_weighted_slope(date_difference_first, BMI, follow_up_limit),error=function(e){9999}, warning=function(w){999})) %>%
+    mutate(AP1_duration_6mo = calc_duration_short(Date, date_difference_first, follow_up_limit)) %>%
+
     mutate_at(vars(starts_with("BMI_slope")), ~replace(., . == 9999, NA)) %>% # there should be no errors or changes
     mutate_at(vars(starts_with("BMI_slope")), ~replace(., . == 999, NA)) %>% # warning messages result from "essentially perfect fit: summary may be unreliable" remove these rows
 
@@ -339,7 +351,7 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     group_by(GEN) %>%
     mutate(Drug_Number=paste0("Drug_",row_number())) %>%
     pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug"), height), names_from=Drug_Number, values_from=c(starts_with("BMI_slope"), starts_with("BMI_change"), "AP1", "Age","Date", paste0(baseline_vars, "_start"), "BMI_slope",
-        "AP1_duration", "Num_followups")) %>%
+        "AP1_duration", "AP1_duration_6mo", "Num_followups")) %>%
     dplyr::select(matches('GEN|sex|AP1|Age|Date|height|BMI|_start_Drug_1|Num_followups|_ever_drug'))%>%
     ungroup() %>%
     mutate(Age_sq_Drug_1 = Age_Drug_1^2) %>%
@@ -387,6 +399,8 @@ munge_snp_weights <- function(snp_weights, related_inds){
 clean_drugs <- function(x){
   drugs <- as.character(unlist(x %>% dplyr::select(starts_with("AP1_Drug_"))))
   time <- as.numeric(unlist(x %>% dplyr::select(starts_with("AP1_duration_Drug_"))))
+  time_6mo <- as.numeric(unlist(x %>% dplyr::select(starts_with("AP1_duration_6mo_Drug_"))))
+
   bmi_start <-  as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_start_Drug_"))))
 
   bmi_change <-  as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_change_Drug_"))))
@@ -401,27 +415,41 @@ clean_drugs <- function(x){
   num_followups <- as.numeric(unlist(x %>% dplyr::select(starts_with("Num_followups_Drug_"))))
   age_started <- as.numeric(unlist(x %>% dplyr::select(starts_with("Age_Drug_"))))
   drug_num <- c(1:length(drugs))
-  out <- tibble(drug=drugs,time=time,bmi_start=bmi_start, bmi_change=bmi_change, bmi_change_6mo=bmi_change_6mo,
-    bmi_slope=bmi_slope, bmi_slope_weight=bmi_slope_weight, bmi_slope_6mo=bmi_slope_6mo, bmi_slope_weight_6mo=bmi_slope_weight_6mo, drug_num=drug_num, age_started=age_started, num_followups=num_followups)
+  out <- tibble(drug=drugs,time=time,time_6mo=time_6mo,bmi_start=bmi_start, bmi_change=bmi_change, bmi_change_6mo=bmi_change_6mo,
+    bmi_slope=bmi_slope, bmi_slope_weight=bmi_slope_weight, bmi_slope_6mo=bmi_slope_6mo, bmi_slope_weight_6mo=bmi_slope_weight_6mo,
+    drug_num=drug_num, age_started=age_started, num_followups=num_followups)
   return(out)
 }
 
-classify_drugs <- function(x, case_categories, preferential_control_categories) {
+classify_drugs <- function(x, case_categories, preferential_control_categories, preferential_noncontrol_categories) {
   drug_info <- clean_drugs(x)
   case_match <- unlist(drug_info %>% filter(time >= min_follow_up) %>%
     filter(drug %in% case_categories) %>% dplyr::select(drug_num))[1]
   control_match1 <- unlist(drug_info %>% filter(time >= min_follow_up) %>%
     filter(!drug %in% case_categories) %>% filter(drug %in% preferential_control_categories) %>%
-    filter(num_followups==max(num_followups)) %>% dplyr::select(drug_num))[1]
+    filter(drug_num==min(drug_num)) %>% dplyr::select(drug_num))[1] ## preferred control
+
   control_match2 <- unlist(drug_info %>% filter(time >= min_follow_up) %>%
-    filter(!drug %in% case_categories) %>% filter(!drug %in% preferential_control_categories) %>%
-    filter(num_followups==max(num_followups)) %>% dplyr::select(drug_num))[1]
-  control_match <- ifelse(is.na(control_match1), control_match2,control_match1 )
+    filter(!drug %in% case_categories) %>% filter(!drug %in% preferential_noncontrol_categories) %>%
+    filter(!drug %in% preferential_control_categories) %>%
+    filter(drug_num==min(drug_num)) %>% dplyr::select(drug_num))[1]
+
+  control_match3 <- unlist(drug_info %>% filter(time >= min_follow_up) %>%
+    filter(!drug %in% case_categories) %>% filter(drug %in% preferential_noncontrol_categories) %>%
+    filter(drug_num==min(drug_num)) %>% dplyr::select(drug_num))[1] ## preferred non-control
+  control_match <- control_match1
+  if(is.na(control_match1)){
+
+    control_match <- ifelse(is.na(control_match2), control_match3,control_match2 )
+  }
+
   case <- unname(ifelse (is.na(case_match), 0, 1))
   if(is.na(control_match) & is.na(case_match)) {case <- NA}
   best_match <- unname(ifelse (is.na(case_match), control_match, case_match))
   bmi_start <- dplyr::pull(drug_info[best_match,"bmi_start"])
   time_temp <- dplyr::pull(drug_info[best_match,"time"])
+  time_6mo_temp <- dplyr::pull(drug_info[best_match,"time_6mo"])
+
   drug_temp <- dplyr::pull(drug_info[best_match,"drug"])
   bmi_change <- dplyr::pull(drug_info[best_match,"bmi_change"])
   bmi_change_6mo <- dplyr::pull(drug_info[best_match,"bmi_change_6mo"])
@@ -433,28 +461,28 @@ classify_drugs <- function(x, case_categories, preferential_control_categories) 
 
   age_started <- dplyr::pull(drug_info[best_match,"age_started"])
   return(list(case=case, drug_num=best_match, drug_name=drug_temp,age_started=age_started, bmi_start=bmi_start, bmi_diff=bmi_change, bmi_diff_6mo=bmi_change_6mo,
-    bmi_slope=bmi_slope, bmi_slope_weight=bmi_slope_weight, bmi_slope_6mo=bmi_slope_6mo, bmi_slope_weight_6mo=bmi_slope_weight_6mo,duration=time_temp))
+    bmi_slope=bmi_slope, bmi_slope_weight=bmi_slope_weight, bmi_slope_6mo=bmi_slope_6mo, bmi_slope_weight_6mo=bmi_slope_weight_6mo,duration=time_temp,duration_6mo=time_6mo_temp))
 }
 
 
-munge_pheno_follow <-  function(pheno_baseline, test_drugs) {
+munge_pheno_follow <-  function(pheno_baseline, test_drugs, i) {
   out <- list()
-  for(i in 1:dim(test_drugs)[1])
-  {
+  #for(i in 1:dim(test_drugs)[1])
+  #{
     drug_list <- unlist(test_drugs %>% dplyr::select(drugs) %>% dplyr::slice(i))
     drug_class <- unlist(test_drugs %>% dplyr::select(class) %>% dplyr::slice(i))
     col_match <- paste(paste0(drug_list,"_ever_drug"), collapse = "|")
     followup_data <- pheno_baseline %>% rowwise() %>%
       dplyr::do({
-            result = as_tibble(.) # result <- pheno_baseline %>% slice(1)
-            x =  classify_drugs(result,drug_list,low_inducers)
+            result = as_tibble(.) # result <- pheno_baseline %>% slice(49)
+            x =  classify_drugs(result,drug_list,low_inducers, high_inducers)
             result$high_inducer=x$case
             result$high_inducer_drug_num=x$drug_num
             result$high_inducer_drug_name=x$drug_name
             result$bmi_change=x$bmi_diff
             result$bmi_change_6mo=x$bmi_diff_6mo
-
             result$follow_up_time=x$duration
+            result$follow_up_time_6mo=x$duration_6mo
             result$age_started=x$age_started
             result$bmi_start=x$bmi_start
             result$bmi_slope=x$bmi_slope
@@ -467,30 +495,54 @@ munge_pheno_follow <-  function(pheno_baseline, test_drugs) {
       mutate(ever_drug_match = rowSums(dplyr::select(., matches(col_match)) == 1) > 0) %>%
       filter(!(ever_drug_match & high_inducer==0)) %>% ##filter out individuals who have taken this drug but it wasn't followed
       mutate(follow_up_time_sq = follow_up_time^2) %>%
+      mutate(follow_up_time_6mo_sq = follow_up_time_6mo^2) %>%
       mutate(age_sq=age_started^2)
 
     out[[drug_class]] <- followup_data
-  }
+  #}
   return(out)
 }
 
-create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars){
+create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, test_drug, high_inducers, med_inducers, low_inducers){
   na_to_none <- function(x) ifelse(is.na(x),'NONE',x)
-  linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'), paste0(caffeine_vars, "_caffeine"))
-  linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20|^Age_caffeine'))
+  linear_pheno <- pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'), paste0(caffeine_vars, "_caffeine"))
+  linear_covar <- pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20|^Age_caffeine'))
 
   list_covar <- list(linear=linear_covar)
   list_pheno <- list(linear=linear_pheno)
   for(sub in names(pheno_followup))
   {
     data_drug <- pheno_followup[[sub]]
+    drugs_analyzed <- test_drugs[which(test_drugs$class==sub),] %>% pull(drugs) %>% unlist()
+    remove_drugs <- numeric()
+    count <- 1
+    for(drug_list_name in c("high_inducers", "med_inducers", "low_inducers")){
+      drug_list <- get(drug_list_name)
+      if(!any(drugs_analyzed %in% drug_list)){
+        remove_drug_i <- drug_list
+        remove_drugs <- c(remove_drugs, remove_drug_i)
+      }
+      if(any(drugs_analyzed %in% drug_list)){
+        break
+        #remove_drug_i <- drug_list[which(!drug_list %in% drugs_analyzed)]
+        #remove_drugs <- c(remove_drugs, remove_drug_i)
+      }
+      count <- count + 1
+    }
+
+    data_drug_sensitivity <- data_drug %>% mutate(high_inducer=replace(high_inducer, high_inducer_drug_name %in% remove_drugs, NA)) %>%
+        mutate_at(interaction_outcome,  ~replace(high_inducer, high_inducer_drug_name %in% remove_drugs, NA)) %>%
+      dplyr::select(FID, IID, high_inducer, interaction_outcome) %>% rename_at(vars(-FID,-IID),function(x) paste0(x,"_sensitivity"))
+
     all_var <- data_drug %>% dplyr::select(matches('^FID$|^IID$|^bmi_start$|^high_inducer$|^age_|^follow_up_time',ignore.case = F), interaction_outcome) %>%
-      mutate_at("high_inducer", as.character) %>%
-      mutate(high_inducer=dplyr::recode(high_inducer, "0" = "NoDrug", "1" = "Drug")) %>%
+      left_join(data_drug_sensitivity) %>%
+      mutate_at(c("high_inducer", "high_inducer_sensitivity"), as.character) %>%
+      mutate_at(vars(high_inducer, high_inducer_sensitivity),  ~(recode(.,"0" = "NoDrug", "1" = "Drug"))) %>%
       rename_at(vars(-FID,-IID),function(x) paste0(x,"_",sub)) %>%
       mutate_if(.predicate = is.character,.funs = na_to_none)
 
-    pheno_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^high_inducer',ignore.case = F), paste0(interaction_outcome,"_", sub))
+    pheno_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^high_inducer',ignore.case = F), paste0(interaction_outcome,"_", sub),
+      paste0(interaction_outcome,"_sensitivity_", sub))
     covar_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^age_|^high_inducer|^bmi_start|^follow_up_time',ignore.case = F))
     list_pheno[[sub]] <- pheno_var
     list_covar[[sub]] <- covar_var
@@ -548,25 +600,37 @@ create_analysis_dirs <- function(top_level){
   return(TRUE)
 }
 
-define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes, caffeine_vars){
+define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes, caffeine_vars, interaction_outcome){
   col_match<- paste(c(paste0(baseline_vars,"_start_Drug_1"), paste0(caffeine_vars, "_caffeine")), collapse = "|")
   linear_vars <- colnames(dplyr::select(GWAS_input$full_pheno,matches(col_match)))
   linear_covars <- c(rep(list(c(standard_covars,baseline_covars)),length(baseline_vars)),
     rep(list(c(standard_covars,caffeine_covars)),length(caffeine_vars)))
   for(i in 1:length(drug_classes)){
-    linear_vars <- c(linear_vars,
-      colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno) %in% paste0(interaction_outcome,"_",drug_classes[i]))])
+    for(j in 1:length(interaction_outcome)){
+      for(analysis in c("_", "_sensitivity_")){
+        outcome <- interaction_outcome[j]
+        linear_vars <- c(linear_vars,
+          colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno) %in% paste0(outcome,analysis,drug_classes[i]))])
 
-    covars <- c(standard_covars)
-    covars <- c(covars, colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
-        dplyr::select(matches('age|bmi_start_')))))
+        covars <- c(standard_covars)
+        covars <- c(covars,
+          colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
+            dplyr::select(matches('age|bmi_start_|follow_up_time_'))))
+          )
 
-    for(k in (length(linear_covars)+1):(length(linear_covars)+length(interaction_outcome))){
-      linear_covars[[k]]  <- covars
+        if(grepl("_6mo$", outcome)){
+          covars <- covars[-which(covars %in% paste0(c("follow_up_time_", "follow_up_time_sq_"), drug_classes[i]))]
+        }
+        if(!grepl("_6mo$", outcome)){
+          covars <- covars[-which(covars %in% paste0(c("follow_up_time_6mo_", "follow_up_time_6mo_sq_"), drug_classes[i]))]
+        }
+
+        linear_covars[[length(linear_covars)+1]]  <- covars
+
+      }
     }
-
-
   }
+
 
   baseline_gwas_info <- tibble ( pheno = linear_vars,
                                  covars = linear_covars,
@@ -574,7 +638,7 @@ define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes, caff
   return(baseline_gwas_info)
 }
 
-define_interaction_inputs <- function(GWAS_input, drug_classes){
+define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outcome){
   interaction_vars <- numeric()
   interaction_covars <- list()
   interaction_pams <- numeric()
@@ -582,21 +646,40 @@ define_interaction_inputs <- function(GWAS_input, drug_classes){
   drug <- numeric()
   for(i in 1:length(drug_classes)){
     for(j in 1:length(interaction_outcome)){
-      outcome <- interaction_outcome[j]
-      interactoin_pam_temp <- "1-27,50"
-      interaction_vars <- c(interaction_vars,
-        colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0(outcome,"_",drug_classes[i]))])
-      covars <- c(standard_covars)
-      covars <- c(covars,
-        colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i]))))
-      if(grepl("_6mo$", outcome)){
-        covars <- covars[which(!grepl('^follow_up_time_', covars))]
-        interactoin_pam_temp <- "1-25,48"
+      for(analysis in c("_", "_sensitivity_"))
+      {
+        outcome <- interaction_outcome[j]
+        interactoin_pam_temp <- "1-27,50"
+        interaction_vars <- c(interaction_vars,
+          colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0(outcome,analysis,drug_classes[i]))])
+        covars <- c(standard_covars)
+        covars <- c(covars,
+          colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i]))))
+
+        high_inducer_sens <- which(grepl('^high_inducer_sensitivity_', covars))
+        high_inducer_reg <- which(covars == paste0("high_inducer_", drug_classes[i]))
+
+        if(analysis=="_"){
+          covars <- covars[-high_inducer_sens]
+        }
+        if(analysis=="_sensitivity_"){
+          covars[high_inducer_reg] <- covars[high_inducer_sens]
+          covars <- covars[-high_inducer_sens]
+        }
+        if(grepl("_6mo$", outcome)){
+          covars <- covars[-which(covars %in% paste0(c("follow_up_time_", "follow_up_time_sq_"), drug_classes[i]))]
+        }
+        if(!grepl("_6mo$", outcome)){
+          covars <- covars[-which(covars %in% paste0(c("follow_up_time_6mo_", "follow_up_time_6mo_sq_"), drug_classes[i]))]
+        }
+
+        interaction_covars[[length(interaction_covars)+1]]  <- covars
+        interaction_pams <- c(interaction_pams, interactoin_pam_temp)
+        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i] ))
+        drug <- c(drug, drug_classes[i])
+
       }
-      interaction_covars[[length(interaction_covars)+1]]  <- covars
-      interaction_pams <- c(interaction_pams, interactoin_pam_temp)
-      output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i] ))
-      drug <- c(drug, drug_classes[i])
+
     }
 
 
@@ -610,28 +693,34 @@ define_interaction_inputs <- function(GWAS_input, drug_classes){
   return(interaction_gwas_info)
 }
 
-define_subgroup_inputs <- function(GWAS_input, drug_classes){
+define_subgroup_inputs <- function(GWAS_input, drug_classes, interaction_outcome){
   subgroup_vars <- numeric()
   subgroup_covars <- list()
   subgroup_pheno <- list()
   output_suffix <- numeric()
   for(i in 1:length(drug_classes)){
-    for(j in 1:length(interaction_outcome))
-    {
-      outcome <- interaction_outcome[j]
-      pheno <- c(paste0(outcome, "_",drug_classes[i]),paste0("high_inducer_",drug_classes[i]))
-      subgroup_vars <- c(subgroup_vars,
-        colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0("high_inducer","_",drug_classes[i]))])
-      covars <- c(standard_covars)
-      covars <- c(covars,
-        colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
-        dplyr::select(-starts_with("high_inducer"))))
-      if(grepl("_6mo$", outcome)){
-        covars <- covars[which(!grepl('^follow_up_time_', covars))]
+    for(j in 1:length(interaction_outcome)){
+      for(analysis in c("_", "_sensitivity_"))
+      {
+        outcome <- interaction_outcome[j]
+        pheno <- c(paste0(outcome, "_",drug_classes[i]),paste0("high_inducer_",drug_classes[i]))
+        subgroup_vars <- c(subgroup_vars,
+          colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0("high_inducer",analysis,drug_classes[i]))])
+        covars <- c(standard_covars)
+        covars <- c(covars,
+          colnames(dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
+            dplyr::select(-starts_with("high_inducer"))))
+        if(grepl("_6mo$", outcome)){
+          covars <- covars[-which(covars %in% paste0(c("follow_up_time_", "follow_up_time_sq_"), drug_classes[i]))]
+        }
+        if(!grepl("_6mo$", outcome)){
+          covars <- covars[-which(covars %in% paste0(c("follow_up_time_6mo_", "follow_up_time_6mo_sq_"), drug_classes[i]))]
+        }
+        subgroup_covars[[length(subgroup_covars)+1]]  <- covars
+        subgroup_pheno[[length(subgroup_pheno)+1]]  <- pheno
+        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i]))
       }
-      subgroup_covars[[length(subgroup_covars)+1]]  <- covars
-      subgroup_pheno[[length(subgroup_pheno)+1]]  <- pheno
-      output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i]))
+
     }
 
   }
