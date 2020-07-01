@@ -649,7 +649,7 @@ define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outc
       for(analysis in c("_", "_sensitivity_"))
       {
         outcome <- interaction_outcome[j]
-        interactoin_pam_temp <- "1-27,50"
+        interactoin_pam_temp <- "1-28,50"
         interaction_vars <- c(interaction_vars,
           colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0(outcome,analysis,drug_classes[i]))])
         covars <- c(standard_covars)
@@ -663,6 +663,7 @@ define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outc
           covars <- covars[-high_inducer_sens]
         }
         if(analysis=="_sensitivity_"){
+          interactoin_pam_temp <- "1-28,55"
           covars[high_inducer_reg] <- covars[high_inducer_sens]
           covars <- covars[-high_inducer_sens]
         }
@@ -676,7 +677,7 @@ define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outc
         interaction_covars[[length(interaction_covars)+1]]  <- covars
         interaction_pams <- c(interaction_pams, interactoin_pam_temp)
         output_suffix <- c(output_suffix, paste0(interaction_outcome[j], analysis, drug_classes[i] ))
-        drug <- c(drug, drug_classes[i])
+        drug <- c(drug, substring(paste0(analysis, drug_classes[i]), 2))
 
       }
 
@@ -688,8 +689,8 @@ define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outc
   interaction_gwas_info <- tibble ( pheno = interaction_vars, ## this is y
                                     covars = interaction_covars, ## these are the x'x
                                     parameters = interaction_pams, ## this is passed to PLINK
-                                    output_suffix = output_suffix,
-                                    drug = drug) ## this will be the output name
+                                    output_suffix = output_suffix, ## this will be the output name
+                                    drug = drug) ## this is the name used to grab interaction column
   return(interaction_gwas_info)
 }
 
@@ -703,7 +704,7 @@ define_subgroup_inputs <- function(GWAS_input, drug_classes, interaction_outcome
       for(analysis in c("_", "_sensitivity_"))
       {
         outcome <- interaction_outcome[j]
-        pheno <- c(paste0(outcome, "_",drug_classes[i]),paste0("high_inducer_",drug_classes[i]))
+        pheno <- c(paste0(outcome, analysis,drug_classes[i]),paste0("high_inducer",analysis,drug_classes[i]))
         subgroup_vars <- c(subgroup_vars,
           colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0("high_inducer",analysis,drug_classes[i]))])
         covars <- c(standard_covars)
