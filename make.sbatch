@@ -9,3 +9,5 @@
 
 
 Rscript make.R
+
+#sbatch $projects/PSYMETAB/PHESANT_pheno.sh
