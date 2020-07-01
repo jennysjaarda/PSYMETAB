@@ -531,7 +531,7 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, tes
     }
 
     data_drug_sensitivity <- data_drug %>% mutate(high_inducer=replace(high_inducer, high_inducer_drug_name %in% remove_drugs, NA)) %>%
-        mutate_at(interaction_outcome,  ~replace(high_inducer, high_inducer_drug_name %in% remove_drugs, NA)) %>%
+      mutate_at(interaction_outcome, ~ifelse(is.na(high_inducer), NA, .)) %>%
       dplyr::select(FID, IID, high_inducer, interaction_outcome) %>% rename_at(vars(-FID,-IID),function(x) paste0(x,"_sensitivity"))
 
     all_var <- data_drug %>% dplyr::select(matches('^FID$|^IID$|^bmi_start$|^high_inducer$|^age_|^follow_up_time',ignore.case = F), interaction_outcome) %>%
@@ -675,7 +675,7 @@ define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outc
 
         interaction_covars[[length(interaction_covars)+1]]  <- covars
         interaction_pams <- c(interaction_pams, interactoin_pam_temp)
-        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i] ))
+        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], analysis, drug_classes[i] ))
         drug <- c(drug, drug_classes[i])
 
       }
@@ -718,7 +718,7 @@ define_subgroup_inputs <- function(GWAS_input, drug_classes, interaction_outcome
         }
         subgroup_covars[[length(subgroup_covars)+1]]  <- covars
         subgroup_pheno[[length(subgroup_pheno)+1]]  <- pheno
-        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], "_", drug_classes[i]))
+        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], analysis, drug_classes[i]))
       }
 
     }
