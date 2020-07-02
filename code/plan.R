@@ -153,11 +153,9 @@ analysis_prep <- drake_plan(
   pheno_raw = readr::read_delim(file_in(!!pheno_file), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
   caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet=1) %>% type_convert(),
     hpc = FALSE),
-  caffeine_man = target(caffeine_raw %>% mutate(Age=replace(Age, GEN=="WIFRYNSK" & as.Date(Date)=="2009-01-07", 21)),
-    hpc = FALSE),
   # found a mistake that the age of WIFRYNSK was wrong at one instance.
 
-  caffeine_munge = munge_caffeine(caffeine_man),
+  caffeine_munge = munge_caffeine(caffeine_raw),
   bgen_sample_file = target({
     readr::read_delim(file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.sample")),
       col_types = cols(.default = col_character()), delim = " ") %>% type_convert()
