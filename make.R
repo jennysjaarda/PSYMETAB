@@ -50,11 +50,11 @@ make(analysis_prep, log_make = "analysis_prep.log", cache_log_file = "cache_log.
 
 make(init_analysis, log_make = "init_analysis.log", cache_log_file = "cache_log.csv",
   parallelism = "clustermq", jobs = 16, template = list(cpus = 8, partition = "cluster",
-  log_file = "/data/sgg2/jenny/projects/PSYMETAB/init_analysis_%a_clustermq.out"), max_expand = 10)
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/init_analysis_%a_clustermq.out"))
 
 make(process_init, log_make = "process_init.log", cache_log_file = "cache_log.csv",
   parallelism = "clustermq", jobs = 80, template = list(cpus = 2, partition = "cluster",
-  log_file = "/data/sgg2/jenny/projects/PSYMETAB/process_init_%a_clustermq.out"), max_expand = 10)
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/process_init_%a_clustermq.out"))
 
 # make(prs, log_make = "prs.log", cache_log_file = "cache_log.csv",
 #   parallelism = "clustermq", jobs = 4, template = list(cpus = 16, partition = "sgg",
