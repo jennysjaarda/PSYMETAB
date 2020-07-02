@@ -540,7 +540,7 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, tes
       mutate_at(vars(high_inducer, high_inducer_sensitivity),  ~(recode(.,"0" = "NoDrug", "1" = "Drug"))) %>%
       rename_at(vars(-FID,-IID),function(x) paste0(x,"_",sub)) %>%
       mutate_if(.predicate = is.character,.funs = na_to_none) %>%
-      mutate_at(.vars = paste0(interaction_outcome,"_", sub), .funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .))
+      mutate_at(.vars = c(paste0(interaction_outcome,"_", sub), paste0(interaction_outcome,"_sensitivity_", sub)), .funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .))
 
     pheno_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^high_inducer',ignore.case = F), paste0(interaction_outcome,"_", sub),
       paste0(interaction_outcome,"_sensitivity_", sub))
