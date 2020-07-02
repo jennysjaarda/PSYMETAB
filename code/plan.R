@@ -173,7 +173,7 @@ analysis_prep <- drake_plan(
     replace_na(list(sex='NONE')),
   pheno_eths_out = write.table(pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
     dplyr::select(COUNT,GPCR,eth ), file_out(!!paste0("data/processed/phenotype_data/", study_name, "_inferred_eths.txt")), row.names = F, quote = F, col.names = T),
-  test_drugs_num = 1:dim(test_drugs)[1],
+  test_drugs_num = 1:dim(!!test_drugs)[1],
   pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, test_drugs_num),
     dynamic = map(test_drugs_num)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
   GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars, !!test_drugs,
@@ -276,30 +276,53 @@ init_analysis <- drake_plan(
 
 
 
- ### GARBAGE
+### troubleshooting
 #
 # run_gwas(pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
 #            covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
-#            threads = 8, pheno_name = baseline_gwas_info$pheno[1], covar_names = baseline_gwas_info$covars[1], eths = eths, output_suffix = baseline_gwas_info$output_suffix[1],
+#            threads = 8, pheno_name = baseline_gwas_info$pheno[10], covar_names = baseline_gwas_info$covars[10], eths = eths, output_suffix = baseline_gwas_info$output_suffix[10],
 #            eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-#            eth_low_maf_file = "analysis/QC/14_mafcheck/pca/PSYMETAB_GWAS_ETH_low_maf_snps.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+#            eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", study_name, "_ETH_low_maf_snps.txt"),
 #            remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
 #            output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")
+#
+#
+# run_gwas(pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
+#           covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
+#           threads = 8, pheno_name = (subgroup_gwas_info$pheno[2]), covar_names = subgroup_gwas_info$covars[2], subgroup_var = subgroup_gwas_info$subgroup[2], eths = eths,  type = "subgroup", output_suffix = subgroup_gwas_info$output_suffix[2],
+#           eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+#           eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", study_name, "_ETH_low_maf_snps.txt"),
+#           remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+#           output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")
+#
+# run_gwas2(pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt"),
+#           covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"),
+#           threads = 8, pheno_name = (interaction_gwas_info$pheno[4]), covar_names = interaction_gwas_info$covars[4], parameters = interaction_gwas_info$parameters[4], eths = eths,  type = "interaction", output_suffix = interaction_gwas_info$output_suffix[4],
+#           eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt", ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+#           eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", study_name, "_ETH_low_maf_snps.txt"),
+#           remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+#           output_dir = ("analysis/GWAS"), output = "PSYMETAB_GWAS")
+#
+#
+# meta(output = study_name, output_suffix = interaction_gwas_info$output_suffix[3], eth = eths,
+#   pheno = interaction_gwas_info$pheno[3], type = "interaction", threads = 8, interaction_var = interaction_gwas_info$drug[3])
+#
 #
 # pfile = ("analysis/QC/15_final_processing/FULL/PSYMETAB_GWAS.FULL")
 # pheno_file = file_in("data/processed/phenotype_data/GWAS_input/pheno_input.txt")
 # covar_file = file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt")
 # threads = 8
-# pheno_name = baseline_gwas_info$pheno[1]
-# covar_names = baseline_gwas_info$covars[1]
+# pheno_name = subgroup_gwas_info$pheno[2]
+# covar_names = subgroup_gwas_info$covars[1]
 # eths = eths
-# output_suffix = baseline_gwas_info$output_suffix[1]
+# output_suffix = subgroup_gwas_info$output_suffix[2]
 # eth_sample_file = "analysis/QC/12_ethnicity_admixture/pca/PSYMETAB_GWAS_ETH_samples.txt" ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
 # eth_low_maf_file = "analysis/QC/14_mafcheck/PSYMETAB_GWAS_ETH_low_maf_snps.txt" ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
 # remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))
 # output_dir = ("analysis/GWAS")
 # output = "PSYMETAB_GWAS"
-
+# type="subgroup"
+# subgroup_var = subgroup_gwas_info$subgroup[2]
 
 process_init <- drake_plan(
   # define endpoint, covars and outputs ---------------------------
@@ -309,11 +332,11 @@ process_init <- drake_plan(
     hpc = FALSE), # this should be identical to GWAS_input above, but needs to be a different name
 
   # define endpoint, covars and outputs ---------------------------
-  baseline_gwas_process = target(define_baseline_inputs(GWAS_input_process, !!baseline_vars, !!drug_classes, !!caffeine_vars),
+  baseline_gwas_process = target(define_baseline_inputs(GWAS_input_process, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
     hpc = FALSE),
-  interaction_gwas_process = target(define_interaction_inputs(GWAS_input_process, !!drug_classes),
+  interaction_gwas_process = target(define_interaction_inputs(GWAS_input_process, !!drug_classes, !!interaction_outcome),
     hpc = FALSE),
-  subgroup_gwas_process = target(define_subgroup_inputs(GWAS_input_process, !!drug_classes),
+  subgroup_gwas_process = target(define_subgroup_inputs(GWAS_input_process, !!drug_classes, !!interaction_outcome),
     hpc = FALSE),
 
   baseline_gwas_files = target({
