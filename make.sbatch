@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition sgg
+#SBATCH --partition cluster
 #SBATCH --workdir /data/sgg2/jenny/projects/PSYMETAB
 #SBATCH --job-name master
 #SBATCH --output master.out
@@ -10,4 +10,4 @@
 
 Rscript make.R
 
-#sbatch $projects/PSYMETAB/PHESANT_pheno.sh
+#sbatch $projects/PSYMETAB/make.sbatch
