@@ -288,19 +288,27 @@ merge_pheno_caffeine <- function(pheno, caffeine, anonymization_error){
 }
 
 remove_outliers <- function(x){
-  out <- (x > mean(x, na.rm=T)-sd(x, na.rm=T)*3) & (x < mean(x, na.rm=T)+sd(x, na.rm=T)*3)
+  out <- (x > mean(x, na.rm=T)-sd(x, na.rm=T)*5) & (x < mean(x, na.rm=T)+sd(x, na.rm=T)*5)
+  return(out)
+}
+
+ivt <- function(x){
+  out <- qnorm((rank(x,na.last="keep")-0.5)/sum(!is.na(x)))
+  return(out)
 }
 
 munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit){
   pheno_raw %>%
     mutate_all(~replace(., . == 999, NA)) %>% filter(!is.na(PatientsTaille) & !is.na(Poids)) %>%
-    filter(remove_outliers(PatientsTaille)) %>%
-    filter(remove_outliers(Poids)) %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%y'))  %>%
     filter(!is.na(Date)) %>% arrange(PatientsRecNum, Date)  %>%
     mutate(AP1 = gsub(" ", "_",AP1)) %>% mutate_at("AP1",as.factor) %>% mutate(AP1 = gsub("_.*$","", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
     filter(!is.na(AP1)) %>%
     group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
+    ungroup() %>%
+    filter(remove_outliers(PatientsTaille)) %>%  # this removes patients with the following heights (cm): 106 106 106 106 106 106 106 106 116  96  96  90
+    #filter(remove_outliers(Poids)) %>%
+    group_by(GEN) %>%
     mutate_at("PatientsTaille", as.numeric) %>% mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
     mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %>% ungroup() %>%  ### create ever on any drug
     rename(weight = Poids) %>%
@@ -505,7 +513,8 @@ munge_pheno_follow <-  function(pheno_baseline, test_drugs, i) {
 
 create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, test_drug, high_inducers, med_inducers, low_inducers){
   na_to_none <- function(x) ifelse(is.na(x),'NONE',x)
-  linear_pheno <- pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'), paste0(caffeine_vars, "_caffeine"))
+  linear_pheno <- pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1'), paste0(caffeine_vars, "_caffeine")) %>%
+    mutate_at(vars(-FID,-IID), ivt)
   linear_covar <- pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20|^Age_caffeine'))
 
   list_covar <- list(linear=linear_covar)
@@ -540,7 +549,9 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, tes
       mutate_at(vars(high_inducer, high_inducer_sensitivity),  ~(recode(.,"0" = "NoDrug", "1" = "Drug"))) %>%
       rename_at(vars(-FID,-IID),function(x) paste0(x,"_",sub)) %>%
       mutate_if(.predicate = is.character,.funs = na_to_none) %>%
-      mutate_at(.vars = c(paste0(interaction_outcome,"_", sub), paste0(interaction_outcome,"_sensitivity_", sub)), .funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .))
+
+      mutate_at(.vars = c(paste0(interaction_outcome,"_", sub), paste0(interaction_outcome,"_sensitivity_", sub)), .funs = ivt)
+      #.funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .)) ## to remove outliers
 
     pheno_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^high_inducer',ignore.case = F), paste0(interaction_outcome,"_", sub),
       paste0(interaction_outcome,"_sensitivity_", sub))
