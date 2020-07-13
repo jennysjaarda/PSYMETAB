@@ -598,6 +598,80 @@ write_followup_data <- function(pheno_followup_split, test_drugs, interaction_ph
   }
 }
 
+residualize_pheno <- function(GWAS_input, pheno, covars, outcome_type, eths, eth_data){
+  covars <- unlist(covars)
+  pheno_name <- pheno
+  if(outcome_type=="interaction"){
+    covars <- covars[-which(grepl('^high_inducer_', covars))]
+  }
+  if(outcome_type=="subgroup"){
+    pheno <- unlist(pheno)
+    pheno_name <- pheno[-which(grepl('^high_inducer_', pheno))]
+    subgroup_name <- pheno[which(grepl('^high_inducer_', pheno))]
+
+  }
+
+  model_data <- GWAS_input$full_pheno %>% dplyr::select(FID, pheno) %>%
+    left_join(GWAS_input$full_covar %>% dplyr::select(FID, IID, covars)) %>%
+    rename("outcome" = pheno_name) %>%
+    left_join(eth_data %>% dplyr::select(FID, eth)) %>%
+    mutate(eth=as.factor(eth))
+
+  if(outcome_type=="baseline" | outcome_type=="interaction"){
+    resid_data <- model_data %>% group_by(eth) %>%
+    do(
+      {
+        resid_eth <- resid(lm(outcome ~ ., data = subset(., select=c( -FID, -IID, -eth) ), na.action = na.exclude))
+        data.frame(., resid_eth)
+      }) %>% ungroup() %>%
+
+    dplyr::select(FID, IID, resid_eth) %>%
+    rename(!!pheno := resid_eth)
+  }
+
+  if(outcome_type=="subgroup"){
+
+    resid_data <- model_data %>%
+      rename("subgroup" = subgroup_name) %>% mutate(subgroup=as.factor(subgroup)) %>%
+      #filter(subgroup=="Drug" & eth=="YRI")
+      #resid_group <- resid(lm(outcome ~ ., data = subset(resid_data, select=c( -FID, -IID, -eth, -subgroup) ), na.action = na.exclude))
+
+      group_by(eth, subgroup) %>%
+      do(
+        {
+          data <- subset(., select=c( -FID, -IID, -eth, -subgroup) )
+          #print(as.character(.$subgroup[1]))
+          #print(as.character(.$eth[1]))
+          if(all(.$subgroup=="NONE") | all(!complete.cases(data)))
+          {
+            #print("YES")
+            resid_group <- rep(NA, dim(.)[1])
+
+          } else {
+            resid_group <- resid(lm(outcome ~ ., data = data, na.action = na.exclude))
+            #print("NO")
+          }
+          data.frame(., resid_group)
+        }
+      ) %>% ungroup() %>%
+
+          # resid_eth <- tryCatch(resid(lm(outcome ~ ., data = subset(., select=c( -FID, -IID, -eth, -subgroup) ), na.action = na.exclude)),
+          #   error=function(e){NA})
+
+          ## some of these models give errors:
+          ## check: table(resid_data$subgroup, resid_data$eth)
+      dplyr::select(FID, IID, resid_group, subgroup) %>%
+      rename(!!pheno_name := resid_group) %>% rename(!!subgroup_name := subgroup)
+
+  }
+
+  out <- list()
+  out[[pheno_name]] <- resid_data
+  return(out)
+
+
+}
+
 create_analysis_dirs <- function(top_level){
   dir.create(top_level,showWarnings=F)
   to_create <- c("analysis/GWAS/interaction","analysis/GWAS/full","analysis/GWAS/subgroup")
@@ -745,7 +819,7 @@ define_subgroup_inputs <- function(GWAS_input, drug_classes, interaction_outcome
   return(subgroup_gwas_info)
 }
 
-run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eths,
+run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_names=NULL, eths,
   eth_sample_file, output_dir, output,
   remove_sample_file=NULL,threads=1,type="full",
   subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, output_suffix="",
@@ -777,9 +851,16 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
     file_name <- paste0(file_name,"_int")
   } else analysis_commands <- c("--glm", "hide-covar")
 
-  general_commands <- unlist(c("--pfile", pfile, "--read-freq", freq_file, "--pheno", pheno_file, "--pheno-name", pheno_name, "--covar", covar_file,
-          "--covar-name", unlist(covar_names),
-          "--threads", threads, "--variance-standardize"))
+  if(!is.null(covar_names)){
+    covar_commands <- unlist(c("--covar", covar_file, "--covar-name", unlist(covar_names)))
+  } else covar_commands <- NULL
+
+  if(!is.null(pheno_name)){
+    pheno_commands <- unlist(c("--pheno-name", pheno_name))
+  } else pheno_commands <- NULL
+
+  general_commands <- unlist(c("--pfile", pfile, "--read-freq", freq_file,
+          "--threads", threads, "--variance-standardize", "--pheno", pheno_file))
   #maf_input <- unlist(c("--pfile", pfile, "--make-pfile", "--threads", threads, "--maf", maf_threshold))
 
 
@@ -806,7 +887,7 @@ run_gwas <- function(pfile, pheno_file, pheno_name, covar_file, covar_names, eth
 
       #maf_filter <- processx::run(command="plink2", c(maf_input, eth_commands), error_on_status=F)
 
-      plink_input <- c(general_commands, analysis_commands, remove_commands, subgroup_commands,eth_commands)
+      plink_input <- c(general_commands, analysis_commands, remove_commands, subgroup_commands,eth_commands,covar_commands,pheno_commands)
       temp_out <- processx::run(command="plink2",plink_input, error_on_status=F)
       out[[eth]] <- temp_out
     }
@@ -820,7 +901,10 @@ meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/G
 
   write_dir <- file.path(output_dir, type, "META")
   file_name <- output
-  file_name <- paste0(file_name,"_",output_suffix)
+  if(output_suffix!=""){
+    file_name <- paste0(file_name,"_",output_suffix)
+  }
+
   file_name_drug <- NA
   file_name_nodrug <- NA
   if(type=="interaction")
