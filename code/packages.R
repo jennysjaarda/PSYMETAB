@@ -40,3 +40,4 @@ library(OpenImageR) # https://stackoverflow.com/questions/50937921/save-and-load
 # library(tidylog)
 # options("tidylog.display" = list())  # turn off
 # options("tidylog.display" = NULL)    # turn on
+library(hrbrthemes)
