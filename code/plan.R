@@ -249,7 +249,7 @@ init_analysis <- drake_plan(
 
   # define endpoint, covars and outputs ---------------------------
 
-  baseline_gwas_input = target(define_baseline_inputs(GWAS_input_analysis, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
+  baseline_gwas_input = target(define_baseline_models(GWAS_input_analysis, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
     hpc = FALSE),
   interaction_gwas_input = target(define_interaction_inputs(!!drug_classes),
     hpc = FALSE),
@@ -357,7 +357,7 @@ init_analysis <- drake_plan(
     dynamic = map(interaction_gwas_input)),
   subgroup_meta_out = target({
     subgroup_out
-    meta(output = !!study_name, output_suffix = subgroup_gwas_info$output_suffix, eth = !!eths,
+    meta(output = !!study_name, output_suffix = subgroup_gwas_input$output_suffix, eth = !!eths,
       pheno_list = !!interaction_outcome, type = "subgroup", threads = 8)},
     dynamic = map(subgroup_gwas_input)),
 
@@ -424,7 +424,7 @@ process_init <- drake_plan(
     hpc = FALSE), # this should be identical to GWAS_input above, but needs to be a different name
 
   # define endpoint, covars and outputs ---------------------------
-  baseline_gwas_process = target(define_baseline_inputs(GWAS_input_process, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
+  baseline_gwas_process = target(define_baseline_models(GWAS_input_process, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
     hpc = FALSE),
   interaction_gwas_process = target(define_interaction_inputs(GWAS_input_process, !!drug_classes, !!interaction_outcome),
     hpc = FALSE),

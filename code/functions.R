@@ -919,7 +919,7 @@ define_interaction_inputs <- function(drug_classes){
 
       interaction_covars[[length(interaction_covars)+1]]  <- covars
       interaction_pams <- c(interaction_pams, interactoin_pam_temp)
-      output_suffix <- c(output_suffix, gsub(".$", "", paste0(drug_name, analysis)))
+      output_suffix <- c(output_suffix, gsub("^.", "", paste0(analysis, drug_name)))
     }
 
   }
@@ -950,7 +950,7 @@ define_subgroup_inputs <- function(drug_classes){
 
       subgroup_pheno_file <- c(subgroup_pheno_file, file_name)
       subgroup_vars <- c(subgroup_vars, paste0("high_inducer", analysis, drug_name))
-      output_suffix <- c(output_suffix, gsub(".$", "", paste0(drug_name, analysis)))
+      output_suffix <- c(output_suffix, gsub("^.", "", paste0(analysis, drug_name)))
     }
 
   }
