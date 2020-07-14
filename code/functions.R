@@ -473,7 +473,7 @@ classify_drugs <- function(x, case_categories, preferential_control_categories, 
 }
 
 
-munge_pheno_follow <-  function(pheno_baseline, test_drugs, i) {
+munge_pheno_follow <-  function(pheno_baseline, test_drugs, i, low_inducers, high_inducers) {
   out <- list()
   #for(i in 1:dim(test_drugs)[1])
   #{

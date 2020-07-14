@@ -172,7 +172,7 @@ analysis_prep <- drake_plan(
   pheno_eths_out = write.table(pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
     dplyr::select(COUNT,GPCR,eth ), file_out(!!paste0("data/processed/phenotype_data/", study_name, "_inferred_eths.txt")), row.names = F, quote = F, col.names = T),
   test_drugs_num = tibble(i = 1:dim(!!test_drugs)[1]),
-  pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, test_drugs_num$i),
+  pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, test_drugs_num$i, !!low_inducers, !!high_inducers),
     dynamic = map(test_drugs_num)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
   GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars, !!test_drugs,
     !!high_inducers, !!med_inducers, !!low_inducers),
