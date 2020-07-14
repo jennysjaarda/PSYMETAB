@@ -1107,8 +1107,8 @@ meta <- function(output, output_suffix="", eths, pheno_list, output_dir = "analy
     }
 
     full_output <- file.path(write_dir,paste0(file_name, ".", pheno))
-    full_output_drug <- file.path(write_dir,file_name_drug)
-    full_output_nodrug <- file.path(write_dir,file_name_nodrug)
+    full_output_drug <- file.path(write_dir,paste0(file_name_drug, ".", pheno))
+    full_output_nodrug <- file.path(write_dir,paste0(file_name_nodrug, ".", pheno))
 
     if(type == "interaction" | type == "full"){
     out[[paste0("meta_out_", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "report-all", "no-map",
