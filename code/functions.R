@@ -1041,7 +1041,7 @@ run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_
   #return(paste(plink_input, collapse="|"))
 }
 
-meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/GWAS", type = "full",
+meta <- function(output, output_suffix="", eths, pheno_list, output_dir = "analysis/GWAS", type = "full",
   threads=1, interaction_var = NA){
 
   write_dir <- file.path(output_dir, type, "META")
@@ -1063,62 +1063,65 @@ meta <- function(output, output_suffix="", eths, pheno, output_dir = "analysis/G
   gwas_results <- numeric()
   gwas_results_drug <- numeric()
   gwas_results_nodrug <- numeric()
-  for(eth in eths){
+  for(pheno in pheno_list){
+    for(eth in eths){
 
-    file_name_eth <- paste0(file_name,"_",eth)
-    eth_dir <- file.path(output_dir, type)
+      file_name_eth <- paste0(file_name,"_",eth)
+      eth_dir <- file.path(output_dir, type)
+
+      if(type=="subgroup"){
+        file_name_eth_drug <- paste0(file_name_eth, ".Drug")
+        file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
+        eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno, "_", output_suffix, ".glm.linear"))
+        eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno, "_", output_suffix, ".glm.linear"))
+
+        if(file.exists(eth_output_drug)){
+          gwas_results_drug <- c(gwas_results_drug, eth_output_drug)
+          file_name_drug <- paste0(file_name, ".Drug")
+        }
+        if(file.exists(eth_output_drug)){
+          gwas_results_nodrug <- c(gwas_results_nodrug, eth_output_nodrug)
+          file_name_nodrug <- paste0(file_name, ".NoDrug")
+        }
+      }
+
+      if(type=="interaction"){
+
+        eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, "_", output_suffix, ".glm.linear"))
+        eth_subset_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, "_", output_suffix, ".glm.linear.interaction"))
+
+        if(file.exists(eth_output)){
+          system(paste0("awk ", awk_col7, " ", eth_output, " > ", eth_subset_output))
+          gwas_results <- c(gwas_results, eth_subset_output)
+        }
+      }
+
+      if(type=="full"){
+        eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
+
+        if(file.exists(eth_output)){
+          gwas_results <- c(gwas_results, eth_output)
+        }
+      }
+
+    }
+
+    full_output <- file.path(write_dir,paste0(file_name, ".", pheno))
+    full_output_drug <- file.path(write_dir,file_name_drug)
+    full_output_nodrug <- file.path(write_dir,file_name_nodrug)
+
+    if(type == "interaction" | type == "full"){
+    out[[paste0("meta_out_", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "report-all", "no-map",
+      "--meta-analysis-snp-field", "ID", "--out", full_output, "--threads", threads), error_on_status=F)
+    }
 
     if(type=="subgroup"){
-      file_name_eth_drug <- paste0(file_name_eth, ".Drug")
-      file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
-      eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno[[1]][1], ".glm.linear"))
-      eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno[[1]][1], ".glm.linear"))
-
-      if(file.exists(eth_output_drug)){
-        gwas_results_drug <- c(gwas_results_drug, eth_output_drug)
-        file_name_drug <- paste0(file_name, ".Drug")
-      }
-      if(file.exists(eth_output_nodrug)){
-        gwas_results_nodrug <- c(gwas_results_nodrug, eth_output_nodrug)
-        file_name_nodrug <- paste0(file_name, ".NoDrug")
-      }
+      out[[paste0("meta_out_drug", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_drug,  "+", "qt", "report-all", "no-map",
+        "--meta-analysis-snp-field", "ID", "--out", full_output_drug, "--threads", threads), error_on_status=F)
+      out[[paste0("meta_out_nodrug", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_nodrug,  "+", "qt", "report-all", "no-map",
+        "--meta-analysis-snp-field", "ID", "--out", full_output_nodrug, "--threads", threads), error_on_status=F)
     }
 
-    if(type=="interaction"){
-
-      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
-      eth_subset_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear.interaction"))
-
-      if(file.exists(eth_output)){
-        system(paste0("awk ", awk_col7, " ", eth_output, " > ", eth_subset_output))
-        gwas_results <- c(gwas_results, eth_subset_output)
-      }
-    }
-
-    if(type=="full"){
-      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
-
-      if(file.exists(eth_output)){
-        gwas_results <- c(gwas_results, eth_output)
-      }
-    }
-
-  }
-
-  full_output <- file.path(write_dir,file_name)
-  full_output_drug <- file.path(write_dir,file_name_drug)
-  full_output_nodrug <- file.path(write_dir,file_name_nodrug)
-
-  if(type == "interaction" | type == "full"){
-  out[["meta_out"]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "report-all", "no-map",
-    "--meta-analysis-snp-field", "ID", "--out", full_output, "--threads", threads), error_on_status=F)
-  }
-
-  if(type=="subgroup"){
-    out[["meta_out_drug"]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_drug,  "+", "qt", "report-all", "no-map",
-      "--meta-analysis-snp-field", "ID", "--out", full_output_drug, "--threads", threads), error_on_status=F)
-    out[["meta_out_nodrug"]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_nodrug,  "+", "qt", "report-all", "no-map",
-      "--meta-analysis-snp-field", "ID", "--out", full_output_nodrug, "--threads", threads), error_on_status=F)
   }
 
   return(out)
