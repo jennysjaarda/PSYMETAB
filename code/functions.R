@@ -601,9 +601,7 @@ write_followup_data <- function(pheno_followup_split, test_drugs, interaction_ph
 residualize_pheno <- function(GWAS_input, pheno, covars, outcome_type, eths, eth_data){
   covars <- unlist(covars)
   pheno_name <- pheno
-  if(outcome_type=="interaction"){
-    covars <- covars[-which(grepl('^high_inducer_', covars))]
-  }
+
   if(outcome_type=="subgroup"){
     pheno <- unlist(pheno)
     pheno_name <- pheno[-which(grepl('^high_inducer_', pheno))]
@@ -617,7 +615,8 @@ residualize_pheno <- function(GWAS_input, pheno, covars, outcome_type, eths, eth
     left_join(eth_data %>% dplyr::select(FID, eth)) %>%
     mutate(eth=as.factor(eth))
 
-  if(outcome_type=="baseline" | outcome_type=="interaction"){
+
+  if(outcome_type=="baseline"){
     resid_data <- model_data %>% group_by(eth) %>%
     do(
       {
@@ -628,6 +627,23 @@ residualize_pheno <- function(GWAS_input, pheno, covars, outcome_type, eths, eth
     dplyr::select(FID, IID, resid_eth) %>%
     rename(!!pheno := resid_eth)
   }
+
+  if(outcome_type=="interaction"){
+    high_inducer_name <- covars[which(grepl('^high_inducer_', covars))]
+    resid_data <- model_data %>% rename("high_inducer" = high_inducer_name)  %>%
+      group_by(eth) %>%
+      do(
+        {
+          data <- subset(., select=c( -FID, -IID, -eth, -high_inducer) )
+          resid_eth <- resid(lm(outcome ~ ., data = data, na.action = na.exclude))
+          data.frame(., resid_eth)
+        }) %>% ungroup() %>%
+
+      dplyr::select(FID, IID, resid_eth, high_inducer) %>%
+      rename(!!pheno := resid_eth) %>% rename(!!high_inducer_name := high_inducer)
+
+  }
+
 
   if(outcome_type=="subgroup"){
 
@@ -687,7 +703,7 @@ create_analysis_dirs <- function(top_level){
   return(TRUE)
 }
 
-define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes, caffeine_vars, interaction_outcome){
+define_baseline_models <- function(GWAS_input, baseline_vars, drug_classes, caffeine_vars, interaction_outcome){
   col_match<- paste(c(paste0(baseline_vars,"_start_Drug_1"), paste0(caffeine_vars, "_caffeine")), collapse = "|")
   linear_vars <- colnames(dplyr::select(GWAS_input$full_pheno,matches(col_match)))
   linear_covars <- c(rep(list(c(standard_covars,baseline_covars)),length(baseline_vars)),
@@ -725,7 +741,7 @@ define_baseline_inputs <- function(GWAS_input, baseline_vars, drug_classes, caff
   return(baseline_gwas_info)
 }
 
-define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outcome){
+define_interaction_models <- function(GWAS_input, drug_classes, interaction_outcome){
   interaction_vars <- numeric()
   interaction_covars <- list()
   interaction_pams <- numeric()
@@ -781,7 +797,7 @@ define_interaction_inputs <- function(GWAS_input, drug_classes, interaction_outc
   return(interaction_gwas_info)
 }
 
-define_subgroup_inputs <- function(GWAS_input, drug_classes, interaction_outcome){
+define_subgroup_models <- function(GWAS_input, drug_classes, interaction_outcome){
   subgroup_vars <- numeric()
   subgroup_covars <- list()
   subgroup_pheno <- list()
@@ -819,6 +835,133 @@ define_subgroup_inputs <- function(GWAS_input, drug_classes, interaction_outcome
   return(subgroup_gwas_info)
 }
 
+
+
+extract_colnames <- function(data, pattern, additional_columns = c("FID", "IID")){
+
+  columns <- colnames(data)
+  columns_extract <- columns[which(grepl(pattern, columns))]
+  data_out <- data[,c(additional_columns, columns_extract)]
+  return(data_out)
+}
+
+write_interaction_resid <- function(interaction_resid_data, drug_name){
+
+  pattern <- paste0("_", drug_name,  "$")
+  pattern_sensitivity <- paste0("_sensitivity_", drug_name,  "$")
+  file_name_list <- numeric()
+
+  for(pattern_test in c(pattern_sensitivity, pattern)){
+
+    data_out <- extract_colnames(interaction_resid_data, pattern_test)
+    if(!grepl("sensitivity", pattern_test, fixed = TRUE)){
+      data_out <- data_out[,-which(grepl("sensitivity", colnames(data_out)))]
+    }
+    drug_covar_out <- data_out[,c(1,2,which(grepl("high_inducer_", colnames(data_out))))]
+    data_out <- data_out[,-which(grepl("high_inducer_", colnames(data_out)))]
+    drug_file <- ifelse(grepl("sensitivity", pattern_test, fixed = TRUE), paste0("sensitivity_", drug_name), drug_name)
+    file_name <- paste0("data/processed/phenotype_data/GWAS_input/interaction_input_", drug_file, "_resid.txt")
+    covar_file_name <- paste0("data/processed/phenotype_data/GWAS_input/interaction_covar_input_", drug_file, "_resid.txt")
+
+    write.table(data_out, file_name, row.names = F, quote = F, col.names = T)
+    write.table(drug_covar_out, covar_file_name, row.names = F, quote = F, col.names = T)
+
+    file_name_list <- c(file_name_list, file_name, covar_file_name)
+
+  }
+
+  return(file_name_list)
+
+}
+
+write_subgroup_resid <- function(subgroup_resid_data, drug_name){
+
+  pattern <- paste0("_", drug_name,  "$")
+  pattern_sensitivity <- paste0("_sensitivity_", drug_name,  "$")
+
+  file_name_list <- numeric()
+  for(pattern_test in c(pattern_sensitivity, pattern)){
+    data_out <- extract_colnames(subgroup_resid_data, pattern_test)
+    if(!grepl("sensitivity", pattern_test, fixed = TRUE)){
+      data_out <- data_out[,-which(grepl("sensitivity", colnames(data_out)))]
+    }
+    drug_file <- ifelse(grepl("sensitivity", pattern_test, fixed = TRUE), paste0("sensitivity_", drug_name), drug_name)
+    file_name <- paste0("data/processed/phenotype_data/GWAS_input/subgroup_input_", drug_file, "_resid.txt")
+    write.table(data_out, file_name, row.names = F, quote = F, col.names = T)
+    file_name_list <- c(file_name_list, file_name)
+
+  }
+  return(file_name_list)
+
+}
+
+
+define_interaction_inputs <- function(drug_classes){
+
+  interaction_pheno_file <- numeric()
+  interaction_covar_file <- numeric()
+  interaction_covars <- list()
+  interaction_pams <- numeric()
+  output_suffix <- numeric()
+  drug <- numeric()
+  for(i in 1:length(drug_classes)){
+    drug_name <- drug_classes[i]
+    for(analysis in c("_", "_sensitivity_"))
+    {
+      drug_file <- ifelse(analysis=="_sensitivity_", paste0("sensitivity_", drug_name), drug_name)
+      file_name <- paste0("data/processed/phenotype_data/GWAS_input/interaction_input_", drug_file, "_resid.txt")
+      covar_file_name <- paste0("data/processed/phenotype_data/GWAS_input/interaction_covar_input_", drug_file, "_resid.txt")
+      covars <- paste0("high_inducer", analysis, drug_name)
+      interactoin_pam_temp <- "1-3"
+
+      interaction_pheno_file <- c(interaction_pheno_file, file_name)
+      interaction_covar_file <- c(interaction_covar_file, covar_file_name)
+
+      interaction_covars[[length(interaction_covars)+1]]  <- covars
+      interaction_pams <- c(interaction_pams, interactoin_pam_temp)
+      output_suffix <- c(output_suffix, gsub(".$", "", paste0(drug_name, analysis)))
+    }
+
+  }
+
+
+  interaction_gwas_inputs <- tibble( pheno_file = interaction_pheno_file, ## this is pheno file
+                                     covar_file = interaction_covar_file, ## this is the covar file
+                                     covars = interaction_covars, ## these are the x'x
+                                     parameters = interaction_pams, ## this is passed to PLINK
+                                     output_suffix = output_suffix, ## this will be the output name
+                                    ) ## this is the name used to grab interaction column
+  return(interaction_gwas_inputs)
+
+}
+
+define_subgroup_inputs <- function(drug_classes){
+
+  subgroup_pheno_file <- numeric()
+  subgroup_vars <- numeric()
+  subgroup_pheno <- list()
+  output_suffix <- numeric()
+  for(i in 1:length(drug_classes)){
+    drug_name <- drug_classes[i]
+    for(analysis in c("_", "_sensitivity_"))
+    {
+      drug_file <- ifelse(analysis=="_sensitivity_", paste0("sensitivity_", drug_name), drug_name)
+      file_name <- paste0("data/processed/phenotype_data/GWAS_input/subgroup_input_", drug_file, "_resid.txt")
+
+      subgroup_pheno_file <- c(subgroup_pheno_file, file_name)
+      subgroup_vars <- c(subgroup_vars, paste0("high_inducer", analysis, drug_name))
+      output_suffix <- c(output_suffix, gsub(".$", "", paste0(drug_name, analysis)))
+    }
+
+  }
+
+  subgroup_gwas_inputs <- tibble( pheno_file = subgroup_pheno_file,
+                                subgroup = subgroup_vars,
+                                output_suffix = output_suffix)
+  return(subgroup_gwas_inputs)
+}
+
+
 run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_names=NULL, eths,
   eth_sample_file, output_dir, output,
   remove_sample_file=NULL,threads=1,type="full",
@@ -829,7 +972,9 @@ run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_
   # eth_sample_file : in the form of "keep_this_ETH.txt"
   # default option: --variance-standardize
   file_name <- output
-  file_name <- paste0(file_name,"_",output_suffix)
+  if(output_suffix!=""){
+    file_name <- paste0(file_name,"_",output_suffix)
+  }
 
   sample_file <- read.table(paste0(pfile, ".psam"), header=F)
   nsamples <- dim(sample_file)[1]
