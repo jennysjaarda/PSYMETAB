@@ -1491,52 +1491,56 @@ define_interaction_files <- function(info = interaction_gwas_process, output = "
 define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMETAB_GWAS", eths,
   output_dir = "analysis/GWAS", type = "subgroup", pheno_list){
 
-  file_name <- output
-  output_suffix <- info$output_suffix
-  pheno_names <- numeric()
-  eth_keep <- numeric()
-  eth_list <- numeric()
-  drug_keep <- numeric()
-  write_keep <- numeric()
-  drug_class <- numeric()
-  for(eth in c(eths, "META")){
-    for(pheno in pheno_list){
-      eth_dir <- file.path(output_dir, type)
+      file_name <- output
+      output_suffix <- info$output_suffix
+      pheno_names <- numeric()
+      eth_keep <- numeric()
+      eth_list <- numeric()
+      drug_keep <- numeric()
+      write_keep <- numeric()
+      drug_class <- numeric()
+      for(eth in c(eths, "META")){
+        for(pheno in pheno_list){
+          eth_dir <- file.path(output_dir, type)
 
-      if(eth!="META"){
-        file_name_eth <- paste0(file_name,"_", output_suffix, "_",eth)
-        eth_combos <- apply(expand.grid(pheno, output_suffix), 1, paste, collapse="_")
+          if(eth!="META"){
+            file_name_eth <- paste0(file_name,"_", output_suffix, "_",eth)
+            eth_combos <- apply(expand.grid(pheno, output_suffix), 1, paste, collapse="_")
 
-        file_name_eth_drug <- paste0(file_name_eth, ".Drug")
-        file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
-        eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", eth_combos, ".glm.linear"))
-        eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", eth_combos, ".glm.linear"))
-        write_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
-        write_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
-      }
-      if(eth=="META"){
-        file_name_eth <- paste0(file_name,"_", output_suffix)
-        file_name_eth_drug <- paste0(file_name_eth, ".Drug")
-        file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
-        eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno, ".meta"))
-        eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno, ".meta"))
-        write_file_drug <- gsub(".meta", ".GWAS.txt", eth_output_drug)
-        write_file_nodrug <- gsub(".meta", ".GWAS.txt", eth_output_nodrug)
-      }
-    }
+            file_name_eth_drug <- paste0(file_name_eth, ".Drug")
+            file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
+            eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", eth_combos, ".glm.linear"))
+            eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", eth_combos, ".glm.linear"))
+            write_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
+            write_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
+          }
+          if(eth=="META"){
+            file_name_eth <- paste0(file_name,"_", output_suffix)
+            file_name_eth_drug <- paste0(file_name_eth, ".Drug")
+            file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
+            eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno, ".meta"))
+            eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno, ".meta"))
+            write_file_drug <- gsub(".meta", ".GWAS.txt", eth_output_drug)
+            write_file_nodrug <- gsub(".meta", ".GWAS.txt", eth_output_nodrug)
+          }
 
-    eth_output <- c(eth_output_drug, eth_output_nodrug)
-    drug_list <- c(rep("Drug", length(pheno)), rep("NoDrug", length(pheno)))
-    drug_keep <- c(drug_keep, drug_list[which(file.exists(eth_output))])
-    eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
-    eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
-    pheno_names <- c(pheno_names, c(pheno,pheno)[which(file.exists(eth_output))])
-    write_keep <- c(write_keep, c(write_file_drug, write_file_nodrug)[which(file.exists(eth_output))])
-    write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
+          eth_output <- c(eth_output_drug, eth_output_nodrug)
+          drug_list <- c(rep("Drug", length(output_suffix)), rep("NoDrug", length(output_suffix)))
+
+          drug_keep <- c(drug_keep, drug_list[which(file.exists(eth_output))])
+          eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
+          eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
+          pheno_names <- c(pheno_names, rep(pheno, length(which(file.exists(eth_output)))))
+          drug_class_list <- c(output_suffix, output_suffix)
+          drug_class <- c(drug_class, drug_class_list[which(file.exists(eth_output))])
+          write_keep <- c(write_keep, c(write_file_drug, write_file_nodrug)[which(file.exists(eth_output))])
+          write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
+        }
   }
 
   out <- tibble(eth = eth_list,
                 pheno = pheno_names,
+                drug_class = drug_class,
                 drug = drug_keep,
                 file = eth_keep,
                 write_file = write_keep)
@@ -1588,16 +1592,25 @@ gwas_figures_input <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS",
 
 }
 
-create_figures <- function(joint_file, manhattan_file_name, qq_file_name, title){
+create_figures <- function(joint_file, manhattan_file_name, qq_file_name, title, gw_sig){
 
   joint <- fread(joint_file, data.table=F)
 
-  png(manhattan_file_name, width=2000, height=1000, pointsize=18)
-  manhattan(joint, main=title)
-  dev.off()
+  gw_sig_filter <- joint[which(joint$P < gw_sig),]
+  #if(dim(gw_sig_filter)[1]!=0){
+    joint_sig_filter <- joint[which(joint$P < 0.01),]
+    png(manhattan_file_name, width=2000, height=1000, pointsize=18)
+    manhattan(joint_sig_filter, main=title)
+    dev.off()
+  #}
 
+  rm(joint_sig_filter)
+
+  joint_rand_filter <- joint[sample(nrow(joint), ceiling(0.1*dim(joint)[1])), ]
+
+  rm(joint)
   png(qq_file_name, width=2000, height=1000, pointsize=18)
-  qq(joint$P, main=title)
+  qq(joint_rand_filter$P, main=title)
   dev.off()
 
 }
