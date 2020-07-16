@@ -1581,11 +1581,15 @@ process_gwas <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", outpu
 }
 
 gwas_figures_input <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
-  info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file){
+  info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", out_file, drug_class = NULL){
 
   write_dir <- file.path(output_dir, type, "processed")
 
+  if(type == "interaction" | type == "subgroup"){
+    pheno <- paste0(pheno, "_", drug_class)
+  }
   title <- ifelse(is.na(drug), paste0(pheno, "_", eth), paste0(pheno, "_", drug, "_", eth))
+
   manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_manhattan.png")
   qq_file_name <- paste0(write_dir, "/", output, "_", title, "_qq.png")
   return(list(joint_file=out_file, manhattan_file_name=manhattan_file_name, qq_file_name=qq_file_name, title=title))
