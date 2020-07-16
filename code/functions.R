@@ -752,7 +752,7 @@ define_interaction_models <- function(GWAS_input, drug_classes, interaction_outc
       for(analysis in c("_", "_sensitivity_"))
       {
         outcome <- interaction_outcome[j]
-        interactoin_pam_temp <- "1-28,50"
+        interactoin_pam_temp <- "1-3"
         interaction_vars <- c(interaction_vars,
           colnames(GWAS_input$full_pheno)[which(colnames(GWAS_input$full_pheno)==paste0(outcome,analysis,drug_classes[i]))])
         covars <- c(standard_covars)
@@ -766,7 +766,7 @@ define_interaction_models <- function(GWAS_input, drug_classes, interaction_outc
           covars <- covars[-high_inducer_sens]
         }
         if(analysis=="_sensitivity_"){
-          interactoin_pam_temp <- "1-28,55"
+          interactoin_pam_temp <- "1-3"
           covars[high_inducer_reg] <- covars[high_inducer_sens]
           covars <- covars[-high_inducer_sens]
         }
@@ -961,7 +961,6 @@ define_subgroup_inputs <- function(drug_classes){
   return(subgroup_gwas_inputs)
 }
 
-
 run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_names=NULL, eths,
   eth_sample_file, output_dir, output,
   remove_sample_file=NULL,threads=1,type="full",
@@ -992,9 +991,9 @@ run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_
 
   if(type=="interaction")
   {
-    analysis_commands <- c("--glm", "interaction", "--parameters", parameters)
+    analysis_commands <- c("--glm", "interaction", "skip", "--parameters", parameters)
     file_name <- paste0(file_name,"_int")
-  } else analysis_commands <- c("--glm", "hide-covar")
+  } else analysis_commands <- c("--glm", "hide-covar", "skip")
 
   if(!is.null(covar_names)){
     covar_commands <- unlist(c("--covar", covar_file, "--covar-name", unlist(covar_names)))
@@ -1060,10 +1059,11 @@ meta <- function(output, output_suffix="", eths, pheno_list, output_dir = "analy
   }
 
   out <- list()
-  gwas_results <- numeric()
-  gwas_results_drug <- numeric()
-  gwas_results_nodrug <- numeric()
+
   for(pheno in pheno_list){
+    gwas_results <- numeric()
+    gwas_results_drug <- numeric()
+    gwas_results_nodrug <- numeric()
     for(eth in eths){
 
       file_name_eth <- paste0(file_name,"_",eth)
@@ -1079,7 +1079,7 @@ meta <- function(output, output_suffix="", eths, pheno_list, output_dir = "analy
           gwas_results_drug <- c(gwas_results_drug, eth_output_drug)
           file_name_drug <- paste0(file_name, ".Drug")
         }
-        if(file.exists(eth_output_drug)){
+        if(file.exists(eth_output_nodrug)){
           gwas_results_nodrug <- c(gwas_results_nodrug, eth_output_nodrug)
           file_name_nodrug <- paste0(file_name, ".NoDrug")
         }
@@ -1398,11 +1398,10 @@ process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", outpu
 
 }
 
-define_baseline_files <- function(info = baseline_gwas_info, output = "PSYMETAB_GWAS", eths,
+define_baseline_files <- function(info = baseline_gwas_process, output = "PSYMETAB_GWAS", eths,
   output_dir = "analysis/GWAS", type = "full"){
   file_name <- output
   output_suffix <- info$output_suffix
-  file_name <- paste0(file_name,"_",output_suffix)
   pheno <- info$pheno
   pheno_names <- numeric()
   eth_keep <- numeric()
@@ -1418,7 +1417,7 @@ define_baseline_files <- function(info = baseline_gwas_info, output = "PSYMETAB_
     }
     if(eth=="META"){
       file_name_eth <- file_name
-      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".meta"))
+      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".meta"))
       write_file <- gsub(".meta", ".GWAS.txt", eth_output)
     }
 
@@ -1437,40 +1436,50 @@ define_baseline_files <- function(info = baseline_gwas_info, output = "PSYMETAB_
   return(out)
 }
 
-define_interaction_files <- function(info = interaction_gwas_info, output = "PSYMETAB_GWAS", eths,
-  output_dir = "analysis/GWAS", type = "interaction"){
+define_interaction_files <- function(info = interaction_gwas_process, output = "PSYMETAB_GWAS", eths,
+  output_dir = "analysis/GWAS", type = "interaction", pheno_list){
 
   file_name <- output
   output_suffix <- info$output_suffix
-  file_name <- paste0(file_name,"_",output_suffix)
-  pheno <- info$pheno
+  #file_name <- paste0(file_name,"_",output_suffix)
+  #pheno <- pheno_list
   pheno_names <- numeric()
   eth_keep <- numeric()
   eth_list <- numeric()
   write_keep <- numeric()
+  drug_class <- numeric()
   for(eth in c(eths, "META")){
     eth_dir <- file.path(output_dir, type)
+    for(pheno in pheno_list){
 
-    if(eth!="META"){
-      file_name_eth <- paste0(file_name,"_int_",eth)
-      #eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
-      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear.interaction"))
-      write_file <- gsub(".glm.linear.interaction", ".GWAS.txt", eth_output)
+      if(eth!="META"){
+        file_name_eth <- paste0(file_name,"_", output_suffix, "_int_",eth)
+
+        #eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
+        eth_combos <- apply(expand.grid(pheno, output_suffix), 1, paste, collapse="_")
+        eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", eth_combos,  ".glm.linear.interaction"))
+        write_file <- gsub(".glm.linear.interaction", ".GWAS.txt", eth_output)
+      }
+      if(eth=="META"){
+        file_name_eth <- paste0(file_name,"_", output_suffix, "_int")
+        eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".meta"))
+        write_file <- gsub(".meta", ".GWAS.txt", eth_output)
+      }
+      eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
+      eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
+      write_keep <- c(write_keep, write_file[which(file.exists(eth_output))])
+      write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
+      pheno_names <- c(pheno_names, rep(pheno, length(which(file.exists(eth_output)))))
+      drug_class <- c(drug_class, output_suffix[which(file.exists(eth_output))])
+
     }
-    if(eth=="META"){
-      file_name_eth <- paste0(file_name,"_int")
-      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".meta"))
-      write_file <- gsub(".meta", ".GWAS.txt", eth_output)
-    }
-    eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
-    eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
-    pheno_names <- c(pheno_names, pheno[which(file.exists(eth_output))])
-    write_keep <- c(write_keep, write_file[which(file.exists(eth_output))])
-    write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
+
+
   }
 
   out <- tibble(eth = eth_list,
                 pheno = pheno_names,
+                drug_class = drug_class,
                 drug = NA,
                 file = eth_keep,
                 write_file = write_keep)
@@ -1479,41 +1488,43 @@ define_interaction_files <- function(info = interaction_gwas_info, output = "PSY
 
 }
 
-define_subgroup_files <- function(info = subgroup_gwas_info, output = "PSYMETAB_GWAS", eths,
-  output_dir = "analysis/GWAS", type = "subgroup"){
+define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMETAB_GWAS", eths,
+  output_dir = "analysis/GWAS", type = "subgroup", pheno_list){
 
   file_name <- output
   output_suffix <- info$output_suffix
-  file_name <- paste0(file_name,"_",output_suffix)
-  pheno <- unlist(map(info$pheno, 1))
   pheno_names <- numeric()
   eth_keep <- numeric()
   eth_list <- numeric()
   drug_keep <- numeric()
   write_keep <- numeric()
-
+  drug_class <- numeric()
   for(eth in c(eths, "META")){
-    eth_dir <- file.path(output_dir, type)
+    for(pheno in pheno_list){
+      eth_dir <- file.path(output_dir, type)
 
-    if(eth!="META"){
-      file_name_eth <- paste0(file_name,"_",eth)
-      file_name_eth_drug <- paste0(file_name_eth, ".Drug")
-      file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
-      eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno, ".glm.linear"))
-      eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno, ".glm.linear"))
-      write_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
-      write_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
-    }
-    if(eth=="META"){
-      file_name_eth <- file_name
-      file_name_eth_drug <- paste0(file_name_eth, ".Drug")
-      file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
-      eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".meta"))
-      eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".meta"))
-      write_file_drug <- gsub(".meta", ".GWAS.txt", eth_output_drug)
-      write_file_nodrug <- gsub(".meta", ".GWAS.txt", eth_output_nodrug)
+      if(eth!="META"){
+        file_name_eth <- paste0(file_name,"_", output_suffix, "_",eth)
+        eth_combos <- apply(expand.grid(pheno, output_suffix), 1, paste, collapse="_")
 
+        file_name_eth_drug <- paste0(file_name_eth, ".Drug")
+        file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
+        eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", eth_combos, ".glm.linear"))
+        eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", eth_combos, ".glm.linear"))
+        write_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
+        write_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
+      }
+      if(eth=="META"){
+        file_name_eth <- paste0(file_name,"_", output_suffix)
+        file_name_eth_drug <- paste0(file_name_eth, ".Drug")
+        file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
+        eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno, ".meta"))
+        eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno, ".meta"))
+        write_file_drug <- gsub(".meta", ".GWAS.txt", eth_output_drug)
+        write_file_nodrug <- gsub(".meta", ".GWAS.txt", eth_output_nodrug)
+      }
     }
+
     eth_output <- c(eth_output_drug, eth_output_nodrug)
     drug_list <- c(rep("Drug", length(pheno)), rep("NoDrug", length(pheno)))
     drug_keep <- c(drug_keep, drug_list[which(file.exists(eth_output))])
