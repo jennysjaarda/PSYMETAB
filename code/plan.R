@@ -262,7 +262,8 @@ init_analysis <- drake_plan(
   linear_out = target({
     #loadd(baseline_gwas_info
     file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.log"))
-    run_gwas(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"), pheno_file = file_in("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"),
+    run_gwas(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
+               pheno_file = file_in("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"),
                threads = 8, eths = !!eths,
                eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
@@ -426,22 +427,22 @@ process_init <- drake_plan(
   # define endpoint, covars and outputs ---------------------------
   baseline_gwas_process = target(define_baseline_models(GWAS_input_process, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
     hpc = FALSE),
-  interaction_gwas_process = target(define_interaction_inputs(GWAS_input_process, !!drug_classes, !!interaction_outcome),
+  interaction_gwas_process = target(define_interaction_inputs(!!drug_classes),
     hpc = FALSE),
-  subgroup_gwas_process = target(define_subgroup_inputs(GWAS_input_process, !!drug_classes, !!interaction_outcome),
+  subgroup_gwas_process = target(define_subgroup_inputs(!!drug_classes),
     hpc = FALSE),
 
   baseline_gwas_files = target({
-    define_baseline_files(baseline_gwas_process, output = !!study_name, eths,
+    define_baseline_files(baseline_gwas_process, output = !!study_name, eths = !!eths,
     output_dir = "analysis/GWAS", type = "full")},
     hpc = FALSE),
   interaction_gwas_files = target({
-    define_interaction_files(interaction_gwas_process,  output = !!study_name, eths,
-    output_dir = "analysis/GWAS", type = "interaction")},
+    define_interaction_files(interaction_gwas_process,  output = !!study_name, eths = !!eths,
+    output_dir = "analysis/GWAS", type = "interaction", pheno_list = !!interaction_outcome)},
     hpc = FALSE),
   subgroup_gwas_files = target({
-    define_subgroup_files(subgroup_gwas_process, output = !!study_name, eths,
-    output_dir = "analysis/GWAS", type = "subgroup")},
+    define_subgroup_files(subgroup_gwas_process, output = !!study_name, eths = !!eths,
+    output_dir = "analysis/GWAS", type = "subgroup", pheno_list = !!interaction_outcome)},
     hpc = FALSE),
 
   check_baseline_files = target({
