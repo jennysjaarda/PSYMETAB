@@ -23,6 +23,7 @@ awk 'FNR==NR {a[$1]; next}; $3 in a' $clean_file $data/HRC.r1-1.GRCh37.wgs.mac5.
 for chr in {1..22}
 do
 
+
   awk -v var="$chr " '{ if ($1 == var) { print $3 } }' $snp_info > $output/$out_name/${out_name}_chr${chr}.txt
   num_snps=$(cat $output/$out_name/${out_name}_chr${chr}.txt | wc -l)
   if [ ${num_snps} != 0 ]; then
