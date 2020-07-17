@@ -3,6 +3,7 @@ snp_file=${1}
 output=${2}
 qc_data=${3}
 pc_data=${4} #$output/${out_name}/
+eth=${5}
 
 file_start=$(echo $snp_file | cut -f1 -d.)
 out_name=$(basename $file_start)
@@ -25,11 +26,11 @@ do
   awk -v var="$chr " '{ if ($1 == var) { print $3 } }' $snp_info > $output/$out_name/${out_name}_chr${chr}.txt
   num_snps=$(cat $output/$out_name/${out_name}_chr${chr}.txt | wc -l)
   if [ ${num_snps} != 0 ]; then
-    plink2 --pfile $qc_data --extract $output/${out_name}/${out_name}_chr${chr}.txt --recode A --out $output/${out_name}/${out_name}_chr${chr}_extract
+    plink2 --pfile $qc_data --extract $output/${out_name}/${out_name}_chr${chr}.txt --recode A --out $output/${out_name}/${out_name}_${eth}_chr${chr}_extract
   fi
   if [ ${num_snps} == 0 ]; then
     rm $output/$out_name/${out_name}_chr${chr}.txt
   fi
 done
 
-Rscript code/extractions/pc_merge.r $output $out_name $pc_data
+Rscript code/extractions/pc_merge.r $output $out_name $eth $pc_data
