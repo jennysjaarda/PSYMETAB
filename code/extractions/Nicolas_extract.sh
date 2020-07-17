@@ -13,7 +13,8 @@ input=$projects/PSYMETAB/data/raw/extractions/Nicolas
 output=$projects/PSYMETAB/data/processed/extractions/Nicolas
 QC_dir=$project_dir/analysis/QC
 #qc_data=${QC_dir}/15_final_processing/CEU/PSYMETAB_GWAS.CEU
-pc_data=${QC_dir}/15_final_processing/final_pca/CEU/pcs.PSYMETAB_GWAS_CEU_unrelated.txt
+#pc_data=${QC_dir}/15_final_processing/final_pca/CEU/pcs.PSYMETAB_GWAS_CEU_unrelated.txt
+qc_data=${QC_dir}/15_final_processing/FULL/PSYMETAB_GWAS.FULL
 reference_data=$data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab
 
 if [ ! -d "${output}" ] ; then
@@ -22,14 +23,15 @@ fi
 
 FILES=$input/*.txt
 
-for eth in CEU EA MIXED NA YRI ; do
 
-  qc_data=${QC_dir}/15_final_processing/${eth}/PSYMETAB_GWAS.${eth}
-  for file in $FILES
-  do
-    sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data $eth
-
-  done
+for file in $FILES
+do
+  if [ ! -d "${output}/${out_name}" ] ; then
+    mkdir ${output}/${out_name}
+  fi
+  sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data $eth $QC_dir
 
 done
+
+
 #sbatch $projects/PSYMETAB/code/extractions/Nicolas_extract.sh
