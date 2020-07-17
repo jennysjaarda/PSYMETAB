@@ -22,14 +22,15 @@ library(tidyr)
 
 workdir <- args[1]
 outname <- args[2]
-pc_file <- args[3]
+eth <- args[3]
+pc_file <- args[4]
 
 extraction_list <- list()
 for(chr in 1:22)
 {
   if(file.exists(file.path(workdir, outname, paste0(outname,"_chr", chr, "_extract.raw"))))
   {
-    extraction_temp <- fread(file.path(workdir, outname, paste0(outname,"_chr", chr, "_extract.raw")), data.table=F)
+    extraction_temp <- fread(file.path(workdir, outname, paste0(outname,"_", eth, "_chr", chr, "_extract.raw")), data.table=F)
     extraction_temp <- extraction_temp  %>%
       separate(FID, into = c("ID", "GPCR"), sep = "_") %>%
       dplyr::select(-PAT, -MAT, -SEX, -PHENOTYPE, -IID,-ID)
@@ -45,4 +46,4 @@ result <- extraction_list %>%
   reduce(right_join, by = c("GPCR")) # right join ensures that only individuals in PC file are in final file
                                      # these individuals will be unrelated if that is the specified pc file.
 
-write.table(result, paste0(workdir,"/",outname, "/", outname,"_extraction.txt"), row.names=F, col.names=T, quote=F)
+write.table(result, paste0(workdir,"/",outname, "/", outname,"_", eth, "_extraction.txt"), row.names=F, col.names=T, quote=F)
