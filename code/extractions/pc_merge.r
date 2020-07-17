@@ -30,7 +30,7 @@ for(chr in 1:22)
 {
   if(file.exists(file.path(workdir, outname, paste0(outname,"_chr", chr, "_extract.raw"))))
   {
-    extraction_temp <- fread(file.path(workdir, outname, paste0(outname,"_", eth, "_chr", chr, "_extract.raw")), data.table=F)
+    extraction_temp <- fread(file.path(workdir, outname, paste0(outname, "_chr", chr, "_extract.raw")), data.table=F)
     extraction_temp <- extraction_temp  %>%
       separate(FID, into = c("ID", "GPCR"), sep = "_") %>%
       dplyr::select(-PAT, -MAT, -SEX, -PHENOTYPE, -IID,-ID)
