@@ -16,6 +16,9 @@ QC_dir=$project_dir/analysis/QC
 #pc_data=${QC_dir}/15_final_processing/final_pca/CEU/pcs.PSYMETAB_GWAS_CEU_unrelated.txt
 qc_data=${QC_dir}/15_final_processing/FULL/PSYMETAB_GWAS.FULL
 reference_data=$data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab
+plink_data="PLINK_091019_0920"
+input_chip=$project_dir/data/processed/${plink_data}/PSYMETAB_GWAS
+
 
 if [ ! -d "${output}" ] ; then
 mkdir ${output}
@@ -29,7 +32,7 @@ do
   if [ ! -d "${output}/${out_name}" ] ; then
     mkdir ${output}/${out_name}
   fi
-  sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data $eth $QC_dir
+  sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data $QC_dir $input_chip
 
 done
 
