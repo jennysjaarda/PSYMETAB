@@ -47,5 +47,5 @@ plink2 --bfile $output/${out_name}/${out_name}_missing_snps_extract --recode A -
 
 
 if [ -s "$output/${out_name}/${out_name}_missing_snps_extract.raw" ]; then
-  Rscript code/extractions/missing_snps_merge.r $output $out_name $pc_data $snp_file
+  Rscript code/extractions/geno_original_merge.r $output $out_name $pc_data $snp_file
 fi
