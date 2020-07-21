@@ -18,6 +18,7 @@ qc_data=${QC_dir}/15_final_processing/FULL/PSYMETAB_GWAS.FULL
 reference_data=$data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab
 plink_data="PLINK_091019_0920"
 input_chip=$project_dir/data/processed/${plink_data}/PSYMETAB_GWAS
+pc_data=${QC_dir}/15_final_processing/final_pca/ETH/pcs.PSYMETAB_GWAS_ETH_unrelated.txt
 
 
 if [ ! -d "${output}" ] ; then

@@ -34,7 +34,6 @@ do
   fi
 done
 
-pc_data=${QC_dir}/15_final_processing/final_pca/ETH/pcs.PSYMETAB_GWAS_ETH_unrelated.txt
 
 Rscript code/extractions/pc_merge.r $output $out_name $pc_data $snp_file
 

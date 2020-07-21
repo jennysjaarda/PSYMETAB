@@ -22,6 +22,8 @@ library(tidyr)
 # "/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/final_pca/ETH/pcs.PSYMETAB_GWAS_ETH_unrelated.txt",
 #  "/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions/Nicolas/SNP_list_23062020.txt")
 
+cat("Extracting PC data..\n")
+
 workdir <- args[1]
 outname <- args[2]
 pc_file <- args[3]
