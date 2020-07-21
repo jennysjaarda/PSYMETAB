@@ -34,18 +34,15 @@ do
   fi
 done
 
-for eth in CEU EA MIXED NA YRI ; do
+pc_data=${QC_dir}/15_final_processing/final_pca/ETH/pcs.PSYMETAB_GWAS_ETH_unrelated.txt
 
-  pc_data=${QC_dir}/15_final_processing/final_pca/ETH/pcs.PSYMETAB_GWAS_ETH_unrelated.txt
-  if [ -f "$pc_data" ] ; then
-    Rscript code/extractions/pc_merge.r $output $out_name $pc_data $snp_file
-  fi
-done
+Rscript code/extractions/pc_merge.r $output $out_name $pc_data $snp_file
+
 
 plink2 --bfile $input_chip --extract $output/${out_name}/${out_name}_missing_snps.txt --make-bed --out $output/${out_name}/${out_name}_missing_snps_extract
 plink2 --bfile $output/${out_name}/${out_name}_missing_snps_extract --recode A --out $output/${out_name}/${out_name}_missing_snps_extract
 
 
 if [ -s "$output/${out_name}/${out_name}_missing_snps_extract.raw" ]; then
-  Rscript code/extractions/geno_original_merge.r $output $out_name $pc_data $snp_file
+  Rscript code/extractions/geno_original_merge.r $output $out_name $snp_file
 fi

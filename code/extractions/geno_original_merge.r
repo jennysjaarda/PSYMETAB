@@ -20,7 +20,7 @@ library(tidyverse)
 library(data.table)
 library(tidyr)
 # args <- c("/data/sgg2/jenny/projects/PSYMETAB/data/processed/extractions/Nicolas","SNP_list_23062020",
- "/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions/Nicolas/SNP_list_23062020.txt")
+# "/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions/Nicolas/SNP_list_23062020.txt")
 
 
 workdir <- args[1]
