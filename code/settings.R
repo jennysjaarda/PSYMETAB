@@ -111,5 +111,7 @@ GWAS_models <- tibble(outcome_variable=c(as.character(interaction_outcome_combin
 
 
 gw_sig <- 5e-08
+gw_sig_nominal <- 5e-06
+
 maf_threshold <- 0.05
 info_threshold <- 0.8
