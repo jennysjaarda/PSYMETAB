@@ -343,12 +343,19 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     mutate(BMI_change = bmi_diff(BMI)) %>%
     mutate(time_between_visits = as.numeric(Date-lag(Date))) %>% replace_na(list(time_between_visits=0)) %>%
 
-    mutate(BMI_change_6mo = bmi_diff_time(BMI, date_difference_first, follow_up_limit)) %>% #mutate(BMI_change2=replace(BMI_change2, date_difference_first > follow_up_limit, NA)) %>%
+    mutate(BMI_change_6mo = bmi_diff_time(BMI, date_difference_first, follow_up_6mo)) %>% #mutate(BMI_change2=replace(BMI_change2, date_difference_first > follow_up_limit, NA)) %>%
+    mutate(BMI_change_3mo = bmi_diff_time(BMI, date_difference_first, follow_up_3mo)) %>% #mutate(BMI_change2=replace(BMI_change2, date_difference_first > follow_up_limit, NA)) %>%
+    mutate(BMI_change_1mo = bmi_diff_time(BMI, date_difference_first, follow_up_1mo)) %>% #mutate(BMI_change2=replace(BMI_change2, date_difference_first > follow_up_limit, NA)) %>%
+
     mutate(BMI_slope=tryCatch(calc_slope(date_difference_first, BMI, Inf),error=function(e){9999}, warning=function(w){999})) %>%
-    mutate(BMI_slope_6mo=tryCatch(calc_slope(date_difference_first, BMI, follow_up_limit),error=function(e){9999}, warning=function(w){999})) %>%
+    mutate(BMI_slope_6mo=tryCatch(calc_slope(date_difference_first, BMI, follow_up_6mo),error=function(e){9999}, warning=function(w){999})) %>%
+
     mutate(BMI_slope_weight=tryCatch(calc_weighted_slope(date_difference_first, BMI, Inf),error=function(e){9999}, warning=function(w){999})) %>%
-    mutate(BMI_slope_weight_6mo=tryCatch(calc_weighted_slope(date_difference_first, BMI, follow_up_limit),error=function(e){9999}, warning=function(w){999})) %>%
-    mutate(AP1_duration_6mo = calc_duration_short(Date, date_difference_first, follow_up_limit)) %>%
+    mutate(BMI_slope_weight_6mo=tryCatch(calc_weighted_slope(date_difference_first, BMI, follow_up_6mo),error=function(e){9999}, warning=function(w){999})) %>%
+
+    mutate(AP1_duration_6mo = calc_duration_short(Date, date_difference_first, follow_up_6mo)) %>%
+    mutate(AP1_duration_3mo = calc_duration_short(Date, date_difference_first, follow_up_3mo)) %>%
+    mutate(AP1_duration_1mo = calc_duration_short(Date, date_difference_first, follow_up_1mo)) %>%
 
     mutate_at(vars(starts_with("BMI_slope")), ~replace(., . == 9999, NA)) %>% # there should be no errors or changes
     mutate_at(vars(starts_with("BMI_slope")), ~replace(., . == 999, NA)) %>% # warning messages result from "essentially perfect fit: summary may be unreliable" remove these rows
@@ -359,7 +366,7 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     group_by(GEN) %>%
     mutate(Drug_Number=paste0("Drug_",row_number())) %>%
     pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug"), height), names_from=Drug_Number, values_from=c(starts_with("BMI_slope"), starts_with("BMI_change"), "AP1", "Age","Date", paste0(baseline_vars, "_start"), "BMI_slope",
-        "AP1_duration", "AP1_duration_6mo", "Num_followups")) %>%
+        "AP1_duration", "AP1_duration_1mo", "AP1_duration_3mo", "AP1_duration_6mo", "Num_followups")) %>%
     dplyr::select(matches('GEN|sex|AP1|Age|Date|height|BMI|_start_Drug_1|Num_followups|_ever_drug'))%>%
     ungroup() %>%
     mutate(Age_sq_Drug_1 = Age_Drug_1^2) %>%
@@ -407,11 +414,15 @@ munge_snp_weights <- function(snp_weights, related_inds){
 clean_drugs <- function(x){
   drugs <- as.character(unlist(x %>% dplyr::select(starts_with("AP1_Drug_"))))
   time <- as.numeric(unlist(x %>% dplyr::select(starts_with("AP1_duration_Drug_"))))
+  time_1mo <- as.numeric(unlist(x %>% dplyr::select(starts_with("AP1_duration_1mo_Drug_"))))
+  time_3mo <- as.numeric(unlist(x %>% dplyr::select(starts_with("AP1_duration_3mo_Drug_"))))
   time_6mo <- as.numeric(unlist(x %>% dplyr::select(starts_with("AP1_duration_6mo_Drug_"))))
 
   bmi_start <-  as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_start_Drug_"))))
 
   bmi_change <-  as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_change_Drug_"))))
+  bmi_change_1mo <- as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_change_1mo_Drug_"))))
+  bmi_change_3mo <- as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_change_3mo_Drug_"))))
   bmi_change_6mo <- as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_change_6mo_Drug_"))))
 
   bmi_slope <-  as.numeric(unlist(x %>% dplyr::select(starts_with("BMI_slope_Drug_"))))
@@ -423,7 +434,9 @@ clean_drugs <- function(x){
   num_followups <- as.numeric(unlist(x %>% dplyr::select(starts_with("Num_followups_Drug_"))))
   age_started <- as.numeric(unlist(x %>% dplyr::select(starts_with("Age_Drug_"))))
   drug_num <- c(1:length(drugs))
-  out <- tibble(drug=drugs,time=time,time_6mo=time_6mo,bmi_start=bmi_start, bmi_change=bmi_change, bmi_change_6mo=bmi_change_6mo,
+  out <- tibble(drug=drugs, time=time, time_1mo=time_1mo, time_3mo=time_3mo, time_6mo=time_6mo,
+    bmi_start=bmi_start, bmi_change=bmi_change,
+    bmi_change_1mo=bmi_change_1mo, bmi_change_3mo=bmi_change_3mo, bmi_change_6mo=bmi_change_6mo,
     bmi_slope=bmi_slope, bmi_slope_weight=bmi_slope_weight, bmi_slope_6mo=bmi_slope_6mo, bmi_slope_weight_6mo=bmi_slope_weight_6mo,
     drug_num=drug_num, age_started=age_started, num_followups=num_followups)
   return(out)
@@ -456,10 +469,14 @@ classify_drugs <- function(x, case_categories, preferential_control_categories, 
   best_match <- unname(ifelse (is.na(case_match), control_match, case_match))
   bmi_start <- dplyr::pull(drug_info[best_match,"bmi_start"])
   time_temp <- dplyr::pull(drug_info[best_match,"time"])
+  time_1mo_temp <- dplyr::pull(drug_info[best_match,"time_1mo"])
+  time_3mo_temp <- dplyr::pull(drug_info[best_match,"time_3mo"])
   time_6mo_temp <- dplyr::pull(drug_info[best_match,"time_6mo"])
 
   drug_temp <- dplyr::pull(drug_info[best_match,"drug"])
   bmi_change <- dplyr::pull(drug_info[best_match,"bmi_change"])
+  bmi_change_1mo <- dplyr::pull(drug_info[best_match,"bmi_change_1mo"])
+  bmi_change_3mo <- dplyr::pull(drug_info[best_match,"bmi_change_3mo"])
   bmi_change_6mo <- dplyr::pull(drug_info[best_match,"bmi_change_6mo"])
 
   bmi_slope <- dplyr::pull(drug_info[best_match,"bmi_slope"])
@@ -468,8 +485,10 @@ classify_drugs <- function(x, case_categories, preferential_control_categories, 
   bmi_slope_weight_6mo <- dplyr::pull(drug_info[best_match,"bmi_slope_weight_6mo"])
 
   age_started <- dplyr::pull(drug_info[best_match,"age_started"])
-  return(list(case=case, drug_num=best_match, drug_name=drug_temp,age_started=age_started, bmi_start=bmi_start, bmi_diff=bmi_change, bmi_diff_6mo=bmi_change_6mo,
-    bmi_slope=bmi_slope, bmi_slope_weight=bmi_slope_weight, bmi_slope_6mo=bmi_slope_6mo, bmi_slope_weight_6mo=bmi_slope_weight_6mo,duration=time_temp,duration_6mo=time_6mo_temp))
+  return(list(case=case, drug_num=best_match, drug_name=drug_temp,age_started=age_started, bmi_start=bmi_start, bmi_diff=bmi_change,
+    bmi_change_1mo=bmi_change_1mo, bmi_change_3mo=bmi_change_3mo, bmi_change_6mo=bmi_change_6mo,
+    bmi_slope=bmi_slope, bmi_slope_weight=bmi_slope_weight, bmi_slope_6mo=bmi_slope_6mo, bmi_slope_weight_6mo=bmi_slope_weight_6mo,
+    duration=time_temp, duration_1mo=time_1mo_temp, duration_3mo=time_3mo_temp, duration_6mo=time_6mo_temp))
 }
 
 
@@ -488,8 +507,12 @@ munge_pheno_follow <-  function(pheno_baseline, test_drugs, i, low_inducers, hig
             result$high_inducer_drug_num=x$drug_num
             result$high_inducer_drug_name=x$drug_name
             result$bmi_change=x$bmi_diff
-            result$bmi_change_6mo=x$bmi_diff_6mo
+            result$bmi_change_1mo=x$bmi_change_1mo
+            result$bmi_change_3mo=x$bmi_change_3mo
+            result$bmi_change_6mo=x$bmi_change_6mo
             result$follow_up_time=x$duration
+            result$follow_up_time_1mo=x$duration_1mo
+            result$follow_up_time_3mo=x$duration_3mo
             result$follow_up_time_6mo=x$duration_6mo
             result$age_started=x$age_started
             result$bmi_start=x$bmi_start
@@ -1284,10 +1307,12 @@ extract_model_stats <- function(model_summary, coef_list){
 
 }
 
-analyze_prs <- function(prs_file, pheno_file, pc_eth_data, linear_pheno_columns, glm_pheno_columns, covars){
+
+analyze_prs <- function(prs_file, pheno_file, pc_file, linear_pheno_columns, glm_pheno_columns, covars){
 
   prs_data <- fread(prs_file, data.table=F)
   pheno_data <- fread(pheno_file, data.table=F)
+  pc_eth_data <- fread(pc_file, data.table=F)
   colnames(prs_data) <- c("ID", "GEN", "PRS_5e08", "PRS_5e07", "PRS_5e06", "PRS_5e05", "PRS_5e04", "PRS_5e03", "PRS_5e02", "PRS_0.1")
 
   output <- numeric()
@@ -1320,9 +1345,9 @@ analyze_prs <- function(prs_file, pheno_file, pc_eth_data, linear_pheno_columns,
         joint <- reduce(list(outcome_data,prs_sub_data,covar_data,pc_sub_data), inner_join, by = "GEN") %>%
           dplyr::select(-GEN) %>%
           mutate(prs = scale(prs))
+
         model <- (glm(outcome ~ ., data=joint, family="binomial"))
 
-        model <- (glm(outcome ~ prs + Age_caffeine, data=joint, family="binomial"))
 
         model_summary <- full_model_summary(model)
         model_stats <- extract_model_stats(model_summary, c("prs"))
@@ -1619,6 +1644,20 @@ create_figures <- function(joint_file, manhattan_file_name, qq_file_name, title,
 
 }
 
+gw_sig_extract <- function(gwas_file, gw_sig_nominal, eth, pheno, drug_class, drug){
+
+  output <- list()
+  gwas <- fread(gwas_file, data.table=F)
+  gw_sig_filter <- gwas[which(gwas$P < gw_sig_nominal),]
+
+  output_name <- paste(eth, pheno, drug_class, drug, sep=".")
+  if(is.na(drug)){
+    output_name <- paste(eth, pheno, drug_class, sep=".")
+  }
+  output[[output_name]] <- gw_sig_filter
+  return(output)
+
+}
 
 #### GWAS
 # sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
