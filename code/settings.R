@@ -54,6 +54,10 @@ anonymization_error <- 7 ## the anonymization procedure adds a random number of 
 
 follow_up_limit <- 180 ## restrict GWAS to number of days follow-up
 
+follow_up_6mo <- 180
+follow_up_3mo <- 90
+follow_up_1mo <- 30
+
 
 min_follow_up <- 14
 
