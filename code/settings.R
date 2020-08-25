@@ -107,7 +107,7 @@ standard_covars <- c(paste0("PC", 1:20), "sex")
 baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
 caffeine_covars <- c("Age_caffeine", "Age_caffeine_sq")
 
-interaction_outcome <- c("bmi_change", "bmi_change_6mo", "bmi_slope", "bmi_slope_weight", "bmi_slope_6mo", "bmi_slope_weight_6mo")
+interaction_outcome <- c("bmi_change", "bmi_change_1mo", "bmi_change_3mo", "bmi_change_6mo", "bmi_slope", "bmi_slope_weight", "bmi_slope_6mo", "bmi_slope_weight_6mo")
 interaction_outcome_combinations <- expand.grid(interaction_outcome, dplyr::pull(test_drugs, class))
 GWAS_models <- tibble(outcome_variable=c(as.character(interaction_outcome_combinations[,1]),baseline_vars),
                       interaction_variable=c(as.character(interaction_outcome_combinations[,2]),rep(NA, length(baseline_vars))),
