@@ -545,7 +545,10 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, tes
   list_pheno <- list(linear=linear_pheno)
   for(sub in names(pheno_followup))
   {
-    data_drug <- pheno_followup[[sub]]
+    data_drug <- pheno_followup[[sub]] %>%
+      mutate_at(.vars = interaction_outcome, .funs = ivt) # perform IVT on full data set instead of before sensitivity phenotypes are create_dir
+                                                          # this means that the data used in the sensitivity models is exactly the same as the full models, just with some participants removed.
+
     drugs_analyzed <- test_drugs[which(test_drugs$class==sub),] %>% pull(drugs) %>% unlist()
     remove_drugs <- numeric()
     count <- 1
@@ -574,8 +577,8 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, tes
       rename_at(vars(-FID,-IID),function(x) paste0(x,"_",sub)) %>%
       mutate_if(.predicate = is.character,.funs = na_to_none) %>%
 
-      mutate_at(.vars = c(paste0(interaction_outcome,"_", sub), paste0(interaction_outcome,"_sensitivity_", sub)), .funs = ivt)
-      #.funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .)) ## to remove outliers
+      # mutate_at(.vars = c(paste0(interaction_outcome,"_", sub), paste0(interaction_outcome,"_sensitivity_", sub)), .funs = ivt) ## if you want to perform IVT *after* sensitivity phenotypes are created 
+      # .funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .)) ## to remove outliers
 
     pheno_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^high_inducer',ignore.case = F), paste0(interaction_outcome,"_", sub),
       paste0(interaction_outcome,"_sensitivity_", sub))
@@ -1707,7 +1710,7 @@ gw_sig_extract <- function(gwas_file, gw_sig_nominal, eth, pheno, drug_class, dr
   gwas$pheno <- pheno
   gwas$drug_class <- drug_class
   gwas$drug <- drug
-  
+
   gw_sig_filter <- gwas[which(gwas$P < gw_sig_nominal),]
 
 
