@@ -111,9 +111,16 @@ rename_meds <- function(AP1, PatientsRecNum, Date)
     drug_i <- data[["AP1"]][i]
     PatientsRecNum_i <- data[["PatientsRecNum"]][i]
     if(drug_i %in% drugs_seen){
+      previous_drug <- length(drugs_seen)
+      previous_drug_i <- max(which(drugs_seen==drug_i))
+      if(previous_drug == previous_drug_i){
+        if(PatientsRecNum_previous==PatientsRecNum_i){count <- count_previous}
+        if(PatientsRecNum_previous!=PatientsRecNum_i){count <- count_previous + 1}
+      }
+      if(previous_drug > previous_drug_i){
+        count <- out_index[previous_drug_i] + 1
+      }
 
-      if(PatientsRecNum_previous==PatientsRecNum_i){count <- count_previous}
-      if(PatientsRecNum_previous!=PatientsRecNum_i){count <- count_previous + 1}
     }
 
     if(!drug_i %in% drugs_seen){
@@ -130,21 +137,26 @@ rename_meds <- function(AP1, PatientsRecNum, Date)
 
 
 
-bmi_diff <- function(x){
+X_diff <- function(x){
   n_obs <- length(x)
   if(length(x) > 1) {out <- x[n_obs]-x[1]}
   if(length(x) ==1) {out <- NA}
   return(out)
 }
 
-bmi_diff_time <- function(x, date_difference_first, time_limit){
-  data <- tibble(BMI = x, date_difference_first = date_difference_first)
-  bmi_diff(data %>% filter(date_difference_first <= time_limit) %>% pull(BMI))
+X_diff_time <- function(x, date_difference_first, time_limit){
+  data <- tibble(X = x, date_difference_first = date_difference_first)
+  X_diff(data %>% filter(date_difference_first <= time_limit) %>% pull(X))
 }
 
 calc_slope <- function(x, y, time_limit){
+  NA_locations <- union(which(is.na(x)), which(is.na(y)))
+  x <- x[-NA_locations]
+  y <- y[-NA_locations]
+
   x <- x[which(x <= time_limit)]
   y <- y[which(x <= time_limit)]
+
   beta <- NA
   if(length(x) > 1 & (length(unique(x)) >1 | length(unique(y)) > 1)){
     if(length(unique(y))==1){
@@ -168,6 +180,9 @@ calc_duration_short <- function(Date, date_difference_first, time_limit){
 }
 
 calc_weighted_slope <- function(x, y, time_limit){
+  NA_locations <- union(which(is.na(x)), which(is.na(y)))
+  x <- x[-NA_locations]
+  y <- y[-NA_locations]
 
   x <- x[which(x <= time_limit)]
   y <- y[which(x <= time_limit)]
@@ -297,7 +312,7 @@ ivt <- function(x){
   return(out)
 }
 
-munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit){
+munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit, interaction_outcome){
   pheno_raw %>%
     mutate_all(~replace(., . == 999, NA)) %>% filter(!is.na(PatientsTaille) & !is.na(Poids)) %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%y'))  %>%
@@ -337,37 +352,43 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     group_by(GEN,AP1_mod) %>%
     mutate(AP1_duration= as.numeric(max(Date)-min(Date)))%>% mutate(AP1_duration = na_if(AP1_duration, 0)) %>%
     mutate(Num_followups = n()) %>%
+    filter(!AP1_duration < min_follow_up) %>%
+    filter(!is.na(AP1_duration)) %>%
     ungroup() %>% group_by(GEN,AP1) %>%
-    filter(grepl('round1$', AP1_mod)) %>% # restrict to only round1
+    mutate(AP1_mod = rename_meds(AP1, PatientsRecNum, Date)) %>% # rename drug rounds after filtering for rounds shorter than minimum (14 days)
+    ungroup() %>% group_by(GEN,AP1) %>%
+    filter(grepl('round1$', AP1_mod)) %>% # restrict to only round1 of each drug
     #filter(Num_followups == max(Num_followups)) %>% # restrict to drug with most number of follow-ups
-    mutate(BMI_change = bmi_diff(BMI)) %>%
+    mutate_at(baseline_vars, list(change = ~X_diff(.))) %>%
     mutate(time_between_visits = as.numeric(Date-lag(Date))) %>% replace_na(list(time_between_visits=0)) %>%
+    mutate_at(baseline_vars, as.numeric) %>%
+    mutate_at(baseline_vars, list(change_6mo = ~X_diff_time(., date_difference_first, follow_up_6mo),
+                                  change_3mo = ~X_diff_time(., date_difference_first, follow_up_3mo),
+                                  change_1mo = ~X_diff_time(., date_difference_first, follow_up_1mo))) %>%
 
-    mutate(BMI_change_6mo = bmi_diff_time(BMI, date_difference_first, follow_up_6mo)) %>% #mutate(BMI_change2=replace(BMI_change2, date_difference_first > follow_up_limit, NA)) %>%
-    mutate(BMI_change_3mo = bmi_diff_time(BMI, date_difference_first, follow_up_3mo)) %>% #mutate(BMI_change2=replace(BMI_change2, date_difference_first > follow_up_limit, NA)) %>%
-    mutate(BMI_change_1mo = bmi_diff_time(BMI, date_difference_first, follow_up_1mo)) %>% #mutate(BMI_change2=replace(BMI_change2, date_difference_first > follow_up_limit, NA)) %>%
+    mutate_at(baseline_vars, list(slope = ~tryCatch(calc_slope(date_difference_first, ., Inf),error=function(e){9999}, warning=function(w){999}),
+                                  slope_6mo= ~tryCatch(calc_slope(date_difference_first, ., follow_up_6mo),error=function(e){9999}, warning=function(w){999}))) %>%
 
-    mutate(BMI_slope=tryCatch(calc_slope(date_difference_first, BMI, Inf),error=function(e){9999}, warning=function(w){999})) %>%
-    mutate(BMI_slope_6mo=tryCatch(calc_slope(date_difference_first, BMI, follow_up_6mo),error=function(e){9999}, warning=function(w){999})) %>%
-
-    mutate(BMI_slope_weight=tryCatch(calc_weighted_slope(date_difference_first, BMI, Inf),error=function(e){9999}, warning=function(w){999})) %>%
-    mutate(BMI_slope_weight_6mo=tryCatch(calc_weighted_slope(date_difference_first, BMI, follow_up_6mo),error=function(e){9999}, warning=function(w){999})) %>%
+    mutate_at(baseline_vars, list(slope_weight = ~tryCatch(calc_weighted_slope(date_difference_first, ., Inf),error=function(e){9999}, warning=function(w){999}),
+                                  slope_weight_6mo = ~tryCatch(calc_weighted_slope(date_difference_first, ., follow_up_6mo),error=function(e){9999}, warning=function(w){999}))) %>%
 
     mutate(AP1_duration_6mo = calc_duration_short(Date, date_difference_first, follow_up_6mo)) %>%
     mutate(AP1_duration_3mo = calc_duration_short(Date, date_difference_first, follow_up_3mo)) %>%
     mutate(AP1_duration_1mo = calc_duration_short(Date, date_difference_first, follow_up_1mo)) %>%
 
-    mutate_at(vars(starts_with("BMI_slope")), ~replace(., . == 9999, NA)) %>% # there should be no errors or changes
-    mutate_at(vars(starts_with("BMI_slope")), ~replace(., . == 999, NA)) %>% # warning messages result from "essentially perfect fit: summary may be unreliable" remove these rows
+    mutate_at(vars(matches('_slope$|_slope_6mo$|_slope_weight$|_slope_weight_6mo$')), ~replace(., . == 9999, NA)) %>% # there should be no errors or changes
+    mutate_at(vars(matches('_slope$|_slope_6mo$|_slope_weight$|_slope_weight_6mo$')), ~replace(., . == 999, NA)) %>% # warning messages result from "essentially perfect fit: summary may be unreliable" remove these rows
 
     dplyr::distinct(AP1, .keep_all=T) %>% ungroup() %>%
     rename_at(baseline_vars, function(x) paste0( x, "_start")) %>%
     mutate_at(paste0( baseline_vars, "_start"), destring) %>%
     group_by(GEN) %>%
     mutate(Drug_Number=paste0("Drug_",row_number())) %>%
-    pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug"), height), names_from=Drug_Number, values_from=c(starts_with("BMI_slope"), starts_with("BMI_change"), "AP1", "Age","Date", paste0(baseline_vars, "_start"), "BMI_slope",
-        "AP1_duration", "AP1_duration_1mo", "AP1_duration_3mo", "AP1_duration_6mo", "Num_followups")) %>%
-    dplyr::select(matches('GEN|sex|AP1|Age|Date|height|BMI|_start_Drug_1|Num_followups|_ever_drug'))%>%
+    pivot_wider(id_cols=c(GEN,sex, ends_with("_ever_drug"), height), names_from=Drug_Number,
+                values_from=c(interaction_outcome, "AP1", "Age","Date", paste0(baseline_vars, "_start"),
+                              "AP1_duration", "AP1_duration_1mo", "AP1_duration_3mo", "AP1_duration_6mo", "Num_followups")) %>%
+
+    dplyr::select(matches(paste0(paste(interaction_outcome, collapse="|"), '|GEN|sex|AP1|Age|Date|height|_start_Drug_1|Num_followups|_ever_drug'))) %>%
     ungroup() %>%
     mutate(Age_sq_Drug_1 = Age_Drug_1^2) %>%
     mutate_at(vars(starts_with("AP1_Drug_")) , as.factor) %>%
@@ -577,7 +598,7 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, tes
       rename_at(vars(-FID,-IID),function(x) paste0(x,"_",sub)) %>%
       mutate_if(.predicate = is.character,.funs = na_to_none) %>%
 
-      # mutate_at(.vars = c(paste0(interaction_outcome,"_", sub), paste0(interaction_outcome,"_sensitivity_", sub)), .funs = ivt) ## if you want to perform IVT *after* sensitivity phenotypes are created 
+      # mutate_at(.vars = c(paste0(interaction_outcome,"_", sub), paste0(interaction_outcome,"_sensitivity_", sub)), .funs = ivt) ## if you want to perform IVT *after* sensitivity phenotypes are created
       # .funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .)) ## to remove outliers
 
     pheno_var <- all_var %>% dplyr::select(matches('^FID$|^IID$|^high_inducer',ignore.case = F), paste0(interaction_outcome,"_", sub),

@@ -100,14 +100,20 @@ low_inducers <- c("Amisulpride", "Aripiprazole", "Brexpiprazole", "Cariprazine",
 drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloza", "risp", "quet", "ocq", "ami")
 test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"),
   c("Clozapine"), c("Risperidone"), c("Quetiapine"), c("Olanzapine", "Clozapine", "Quetiapine"), c("Amisulpride")))
-baseline_vars <- c("BMI","LDL","Glucose","Creatinine")
+
+baseline_vars <- c("BMI", "Creatinine", "Glucose", "CholesterolHDL", "LDL", "Tryglycerides", "Creatinine")
 caffeine_vars <-  c("logCAF", "logTHEOBR", "logPARAX", "Sleep_disorder")
 
 standard_covars <- c(paste0("PC", 1:20), "sex")
 baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
 caffeine_covars <- c("Age_caffeine", "Age_caffeine_sq")
 
-interaction_outcome <- c("bmi_change", "bmi_change_1mo", "bmi_change_3mo", "bmi_change_6mo", "bmi_slope", "bmi_slope_weight", "bmi_slope_6mo", "bmi_slope_weight_6mo")
+
+interaction_outcome <- apply(expand.grid(baseline_vars,
+                                        c("_slope", "_slope_6mo", "_slope_weight", "_slope_weight_6mo",
+                                          "_change", "_change_1mo", "_change_3mo", "_change_6mo")),
+                             1, paste, collapse="")
+
 interaction_outcome_combinations <- expand.grid(interaction_outcome, dplyr::pull(test_drugs, class))
 GWAS_models <- tibble(outcome_variable=c(as.character(interaction_outcome_combinations[,1]),baseline_vars),
                       interaction_variable=c(as.character(interaction_outcome_combinations[,2]),rep(NA, length(baseline_vars))),
