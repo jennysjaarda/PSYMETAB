@@ -101,13 +101,15 @@ drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloza", "risp", "q
 test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"),
   c("Clozapine"), c("Risperidone"), c("Quetiapine"), c("Olanzapine", "Clozapine", "Quetiapine"), c("Amisulpride")))
 
-baseline_vars <- c("BMI", "Creatinine", "Glucose", "CholesterolHDL", "LDL", "Tryglycerides", "Creatinine")
+baseline_vars <- c("BMI", "Creatinine", "Glucose", "CholesterolHDL", "LDL", "Tryglycerides")
 caffeine_vars <-  c("logCAF", "logTHEOBR", "logPARAX", "Sleep_disorder")
 
 standard_covars <- c(paste0("PC", 1:20), "sex")
 baseline_covars <- c("Age_sq_Drug_1","Age_Drug_1")
 caffeine_covars <- c("Age_caffeine", "Age_caffeine_sq")
 
+outcomes <- c("_slope", "_slope_6mo", "_slope_weight", "_slope_weight_6mo",
+  "_change", "_change_1mo", "_change_3mo", "_change_6mo")
 
 interaction_outcome <- apply(expand.grid(baseline_vars,
                                         c("_slope", "_slope_6mo", "_slope_weight", "_slope_weight_6mo",
