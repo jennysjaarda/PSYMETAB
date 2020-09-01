@@ -150,7 +150,7 @@ qc_process <- drake_plan(
 analysis_prep <- drake_plan(
   # prepare phenotype files for analysis in GWAS/GRS etc. ------------
 
-  pheno_raw = readr::read_delim(file_in(!!pheno_file), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
+  pheno_raw = readr::read_delim(file_in(!!pheno_file), na = c("#pdt", "#ccannul", "#pam", "#di", "#pnc"), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
   caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet=1) %>% type_convert(),
     hpc = FALSE),
   # found a mistake that the age of WIFRYNSK was wrong at one instance.
@@ -163,7 +163,7 @@ analysis_prep <- drake_plan(
   bgen_nosex_out = write.table(bgen_sample_file[,1:3],file_out(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),row.names = F, quote = F, col.names = T),
   pc_raw = read_pcs(file_in(!!pc_dir), !!study_name, !!eths) %>% as_tibble(),
 
-  pheno_munge = munge_pheno(pheno_raw, !!baseline_vars, !!leeway_time, caffeine_munge, !!follow_up_limit), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
+  pheno_munge = munge_pheno(pheno_raw, !!baseline_vars, !!leeway_time, caffeine_munge, !!follow_up_limit, !!interaction_outcome), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
   #pheno_munge = munge_pheno(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit)
   pheno_merge = merge_pheno_caffeine(pheno_raw, caffeine_munge, !!anonymization_error), # in the end, we don't use this dataset, but if you want to merge by caffeine with the appropriate date use this data.
 
@@ -174,11 +174,12 @@ analysis_prep <- drake_plan(
 
   pc_raw_out = write.table(pc_raw, file_out(!!paste0("data/processed/phenotype_data/", study_name, "_PCs.txt")), row.names = F, quote = F, col.names = T),
 
-  test_drugs_num = tibble(i = 1:dim(!!test_drugs)[1]),
-  pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, test_drugs_num$i, !!low_inducers, !!high_inducers),
-    dynamic = map(test_drugs_num)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  pheno_drug_combinations = define_pheno_drug_combos(!!drug_classes, !!baseline_vars),
+  #test_drugs_num = tibble(i = 1:dim(!!test_drugs)[1], pheno = baseline_vars),
+  pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, pheno_drug_combinations$class, pheno_drug_combinations$pheno, !!low_inducers, !!high_inducers),
+    dynamic = map(pheno_drug_combinations)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
   GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars, !!test_drugs,
-    !!high_inducers, !!med_inducers, !!low_inducers),
+    !!high_inducers, !!med_inducers, !!low_inducers, !!outcomes),
 
   ## linear model GWAS:
   #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
@@ -197,9 +198,9 @@ analysis_prep <- drake_plan(
 
   baseline_gwas_info = target(define_baseline_models(GWAS_input, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
     hpc = FALSE),
-  interaction_gwas_info = target(define_interaction_models(GWAS_input, !!drug_classes, !!interaction_outcome),
+  interaction_gwas_info = target(define_interaction_models(GWAS_input, !!drug_classes, !!interaction_outcome, !!baseline_vars),
     hpc = FALSE),
-  subgroup_gwas_info = target(define_subgroup_models(GWAS_input, !!drug_classes, !!interaction_outcome),
+  subgroup_gwas_info = target(define_subgroup_models(GWAS_input, !!drug_classes, !!interaction_outcome, !!baseline_vars),
     hpc = FALSE),
 
   baseline_resid = target(
@@ -228,7 +229,7 @@ analysis_prep <- drake_plan(
     write.table(baseline_resid_data, file_out("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"), row.names = F, quote = F, col.names = T)}),
 
   out_interacation_resid = target(
-      write_interaction_resid(interaction_resid_data, drug_classes_tibble$class),
+    write_interaction_resid(interaction_resid_data, drug_classes_tibble$class),
     dynamic=map(drug_classes_tibble), format = "file"),
 
   out_subgroup_resid = target(
@@ -242,7 +243,7 @@ analysis_prep <- drake_plan(
 
 
 
-##### Run GWAS ---------
+##### Run GWAS in PSYMETAB ---------
 
 init_analysis <- drake_plan(
 
@@ -271,7 +272,7 @@ init_analysis <- drake_plan(
                eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
-               output_dir = ("analysis/GWAS"), output = !!study_name)}
+               output_dir = (!!plink_output_dir), output = !!study_name)}
   ),
 
   check_interaction_input_files = target({
@@ -292,7 +293,7 @@ init_analysis <- drake_plan(
                 eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
-                output_dir = ("analysis/GWAS"), output = !!study_name)},
+                output_dir = (!!plink_output_dir), output = !!study_name)},
     dynamic = map(interaction_gwas_input)
   ),
 
@@ -305,7 +306,7 @@ init_analysis <- drake_plan(
                 eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
-                output_dir = ("analysis/GWAS"), output = !!study_name)},
+                output_dir = (!!plink_output_dir), output = !!study_name)},
     dynamic = map(subgroup_gwas_input)
   ),
 
@@ -314,24 +315,24 @@ init_analysis <- drake_plan(
   linear_meta_out = target({
     linear_out
     meta(output = !!study_name, output_suffix = "", eths = !!eths,
-      pheno_list = baseline_gwas_input$output_suffix, threads = 8)},
+      pheno_list = baseline_gwas_input$output_suffix, threads = 8, output_dir = (!!plink_output_dir))},
     dynamic = map(baseline_gwas_input)),
   interaction_meta_out = target({
     interaction_out
     meta(output = !!study_name, output_suffix = interaction_gwas_input$output_suffix, eth = !!eths,
-      pheno_list = !!interaction_outcome, type = "interaction", threads = 8, interaction_var = interaction_gwas_input$output_suffix)},
+      pheno_list = !!interaction_outcome, type = "interaction", threads = 8,
+      interaction_var = interaction_gwas_input$output_suffix, output_dir = (!!plink_output_dir))},
     dynamic = map(interaction_gwas_input)),
   subgroup_meta_out = target({
     subgroup_out
     meta(output = !!study_name, output_suffix = subgroup_gwas_input$output_suffix, eth = !!eths,
-      pheno_list = !!interaction_outcome, type = "subgroup", threads = 8)},
+      pheno_list = !!interaction_outcome, type = "subgroup", threads = 8, output_dir = (!!plink_output_dir))},
     dynamic = map(subgroup_gwas_input)),
 
 )
 
 # config <- drake_config(init_analysis)
 # vis_drake_graph(config)
-
 
 
 ### troubleshooting
@@ -382,6 +383,7 @@ init_analysis <- drake_plan(
 # type="subgroup"
 # subgroup_var = subgroup_gwas_info$subgroup[2]
 #
+
 process_init <- drake_plan(
 
   # define endpoint, covars and outputs ---------------------------
@@ -515,13 +517,13 @@ process_init <- drake_plan(
     format = "file"
   ),
 
-  subgroup_gwas_sig = target({
-    process_subgroup_gwas
-    gw_sig_extract(gwas_file = subgroup_gwas_files$write_file, !!gw_sig_nominal, eth = subgroup_gwas_files$eth, 
-      pheno = subgroup_gwas_files$pheno, drug_class = subgroup_gwas_files$drug_class, drug = subgroup_gwas_files$drug)
-    },
-    dynamic = map(subgroup_gwas_files)
-  ),
+  # subgroup_gwas_sig = target({
+  #   process_subgroup_gwas
+  #   gw_sig_extract(gwas_file = subgroup_gwas_files$write_file, !!gw_sig, eth = subgroup_gwas_files$eth,
+  #     pheno = subgroup_gwas_files$pheno, drug_class = subgroup_gwas_files$drug_class, drug = subgroup_gwas_files$drug)
+  #   },
+  #   dynamic = map(subgroup_gwas_files)
+  # ),
 
 
 
@@ -531,6 +533,34 @@ process_init <- drake_plan(
 
 
 )
+
+extract_sig <- drake_plan(
+
+  subgroup_gwas_process = target(define_subgroup_inputs(!!drug_classes),
+    hpc = FALSE),
+
+  subgroup_gwas_files = target({
+    define_subgroup_files(subgroup_gwas_process, output = !!study_name, eths = !!eths,
+    output_dir = "analysis/GWAS", type = "subgroup", pheno_list = !!interaction_outcome) %>%
+      filter(eth=="CEU") %>% filter(drug_class!="ami") %>% filter(drug_class!="sensitivity_ami") %>% filter(drug=="Drug") %>%
+      filter(pheno!="bmi_change_1mo") %>% filter(pheno!="bmi_change_3mo")},
+    hpc = FALSE),
+
+
+    subgroup_gwas_sig = target({
+
+      gw_sig_extract(gwas_file = subgroup_gwas_files$write_file, !!gw_sig_nominal, eth = subgroup_gwas_files$eth,
+        pheno = subgroup_gwas_files$pheno, drug_class = subgroup_gwas_files$drug_class, drug = subgroup_gwas_files$drug)
+      },
+      dynamic = map(subgroup_gwas_files)
+    ),
+
+)
+
+loadd(subgroup_gwas_sig)
+
+results_gw_sig <- bind_rows(subgroup_gwas_sig, .id = "pheno_name")
+results_gw_sig_nom <- bind_rows(subgroup_gwas_sig, .id = "pheno_name")
 
 #
 # ## GARBAGE
@@ -551,6 +581,16 @@ process_init <- drake_plan(
 #   baseline_gwas_figures_input$qq_file_name[1], baseline_gwas_figures_input$title[1])
 
 ######
+
+##### Run GWAS in UKBB ---------
+
+ukbb_gwas <- drake_plan(
+
+
+
+
+)
+
 
 prs <- drake_plan(
   prs_info = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),

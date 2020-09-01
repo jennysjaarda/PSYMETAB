@@ -31,7 +31,7 @@ qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
 pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_160420_corr_noaccent.csv"
 pc_dir <- "analysis/QC/15_final_processing/final_pca"
 caffeine_file <- "data/raw/phenotype_data/CAF_Sleep_Jenny_09_06_2020.xlsx"
-
+plink_output_dir <- "/data/sgg3/jenny/projects/PSYMETAB/analysis/GWAS"
 
 ### location of codes
 pre_imputation_script <- "code/pre_imputation_qc.sh"
@@ -110,6 +110,7 @@ caffeine_covars <- c("Age_caffeine", "Age_caffeine_sq")
 
 outcomes <- c("_slope", "_slope_6mo", "_slope_weight", "_slope_weight_6mo",
   "_change", "_change_1mo", "_change_3mo", "_change_6mo")
+
 
 interaction_outcome <- apply(expand.grid(baseline_vars,
                                         c("_slope", "_slope_6mo", "_slope_weight", "_slope_weight_6mo",
