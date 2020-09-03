@@ -31,7 +31,8 @@ qc_pheno_file <- "data/raw/phenotype_data/QC_sex_eth.xlsx"
 pheno_file <- "data/raw/phenotype_data/PHENO_GWAS_160420_corr_noaccent.csv"
 pc_dir <- "analysis/QC/15_final_processing/final_pca"
 caffeine_file <- "data/raw/phenotype_data/CAF_Sleep_Jenny_09_06_2020.xlsx"
-plink_output_dir <- "/data/sgg3/jenny/projects/PSYMETAB/analysis/GWAS"
+#plink_output_dir <- "/data/sgg3/jenny/projects/PSYMETAB/analysis/GWAS"
+plink_output_dir <- "analysis/GWAS"
 
 ### location of codes
 pre_imputation_script <- "code/pre_imputation_qc.sh"
@@ -102,6 +103,7 @@ test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine
   c("Clozapine"), c("Risperidone"), c("Quetiapine"), c("Olanzapine", "Clozapine", "Quetiapine"), c("Amisulpride")))
 
 baseline_vars <- c("BMI", "Creatinine", "Glucose", "CholesterolHDL", "LDL", "Tryglycerides")
+interaction_vars <- c("BMI", "LDL")
 caffeine_vars <-  c("logCAF", "logTHEOBR", "logPARAX", "Sleep_disorder")
 
 standard_covars <- c(paste0("PC", 1:20), "sex")
@@ -112,7 +114,7 @@ outcomes <- c("_slope", "_slope_6mo", "_slope_weight", "_slope_weight_6mo",
   "_change", "_change_1mo", "_change_3mo", "_change_6mo")
 
 
-interaction_outcome <- apply(expand.grid(baseline_vars,
+interaction_outcome <- apply(expand.grid(interaction_vars,
                                         c("_slope", "_slope_6mo", "_slope_weight", "_slope_weight_6mo",
                                           "_change", "_change_1mo", "_change_3mo", "_change_6mo")),
                              1, paste, collapse="")
@@ -128,3 +130,16 @@ gw_sig_nominal <- 5e-06
 
 maf_threshold <- 0.05
 info_threshold <- 0.8
+
+
+## UKB follow-up relevant variables
+
+
+
+UKBB_dir <- "/data/sgg3/data/UKBB/"
+
+#eid_var<- c("53", "21001")
+date_followup <- "53"
+bmi_var<- "21001"
+sex_var <- "31"
+age_var <- "21022"
