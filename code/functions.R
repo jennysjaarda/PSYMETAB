@@ -771,9 +771,11 @@ residualize_pheno <- function(GWAS_input, pheno, covars, outcome_type, eths, eth
 
 }
 
-create_analysis_dirs <- function(top_level){
+create_analysis_dirs <- function(top_level, eths){
   dir.create(top_level,showWarnings=F)
-  to_create <- c("analysis/GWAS/interaction","analysis/GWAS/full","analysis/GWAS/subgroup")
+
+  to_create <- c(file.path(top_level, "interaction"), file.path(top_level, "full"), file.path(top_level, "subgroup"))
+  ß
   for(dir in to_create){
     dir.create(dir,showWarnings=F)
     for (eth in eths){
@@ -1264,15 +1266,25 @@ meta <- function(output, output_suffix="", eths, pheno_list, output_dir = "analy
     full_output_nodrug <- file.path(write_dir,paste0(file_name_nodrug, ".", pheno))
 
     if(type == "interaction" | type == "full"){
-    out[[paste0("meta_out_", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "report-all", "no-map",
-      "--meta-analysis-snp-field", "ID", "--out", full_output, "--threads", threads), error_on_status=F)
+      out[[paste0("meta_out_", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results,  "+", "qt", "report-all", "no-map",
+        "--meta-analysis-snp-field", "ID", "--out", full_output, "--threads", threads), error_on_status=F)
+      if(length(gwas_results)!=0){
+        out[[paste0("meta_out_", pheno, "_compress")]] <- processx::run(command="gzip", gwas_results)
+      }
+
     }
 
     if(type=="subgroup"){
-      out[[paste0("meta_out_drug", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_drug,  "+", "qt", "report-all", "no-map",
+      out[[paste0("meta_out_drug_", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_drug,  "+", "qt", "report-all", "no-map",
         "--meta-analysis-snp-field", "ID", "--out", full_output_drug, "--threads", threads), error_on_status=F)
-      out[[paste0("meta_out_nodrug", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_nodrug,  "+", "qt", "report-all", "no-map",
+      out[[paste0("meta_out_nodrug_", pheno)]] <- processx::run(command="plink",c( "--meta-analysis", gwas_results_nodrug,  "+", "qt", "report-all", "no-map",
         "--meta-analysis-snp-field", "ID", "--out", full_output_nodrug, "--threads", threads), error_on_status=F)
+      if(length(gwas_results_drug)!=0){
+        out[[paste0("meta_out_drug_", pheno, "_compress")]] <- processx::run(command="gzip", gwas_results_drug)
+      }
+      if(length(gwas_results_nodrug)!=0){
+        out[[paste0("meta_out_nodrug_", pheno, "_compress")]] <- processx::run(command="gzip", gwas_results_nodrug)
+      }
     }
 
   }
@@ -1280,6 +1292,45 @@ meta <- function(output, output_suffix="", eths, pheno_list, output_dir = "analy
   return(out)
 
 }
+
+munge_sqc <- function(sqc,fam){
+  sqc_sub <- sqc[,c(26:65)]
+  colnames(sqc_sub) <- c(sapply(1:40, function(x) {paste0("PC_",x)}))
+  sqc_sub$ID <- fam[,1]
+  return(sqc_sub)
+}
+
+bmi_followup_exists <- function(...){
+  x <- c(...)
+  out <- FALSE
+  if(length(which(!is.na(x)))==1){
+    out <- FALSE
+  }
+  if(length(which(!is.na(x)))>1){
+    out <- TRUE
+  }
+  return(out)
+
+}
+
+munge_ukbb <- function(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var){
+
+  cols_date <- dplyr::pull(ukb_key[which(ukb_key[,1] == date_followup),"col.name"])
+  cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
+  #cols_field =  dplyr::pull(ukb_key[which(ukb_key[,1] == !!bmi_var),"field.tab"]),
+  cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
+  cols_age <- dplyr::pull(ukb_key[which(ukb_key[,1] == age_var),"col.name"])
+  ## GET AGE COLUMN
+  cols_interest <- c(cols_date, cols_pheno, cols_sex, cols_age)
+  ukbb_sub <- ukbb_org %>% dplyr::select(eid, cols_interest) %>%
+    rowwise %>% mutate(bmi_followup_value = bmi_followup_exists(c(!!!syms(cols_pheno))))
+
+
+%>% filter_at(vars(-Company), any_vars(. %in% c("D", "E", "G")))
+
+
+}
+
 
 combine_targets <- function(...){
   temp <- substitute(list(...))[-1]
@@ -1568,27 +1619,27 @@ define_baseline_files <- function(info = baseline_gwas_process, output = "PSYMET
     if(eth!="META"){
       file_name_eth <- paste0(file_name,"_",eth)
       eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
-      write_file <- gsub(".glm.linear", ".GWAS.txt", eth_output)
+      processed_file <- gsub(".glm.linear", ".GWAS.txt", eth_output)
 
     }
     if(eth=="META"){
       file_name_eth <- file_name
       eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".meta"))
-      write_file <- gsub(".meta", ".GWAS.txt", eth_output)
+      processed_file <- gsub(".meta", ".GWAS.txt", eth_output)
     }
 
     eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
     eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
     pheno_names <- c(pheno_names, pheno[which(file.exists(eth_output))])
-    write_keep <- c(write_keep, write_file[which(file.exists(eth_output))])
+    write_keep <- c(write_keep, processed_file[which(file.exists(eth_output))])
     write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
   }
 
   out <- tibble(eth = eth_list,
                 pheno = pheno_names,
                 drug = NA,
-                file = eth_keep,
-                write_file = write_keep)
+                plink_file = eth_keep,
+                processed_file = write_keep)
   return(out)
 }
 
@@ -1614,16 +1665,16 @@ define_interaction_files <- function(info = interaction_gwas_process, output = "
         #eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
         eth_combos <- apply(expand.grid(pheno, output_suffix), 1, paste, collapse="_")
         eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", eth_combos,  ".glm.linear.interaction"))
-        write_file <- gsub(".glm.linear.interaction", ".GWAS.txt", eth_output)
+        processed_file <- gsub(".glm.linear.interaction", ".GWAS.txt", eth_output)
       }
       if(eth=="META"){
         file_name_eth <- paste0(file_name,"_", output_suffix, "_int")
         eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".meta"))
-        write_file <- gsub(".meta", ".GWAS.txt", eth_output)
+        processed_file <- gsub(".meta", ".GWAS.txt", eth_output)
       }
       eth_list <- c(eth_list, rep(eth, length(which(file.exists(eth_output)))))
       eth_keep <- c(eth_keep, eth_output[which(file.exists(eth_output))])
-      write_keep <- c(write_keep, write_file[which(file.exists(eth_output))])
+      write_keep <- c(write_keep, processed_file[which(file.exists(eth_output))])
       write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
       pheno_names <- c(pheno_names, rep(pheno, length(which(file.exists(eth_output)))))
       drug_class <- c(drug_class, output_suffix[which(file.exists(eth_output))])
@@ -1638,7 +1689,7 @@ define_interaction_files <- function(info = interaction_gwas_process, output = "
                 drug_class = drug_class,
                 drug = NA,
                 file = eth_keep,
-                write_file = write_keep)
+                processed_file = write_keep)
 
   return(out)
 
@@ -1667,8 +1718,8 @@ define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMET
             file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
             eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", eth_combos, ".glm.linear"))
             eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", eth_combos, ".glm.linear"))
-            write_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
-            write_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
+            processed_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
+            processed_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
           }
           if(eth=="META"){
             file_name_eth <- paste0(file_name,"_", output_suffix)
@@ -1676,8 +1727,8 @@ define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMET
             file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
             eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", pheno, ".meta"))
             eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", pheno, ".meta"))
-            write_file_drug <- gsub(".meta", ".GWAS.txt", eth_output_drug)
-            write_file_nodrug <- gsub(".meta", ".GWAS.txt", eth_output_nodrug)
+            processed_file_drug <- gsub(".meta", ".GWAS.txt", eth_output_drug)
+            processed_file_nodrug <- gsub(".meta", ".GWAS.txt", eth_output_nodrug)
           }
 
           eth_output <- c(eth_output_drug, eth_output_nodrug)
@@ -1689,7 +1740,7 @@ define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMET
           pheno_names <- c(pheno_names, rep(pheno, length(which(file.exists(eth_output)))))
           drug_class_list <- c(output_suffix, output_suffix)
           drug_class <- c(drug_class, drug_class_list[which(file.exists(eth_output))])
-          write_keep <- c(write_keep, c(write_file_drug, write_file_nodrug)[which(file.exists(eth_output))])
+          write_keep <- c(write_keep, c(processed_file_drug, processed_file_nodrug)[which(file.exists(eth_output))])
           write_keep <- gsub(paste0("/", eth, "/"), "/processed/", write_keep)
         }
   }
@@ -1699,7 +1750,7 @@ define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMET
                 drug_class = drug_class,
                 drug = drug_keep,
                 file = eth_keep,
-                write_file = write_keep)
+                processed_file = write_keep)
 
   return(out)
 
