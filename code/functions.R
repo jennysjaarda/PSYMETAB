@@ -1326,7 +1326,7 @@ munge_ukbb <- function(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_v
     rowwise %>% mutate(bmi_followup_value = bmi_followup_exists(c(!!!syms(cols_pheno))))
 
 
-%>% filter_at(vars(-Company), any_vars(. %in% c("D", "E", "G")))
+#%>% filter_at(vars(-Company), any_vars(. %in% c("D", "E", "G")))
 
 
 }
