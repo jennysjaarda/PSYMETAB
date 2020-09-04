@@ -174,7 +174,7 @@ analysis_prep <- drake_plan(
 
   pc_raw_out = write.table(pc_raw, file_out(!!paste0("data/processed/phenotype_data/", study_name, "_PCs.txt")), row.names = F, quote = F, col.names = T),
 
-  pheno_drug_combinations = define_pheno_drug_combos(!!drug_classes, !!baseline_vars),
+  pheno_drug_combinations = define_pheno_drug_combos(!!drug_classes, !!interaction_vars),
   #test_drugs_num = tibble(i = 1:dim(!!test_drugs)[1], pheno = baseline_vars),
   pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, pheno_drug_combinations$class, pheno_drug_combinations$pheno, !!low_inducers, !!high_inducers),
     dynamic = map(pheno_drug_combinations)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
@@ -328,6 +328,43 @@ init_analysis <- drake_plan(
     meta(output = !!study_name, output_suffix = subgroup_gwas_input$output_suffix, eth = !!eths,
       pheno_list = !!interaction_outcome, type = "subgroup", threads = 8, output_dir = (!!plink_output_dir))},
     dynamic = map(subgroup_gwas_input)),
+
+)
+
+ukbb_analysis <- drake_plan(
+
+  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  sqc = fread(file_in(!!paste0(UKBB_dir,"/geno/ukb_sqc_v2.txt")), header=F, data.table=F),
+  fam = fread(file_in(!!paste0(UKBB_dir,"/plink/_001_ukb_cal_chr9_v2.fam")), header=F,data.table=F),
+  relatives = read.table(file_in(!!paste0(UKBB_dir,"/geno/",ukbb_relatives_file)), header=T),
+  exclusion_file = fread(file_in(!!paste0(UKBB_dir, "/org/", ukbb_exclusion_list)), data.table=F),
+  bgen_file = fread(file_in(!!paste0(UKBB_dir, "/", ukbb_sample_file)), header=T,data.table=F),
+
+
+  med_codes = read_tsv(file_in(!!medication_codes)),
+  qc_data = ukb_gen_sqc_names(sqc),
+  british_subset = qc_data %>% filter(in_white_british_ancestry_subset==1)
+  # olnames(qc_data) <- gsub("_",".", colnames(qc_data))
+  #
+  # where_good_samples <- which(qc_data$excess.relatives == 0 &
+  #                  qc_data$putative.sex.chromosome.aneuploidy == 0 &
+  #                  qc_data$in.white.british.ancestry.subset==1  )
+
+
+  sqc_munge = munge_sqc(sqc,fam),
+  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var),
+
+  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
+  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
+  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
+  ukbb_bgen_order = order_bgen(bgen_file, ukbb_resid, variable = "bmi_slope_resid"),
+  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
+
+  chr_num = tibble(chr = 1:22),
+
+  bgenie_out = target(launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8),
+    dynamic = map(chr_num)),
 
 )
 

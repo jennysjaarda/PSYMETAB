@@ -1300,6 +1300,12 @@ munge_sqc <- function(sqc,fam){
   return(sqc_sub)
 }
 
+get_british_ids <- function(qc_data, fam){
+  qc_data$ID <- fam[,1]
+  IDs <- qc_data %>% filter(in_white_british_ancestry_subset==1) %>% pull(ID)
+
+}
+
 bmi_followup_exists <- function(...){
   x <- c(...)
   out <- FALSE
@@ -1313,6 +1319,54 @@ bmi_followup_exists <- function(...){
 
 }
 
+ukbb_slope <- function(date1, date2, date3, val1, val2, val3){
+
+  dates <- c(date1, date2, date3)
+  vals <- c(val1, val2, val3)
+
+  complete_indices <- union(which(!is.na(dates)), which(!is.na(vals)))
+  dates <- dates[complete_indices]
+  vals <- vals[complete_indices]
+
+  date_difference <- numeric()
+  for(i in 1:length(dates)){
+    date <- dates[i]
+    temp <- as.numeric(difftime(date, dates[1], units="days"))
+    date_difference <- c(date_difference, temp)
+  }
+
+
+  #beta <- NA
+  beta <- summary(lm(vals~date_difference))$coefficients[2,1]
+  return(beta)
+}
+
+ukbb_weighted_slope <- function(date1, date2, date3, val1, val2, val3){
+
+  dates <- c(date1, date2, date3)
+  vals <- c(val1, val2, val3)
+
+  complete_indices <- union(which(!is.na(dates)), which(!is.na(vals)))
+  dates <- dates[complete_indices]
+  vals <- vals[complete_indices]
+
+  date_difference <- numeric()
+  for(i in 1:length(dates)){
+    date <- dates[i]
+    temp <- as.numeric(difftime(date, dates[1], units="days"))
+    date_difference <- c(date_difference, temp)
+  }
+
+  #beta <- NA
+  beta <- summary(lm(vals~date_difference))$coefficients[2,1]
+  se <- summary(lm(vals~date_difference))$coefficients[2,2]
+
+  std_beta <- beta/se
+  return(std_beta)
+
+}
+
+
 munge_ukbb <- function(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var){
 
   cols_date <- dplyr::pull(ukb_key[which(ukb_key[,1] == date_followup),"col.name"])
@@ -1323,12 +1377,70 @@ munge_ukbb <- function(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_v
   ## GET AGE COLUMN
   cols_interest <- c(cols_date, cols_pheno, cols_sex, cols_age)
   ukbb_sub <- ukbb_org %>% dplyr::select(eid, cols_interest) %>%
-    rowwise %>% mutate(bmi_followup_value = bmi_followup_exists(c(!!!syms(cols_pheno))))
+    rowwise %>% mutate(bmi_followup_value = bmi_followup_exists(c(!!!syms(cols_pheno)))) %>%
+    filter(bmi_followup_value==TRUE)
+
+  ukbb_sub_slope <- ukbb_sub %>%
+    mutate(bmi_slope = ukbb_slope(date_of_attending_assessment_centre_f53_0_0, date_of_attending_assessment_centre_f53_1_0, date_of_attending_assessment_centre_f53_2_0,
+        body_mass_index_bmi_f21001_0_0, body_mass_index_bmi_f21001_1_0, body_mass_index_bmi_f21001_2_0)) %>%
+    mutate(bmi_wt_slope = ukbb_weighted_slope(date_of_attending_assessment_centre_f53_0_0, date_of_attending_assessment_centre_f53_1_0, date_of_attending_assessment_centre_f53_2_0,
+        body_mass_index_bmi_f21001_0_0, body_mass_index_bmi_f21001_1_0, body_mass_index_bmi_f21001_2_0))
+  return(ukbb_sub_slope)
+
+}
+
+filter_ukbb <- function(ukbb_munge, related_IDs_remove, exclusion_list, british_ids){
+
+  exclusion_list
+  temp <- ukbb_munge %>% filter(!eid %in% !!related_IDs_remove) %>% filter(!eid %in% !!exclusion_list) %>%
+    filter(eid %in% !!british_ids)
+  return(temp)
+}
+
+resid_ukbb <- function(ukbb_filter, ukb_key, sqc_munge, outcome, bmi_var, sex_var, age_var){
+
+  ukbb_merge <- merge(ukbb_filter, sqc_munge, by.x="eid", by.y="ID")
+  cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
+  cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
+  cols_age <- dplyr::pull(ukb_key[which(ukb_key[,1] == age_var),"col.name"])
+
+  cols_interest <- c("eid", outcome, cols_pheno[1], cols_sex, cols_age, colnames(ukbb_merge)[grepl("PC", colnames(ukbb_merge))])
+
+  data <- ukbb_merge[, cols_interest] %>% rename(outcome = outcome)
+  resid_eth <- resid(lm(outcome ~ ., data = subset(data, select=c( -eid) ), na.action = na.exclude))
+  out <- as.data.frame(cbind(data[["eid"]], resid_eth))
+  colnames(out) <- c("eid", "bmi_slope_resid")
+  out <- out %>% mutate(out_ivt = ivt(bmi_slope_resid))
+  return(out)
+}
 
 
-#%>% filter_at(vars(-Company), any_vars(. %in% c("D", "E", "G")))
+order_bgen <- function(bgen_file, data, variable){
+
+  ord = match(bgen_file$ID_1[-1], data$eid)
+
+  bgen_merge <- left_join(bgen_file %>% slice(-1), data, by=c("ID_1" = "eid"))
+
+  colnames(bgen_merge)[which(colnames(temp)==variable)] <- "outcome"
+  add_na <- bgen_merge %>% mutate(outcome = replace_na(outcome, -999))
+
+  output <- add_na %>% dplyr::select(outcome)
+  colnames(output) <- variable
+  return(output)
+}
 
 
+launch_bgenie <- function(chr, phenofile, threads){
+
+  system(paste0("/data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 ",
+                "--bgen /data/sgg3/eleonora/projects/UKBB_GWAS/UK10K_SNPrs/CHR", chr, "/chr", chr, ".bgen ",
+                "--pheno ", phenofile, " ",
+                "--thread ", threads, " ",
+                "--pvals --out analysis/GWAS/UKBB/chr", chr, ".out"))
+  # Eleonora's command line
+  # /data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 --bgen
+  # /data/sgg3/eleonora/projects/UKBB_GWAS/UK10K_SNPrs/CHR11/chr11.bgen
+  # --pheno ../phenofile --pvals --out chr11.out
 }
 
 
@@ -1618,8 +1730,8 @@ define_baseline_files <- function(info = baseline_gwas_process, output = "PSYMET
     eth_dir <- file.path(output_dir, type)
     if(eth!="META"){
       file_name_eth <- paste0(file_name,"_",eth)
-      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
-      processed_file <- gsub(".glm.linear", ".GWAS.txt", eth_output)
+      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear.gz"))
+      processed_file <- gsub(".glm.linear.gz", ".GWAS.txt", eth_output)
 
     }
     if(eth=="META"){
@@ -1664,8 +1776,8 @@ define_interaction_files <- function(info = interaction_gwas_process, output = "
 
         #eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
         eth_combos <- apply(expand.grid(pheno, output_suffix), 1, paste, collapse="_")
-        eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", eth_combos,  ".glm.linear.interaction"))
-        processed_file <- gsub(".glm.linear.interaction", ".GWAS.txt", eth_output)
+        eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", eth_combos,  ".glm.linear.interaction.gz"))
+        processed_file <- gsub(".glm.linear.interaction.gz", ".GWAS.txt", eth_output)
       }
       if(eth=="META"){
         file_name_eth <- paste0(file_name,"_", output_suffix, "_int")
@@ -1716,10 +1828,10 @@ define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMET
 
             file_name_eth_drug <- paste0(file_name_eth, ".Drug")
             file_name_eth_nodrug <- paste0(file_name_eth, ".NoDrug")
-            eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", eth_combos, ".glm.linear"))
-            eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", eth_combos, ".glm.linear"))
-            processed_file_drug <- gsub(".glm.linear", ".GWAS.txt", eth_output_drug)
-            processed_file_nodrug <- gsub(".glm.linear", ".GWAS.txt", eth_output_nodrug)
+            eth_output_drug <- file.path(eth_dir,eth,paste0(file_name_eth_drug, ".", eth_combos, ".glm.linear.gz"))
+            eth_output_nodrug <- file.path(eth_dir,eth,paste0(file_name_eth_nodrug, ".", eth_combos, ".glm.linear.gz"))
+            processed_file_drug <- gsub(".glm.linear.gz", ".GWAS.txt", eth_output_drug)
+            processed_file_nodrug <- gsub(".glm.linear.gz", ".GWAS.txt", eth_output_nodrug)
           }
           if(eth=="META"){
             file_name_eth <- paste0(file_name,"_", output_suffix)
