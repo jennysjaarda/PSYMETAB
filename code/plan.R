@@ -342,10 +342,9 @@ ukbb_analysis <- drake_plan(
   bgen_file = fread(file_in(!!paste0(UKBB_dir, "/", ukbb_sample_file)), header=T,data.table=F),
 
 
-  med_codes = read_tsv(file_in(!!medication_codes)),
+  #med_codes = read_tsv(file_in(!!medication_codes)),
   qc_data = ukb_gen_sqc_names(sqc),
-  british_subset = qc_data %>% filter(in_white_british_ancestry_subset==1)
-  # olnames(qc_data) <- gsub("_",".", colnames(qc_data))
+    # olnames(qc_data) <- gsub("_",".", colnames(qc_data))
   #
   # where_good_samples <- which(qc_data$excess.relatives == 0 &
   #                  qc_data$putative.sex.chromosome.aneuploidy == 0 &
@@ -353,17 +352,20 @@ ukbb_analysis <- drake_plan(
 
 
   sqc_munge = munge_sqc(sqc,fam),
+  british_subset = get_british_ids(qc_data, fam),
   ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var),
 
   related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
   ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
   ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
-  ukbb_bgen_order = order_bgen(bgen_file, ukbb_resid, variable = "bmi_slope_resid"),
+  ukbb_bgen_order = order_bgen(bgen_file, ukbb_resid, variable = "bmi_slope_res_ivt"),
   ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
 
   chr_num = tibble(chr = 1:22),
 
   bgenie_out = target(launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8),
+    dynamic = map(chr_num)),
+  bgenie_unzip = target(launch_bgenie(chr_num$chr),
     dynamic = map(chr_num)),
 
 )

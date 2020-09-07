@@ -1303,6 +1303,7 @@ munge_sqc <- function(sqc,fam){
 get_british_ids <- function(qc_data, fam){
   qc_data$ID <- fam[,1]
   IDs <- qc_data %>% filter(in_white_british_ancestry_subset==1) %>% pull(ID)
+  return(IDs)
 
 }
 
@@ -1389,11 +1390,10 @@ munge_ukbb <- function(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_v
 
 }
 
-filter_ukbb <- function(ukbb_munge, related_IDs_remove, exclusion_list, british_ids){
+filter_ukbb <- function(ukbb_munge, related_IDs_remove, exclusion_list, british_subset){
 
-  exclusion_list
   temp <- ukbb_munge %>% filter(!eid %in% !!related_IDs_remove) %>% filter(!eid %in% !!exclusion_list) %>%
-    filter(eid %in% !!british_ids)
+    filter(eid %in% !!british_subset)
   return(temp)
 }
 
@@ -1410,7 +1410,7 @@ resid_ukbb <- function(ukbb_filter, ukb_key, sqc_munge, outcome, bmi_var, sex_va
   resid_eth <- resid(lm(outcome ~ ., data = subset(data, select=c( -eid) ), na.action = na.exclude))
   out <- as.data.frame(cbind(data[["eid"]], resid_eth))
   colnames(out) <- c("eid", "bmi_slope_resid")
-  out <- out %>% mutate(out_ivt = ivt(bmi_slope_resid))
+  out <- out %>% mutate(bmi_slope_res_ivt = ivt(bmi_slope_resid))
   return(out)
 }
 
@@ -1421,7 +1421,7 @@ order_bgen <- function(bgen_file, data, variable){
 
   bgen_merge <- left_join(bgen_file %>% slice(-1), data, by=c("ID_1" = "eid"))
 
-  colnames(bgen_merge)[which(colnames(temp)==variable)] <- "outcome"
+  colnames(bgen_merge)[which(colnames(bgen_merge)==variable)] <- "outcome"
   add_na <- bgen_merge %>% mutate(outcome = replace_na(outcome, -999))
 
   output <- add_na %>% dplyr::select(outcome)
@@ -1443,6 +1443,10 @@ launch_bgenie <- function(chr, phenofile, threads){
   # --pheno ../phenofile --pvals --out chr11.out
 }
 
+unzip_bgenie <- function(chr){
+  system(paste0("gzip -d analysis/GWAS/UKBB/chr", chr, ".out.gz"))
+
+}
 
 combine_targets <- function(...){
   temp <- substitute(list(...))[-1]
