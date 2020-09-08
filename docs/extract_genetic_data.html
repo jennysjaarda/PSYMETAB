@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Extracting genetic data</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PSYMETAB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="setup.html">Setup</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jennysjaarda/PSYMETAB">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Extracting genetic data</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-09-08
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree874374544403a6f63271fa36188ca5797d997596targetblank8743745a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/874374544403a6f63271fa36188ca5797d997596" target="_blank">8743745</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree874374544403a6f63271fa36188ca5797d997596targetblank8743745a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    ._docs
+    Ignored:    .drake/
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/._GWAS.Rmd
+    Ignored:    analysis/._data_processing_in_genomestudio.Rmd
+    Ignored:    analysis/._quality_control.Rmd
+    Ignored:    analysis/GWAS/
+    Ignored:    analysis/PRS/
+    Ignored:    analysis/QC/
+    Ignored:    analysis/Rlogo2.png
+    Ignored:    analysis/figure/
+    Ignored:    analysis/rplot.jpg
+    Ignored:    analysis_prep_10_clustermq.out
+    Ignored:    analysis_prep_11_clustermq.out
+    Ignored:    analysis_prep_12_clustermq.out
+    Ignored:    analysis_prep_13_clustermq.out
+    Ignored:    analysis_prep_14_clustermq.out
+    Ignored:    analysis_prep_15_clustermq.out
+    Ignored:    analysis_prep_16_clustermq.out
+    Ignored:    analysis_prep_17_clustermq.out
+    Ignored:    analysis_prep_18_clustermq.out
+    Ignored:    analysis_prep_19_clustermq.out
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_20_clustermq.out
+    Ignored:    analysis_prep_21_clustermq.out
+    Ignored:    analysis_prep_22_clustermq.out
+    Ignored:    analysis_prep_23_clustermq.out
+    Ignored:    analysis_prep_24_clustermq.out
+    Ignored:    analysis_prep_25_clustermq.out
+    Ignored:    analysis_prep_26_clustermq.out
+    Ignored:    analysis_prep_27_clustermq.out
+    Ignored:    analysis_prep_28_clustermq.out
+    Ignored:    analysis_prep_29_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_30_clustermq.out
+    Ignored:    analysis_prep_31_clustermq.out
+    Ignored:    analysis_prep_32_clustermq.out
+    Ignored:    analysis_prep_33_clustermq.out
+    Ignored:    analysis_prep_34_clustermq.out
+    Ignored:    analysis_prep_35_clustermq.out
+    Ignored:    analysis_prep_36_clustermq.out
+    Ignored:    analysis_prep_37_clustermq.out
+    Ignored:    analysis_prep_38_clustermq.out
+    Ignored:    analysis_prep_39_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_40_clustermq.out
+    Ignored:    analysis_prep_41_clustermq.out
+    Ignored:    analysis_prep_42_clustermq.out
+    Ignored:    analysis_prep_43_clustermq.out
+    Ignored:    analysis_prep_44_clustermq.out
+    Ignored:    analysis_prep_45_clustermq.out
+    Ignored:    analysis_prep_46_clustermq.out
+    Ignored:    analysis_prep_47_clustermq.out
+    Ignored:    analysis_prep_48_clustermq.out
+    Ignored:    analysis_prep_49_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    analysis_prep_50_clustermq.out
+    Ignored:    analysis_prep_51_clustermq.out
+    Ignored:    analysis_prep_52_clustermq.out
+    Ignored:    analysis_prep_53_clustermq.out
+    Ignored:    analysis_prep_54_clustermq.out
+    Ignored:    analysis_prep_55_clustermq.out
+    Ignored:    analysis_prep_56_clustermq.out
+    Ignored:    analysis_prep_57_clustermq.out
+    Ignored:    analysis_prep_58_clustermq.out
+    Ignored:    analysis_prep_59_clustermq.out
+    Ignored:    analysis_prep_5_clustermq.out
+    Ignored:    analysis_prep_60_clustermq.out
+    Ignored:    analysis_prep_61_clustermq.out
+    Ignored:    analysis_prep_62_clustermq.out
+    Ignored:    analysis_prep_63_clustermq.out
+    Ignored:    analysis_prep_64_clustermq.out
+    Ignored:    analysis_prep_65_clustermq.out
+    Ignored:    analysis_prep_66_clustermq.out
+    Ignored:    analysis_prep_67_clustermq.out
+    Ignored:    analysis_prep_68_clustermq.out
+    Ignored:    analysis_prep_69_clustermq.out
+    Ignored:    analysis_prep_6_clustermq.out
+    Ignored:    analysis_prep_70_clustermq.out
+    Ignored:    analysis_prep_71_clustermq.out
+    Ignored:    analysis_prep_72_clustermq.out
+    Ignored:    analysis_prep_73_clustermq.out
+    Ignored:    analysis_prep_74_clustermq.out
+    Ignored:    analysis_prep_75_clustermq.out
+    Ignored:    analysis_prep_7_clustermq.out
+    Ignored:    analysis_prep_8_clustermq.out
+    Ignored:    analysis_prep_9_clustermq.out
+    Ignored:    data/processed/
+    Ignored:    data/raw/
+    Ignored:    download_impute_1_clustermq.out
+    Ignored:    init_analysis_10_clustermq.out
+    Ignored:    init_analysis_11_clustermq.out
+    Ignored:    init_analysis_12_clustermq.out
+    Ignored:    init_analysis_13_clustermq.out
+    Ignored:    init_analysis_14_clustermq.out
+    Ignored:    init_analysis_15_clustermq.out
+    Ignored:    init_analysis_16_clustermq.out
+    Ignored:    init_analysis_17_clustermq.out
+    Ignored:    init_analysis_18_clustermq.out
+    Ignored:    init_analysis_19_clustermq.out
+    Ignored:    init_analysis_1_clustermq.out
+    Ignored:    init_analysis_20_clustermq.out
+    Ignored:    init_analysis_21_clustermq.out
+    Ignored:    init_analysis_22_clustermq.out
+    Ignored:    init_analysis_23_clustermq.out
+    Ignored:    init_analysis_24_clustermq.out
+    Ignored:    init_analysis_25_clustermq.out
+    Ignored:    init_analysis_26_clustermq.out
+    Ignored:    init_analysis_27_clustermq.out
+    Ignored:    init_analysis_28_clustermq.out
+    Ignored:    init_analysis_29_clustermq.out
+    Ignored:    init_analysis_2_clustermq.out
+    Ignored:    init_analysis_30_clustermq.out
+    Ignored:    init_analysis_31_clustermq.out
+    Ignored:    init_analysis_32_clustermq.out
+    Ignored:    init_analysis_33_clustermq.out
+    Ignored:    init_analysis_34_clustermq.out
+    Ignored:    init_analysis_35_clustermq.out
+    Ignored:    init_analysis_36_clustermq.out
+    Ignored:    init_analysis_37_clustermq.out
+    Ignored:    init_analysis_38_clustermq.out
+    Ignored:    init_analysis_39_clustermq.out
+    Ignored:    init_analysis_3_clustermq.out
+    Ignored:    init_analysis_40_clustermq.out
+    Ignored:    init_analysis_41_clustermq.out
+    Ignored:    init_analysis_42_clustermq.out
+    Ignored:    init_analysis_43_clustermq.out
+    Ignored:    init_analysis_44_clustermq.out
+    Ignored:    init_analysis_45_clustermq.out
+    Ignored:    init_analysis_46_clustermq.out
+    Ignored:    init_analysis_47_clustermq.out
+    Ignored:    init_analysis_48_clustermq.out
+    Ignored:    init_analysis_49_clustermq.out
+    Ignored:    init_analysis_4_clustermq.out
+    Ignored:    init_analysis_50_clustermq.out
+    Ignored:    init_analysis_51_clustermq.out
+    Ignored:    init_analysis_52_clustermq.out
+    Ignored:    init_analysis_53_clustermq.out
+    Ignored:    init_analysis_54_clustermq.out
+    Ignored:    init_analysis_55_clustermq.out
+    Ignored:    init_analysis_56_clustermq.out
+    Ignored:    init_analysis_57_clustermq.out
+    Ignored:    init_analysis_58_clustermq.out
+    Ignored:    init_analysis_59_clustermq.out
+    Ignored:    init_analysis_5_clustermq.out
+    Ignored:    init_analysis_60_clustermq.out
+    Ignored:    init_analysis_61_clustermq.out
+    Ignored:    init_analysis_62_clustermq.out
+    Ignored:    init_analysis_63_clustermq.out
+    Ignored:    init_analysis_64_clustermq.out
+    Ignored:    init_analysis_65_clustermq.out
+    Ignored:    init_analysis_66_clustermq.out
+    Ignored:    init_analysis_67_clustermq.out
+    Ignored:    init_analysis_68_clustermq.out
+    Ignored:    init_analysis_69_clustermq.out
+    Ignored:    init_analysis_6_clustermq.out
+    Ignored:    init_analysis_70_clustermq.out
+    Ignored:    init_analysis_71_clustermq.out
+    Ignored:    init_analysis_72_clustermq.out
+    Ignored:    init_analysis_73_clustermq.out
+    Ignored:    init_analysis_74_clustermq.out
+    Ignored:    init_analysis_75_clustermq.out
+    Ignored:    init_analysis_76_clustermq.out
+    Ignored:    init_analysis_77_clustermq.out
+    Ignored:    init_analysis_78_clustermq.out
+    Ignored:    init_analysis_79_clustermq.out
+    Ignored:    init_analysis_7_clustermq.out
+    Ignored:    init_analysis_80_clustermq.out
+    Ignored:    init_analysis_81_clustermq.out
+    Ignored:    init_analysis_82_clustermq.out
+    Ignored:    init_analysis_83_clustermq.out
+    Ignored:    init_analysis_84_clustermq.out
+    Ignored:    init_analysis_85_clustermq.out
+    Ignored:    init_analysis_86_clustermq.out
+    Ignored:    init_analysis_87_clustermq.out
+    Ignored:    init_analysis_88_clustermq.out
+    Ignored:    init_analysis_89_clustermq.out
+    Ignored:    init_analysis_8_clustermq.out
+    Ignored:    init_analysis_90_clustermq.out
+    Ignored:    init_analysis_91_clustermq.out
+    Ignored:    init_analysis_9_clustermq.out
+    Ignored:    packrat/lib-R/
+    Ignored:    packrat/lib-ext/
+    Ignored:    packrat/lib/
+    Ignored:    post_impute_1_clustermq.out
+    Ignored:    pre_impute_qc_1_clustermq.out
+    Ignored:    process_init_100_clustermq.out
+    Ignored:    process_init_101_clustermq.out
+    Ignored:    process_init_102_clustermq.out
+    Ignored:    process_init_103_clustermq.out
+    Ignored:    process_init_104_clustermq.out
+    Ignored:    process_init_105_clustermq.out
+    Ignored:    process_init_106_clustermq.out
+    Ignored:    process_init_107_clustermq.out
+    Ignored:    process_init_108_clustermq.out
+    Ignored:    process_init_109_clustermq.out
+    Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_110_clustermq.out
+    Ignored:    process_init_111_clustermq.out
+    Ignored:    process_init_112_clustermq.out
+    Ignored:    process_init_113_clustermq.out
+    Ignored:    process_init_114_clustermq.out
+    Ignored:    process_init_115_clustermq.out
+    Ignored:    process_init_116_clustermq.out
+    Ignored:    process_init_117_clustermq.out
+    Ignored:    process_init_118_clustermq.out
+    Ignored:    process_init_119_clustermq.out
+    Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_120_clustermq.out
+    Ignored:    process_init_121_clustermq.out
+    Ignored:    process_init_122_clustermq.out
+    Ignored:    process_init_123_clustermq.out
+    Ignored:    process_init_124_clustermq.out
+    Ignored:    process_init_125_clustermq.out
+    Ignored:    process_init_12_clustermq.out
+    Ignored:    process_init_13_clustermq.out
+    Ignored:    process_init_14_clustermq.out
+    Ignored:    process_init_15_clustermq.out
+    Ignored:    process_init_16_clustermq.out
+    Ignored:    process_init_17_clustermq.out
+    Ignored:    process_init_18_clustermq.out
+    Ignored:    process_init_19_clustermq.out
+    Ignored:    process_init_1_clustermq.out
+    Ignored:    process_init_20_clustermq.out
+    Ignored:    process_init_21_clustermq.out
+    Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_23_clustermq.out
+    Ignored:    process_init_24_clustermq.out
+    Ignored:    process_init_25_clustermq.out
+    Ignored:    process_init_26_clustermq.out
+    Ignored:    process_init_27_clustermq.out
+    Ignored:    process_init_28_clustermq.out
+    Ignored:    process_init_29_clustermq.out
+    Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_30_clustermq.out
+    Ignored:    process_init_31_clustermq.out
+    Ignored:    process_init_32_clustermq.out
+    Ignored:    process_init_33_clustermq.out
+    Ignored:    process_init_34_clustermq.out
+    Ignored:    process_init_35_clustermq.out
+    Ignored:    process_init_36_clustermq.out
+    Ignored:    process_init_37_clustermq.out
+    Ignored:    process_init_38_clustermq.out
+    Ignored:    process_init_39_clustermq.out
+    Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_40_clustermq.out
+    Ignored:    process_init_41_clustermq.out
+    Ignored:    process_init_42_clustermq.out
+    Ignored:    process_init_43_clustermq.out
+    Ignored:    process_init_44_clustermq.out
+    Ignored:    process_init_45_clustermq.out
+    Ignored:    process_init_46_clustermq.out
+    Ignored:    process_init_47_clustermq.out
+    Ignored:    process_init_48_clustermq.out
+    Ignored:    process_init_49_clustermq.out
+    Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_50_clustermq.out
+    Ignored:    process_init_51_clustermq.out
+    Ignored:    process_init_52_clustermq.out
+    Ignored:    process_init_53_clustermq.out
+    Ignored:    process_init_54_clustermq.out
+    Ignored:    process_init_55_clustermq.out
+    Ignored:    process_init_56_clustermq.out
+    Ignored:    process_init_57_clustermq.out
+    Ignored:    process_init_58_clustermq.out
+    Ignored:    process_init_59_clustermq.out
+    Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_60_clustermq.out
+    Ignored:    process_init_61_clustermq.out
+    Ignored:    process_init_62_clustermq.out
+    Ignored:    process_init_63_clustermq.out
+    Ignored:    process_init_64_clustermq.out
+    Ignored:    process_init_65_clustermq.out
+    Ignored:    process_init_66_clustermq.out
+    Ignored:    process_init_67_clustermq.out
+    Ignored:    process_init_68_clustermq.out
+    Ignored:    process_init_69_clustermq.out
+    Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_70_clustermq.out
+    Ignored:    process_init_71_clustermq.out
+    Ignored:    process_init_72_clustermq.out
+    Ignored:    process_init_73_clustermq.out
+    Ignored:    process_init_74_clustermq.out
+    Ignored:    process_init_75_clustermq.out
+    Ignored:    process_init_76_clustermq.out
+    Ignored:    process_init_77_clustermq.out
+    Ignored:    process_init_78_clustermq.out
+    Ignored:    process_init_79_clustermq.out
+    Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_80_clustermq.out
+    Ignored:    process_init_81_clustermq.out
+    Ignored:    process_init_82_clustermq.out
+    Ignored:    process_init_83_clustermq.out
+    Ignored:    process_init_84_clustermq.out
+    Ignored:    process_init_85_clustermq.out
+    Ignored:    process_init_86_clustermq.out
+    Ignored:    process_init_87_clustermq.out
+    Ignored:    process_init_88_clustermq.out
+    Ignored:    process_init_89_clustermq.out
+    Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_90_clustermq.out
+    Ignored:    process_init_91_clustermq.out
+    Ignored:    process_init_92_clustermq.out
+    Ignored:    process_init_93_clustermq.out
+    Ignored:    process_init_94_clustermq.out
+    Ignored:    process_init_95_clustermq.out
+    Ignored:    process_init_96_clustermq.out
+    Ignored:    process_init_97_clustermq.out
+    Ignored:    process_init_98_clustermq.out
+    Ignored:    process_init_99_clustermq.out
+    Ignored:    process_init_9_clustermq.out
+    Ignored:    prs_1_clustermq.out
+    Ignored:    prs_2_clustermq.out
+    Ignored:    prs_3_clustermq.out
+    Ignored:    prs_4_clustermq.out
+    Ignored:    ukbb_analysis_10_clustermq.out
+    Ignored:    ukbb_analysis_11_clustermq.out
+    Ignored:    ukbb_analysis_12_clustermq.out
+    Ignored:    ukbb_analysis_14_clustermq.out
+    Ignored:    ukbb_analysis_17_clustermq.out
+    Ignored:    ukbb_analysis_18_clustermq.out
+    Ignored:    ukbb_analysis_19_clustermq.out
+    Ignored:    ukbb_analysis_1_clustermq.out
+    Ignored:    ukbb_analysis_20_clustermq.out
+    Ignored:    ukbb_analysis_21_clustermq.out
+    Ignored:    ukbb_analysis_22_clustermq.out
+    Ignored:    ukbb_analysis_2_clustermq.out
+    Ignored:    ukbb_analysis_3_clustermq.out
+    Ignored:    ukbb_analysis_4_clustermq.out
+    Ignored:    ukbb_analysis_5_clustermq.out
+    Ignored:    ukbb_analysis_6_clustermq.out
+    Ignored:    ukbb_analysis_7_clustermq.out
+    Ignored:    ukbb_analysis_8_clustermq.out
+    Ignored:    ukbb_analysis_9_clustermq.out
+
+Untracked files:
+    Untracked:  Rlogo.png
+    Untracked:  Rlogo2.png
+    Untracked:  analysis/GWAS_test.Rmd
+    Untracked:  analysis/genetic_quality_control.Rmd
+    Untracked:  analysis/plans.Rmd
+    Untracked:  analysis_prep.log
+    Untracked:  download_impute.log
+    Untracked:  extract_sig.log
+    Untracked:  grs.log
+    Untracked:  init_analysis.log
+    Untracked:  master.out
+    Untracked:  process_init.log
+    Untracked:  prs.log
+    Untracked:  rplot.jpg
+    Untracked:  ukbb_analysis.log
+    Untracked:  ukbb_vs_psy_sig.csv
+
+Unstaged changes:
+    Modified:   analysis/GWAS.Rmd
+    Modified:   analysis/about.Rmd
+    Modified:   analysis/data_sources.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/pheno_quality_control.Rmd
+    Modified:   analysis/setup.Rmd
+    Modified:   cache_log.csv
+    Modified:   post_impute.log
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/874374544403a6f63271fa36188ca5797d997596/analysis/extract_genetic_data.Rmd" target="_blank">8743745</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-09-08
+</td>
+<td>
+wflow_publish(“analysis/extract_genetic_data.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p><strong>The following document outlines the procedure to extract genetic data located on the <code>HPC1</code> servers.</strong></p>
+<div id="format-input-files." class="section level1">
+<h1>1. Format input files.</h1>
+<ul>
+<li>Text file.<br />
+</li>
+<li>One line per SNP.</li>
+<li>Name of file is not important, but should have some simple description of the SNP list (<code>${snp_list}</code>).</li>
+</ul>
+</div>
+<div id="transfer-input-file-to-hpc1-server." class="section level1">
+<h1>2. Transfer input file to HPC1 server.</h1>
+<ul>
+<li>Connect to <code>HPC1</code> server via filezilla:
+<ul>
+<li>username: <code>je4649</code></li>
+<li>password: <code>LacLeman2020</code></li>
+</ul></li>
+<li>Navigate to <code>/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions</code></li>
+<li>If necessary, create directory for person who made data extraction request (“requester”).</li>
+<li>Save text file from #1 into the folder: <code>/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions/${requester}</code>.</li>
+</ul>
+</div>
+<div id="create-and-run-extraction-script-for-requester." class="section level1">
+<h1>3. Create and run extraction script for “requester”.</h1>
+<ul>
+<li>Extraction script templates are found in: <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions</code> (for e.g. <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions/Aurelie.sh</code>)</li>
+<li>If an extraction script already exists for the “requester” skip to next step, otherwise:
+<ul>
+<li>Create an extraction script for the “requester”: <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions/${requester}.sh</code>.</li>
+<li>Recommend simply copying and pastying all code from another request as each script is nearly identical.</li>
+<li>Replace all instances of template’s name with new “requester” (e.g. replace <strong>Aurelie</strong> with <strong>Severine</strong>), there should be four replace instances: (1) SBATCH <code>job-name</code>, (2) folder <code>input</code>, (3) folder <code>ouput</code>, (4) comment at end of file indicating how to launch the script.</li>
+<li>Ensure file is saved as: /data/sgg2/jenny/projects/PSYMETAB/code/extractions/requester.sh`</li>
+</ul></li>
+<li>Login to <code>HPC1</code> using PUTTY:
+<ul>
+<li>username: <code>je4649</code></li>
+<li>password: <code>LacLeman2020</code></li>
+</ul></li>
+<li>Launch sbatch script from master as follows: <code>sbatch $projects/PSYMETAB/code/extractions/Nicolas_extract.sh</code> (this assumes projects is defined as <code>/data/sgg2/jenny/projects</code>, if not replace <code>$projects</code> with explicit path or define projects before hand, if logged in as <code>je4649</code>, <code>project</code> is automatically defined).</li>
+</ul>
+</div>
+<div id="summary-of-result-files." class="section level1">
+<h1>4. Summary of result files.</h1>
+<ul>
+<li>Results will be saved to the following location: <code>/data/sgg2/jenny/projects/PSYMETAB/data/processed/extractions/${resquester}/${snp_list}</code>.</li>
+<li><code>${snp_list}_rsids.txt</code>: list of rsIDs with empty characters removed (in most cases this should be identical to the input file from #1).</li>
+<li><code>${snp_list}_SNP_info.txt</code>: info file for each rsID, extracted from HRC list (see <a href="http://www.haplotype-reference-consortium.org/home">HRC website</a>), columns correspond to: <code>#CHROM  POS ID  REF ALT AC  AN  AF  AC_EXCLUDING_1000G  AN_EXCLUDING_1000G  AF_EXCLUDING_1000G  AA</code>.</li>
+<li>For each chromosome (<code>$chr</code>), extracted from imputed data, there are the following files from extracting the chromosome specific genetic data using <a href="https://www.cog-genomics.org/plink/2.0/">PLINK</a>:
+<ul>
+<li><code>${snp_list}_chr${chr}.txt</code>: list of rsIDs on <code>chr${chr}</code></li>
+<li><code>${snp_list}_chr${chr}.psam</code></li>
+<li><code>${snp_list}_chr${chr}.pvar</code></li>
+<li><code>${snp_list}_chr${chr}.pgen</code></li>
+<li><code>${snp_list}_chr${chr}.pgen</code></li>
+<li><code>${snp_list}_chr${chr}.raw</code></li>
+<li><code>${snp_list}_chr${chr}.log</code></li>
+</ul></li>
+<li><code>${snp_list}_extraction.txt</code>: merged genetic data from imputed files.</li>
+<li>Some SNPs of interest (usually insertions and deletions) were genotyped directly on our custom SNP panel, but were not imputed (HRC reference panel does not include insertion/deletion SNPs) and therefore would not be extracted and included in the above extraction. If the “requester” has requested such SNPs, there are also the following files provided:
+<ul>
+<li><code>${snp_list}_missing_snps.txt</code>: list of SNPs that were not extracted from imputed files (if this file is empty, all SNPs were in imputed data set).</li>
+<li><code>${snp_list}_missing_snps_extract.fam</code>: PLINK extraction from original genotype data.</li>
+<li><code>${snp_list}_missing_snps_extract.bim</code>: PLINK extraction from original genotype data.</li>
+<li><code>${snp_list}_missing_snps_extract.bed</code>: PLINK extraction from original genotype data.</li>
+<li><code>${snp_list}_missing_snps_extract.raw</code>: PLINK extraction from original genotype data.</li>
+<li><code>${snp_list}_missing_snps_extract.log</code>: PLINK extraction from original genotype data.</li>
+<li><code>${snp_list}_extraction_geno.txt</code>: merged genetic data, same file as above, but with additional SNPs extracted from original genotype data, this is the <strong>main results file</strong>:
+<ul>
+<li>First column is <code>GPCR</code> ID.</li>
+<li>Subsequent <strong>N</strong> columns correspond <strong>N</strong> SNPs extracted from imputed data.</li>
+<li>One column for ethnicity (one of: “CEU” (European), “EA” (East Asian), “MIXED”, “NA” (Native American), “YRI” (African))</li>
+<li>Following 100 columns correspond to genetic principal components.</li>
+<li><em>Note</em>: it is <strong>strongly</strong> encouraged to only us the <code>CEU</code> samples as this our largest and cleanest sample. If using only European, adjust for at least the first 10 PCs in your analysis. If you need to you include additional ethnic groups, you hanalave two options: (1) analyze each ethnic group seperately, adjusting for PCs <strong>or</strong> (2) analyze the entire group together without PCs (PCs were calculated in each ethnic group <strong>seperately</strong> so you cannot include them in a model where all ethnic groups are included).</li>
+</ul></li>
+<li><code>${snp_list}_missing_geno_snps.txt</code>: list of SNPs that are still missing after extracting SNPs from original genotyped data.
+<ul>
+<li><em>Note</em>: data from the original genotype data has not been cleaned or filtered, so should be used with some caution.</li>
+<li>List of SNPs extracted from original genotype data can be seen in the bim file: <code>${snp_list}_missing_snps_extract.bim</code>.</li>
+</ul></li>
+</ul></li>
+<li>All data from imputed files has been processed according to the description outlined in the <a href="genetic_quality_control.html">Genotype quality control page</a> (i.e. SNPs filtered for MAF, HW, info, etc. and participants filtered for sex check, relatedness, etc.).</li>
+</ul>
+</div>
+<div id="send-results-to-requester." class="section level1">
+<h1>5. Send results to “requester”.</h1>
+<ul>
+<li>The simplest way is to likely to move the main results file (<code>${snp_list}_extraction_geno.txt</code>) to a CHUV computer via filezilla.</li>
+<li>Results then need to be sent to Claire or Celine to convert the GPCR ID to a patient ID.</li>
+<li>Celine and/or Claire will then transfer the recoded data to the “requester”.</li>
+</ul>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
