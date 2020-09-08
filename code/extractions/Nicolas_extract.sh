@@ -9,8 +9,8 @@
 #SBATCH --partition=sgg                                            # runs on the sggg nodes
 
 project_dir="/data/sgg2/jenny/projects/PSYMETAB"
-input=$projects/PSYMETAB/data/raw/extractions/Nicolas
-output=$projects/PSYMETAB/data/processed/extractions/Nicolas
+input=$projects/PSYMETAB/data/raw/extractions/Severine
+output=$projects/PSYMETAB/data/processed/extractions/Severine
 QC_dir=$project_dir/analysis/QC
 #qc_data=${QC_dir}/15_final_processing/CEU/PSYMETAB_GWAS.CEU
 #pc_data=${QC_dir}/15_final_processing/final_pca/CEU/pcs.PSYMETAB_GWAS_CEU_unrelated.txt
@@ -30,6 +30,8 @@ FILES=$input/*.txt
 
 for file in $FILES
 do
+  file_start=$(echo $file | cut -f1 -d.)
+  out_name=$(basename $file_start)
   if [ ! -d "${output}/${out_name}" ] ; then
     mkdir ${output}/${out_name}
   fi
