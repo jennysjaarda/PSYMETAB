@@ -17,8 +17,10 @@ output:
 # 2. Transfer input file to HPC1 server.
 
 - Connect to `HPC1` server via filezilla:
+  - host: `hpc1.chuv.ch`
   - username: `je4649`
   - password: `LacLeman2020`
+  - port: `22`
 - Navigate to `/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions`
 - If necessary, create directory for person who made data extraction request ("requester"). 
 - Save text file from #1 into the folder: `/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions/${requester}`.
@@ -28,13 +30,13 @@ output:
 - Extraction script templates are found in: `/data/sgg2/jenny/projects/PSYMETAB/code/extractions` (for e.g. `/data/sgg2/jenny/projects/PSYMETAB/code/extractions/Aurelie.sh`)
 - If an extraction script already exists for the "requester" skip to next step, otherwise:
   - Create an extraction script for the "requester": `/data/sgg2/jenny/projects/PSYMETAB/code/extractions/${requester}.sh`. 
-  - Recommend simply copying and pastying all code from another request as each script is nearly identical.
+  - Recommend simply copying and pastying all code from `Nicolas_extract.sh` script as the new one will be nearly identical.
   - Replace all instances of template's name with new "requester" (e.g. replace **Aurelie** with **Severine**), there should be four replace instances: (1) SBATCH `job-name`, (2) folder `input`, (3) folder `ouput`, (4) comment at end of file indicating how to launch the script. 
   - Ensure file is saved as: /data/sgg2/jenny/projects/PSYMETAB/code/extractions/requester.sh`
 - Login to `HPC1` using PUTTY: 
-  - username: `je4649`
+  - hostname: `je4649@hpc1.chuv.ch`
   - password: `LacLeman2020`
-- Launch sbatch script from master as follows: `sbatch $projects/PSYMETAB/code/extractions/Nicolas_extract.sh` (this assumes projects is defined as `/data/sgg2/jenny/projects`, if not replace `$projects` with explicit path or define projects before hand, if logged in as `je4649`, `project` is automatically defined). 
+- Launch sbatch script from master as follows: `sbatch $projects/PSYMETAB/code/extractions/${requester}_extract.sh` (this assumes projects is defined as `/data/sgg2/jenny/projects`, if not replace `$projects` with explicit path or define projects before hand, if logged in as `je4649`, `project` is automatically defined). 
   
 # 4. Summary of result files. 
 
@@ -62,7 +64,7 @@ output:
     - Subsequent **N** columns correspond **N** SNPs extracted from imputed data. 
     - One column for ethnicity (one of: "CEU" (European), "EA" (East Asian), "MIXED", "NA" (Native American), "YRI" (African))
     - Following 100 columns correspond to genetic principal components. 
-    - *Note*: it is **strongly** encouraged to only us the `CEU` samples as this our largest and cleanest sample. If using only European, adjust for at least the first 10 PCs in your analysis. If you need to you include additional ethnic groups, you hanalave two options: (1) analyze each ethnic group seperately, adjusting for PCs **or** (2) analyze the entire group together without PCs (PCs were calculated in each ethnic group **seperately** so you cannot include them in a model where all ethnic groups are included).
+    - *Note*: it is **strongly** encouraged to only us the `CEU` samples as this our largest and cleanest sample. If using only European, adjust for at least the first 10 PCs in your analysis. If you need to include additional ethnic groups, you have two options: (1) analyze each ethnic group seperately, adjusting for PCs **or** (2) analyze the entire group together without PCs (PCs were calculated in each ethnic group **seperately** so you cannot include them in a model where all ethnic groups are included).
   - `${snp_list}_missing_geno_snps.txt`: list of SNPs that are still missing after extracting SNPs from original genotyped data.
     - *Note*: data from the original genotype data has not been cleaned or filtered, so should be used with some caution. 
     - List of SNPs extracted from original genotype data can be seen in the bim file: `${snp_list}_missing_snps_extract.bim`. 
