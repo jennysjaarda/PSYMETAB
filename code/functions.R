@@ -1450,6 +1450,93 @@ unzip_bgenie <- function(chr){
 
 }
 
+merge_bgenie_output <- function(){
+
+  out <- numeric()
+  for(chr in 1:22){
+    chr_data <- fread(paste0("analysis/GWAS/UKBB/chr", chr, ".out"), data.table=F)
+    out <- rbind(out, chr_data)
+  }
+
+  return(out)
+
+}
+
+extract_sig_files <- function(file, threshold){
+
+  result <- numeric()
+
+  data <- fread(file)
+  data_gwsig <- filter(data, P< threshold)
+  if(dim(data_gwsig)[1]!=0){
+
+    data_gwsig$file <- file
+    result <- rbind(result, data_gwsig)
+  }
+
+  return(result)
+
+}
+
+add_AF <- function(data, AF_file){
+
+  AF_data <- fread(AF_file, data.table=F)
+  AF_merge <- left_join(data, AF_data %>% dplyr::select(ID, ALT_FREQS), by = c("SNP" = "ID"))
+
+}
+
+calc_het <- function(data, snp_col, beta1_col, beta2_col, se1_col, se2_col){
+
+  data$het_pval <- NA
+  for(snp in 1:dim(data)[1] ){
+    rsid <- as.character(data[snp,snp_col])
+    beta1 <-  as.numeric(as.character(data[snp,beta1_col]))
+    beta2 <-   as.numeric(as.character(data[snp,beta2_col]))
+    SE1 <-  as.numeric(as.character(data[snp,se1_col]))
+    SE2 <-  as.numeric(as.character(data[snp,se2_col]))
+    se <- sqrt( (SE1^2) + (SE2^2) )
+    t <- (beta1-beta2)/se
+    p_het <- 2*pnorm(-abs(t))
+    #temp <- cbind(rsid, p_het)
+    data$het_pval[snp] <- p_het
+    #het_out <- rbind(het_out,temp)
+
+  }
+
+  return(data)
+
+}
+
+prune_psy_ukbb <-function(data){
+
+  unique_files <- unique(data$file)
+
+  result <- numeric()
+  for(i in 1:length(unique_files)){
+
+    file_i <- unique_files[i]
+    t <- subset(data, data$file==file_i)
+    t <- t[order(t$P),] %>% filter(!is.na(chr_UKBB))
+    j <- 1
+    while(j <= dim(t)[1]){
+      chr <- t[["CHR"]][j]
+      bp <- t[["BP"]][j]
+      remove_indices <- which(t[["CHR"]]==chr & t[["BP"]] >= (bp - 500000) & t[["BP"]] <= (bp + 500000))
+      remove_indices <- remove_indices[-which(remove_indices==j)]
+      if(length(remove_indices)!=0){
+        t <- t[-remove_indices, ]
+      }
+      j <- j+1
+    }
+
+    result <- rbind(result, t)
+
+  }
+  
+  return(result)
+
+}
+
 combine_targets <- function(...){
   temp <- substitute(list(...))[-1]
   c(sapply(temp, deparse))
