@@ -573,7 +573,7 @@ process_init <- drake_plan(
     pheno_file = file_in("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"), output_suffix = "baseline",
     subgroup = NA, covar_file = NA, covars = NA,
     eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
-    related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
+    related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))),
 
 
   interaction_GWAS_count = target({
@@ -583,7 +583,7 @@ process_init <- drake_plan(
       eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
       related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
     }, dynamic = map(interaction_gwas_process)
-  )
+  ),
 
   subgroup_GWAS_count = target({
     count_GWAS_n(psam_file = file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.psam")),
@@ -591,7 +591,7 @@ process_init <- drake_plan(
       subgroup = subgroup_gwas_process$subgroup, covar_file = NA, covars=NA,
       eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
       related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
-  }, dynamic = map(subgroup_gwas_process))
+  }, dynamic = map(subgroup_gwas_process)),
 
 
 )
