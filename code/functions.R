@@ -588,7 +588,7 @@ create_GWAS_pheno <- function(pheno_baseline, pheno_followup, caffeine_vars, tes
       sub <- paste0(drug, ".", pheno)
       data_drug <- pheno_followup[[sub]]
       data_drug <- data_drug %>%
-        mutate_at(.vars = paste0(pheno, outcomes), .funs = ivt) # perform IVT on full data set instead of before sensitivity phenotypes are create_dir
+        mutate_at(.vars = paste0(pheno, outcomes), .funs = ivt) # perform IVT on full data set instead of before sensitivity phenotypes are created
                                                                 # this means that the data used in the sensitivity models is exactly the same as the full models, just with some participants removed.
 
       drugs_analyzed <- test_drugs[which(test_drugs$class==drug),] %>% pull(drugs) %>% unlist()
@@ -1532,7 +1532,7 @@ prune_psy_ukbb <-function(data){
     result <- rbind(result, t)
 
   }
-  
+
   return(result)
 
 }
@@ -1685,8 +1685,11 @@ extract_model_stats <- function(model_summary, coef_list){
     beta <- model_summary[coef,1]
     se <- model_summary[coef,2]
     pval <- model_summary[coef,4]
-    temp <- cbind(beta, se, pval)
-    colnames(temp) <- paste0(coef, c("_beta", "_se","_pval"))
+    z_stat <- qnorm(.025,lower.tail=FALSE)
+    L95 <- beta-z_stat*se
+    U95 <- beta+z_stat*se
+    temp <- cbind(beta, se, pval, L95, U95)
+    colnames(temp) <- paste0(coef, c("_beta", "_se","_pval", "_L95", "_U95"))
     summary <- cbind (summary,  temp)
   }
   return(summary)
@@ -1696,6 +1699,7 @@ extract_model_stats <- function(model_summary, coef_list){
 
 analyze_prs <- function(prs_file, pheno_file, pc_file, linear_pheno_columns, glm_pheno_columns, covars){
 
+  out <- list()
   prs_data <- fread(prs_file, data.table=F)
   pheno_data <- fread(pheno_file, data.table=F)
   pc_eth_data <- fread(pc_file, data.table=F)
@@ -1703,7 +1707,7 @@ analyze_prs <- function(prs_file, pheno_file, pc_file, linear_pheno_columns, glm
 
   output <- numeric()
 
-  pc_data <- pc_eth_data[,c("GPCR", "eth", paste0("PC", 1:10))] %>% rename("GEN" = "GPCR")
+  pc_data <- pc_eth_data[,c("GPCR", "eth", paste0("PC", 1:20))] %>% rename("GEN" = "GPCR")
   eths <- unique(pc_data$eth)
   for(prs in c("PRS_5e08", "PRS_5e07", "PRS_5e06", "PRS_5e05", "PRS_5e04", "PRS_5e03", "PRS_5e02", "PRS_0.1")){
     prs_sub_data <- prs_data[,c("GEN", prs)] %>% rename("prs" = prs)
@@ -1716,11 +1720,14 @@ analyze_prs <- function(prs_file, pheno_file, pc_file, linear_pheno_columns, glm
 
         joint <- reduce(list(outcome_data,prs_sub_data,covar_data,pc_sub_data), inner_join, by = "GEN") %>%
           dplyr::select(-GEN) %>%
-          mutate(prs = scale(prs))
+          mutate(prs = scale(prs)) %>%
+          mutate(outcome = ivt(outcome))
+
         model <- (lm(outcome ~ ., data=joint))
         model_summary <- full_model_summary(model)
         model_stats <- extract_model_stats(model_summary, c("prs"))
-        row <- cbind(prs, eth, var, model_type, model_stats)
+        n_model <- nobs(model)
+        row <- cbind(prs, eth, var, model_type, model_stats, n_model)
         output <- rbind(output, row)
       }
 
@@ -1738,19 +1745,31 @@ analyze_prs <- function(prs_file, pheno_file, pc_file, linear_pheno_columns, glm
 
         model_summary <- full_model_summary(model)
         model_stats <- extract_model_stats(model_summary, c("prs"))
-        row <- cbind(prs, eth, var, model_type, model_stats)
+        n_model <- nobs(model)
+
+        row <- cbind(prs, eth, var, model_type, model_stats, n_model)
         output <- rbind(output, row)
       }
 
     }
   }
-  return(output)
 
+  out[[prs_file]] <- as_tibble(output)
 
+  return(out)
 
 }
-#### TO BE REVISED
 
+
+
+write_ukbb_prs_analysis <- function(data, out_file_name){
+
+  filter_data <- data %>% filter(eth=="CEU") %>% filter(prs=="PRS_0.1")
+  write.csv(filter_data, out_file_name, row.names=F)
+  return(out_file_name)
+}
+
+#### TO BE REVISED
 process_subgroup <- function(nodrug, pheno_list, output = "PSYMETAB_GWAS", output_suffix = ""){
 
   # pheno_list <- subgroup_gwas_info$pheno
@@ -2097,36 +2116,79 @@ gw_sig_extract <- function(gwas_file, gw_sig_nominal, eth, pheno, drug_class, dr
 
 }
 
-#### GWAS
-# sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
-# sig_drug <- drug[which(drug$P < 5e-08),]
-#
-# info <- fread("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/PSYMETAB_GWAS.info")
-# eth="CEU"
-# freq <- fread(paste0("/data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/",eth, "/PSYMETAB_GWAS.CEU.afreq"), header=T)
+count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, covar_file=NA, covars=NA, eths,
+  eth_sample_file, related_ids_file){
 
-# for(data in c("nodrug", "drug"))
-# {
-# gwas_result <- get(data)
-# gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
-# joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
-# sig <- joint %>%
-#         mutate_at("P", as.numeric) %>%
-#         filter(P < 5e-06) %>%
-#         filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
-#         filter(R2 > info_threshold)
-# # sig_nodrug <- sig
-# }
+  sample_file <- read.table(psam_file, header=F)
+  nsamples <- dim(sample_file)[1]
 
-#
-# for(pam in pams )
-# {
-#   beta_F <-  as.numeric(as.character(trait_result[pam,"female"]))
-#   beta_M <-   as.numeric(as.character(trait_result[pam,"male"]))
-#   SE_F <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"female"]))
-#   SE_M <-  as.numeric(as.character(trait_result[paste0(pam,"_se"),"male"]))
-#   se <- sqrt( (SE_F^2) + (SE_M^2) )
-#   t <- (beta_F-beta_M)/se
-#   p_het <- 2*pnorm(-abs(t))
-#   het_out <- cbind(het_out, p_het)
-# }
+  pheno_data <- fread(pheno_file, data.table=F)
+  remove_samples <- read.table(remove_sample_file, header=F)
+
+  if(!is.na(covar_file)){
+    covar_list <- unlist(covars)
+    covar_data <- fread(covar_file, data.table=F)
+    pheno_data <- left_join(pheno_data, covar_data %>% dplyr::select(FID, IID, !!covar_list))
+  }
+
+  output <- numeric()
+
+  for (eth in eths){
+    keep_file <- str_replace(eth_sample_file, "ETH", eth)
+    eth_samples <- read.table(keep_file, header=F)
+
+    final_sample_list <- sample_file %>%
+      filter(V1 %in% eth_samples$V1) %>%
+      filter(!(V1 %in% remove_samples$V1))
+
+    eth_count <- dim(final_sample_list)[1]
+
+    if(eth_count > 100){
+      pheno_data_eth <- pheno_data %>% filter(FID %in% final_sample_list$V1)
+      colnames_pheno_data_eth <- colnames(pheno_data_eth)
+
+      # if subgroup
+      if(!is.na(subgroup)){
+        vars_analyzed <- colnames_pheno_data_eth[-which(colnames_pheno_data_eth %in% c("FID", "IID", subgroup))]
+        for(var in vars_analyzed){
+          for(drug_class in c("Drug", "NoDrug")){
+
+            pheno_i <- pheno_data_eth[which(pheno_data_eth[[subgroup]]==drug_class),c("FID", var)]
+            pheno_i_complete <- pheno_i[complete.cases(pheno_i),]
+            n_samples <- dim(pheno_i_complete)[1]
+
+            row <- cbind(eth, var, output_suffix, drug_class, n_samples)
+            output <- rbind(output, row)
+          }
+        }
+      }
+
+      # if interaction
+      if(!is.na(covar_file)){
+        vars_analyzed <- colnames_pheno_data_eth[-which(colnames_pheno_data_eth %in% c("FID", "IID"))]
+        for(var in vars_analyzed){
+          drug_class <- NA
+          pheno_i <- pheno_data_eth[,c("FID", var, covar_list)]
+          pheno_i_complete <- pheno_i[complete.cases(pheno_i),]
+          n_samples <- dim(pheno_i_complete)[1]
+          row <- cbind(eth, var, output_suffix, drug_class, n_samples)
+
+        }
+      }
+
+      # if baseline
+      if(output_suffix=="baseline"){
+        vars_analyzed <- colnames_pheno_data_eth[-which(colnames_pheno_data_eth %in% c("FID", "IID"))]
+        for(var in vars_analyzed){
+          drug_class <- NA
+          pheno_i <- pheno_data_eth[,c("FID", var)]
+          pheno_i_complete <- pheno_i[complete.cases(pheno_i),]
+          n_samples <- dim(pheno_i_complete)[1]
+          row <- cbind(eth, var, output_suffix, drug_class, n_samples)
+        }
+
+      }
+
+    }
+  }
+}
