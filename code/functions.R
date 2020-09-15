@@ -2123,7 +2123,7 @@ count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, cova
   nsamples <- dim(sample_file)[1]
 
   pheno_data <- fread(pheno_file, data.table=F)
-  remove_samples <- read.table(remove_sample_file, header=F)
+  remove_samples <- read.table(related_ids_file, header=F)
 
   if(!is.na(covar_file)){
     covar_list <- unlist(covars)
@@ -2157,7 +2157,7 @@ count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, cova
             pheno_i_complete <- pheno_i[complete.cases(pheno_i),]
             n_samples <- dim(pheno_i_complete)[1]
 
-            row <- cbind(eth, var, output_suffix, drug_class, n_samples)
+            row <- cbind(pheno_file, eth, var, output_suffix, drug_class, n_samples)
             output <- rbind(output, row)
           }
         }
@@ -2171,7 +2171,8 @@ count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, cova
           pheno_i <- pheno_data_eth[,c("FID", var, covar_list)]
           pheno_i_complete <- pheno_i[complete.cases(pheno_i),]
           n_samples <- dim(pheno_i_complete)[1]
-          row <- cbind(eth, var, output_suffix, drug_class, n_samples)
+          row <- cbind(pheno_file, eth, var, output_suffix, drug_class, n_samples)
+          output <- rbind(output, row)
 
         }
       }
@@ -2184,11 +2185,15 @@ count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, cova
           pheno_i <- pheno_data_eth[,c("FID", var)]
           pheno_i_complete <- pheno_i[complete.cases(pheno_i),]
           n_samples <- dim(pheno_i_complete)[1]
-          row <- cbind(eth, var, output_suffix, drug_class, n_samples)
+          row <- cbind(pheno_file, eth, var, output_suffix, drug_class, n_samples)
+          output <- rbind(output, row)
         }
 
       }
 
     }
   }
+  colnames(output) <- c("pheno_file", "eth", "variable_name", "suffix", "drug_class", "n_sample")
+  output <- as_tibble(output)
+  return(output)
 }

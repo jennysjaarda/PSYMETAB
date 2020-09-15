@@ -22,7 +22,11 @@ source("code/plan.R")
 dir.create(plink_bed_out,showWarnings = F)
 dir.create("analysis/QC", showWarnings = F)
 dir.create("data/processed/phenotype_data/GWAS_input", showWarnings = F)
-create_analysis_dirs("analysis/GWAS")
+create_analysis_dirs("analysis/GWAS", eths)
+
+dir.create(plink_output_dir)
+create_analysis_dirs(plink_output_dir, eths)
+
 
 # Run analyses ----
 
@@ -45,17 +49,25 @@ create_analysis_dirs("analysis/GWAS")
 #   log_file = "/data/sgg2/jenny/projects/PSYMETAB/post_impute_%a_clustermq.out"))
 
 make(analysis_prep, log_make = "analysis_prep.log", cache_log_file = "cache_log.csv",
-  parallelism = "clustermq", jobs = 8, template = list(cpus = 1, partition = "cluster2",
+  parallelism = "clustermq", jobs = 40, template = list(cpus = 1, partition = "cluster",
   log_file = "/data/sgg2/jenny/projects/PSYMETAB/analysis_prep_%a_clustermq.out"))
 
 make(init_analysis, log_make = "init_analysis.log", cache_log_file = "cache_log.csv",
-  parallelism = "clustermq", jobs = 16, template = list(cpus = 8, partition = "cluster2",
+  parallelism = "clustermq", jobs = 20, template = list(cpus = 8, partition = "cluster",
   log_file = "/data/sgg2/jenny/projects/PSYMETAB/init_analysis_%a_clustermq.out"))
 
 make(process_init, log_make = "process_init.log", cache_log_file = "cache_log.csv",
-  parallelism = "clustermq", jobs = 80, template = list(cpus = 2, partition = "cluster2",
+  parallelism = "clustermq", jobs = 125, template = list(cpus = 1, partition = "sgg",
   log_file = "/data/sgg2/jenny/projects/PSYMETAB/process_init_%a_clustermq.out"))
 
-# make(prs, log_make = "prs.log", cache_log_file = "cache_log.csv",
-#   parallelism = "clustermq", jobs = 4, template = list(cpus = 16, partition = "sgg",
-#   log_file = "/data/sgg2/jenny/projects/PSYMETAB/prs_%a_clustermq.out"))
+make(ukbb_analysis, log_make = "ukbb_analysis.log", cache_log_file = "cache_log.csv",
+  parallelism = "clustermq", jobs = 22, template = list(cpus = 1, partition = "cluster",
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/ukbb_analysis_%a_clustermq.out"))
+
+make(extract_sig, log_make = "extract_sig.log", cache_log_file = "cache_log.csv",
+  parallelism = "clustermq", jobs = 120, template = list(cpus = 1, partition = "sgg",
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/process_init_%a_clustermq.out"))
+
+make(prs, log_make = "prs.log", cache_log_file = "cache_log.csv",
+  parallelism = "clustermq", jobs = 8, template = list(cpus = 1, partition = "sgg",
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/prs_%a_clustermq.out"))
