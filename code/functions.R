@@ -1446,7 +1446,7 @@ launch_bgenie <- function(chr, phenofile, threads){
 }
 
 unzip_bgenie <- function(chr){
-  system(paste0("gzip -d analysis/GWAS/UKBB/chr", chr, ".out.gz"))
+  system(paste0("gzip -d -k analysis/GWAS/UKBB/chr", chr, ".out.gz"))
 
 }
 
@@ -2196,4 +2196,27 @@ count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, cova
   colnames(output) <- c("pheno_file", "eth", "variable_name", "suffix", "drug_class", "n_sample")
   output <- as_tibble(output)
   return(output)
+}
+
+sort_ukbb_comparison <- function(ukbb_comparison, subgroup_GWAS_count, interaction_outcome, drug_classes){
+
+  ukbb_comparison$n_sample <- NA
+  for(i in 1:dim(ukbb_comparison)[1]){
+
+    file <- basename(as.character(ukbb_comparison$file[i]))
+
+    interaction_temp <- interaction_outcome[which(sapply(interaction_outcome, function(x) {grepl(paste0(x, "_"), file)}))]
+    drug <- drug_classes[which(sapply(drug_classes, function(x) {grepl(paste0("_", x, "_"), file)}))]
+
+    interaction_drug_temp <- paste0(interaction_temp, "_", drug)
+    interaction_exact <- which(sapply(interaction_drug_temp, function(x) {grepl(paste0(".", x, "."), file)}))
+
+    row <- which(subgroup_GWAS_count$eth=="CEU" & subgroup_GWAS_count$drug_class=="Drug" & subgroup_GWAS_count$variable_name==paste0(interaction_temp[interaction_exact], "_", drug) & subgroup_GWAS_count$suffix==drug)
+
+    count <- subgroup_GWAS_count$n_sample[row]
+    ukbb_comparison$n_sample[i] <- count
+  }
+
+  return(ukbb_comparison)
+
 }
