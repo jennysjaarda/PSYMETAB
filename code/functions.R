@@ -1446,8 +1446,9 @@ launch_bgenie <- function(chr, phenofile, threads){
 }
 
 unzip_bgenie <- function(chr){
-  system(paste0("gzip -d -k analysis/GWAS/UKBB/chr", chr, ".out.gz"))
-
+  # system(paste0("gzip -dk analysis/GWAS/UKBB/chr", chr, ".out.gz")) ## keep flag doesn't exist on this system
+  file <- paste0("analysis/GWAS/UKBB/chr", chr, ".out")
+  system(paste0("gunzip < ", paste0(file, ".gz"), " > ", file))
 }
 
 merge_bgenie_output <- function(){
@@ -2197,6 +2198,50 @@ count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, cova
   output <- as_tibble(output)
   return(output)
 }
+
+
+extract_bgen <- function(snps, file){
+
+  num_snps <- length(snps)
+  bgen_data <- rbgen::bgen.load(file=file, rsids = snps)
+  snp_map <- bgen_data$variants
+  snp_map$AF <- NA
+  geno <- numeric()
+
+  for(i in 1:dim(snp_map)[1])
+  {
+      snp <- as.character(snp_map[["rsid"]][i])
+      snp_temp <- bgen_data$data[snp,,]
+      snp_temp <- as.data.frame(snp_temp)
+      snp_temp[,4] <- snp_temp[,2]+2*snp_temp[,3]
+      snp_map$AF[i] <- mean(snp_temp[,4], rm.na=T)/2
+      snp_out <- snp_temp[,4]
+      geno <- cbind(geno, snp_out)
+  }
+  colnames(geno) <- bgen_data$variants$rsid
+  return(list(geno_data=geno,snp_map=snp_map))
+}
+
+load_geno <- function(bgen_file,snp_data){
+
+  ####### Extract SNP froms bgen files
+  snp_map <- numeric()
+  IV_geno <- numeric()
+  for(chr in 1:22)
+  {
+    snps <- pull(snp_data[which(snp_data[,"chr"]==chr),], rsid)
+    if(length(snps)==0) next
+    bgen_file=paste(UKBB_dir, "/imp/", "_001_ukb_imp_chr", chr, "_v2.bgen", sep="")
+    bgen_chr_extract <- extract_bgen(unique(snps),bgen_file)
+    IV_geno <- cbind(IV_geno, bgen_chr_extract$geno_data)
+    snp_map <- rbind(snp_map,bgen_chr_extract$snp_map)
+    cat(paste0("Finished loading chr: ", chr, ".\n"))
+
+  }
+  row.names(IV_geno) <- sample_file[,1]
+  return(list(IV_geno, snp_map))
+}
+
 
 sort_ukbb_comparison <- function(ukbb_comparison, subgroup_GWAS_count, interaction_outcome, drug_classes){
 
