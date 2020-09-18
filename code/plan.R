@@ -655,7 +655,7 @@ process_init <- drake_plan(
 
   psy_ukbb_merge_AF_prune = prune_psy_ukbb(psy_ukbb_merge_AF),
 
-  write_ukbb_comparison = write.csv(psy_ukbb_merge_AF_prune,  file_out("output/PSYMETAB_GWAS_UKBB_comparison.csv"),row.names = F)
+  write_ukbb_comparison = write.csv(psy_ukbb_merge_AF_prune,  file_out("output/PSYMETAB_GWAS_UKBB_comparison.csv"),row.names = F),
 
   ukbb_top_snps_chr = tibble(chr = psy_ukbb_merge_AF$CHR, rsid = psy_ukbb_merge_AF$SNP),
 
