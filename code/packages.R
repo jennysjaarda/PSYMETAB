@@ -35,6 +35,7 @@ library(kableExtra)
 # packrat::install_local("rmote")
 # packrat::install_local("png")
 # packrat::install_local("servr")
+# packrat::install_local("rbgen")
 library(fuzzyjoin)
 library(OpenImageR) # https://stackoverflow.com/questions/50937921/save-and-load-a-ggplot-plot
 # library(tidylog)
@@ -42,3 +43,4 @@ library(OpenImageR) # https://stackoverflow.com/questions/50937921/save-and-load
 # options("tidylog.display" = NULL)    # turn on
 library(hrbrthemes)
 library(ukbtools)
+library(rbgen)
