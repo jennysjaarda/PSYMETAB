@@ -594,6 +594,79 @@ process_init <- drake_plan(
   }, dynamic = map(subgroup_gwas_process)),
 
 
+
+  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  sqc = fread(file_in(!!paste0(UKBB_dir,"/geno/ukb_sqc_v2.txt")), header=F, data.table=F),
+  fam = fread(file_in(!!paste0(UKBB_dir,"/plink/_001_ukb_cal_chr9_v2.fam")), header=F,data.table=F),
+  relatives = read.table(file_in(!!paste0(UKBB_dir,"/geno/",ukbb_relatives_file)), header=T),
+  exclusion_file = fread(file_in(!!paste0(UKBB_dir, "/org/", ukbb_exclusion_list)), data.table=F),
+  bgen_file = fread(file_in(!!paste0(UKBB_dir, "/", ukbb_sample_file)), header=T,data.table=F),
+
+
+  #med_codes = read_tsv(file_in(!!medication_codes)),
+  qc_data = ukb_gen_sqc_names(sqc),
+
+  sqc_munge = munge_sqc(sqc,fam),
+  british_subset = get_british_ids(qc_data, fam),
+  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var),
+
+  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
+  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
+  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
+  ukbb_bgen_order = order_bgen(bgen_file, ukbb_resid, variable = "bmi_slope_res_ivt"),
+  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
+
+  chr_num = tibble(chr = 1:22),
+
+  bgenie_out = target({
+    launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=1)
+    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
+  }, dynamic = map(chr_num), format = "file"),
+
+
+  bgenie_unzip = target({
+    bgenie_out
+    unzip_bgenie(chr_num$chr)
+    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out")
+    }, dynamic = map(chr_num), format = "file"),
+
+  bgenie_merge = {
+    bgenie_unzip
+    merge_bgenie_output()
+  },
+
+  subgroup_files = list.files(path="analysis/GWAS/subgroup/processed", pattern=".txt", full.names=T),
+
+  BMI_slope_sub_files = subgroup_files[grepl("CEU[.]Drug[.]BMI_slope", subgroup_files) & !grepl("weight", subgroup_files) & !grepl( "sensitivity", subgroup_files)],
+
+  BMI_slope_nominal = target(extract_sig_files(BMI_slope_sub_files, !!gw_sig_nominal),
+    dynamic = map(BMI_slope_sub_files)),
+
+  BMI_slope_nominal_AF = add_AF(BMI_slope_nominal, AF_file = file_in("analysis/QC/14_mafcheck/CEU/PSYMETAB_GWAS.CEU.afreq")),
+
+  psy_ukbb_merge = {
+    colnames(bgenie_merge) <- paste(colnames(bgenie_merge), "UKBB", sep = "_")
+    psy_ukbb_merge <- left_join(BMI_slope_nominal_AF, bgenie_merge, by = c("SNP" = "rsid_UKBB"))
+    psy_ukbb_merge
+  },
+
+  psy_ukbb_merge_AF = calc_het(psy_ukbb_merge, "SNP", "BETA", "bmi_slope_res_ivt_beta_UKBB", "SE", "bmi_slope_res_ivt_se_UKBB"),
+
+  psy_ukbb_merge_AF_prune = prune_psy_ukbb(psy_ukbb_merge_AF),
+
+  write_ukbb_comparison = write.csv(psy_ukbb_merge_AF_prune,  file_out("output/PSYMETAB_GWAS_UKBB_comparison.csv"),row.names = F)
+
+  ukbb_top_snps_chr = tibble(chr = psy_ukbb_merge_AF$CHR, rsid = psy_ukbb_merge_AF$SNP),
+
+  ukbb_geno = load_geno(bgen_file, ukbb_top_snps_chr),
+
+
+  # ukbb_comparison = read.csv(file_in("output/PSYMETAB_GWAS_UKBB_comparison.csv")),
+  #
+  # ukbb_comparison_format = sort_ukbb_comparison(ukbb_comparison, subgroup_GWAS_count, !!interaction_outcome, !!drug_classes),
+  # write.csv(ukbb_comparison_format,  file_out("output/PSYMETAB_GWAS_UKBB_comparison2.csv"),row.names = F)
+
 )
 
 #
