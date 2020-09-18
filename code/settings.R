@@ -102,6 +102,10 @@ drug_classes <- c("all", "olanz_cloz", "valproate", "olanz", "cloza", "risp", "q
 test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine", "Clozapine"), c("Valproate"), c("Olanzapine"),
   c("Clozapine"), c("Risperidone"), c("Quetiapine"), c("Olanzapine", "Clozapine", "Quetiapine"), c("Amisulpride")))
 
+antipsychotics <- c("Amisulpride", "Chlorprothixène", "Aripiprazole", "Flupentixol", "Asenapine", "Haloperidol",
+  "Brexpiprazole", "Lévomépromazine", "Cariprazine", "Pipampérone", "Clozapine" "Promazine", "Olanzapine",
+  "Sulpiride", "Lurasidone", "Tiapride", "Paliperidone", "Zuclopenthixol", "Quetiapine", "Rispéridone", "Sertindole")
+
 baseline_vars <- c("BMI", "Creatinine", "Glucose", "CholesterolHDL", "LDL", "Tryglycerides")
 interaction_vars <- c("BMI", "LDL")
 caffeine_vars <-  c("logCAF", "logTHEOBR", "logPARAX", "Sleep_disorder")
