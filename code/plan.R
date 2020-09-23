@@ -718,7 +718,7 @@ ukbb_analysis <- drake_plan(
 
   chr_num = tibble(chr = 1:22),
 
-  bgenie_out = target(launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=1),
+  bgenie_out = target(launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=1, !!UKBB_dir),
     dynamic = map(chr_num)),
 
   bgenie_unzip = target({
