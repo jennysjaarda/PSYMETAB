@@ -597,11 +597,11 @@ process_init <- drake_plan(
 
   ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
   ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  sqc = fread(file_in(!!paste0(UKBB_dir,"/geno/ukb_sqc_v2.txt")), header=F, data.table=F),
-  fam = fread(file_in(!!paste0(UKBB_dir,"/plink/_001_ukb_cal_chr9_v2.fam")), header=F,data.table=F),
-  relatives = read.table(file_in(!!paste0(UKBB_dir,"/geno/",ukbb_relatives_file)), header=T),
-  exclusion_file = fread(file_in(!!paste0(UKBB_dir, "/org/", ukbb_exclusion_list)), data.table=F),
-  bgen_file = fread(file_in(!!paste0(UKBB_dir, "/", ukbb_sample_file)), header=T,data.table=F),
+  sqc = fread(file_in(!!paste0(UKBB_dir, ukbb_sqc_file)), header=F, data.table=F),
+  fam = fread(file_in(!!paste0(UKBB_dir, ukbb_fam_file)), header=F,data.table=F),
+  relatives = read.table(file_in(!!paste0(UKBB_dir, ukbb_relatives_file)), header=T),
+  exclusion_file = fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_list)), data.table=F),
+  bgen_sample_file = fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T,data.table=F),
 
 
   #med_codes = read_tsv(file_in(!!medication_codes)),
@@ -614,7 +614,7 @@ process_init <- drake_plan(
   related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
   ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
   ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
-  ukbb_bgen_order = order_bgen(bgen_file, ukbb_resid, variable = "bmi_slope_res_ivt"),
+  ukbb_bgen_order = order_bgen(bgen_sample_file, ukbb_resid, variable = "bmi_slope_res_ivt"),
   ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
 
   chr_num = tibble(chr = 1:22),
@@ -659,7 +659,7 @@ process_init <- drake_plan(
 
   ukbb_top_snps_chr = tibble(chr = psy_ukbb_merge_AF$CHR, rsid = psy_ukbb_merge_AF$SNP),
 
-  ukbb_geno = load_geno(bgen_file, ukbb_top_snps_chr),
+  ukbb_geno = load_geno(bgen_sample_file, ukbb_top_snps_chr, !!UKBB_dir),
 
 
   # ukbb_comparison = read.csv(file_in("output/PSYMETAB_GWAS_UKBB_comparison.csv")),

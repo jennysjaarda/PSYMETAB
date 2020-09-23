@@ -146,9 +146,12 @@ bmi_var<- "21001"
 sex_var <- "31"
 age_var <- "21022"
 
-ukbb_exclusion_list <- "w16389_20200820.csv"
-ukbb_relatives_file <- "ukb1638_rel_s488366.dat"
+ukbb_exclusion_list <- "org/w16389_20200820.csv"
+ukbb_relatives_file <- "geno/ukb1638_rel_s488366.dat"
 ukbb_sample_file <- "imp/ukb1638_imp_chr1_v2_s487398.sample"
+ukbb_sqc_file <- "geno/ukb_sqc_v2.txt"
+ukbb_fam_file <- "plink/_001_ukb_cal_chr9_v2.fam"
+
 # medication codes downloaded from UKBB
 medication_codes <- "/data/sgg2/collabs/UKBB_psy_medications/UKBB_medication_codings.tsv"
 # psychiatric drugs as defined by Celine
