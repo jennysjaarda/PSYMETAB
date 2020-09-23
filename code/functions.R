@@ -1432,16 +1432,16 @@ order_bgen <- function(bgen_file, data, variable){
 }
 
 
-launch_bgenie <- function(chr, phenofile, threads){
+launch_bgenie <- function(chr, phenofile, threads, UKBB_dir){
 
   system(paste0("/data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 ",
-                "--bgen /data/sgg3/eleonora/projects/UKBB_GWAS/UK10K_SNPrs/CHR", chr, "/chr", chr, ".bgen ",
+                "--bgen ", UKBB_dir, "imp/_001_ukb_imp_chr", chr, "_v2.bgen ",
                 "--pheno ", phenofile, " ",
                 "--thread ", threads, " ",
                 "--pvals --out analysis/GWAS/UKBB/chr", chr, ".out"))
   # Eleonora's command line
   # /data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 --bgen
-  # /data/sgg3/eleonora/projects/UKBB_GWAS/UK10K_SNPrs/CHR11/chr11.bgen
+  # /data/sgg3/eleonora/projects/UKBB_GWAS/UK10K_SNPrs/CHR11/chr11.bgen ## this script would not include SNPs specific to HRC_list
   # --pheno ../phenofile --pvals --out chr11.out
 }
 
@@ -1483,6 +1483,8 @@ add_AF <- function(data, AF_file){
 
   AF_data <- fread(AF_file, data.table=F)
   AF_merge <- left_join(data, AF_data %>% dplyr::select(ID, ALT_FREQS), by = c("SNP" = "ID"))
+
+
 
 }
 
@@ -2222,7 +2224,7 @@ extract_bgen <- function(snps, file){
   return(list(geno_data=geno,snp_map=snp_map))
 }
 
-load_geno <- function(bgen_file,snp_data){
+load_geno <- function(bgen_sample_file,snp_data, UKBB_dir){
 
   ####### Extract SNP froms bgen files
   snp_map <- numeric()
@@ -2238,7 +2240,7 @@ load_geno <- function(bgen_file,snp_data){
     cat(paste0("Finished loading chr: ", chr, ".\n"))
 
   }
-  row.names(IV_geno) <- sample_file[,1]
+  row.names(IV_geno) <- bgen_sample_file[-1,1]
   return(list(IV_geno, snp_map))
 }
 
