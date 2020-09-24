@@ -103,7 +103,7 @@ test_drugs <- tibble(class=drug_classes, drugs=list(high_inducers, c("Olanzapine
   c("Clozapine"), c("Risperidone"), c("Quetiapine"), c("Olanzapine", "Clozapine", "Quetiapine"), c("Amisulpride")))
 
 antipsychotics <- c("Amisulpride", "Chlorprothixene", "Aripiprazole", "Flupentixol", "Asenapine", "Haloperidol",
-  "Brexpiprazole", "Lévomépromazine", "Cariprazine", "Pipamperone", "Clozapine", "Promazine", "Olanzapine",
+  "Brexpiprazole", "Levomépromazine", "Cariprazine", "Pipamperone", "Clozapine", "Promazine", "Olanzapine",
   "Sulpiride", "Lurasidone", "Tiapride", "Paliperidone", "Zuclopenthixol", "Quetiapine", "Risperidone", "Sertindole")
 
 baseline_vars <- c("BMI", "Creatinine", "Glucose", "CholesterolHDL", "LDL", "Tryglycerides")
@@ -146,7 +146,7 @@ bmi_var<- "21001"
 sex_var <- "31"
 age_var <- "21022"
 
-ukbb_exclusion_list <- "org/w16389_20200820.csv"
+ukbb_exclusion_file <- "org/w16389_20200820.csv"
 ukbb_relatives_file <- "geno/ukb1638_rel_s488366.dat"
 ukbb_sample_file <- "imp/ukb1638_imp_chr1_v2_s487398.sample"
 ukbb_sqc_file <- "geno/ukb_sqc_v2.txt"
