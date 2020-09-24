@@ -316,7 +316,7 @@ ivt <- function(x){
   return(out)
 }
 
-munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit, interaction_outcome){
+munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_6mo, follow_up_3mo, follow_up_1mo, interaction_outcome){
   pheno_raw %>%
     mutate_all(~replace(., . == 999, NA)) %>% filter(!is.na(PatientsTaille) & !is.na(Poids)) %>%
     mutate(Date = as.Date(Date, format = '%d.%m.%y'))  %>%
@@ -1409,10 +1409,10 @@ resid_ukbb <- function(ukbb_filter, ukb_key, sqc_munge, outcome, bmi_var, sex_va
   cols_interest <- c("eid", outcome, cols_pheno[1], cols_sex, cols_age, colnames(ukbb_merge)[grepl("PC", colnames(ukbb_merge))])
 
   data <- ukbb_merge[, cols_interest] %>% rename(outcome = outcome)
-  resid_eth <- resid(lm(outcome ~ ., data = subset(data, select=c( -eid) ), na.action = na.exclude))
-  out <- as.data.frame(cbind(data[["eid"]], resid_eth))
+  data <- data %>% mutate(outcome_ivt = ivt(outcome))
+  resid_data <- resid(lm(outcome_ivt ~ ., data = subset(data, select=c( -eid, -outcome) ), na.action = na.exclude))
+  out <- as.data.frame(cbind(data[["eid"]], resid_data))
   colnames(out) <- c("eid", "bmi_slope_resid")
-  out <- out %>% mutate(bmi_slope_res_ivt = ivt(bmi_slope_resid))
   return(out)
 }
 
@@ -1433,7 +1433,7 @@ order_bgen <- function(bgen_file, data, variable){
 
 
 launch_bgenie <- function(chr, phenofile, threads, UKBB_dir){
-
+  cat(paste0("Running chr: ", chr, ".\n"))
   system(paste0("/data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 ",
                 "--bgen ", UKBB_dir, "imp/_001_ukb_imp_chr", chr, "_v2.bgen ",
                 "--pheno ", phenofile, " ",
