@@ -166,14 +166,14 @@ analysis_prep <- drake_plan(
   # found a mistake that the age of WIFRYNSK was wrong at one instance.
 
   caffeine_munge = munge_caffeine(caffeine_raw),
-  bgen_sample_file = target({
+  psymet_bgen_sample = target({
     readr::read_delim(file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.sample")),
       col_types = cols(.default = col_character()), delim = " ") %>% type_convert()
     }),
-  bgen_nosex_out = write.table(bgen_sample_file[,1:3],file_out(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),row.names = F, quote = F, col.names = T),
+  psymet_bgen_nosex_out = write.table(psymet_bgen_sample[,1:3],file_out(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),row.names = F, quote = F, col.names = T),
   pc_raw = read_pcs(file_in(!!pc_dir), !!study_name, !!eths) %>% as_tibble(),
 
-  pheno_munge = munge_pheno(pheno_raw, !!baseline_vars, !!leeway_time, caffeine_munge, !!follow_up_limit, !!interaction_outcome), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
+  pheno_munge = munge_pheno(pheno_raw, !!baseline_vars, !!leeway_time, caffeine_munge, !!follow_up_6mo, !!follow_up_3mo, !!follow_up_1mo, !!interaction_outcome), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
   #pheno_munge = munge_pheno(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit)
   pheno_merge = merge_pheno_caffeine(pheno_raw, caffeine_munge, !!anonymization_error), # in the end, we don't use this dataset, but if you want to merge by caffeine with the appropriate date use this data.
 
@@ -392,6 +392,38 @@ init_analysis <- drake_plan(
 # subgroup_var = subgroup_gwas_info$subgroup[2]
 #
 
+ukbb_analysis <- drake_plan(
+  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  sqc = fread(file_in(!!paste0(UKBB_dir, ukbb_sqc_file)), header=F, data.table=F),
+  fam = fread(file_in(!!paste0(UKBB_dir, ukbb_fam_file)), header=F,data.table=F),
+  relatives = read.table(file_in(!!paste0(UKBB_dir, ukbb_relatives_file)), header=T),
+  exclusion_list = fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_file)), data.table=F),
+  ukbb_bgen_sample = fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T,data.table=F),
+
+
+  #med_codes = read_tsv(file_in(!!medication_codes)),
+  qc_data = ukb_gen_sqc_names(sqc),
+
+  sqc_munge = munge_sqc(sqc,fam),
+  british_subset = get_british_ids(qc_data, fam),
+  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, !!bmi_var, !!sex_var, !!age_var),
+
+  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
+  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
+  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
+  ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid, variable = "bmi_slope_resid"),
+  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
+
+  chr_num = tibble(chr = 1:22),
+
+  bgenie_out = target({
+    launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8, !!UKBB_dir)
+    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
+  }, dynamic = map(chr_num), format = "file"),
+
+)
+
 process_init <- drake_plan(
 
   # define endpoint, covars and outputs ---------------------------
@@ -592,38 +624,6 @@ process_init <- drake_plan(
       eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
       related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
   }, dynamic = map(subgroup_gwas_process)),
-
-
-
-  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  sqc = fread(file_in(!!paste0(UKBB_dir, ukbb_sqc_file)), header=F, data.table=F),
-  fam = fread(file_in(!!paste0(UKBB_dir, ukbb_fam_file)), header=F,data.table=F),
-  relatives = read.table(file_in(!!paste0(UKBB_dir, ukbb_relatives_file)), header=T),
-  exclusion_file = fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_list)), data.table=F),
-  bgen_sample_file = fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T,data.table=F),
-
-
-  #med_codes = read_tsv(file_in(!!medication_codes)),
-  qc_data = ukb_gen_sqc_names(sqc),
-
-  sqc_munge = munge_sqc(sqc,fam),
-  british_subset = get_british_ids(qc_data, fam),
-  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var),
-
-  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
-  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
-  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
-  ukbb_bgen_order = order_bgen(bgen_sample_file, ukbb_resid, variable = "bmi_slope_res_ivt"),
-  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
-
-  chr_num = tibble(chr = 1:22),
-
-  bgenie_out = target({
-    launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=1)
-    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
-  }, dynamic = map(chr_num), format = "file"),
-
 
   bgenie_unzip = target({
     bgenie_out
