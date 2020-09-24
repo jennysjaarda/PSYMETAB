@@ -401,17 +401,15 @@ ukbb_analysis <- drake_plan(
   exclusion_list = fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_file)), data.table=F),
   ukbb_bgen_sample = fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T,data.table=F),
 
-
   #med_codes = read_tsv(file_in(!!medication_codes)),
   qc_data = ukb_gen_sqc_names(sqc),
-
   sqc_munge = munge_sqc(sqc,fam),
   british_subset = get_british_ids(qc_data, fam),
   ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, !!bmi_var, !!sex_var, !!age_var),
 
   related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
-  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
-  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
+  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_list[,1], british_subset),
+  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
   ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid, variable = "bmi_slope_resid"),
   ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
 
