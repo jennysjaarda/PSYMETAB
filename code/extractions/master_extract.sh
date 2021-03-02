@@ -13,12 +13,13 @@ template_file=$code_directory/template_extract.sh
 
 requestor_folders=`ls -d data/raw/extractions/*`
 
-#for requestor_folder in $requestor_list
-for requestor_folder in NicolasAnsermot AurelieReymond
+for requestor_folder in $requestor_list
 
 do
 
   requestor=$(basename $requestor_folder)
+  echo "Processing the SNP extraction lists for: "$requestor
+
   sed "s/FirstnameLastname/$requestor/g" "$template_file" > $code_directory/${requestor}_extract.sh
 
   sbatch $projects/PSYMETAB/code/extractions/${requestor}_extract.sh
