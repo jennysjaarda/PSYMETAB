@@ -8,6 +8,8 @@ output:
 
 **The following document outlines the procedure to extract genetic data located on the `HPC1` servers.**
 
+**Source code can be found at: [code/extractions/](https://github.com/jennysjaarda/PSYMETAB/tree/master/code/extractions).**   
+
 # 1. Format input files. 
 
 - Text file.  

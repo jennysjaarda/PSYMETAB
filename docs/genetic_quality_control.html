@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Genetic data quality control and processing</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PSYMETAB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="setup.html">Setup</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jennysjaarda/PSYMETAB">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Genetic data quality control and processing</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-06-23
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 2
+</p>
+<p>
+<strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div class="panel-group" id="workflowr-checks">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191126code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191126)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191126code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191126)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongabsolute"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>File paths:</strong> absolute </a>
+</p>
+</div>
+<div id="strongFilepathsstrongabsolute" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Using absolute paths to the files within your workflowr project makes it difficult for you and others to run your code on a different machine. Change the absolute path(s) below to the suggested relative path(s) to make your code more reproducible.
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+absolute
+</th>
+<th style="text-align:left;">
+relative
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+/data/sgg2/jenny/projects/PSYMETAB
+</td>
+<td style="text-align:left;">
+.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree55b0a65463c2a86fab310892f4f1bb68a6087013targetblank55b0a65a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/55b0a65463c2a86fab310892f4f1bb68a6087013" target="_blank">55b0a65</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree55b0a65463c2a86fab310892f4f1bb68a6087013targetblank55b0a65a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    ._docs
+    Ignored:    .drake/
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/._GWAS.Rmd
+    Ignored:    analysis/._data_processing_in_genomestudio.Rmd
+    Ignored:    analysis/._quality_control.Rmd
+    Ignored:    analysis/GWAS/
+    Ignored:    analysis/PRS/
+    Ignored:    analysis/QC/
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    data/processed/
+    Ignored:    data/raw/
+    Ignored:    download_impute_1_clustermq.out
+    Ignored:    init_analysis_1_clustermq.out
+    Ignored:    init_analysis_2_clustermq.out
+    Ignored:    init_analysis_3_clustermq.out
+    Ignored:    init_analysis_4_clustermq.out
+    Ignored:    init_analysis_5_clustermq.out
+    Ignored:    init_analysis_6_clustermq.out
+    Ignored:    packrat/lib-R/
+    Ignored:    packrat/lib-ext/
+    Ignored:    packrat/lib/
+    Ignored:    post_impute_1_clustermq.out
+    Ignored:    pre_impute_qc_1_clustermq.out
+    Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_12_clustermq.out
+    Ignored:    process_init_13_clustermq.out
+    Ignored:    process_init_14_clustermq.out
+    Ignored:    process_init_15_clustermq.out
+    Ignored:    process_init_16_clustermq.out
+    Ignored:    process_init_17_clustermq.out
+    Ignored:    process_init_18_clustermq.out
+    Ignored:    process_init_19_clustermq.out
+    Ignored:    process_init_1_clustermq.out
+    Ignored:    process_init_20_clustermq.out
+    Ignored:    process_init_21_clustermq.out
+    Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_23_clustermq.out
+    Ignored:    process_init_24_clustermq.out
+    Ignored:    process_init_25_clustermq.out
+    Ignored:    process_init_26_clustermq.out
+    Ignored:    process_init_27_clustermq.out
+    Ignored:    process_init_28_clustermq.out
+    Ignored:    process_init_29_clustermq.out
+    Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_30_clustermq.out
+    Ignored:    process_init_31_clustermq.out
+    Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_9_clustermq.out
+    Ignored:    prs_1_clustermq.out
+    Ignored:    prs_2_clustermq.out
+    Ignored:    prs_3_clustermq.out
+    Ignored:    prs_4_clustermq.out
+
+Untracked files:
+    Untracked:  analysis/genetic_quality_control.Rmd
+    Untracked:  analysis/plans.Rmd
+    Untracked:  analysis_prep.log
+    Untracked:  download_impute.log
+    Untracked:  grs.log
+    Untracked:  init_analysis.log
+    Untracked:  process_init.log
+    Untracked:  prs.log
+
+Unstaged changes:
+    Modified:   analysis/GWAS.Rmd
+    Modified:   analysis/data_sources.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/pheno_quality_control.Rmd
+    Deleted:    analysis/project.Rmd
+    Modified:   analysis/quality_control.Rmd
+    Modified:   cache_log.csv
+    Modified:   post_impute.log
+    Modified:   slurm_clustermq.tmpl
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<p><strong>The following document outlines and summarizes the genetic quality control and processing procedure that was followed to create a clean, imputed dataset.</strong></p>
+<div id="step-1-prepare-and-cluster-genomestudio-files." class="section level1">
+<h1>Step 1: Prepare and cluster genomestudio files.</h1>
+<p><em>Step 1 was performed entirely on CHUV computer</em></p>
+<div id="part-a-randomize-ids." class="section level2">
+<h2>Part A: Randomize IDs.</h2>
+<ul>
+<li>Genetic sampleIDs were recoded according to GPCR algorithm to ensure genetic participants are not identifiable.</li>
+<li><code>code/radomize_IDs.r</code> was run on CHUV computer before building GenomeStudio project.</li>
+<li>Creates a new csv file which was used to create a GenomeStudio project with data provided by lab in Geneva.</li>
+<li>Requires manual addition of header before uploading to GenomeStudio.</li>
+</ul>
+<pre class="r"><code>[Header],,,,,,,,,,,,,
+Investigator Name,,,,,,,,,,,,,
+Project Name,,,,,,,,,,,,,
+Experiment Name,,,,,,,,,,,,,
+Date,,,,,,,,,,,,,
+[Manifests],,,,,,,,,,,,,
+A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
+[Data],,,,,,,,,,,,,</code></pre>
+<ul>
+<li>Some samples were found to be duplicates (i.e. 2 samples at 2 different time points were analyzed for the same individual) and they were recoded to have ID as: <code>${ID}002</code>.</li>
+</ul>
+</div>
+<div id="part-b-create-genomestudio-files." class="section level2">
+<h2>Part B: Create GenomeStudio files.</h2>
+<ul>
+<li>Instructions can be found <a href="https://support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/genomestudio/genomestudio-2-0/genomestudio-genotyping-module-v2-user-guide-11319113-01.pdf">here</a>.</li>
+<li>Required files:
+<ul>
+<li>Sample sheet: as csv file (created above).</li>
+<li>Data repository: as idat files.</li>
+<li>Manifest file: as bpm file.</li>
+<li>Cluster file: as egt file.</li>
+</ul></li>
+<li>Data provided from Mylene Docquier, copied from sftp and saved here: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data</code>.</li>
+<li>Create new IDs based on GPCR randomization (see <code>code/randomize_IDs.r</code>), and save to above folder as: <code>Eap0819_1t26_27to29corrected_7b9b_randomizedID.csv</code>.</li>
+<li>Note that original IDs can be found in the same folder at the file: <code>Eap0819_1t26_27to29corrected_7b9.csv</code>, if needed.</li>
+<li>Create empty folder here: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS</code>, named: <code>GS_project_26092019</code> (data of creation).</li>
+<li>Using new IDs, create genome studio project as follows:
+<ol style="list-style-type: decimal">
+<li>Open GenomeStudio.</li>
+<li>Select: File &gt; New Genotyping Project.</li>
+<li>Select <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS</code> as project repository.</li>
+<li>Under project name: use “GS_project_26092019” and click “Next”.</li>
+<li>Select “Use sample sheet to load intensities” and click “Next”.</li>
+<li>Select sample, data and manifests as specified below and click “Next”:
+<ul>
+<li>Sample sheet: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data\Eap0819_1t26_27to29corrected_7b9b_randomizedID.csv</code>,</li>
+<li>Data repository: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data</code>,</li>
+<li>Manifest repository: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data</code>.</li>
+</ul></li>
+<li>Select “Import cluster positions from cluster file” and choose cluster file located here: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data\GSPMA24v1_0-A_4349HNR_Samples.egt</code> and click “Finish”.</li>
+</ol></li>
+<li>Genome studio files were created using the following required files:
+<ul>
+<li>Sample sheet: as csv file (created above).</li>
+<li>Data repository: as idat files (provided from Mylene Docquier).</li>
+<li>Manifest file: as bpm file (provided from Mylene Docquier).</li>
+<li>Cluster file: as egt file (provided from Mylene Docquier).</li>
+</ul></li>
+</ul>
+</div>
+<div id="part-c-clustering-and-plink-conversion." class="section level2">
+<h2>Part C: Clustering and PLINK conversion.</h2>
+<ul>
+<li>Data saved on CHUV servers at the following location: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\GS_project_26092019</code>.</li>
+<li><code>GS_project_26092019.bsc</code> was opened (requires Genome Studio) and used for clustering.</li>
+<li>Clustering was performed according to the guidelines in the webinar (see <a href="create_custom_cluster_files.html">notes on creating custom cluster files</a>) with the following procedure:
+<ol style="list-style-type: decimal">
+<li><strong>Cluster</strong>: cluster all SNPs, evaluate samples.
+<ol style="list-style-type: decimal">
+<li>Once data was opened, all SNPs were clustered by clicking “Cluster all SNPs button” in the top panel (icon with 3 red, purple, blue ovals). SNP statistics and heritability estimate updates were ignored.</li>
+<li>In the samples table (bottom left panel) call rate was recalculated by clicking “Calculate” (calculator icon) to recalculate SNP call rates with new cluster positions. SNP statistics and heritability estimate updates were ignored.</li>
+<li>The sample table was then sorted by the “Call Rate” column and samples with call rate &lt;95% were selected and removed from downstream processing (right click, select “Exclude Selected Samples”), 8 samples fell below this cut-off. Updates were ignored. In “SNP Graph” right click and deselect “Show Excluded Samples”.</li>
+</ol></li>
+<li><strong>Recluster</strong>: cluster sex chromosomes, cluster autosomes.
+<ol style="list-style-type: decimal">
+<li>“SNP Table” was filtered by (“Chr” = Y) using filter icon.</li>
+<li>Using the 3rd and 7th SNP (index 3010 and 3014, 3 samples had missing values for 3010 and sex was determined to be female using 3014), males were selected as those with high intensities (females have no Y chromosome) and set to have an aux value of 101 by right clicking the selected samples in the “Samples Table”. Similarly, females were selected and set to have an aux value of 102.</li>
+<li>“Samples Table” was filtered to have (“Aux” &gt; 100).</li>
+<li>“Samples Table” was sorted on “Aux” column and females were selected (value 102) and excluded. Updates were ignored.</li>
+<li>In “SNP Table”, all SNPs were selected and Y-snps were clustered (right click and “Cluster Selected SNPs”) on only male samples. Updates were ignored.</li>
+<li>Females were re-added to the project in the “Samples Table”.</li>
+<li>“SNP Table” was filtered by (“Chr” = X) using filter icon.</li>
+<li>In “Samples Table”, males were selected (Aux value 101) and excluded. Updates were ignored.</li>
+<li>In “SNP Table”, all SNPs were selected and X-SNPs were clustered (right click and “Cluster Selected SNPs”) on only female samples. Updates were ignored.</li>
+<li>Males were re-added to the project in the “Samples Table”.</li>
+<li>“SNP Table” was filtered by [ !(“Chr” = X ) AND !(“Chr” = Y ) ], using filter icon.</li>
+<li>In “SNP Table”, all SNPs were selected and autosomal SNPs were clustered (right click and “Cluster Selected SNPs”) on all good quality samples. Update SNP statistics.</li>
+<li>In the samples table (bottom left panel) call rate was recalculated by clicking “Calculate” (calculator icon) to recalculate SNP call rates with new cluster positions. SNP statistics and heritability estimate updates were ignored.</li>
+<li>SNP statistics were updated (“Analysis” &gt; “Update SNP statistics”).</li>
+</ol></li>
+<li><strong>Review and edit</strong>: use filters and scores to evaluate SNPs, correct or zero SNPs as needed. No manual editing was performed.</li>
+</ol></li>
+<li>New genome studio was exported to the following location: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS</code>, and named: <code>GS_project_26092019_cluster</code>.</li>
+<li>Remove filtered individuals:
+<ul>
+<li>In samples table, remove filter for “Aux” &gt; 100.</li>
+<li>Recalculate SNP statistics for these 8 samples only (to save time).</li>
+<li>Note that sample call rates have increased with new clustering positions.</li>
+</ul></li>
+<li>Project was exported as PLINK file to the following location: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS</code>, and named: <code>PLINK_091019_0920</code>.</li>
+<li>Individual PLINK files within above folder were named according to parent directory as: PSYMETAB_GWAS.ped and PSYMETAB_GWAS.map.</li>
+<li>Ultimately, the final ped/map files reside here: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PLINK_091019_0920</code>.</li>
+</ul>
+<div id="notes-on-genomestudio." class="section level3">
+<h3>Notes on GenomeStudio.</h3>
+<ul>
+<li>Processing data within GS software is <em>slow</em> in comparison to the rest of the pipeline.</li>
+<li>There is no command line version, only a licensed, GUI version available.</li>
+<li>It is impossible to fully automate and/or parallelize.</li>
+</ul>
+</div>
+<div id="data-updates-and-releases." class="section level3">
+<h3>Data updates and releases.</h3>
+<ul>
+<li>Initial data was received on April 8, 2019:
+<ul>
+<li>Final two plates were received on May 17, 2019.</li>
+<li>Processing began with initial files.</li>
+</ul></li>
+<li>July 18, 2019 update:
+<ul>
+<li>It came to our attention that 15 participants were genotyped that did not consent.</li>
+<li>This list was sent to Mylene to be removed.</li>
+<li>Plates 27 to 29 were re-provided on 08/08/2019 without these 15 individuals (list below, and provided by Severine in email).</li>
+</ul></li>
+</ul>
+<pre class="r"><code>013CB
+017CB
+074CB
+095CB
+150CRV
+192CRV
+193CRV
+156CSM
+181CSM
+191CSM
+224UAS
+234GL
+058GP
+246GP
+089PP</code></pre>
+<ul>
+<li>Until new file was provided, these participants were removed using PLINK to avoid any further analysis of these individuals.</li>
+<li>The new genomestudio file was copied to: <code>L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PSYMETAB_GS2\Plates27to29_0819</code>.</li>
+<li>The same process above was followed (data opened in GS, cluster positions imported, and data saved to <code>Plates27to29_0819_cluster</code>, and <code>PLINK_270819_0457</code>).</li>
+<li>Old files were deleted to remove all data containing these individuals.</li>
+<li>Updated files were then copied to PSYMETAB_GS1.</li>
+<li>August 28, 2019 update:
+<ul>
+<li>Mylene provided one single genome studio file with all samples (excluding the list from Severine).</li>
+<li>These files were copied to UPPC folders and custom clustering was re-performed.</li>
+<li>These changes are reflected in the above description.</li>
+<li>All old files were subsequently deleted to ensure the data from these participants is completely removed from all databases.</li>
+<li>As of September 3, 2019, all clustering was complete and final PLINK files (<code>PLINK_030919_0149</code>) were copied to SGG directory (names of plink files according to parent directory: <code>DATA</code>).</li>
+</ul></li>
+<li>September 6, 2019 update:
+<ul>
+<li>It was decided that all IDs part of PSYMETAB should be randomized to ensure they are not identifiable.</li>
+<li>We had a meeting to discuss (Celine, Fred, Chin, Nermine, and Claire), and decided to use a CHUV program (GPCR) for the randomization process.</li>
+<li>We requested with Mylene to create a new project with the new IDs, but she suggested to create our own GS project.</li>
+<li>She provided all relevant data to create our own GS project.</li>
+<li>The description above reflects these changes.</li>
+</ul></li>
+<li>As of October 11, all GS file were created, clustered and exported as PLINK files and subsequently moved to the sgg server.</li>
+</ul>
+</div>
+</div>
+<div id="part-d-copy-files-to-sgg-server." class="section level2">
+<h2>Part D: Copy files to SGG server.</h2>
+<ul>
+<li>PLINK files were copied to SGG servers using FileZilla</li>
+<li>Host name: <code>je4649@hpc1.chuv.ch</code></li>
+<li>Password: <code>&lt;chuv-password&gt;</code></li>
+<li>Port: <code>22</code></li>
+<li>Output saved to: <code>/data/sgg2/jenny/projects/PSYMETAB_GWAS/data/raw</code>.</li>
+</ul>
+<p><em>All subsequent steps were performed on the <code>sgg</code> server and run using <code>drake</code> plan</em></p>
+</div>
+</div>
+<div id="step-2-pre-quality-control-data-prep." class="section level1">
+<h1>Step 2: Pre-quality control data prep.</h1>
+<ul>
+<li>Processed sex and ethnicity files to be used in QC scripts.</li>
+<li>Sex file was created according to the input specified on plink man page (FID, IID, sex [M/F]).</li>
+<li>Ethnicity input file to be used in R script for comparison to genetically derived ethnic groups (by snpWeights).</li>
+<li>Recodes ethnic groups as follows:
+<ul>
+<li>Changes French codes to English.</li>
+<li>Changes missing to unknown.</li>
+<li>Groups small ethnic groups to missing.</li>
+</ul></li>
+<li>A1 rsid conversion file was updated to remove all SNPs labeled with a [.] (see <a href="data_sources.html">data sources</a>).</li>
+<li>Create duplicates file</li>
+</ul>
+</div>
+<div id="step-3-pre-imputation-quality-control." class="section level1">
+<h1>Step 3: Pre-imputation quality control.</h1>
+<p><em>Results of Step 3-6 are saved to <code>analysis/QC</code>. The majority of analyses were performed using <a href="https://www.cog-genomics.org/plink/2.0/"><code>PLINK</code></a> (either version 2.0 or 1.9)</em> <em>Each sub-spet (i.e. 0-15) corresponds to one folder within <code>analysis/QC</code></em></p>
+<p><strong>Source code for Step 3 can be found at: <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh">code/pre_imputation_qc.sh</a>.</strong></p>
+<div id="preprocessing." class="section level2">
+<h2>0. Preprocessing.</h2>
+<ol style="list-style-type: decimal">
+<li>Create binary PLINK files (if necessary):
+<ul>
+<li>761641 variants initially.</li>
+<li>2767 individuals initially.</li>
+</ul></li>
+<li>Exclude Y and MT variants:
+<ul>
+<li>11641 Y / MT variants removed.</li>
+<li>750000 variants remaining.</li>
+</ul></li>
+<li>Remove duplicate variants:
+<ul>
+<li>7945 duplicates removed.</li>
+<li>742055 variants remaining.</li>
+</ul></li>
+<li>Update sex:
+<ul>
+<li>Using the file located at: <code>data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt</code> (created above).</li>
+</ul>
+<pre><code>
+   F    M 
+1298 1469 </code></pre></li>
+<li>Remove duplicate individuals that were identified previously (i.e. two different IDs for the same participant):
+<ul>
+<li>2 duplicates identified and removed</li>
+<li>2752 indviduals remaining.</li>
+</ul></li>
+<li>Sanity check: ensure that duplicates have the same genetic info&quot;
+<ul>
+<li>From the PLINK <a href="https://www.cog-genomics.org/plink/2.0/distance#make_king">webpage</a>: <em>Note that KING kinship coefficients are scaled such that duplicate samples have kinship 0.5, not 1. First-degree relations (parent-child, full siblings) correspond to ~0.25, second-degree relations correspond to ~0.125, etc.</em></li>
+<li>If all duplicate ID samples have KINSHIP ~0.5, then indeed they are genetic duplicates.</li>
+</ul></li>
+</ol>
+<pre><code>   #FID1         ID1 FID2      ID2   NSNP   HETHET          IBS0  KINSHIP
+1   2071 BEEEDIGO002  224 BEEEDIGO 703110 0.178137 0.00000000000 0.499539
+2   1873 CQLIXEZP002   64 CQLIXEZP 703045 0.153413 0.00000142238 0.499504
+3   1965 EFWKQOIK002 1433 EFWKQOIK 697403 0.151525 0.00000860335 0.496680
+4   1886 HFNWJHCI002 1448 HFNWJHCI 702845 0.153089 0.00000426837 0.499547
+5   2075 HROOJNCI002  553 HROOJNCI 702167 0.155970 0.00000284833 0.499257
+6   1974 IOAWLZGK002  549 IOAWLZGK 704278 0.153028 0.00000000000 0.499847
+7   2314 KLFEBCIE002 1916 KLFEBCIE 700799 0.153949 0.00000570777 0.499007
+8   2073 LWCGLSDP002  317 LWCGLSDP 702226 0.150114 0.00000427213 0.499363
+9   2379 PBAIFEMQ002 2070 PBAIFEMQ 700642 0.154083 0.00000285452 0.498820
+10  2009 PNWDYVRH002  494 PNWDYVRH 703993 0.153736 0.00000284094 0.499806
+11  2068 QHNUPGWK002  318 QHNUPGWK 702891 0.154500 0.00000569078 0.499363
+12  1928 QZAUHIPY002  559 QZAUHIPY 702896 0.144711 0.00000142269 0.499826
+13  2067 SSITXXAY002  283 SSITXXAY 702409 0.152603 0.00000284734 0.499418
+14  1947 WKBFDWJF002  566 WKBFDWJF 703642 0.153506 0.00000284235 0.499783
+15  1657 XABRILAR002 1385 XABRILAR 698282 0.154672 0.00000000000 0.497315</code></pre>
+
+</div>
+<div id="strand-alignment-so-all-snps-are-on-positive-strand." class="section level2">
+<h2>1. Strand alignment (so all SNPs are on positive strand).</h2>
+<ol style="list-style-type: decimal">
+<li>Update chromosome</li>
+<li>Update position</li>
+<li>Flip alleles on negative strand</li>
+<li>Extract SNPs that are not in strand file</li>
+<li>Remove any non autosomal / X chromosomal variants (might have changed due to the pos and chr update):
+<ul>
+<li>11 duplicates removed.</li>
+<li>741937 variants remaining.</li>
+</ul></li>
+<li>Update rsids using <code>data/processed/reference_files/rsid_conversion.txt</code></li>
+<li>Remove duplicate variants:
+<ul>
+<li>6723 duplicates removed.</li>
+<li>734328 variants remaining.</li>
+</ul></li>
+</ol>
+
+</div>
+<div id="removal-of-snps-that-have-maf-zero." class="section level2">
+<h2>2. Removal of SNPs that have MAF zero.</h2>
+<ol style="list-style-type: decimal">
+<li>Calculate frequency of all SNPs</li>
+<li>Remove MAF 0 SNPs:
+<ul>
+<li>93578 variants with <code>MAF = 0</code>.</li>
+<li>640750 variants remaining.</li>
+</ul></li>
+</ol>
+
+</div>
+<div id="missingness." class="section level2">
+<h2>3. Missingness.</h2>
+<ol style="list-style-type: decimal">
+<li>Exclude variants with &gt;10% missingness (using <code>geno --0.1</code>):
+<ul>
+<li>6480 variants removed.</li>
+<li>634270 variants remaining.</li>
+</ul></li>
+<li>Exclude individuals with &gt;10% missingness (using <code>mind --0.1</code>):
+<ul>
+<li>3 individuals removed.
+<ul>
+<li>2749 individuals remaining.</li>
+</ul></li>
+</ul></li>
+<li>Exclude variants with &gt;5% missingness (using <code>geno --0.05</code>):
+<ul>
+<li>8256 variants removed.</li>
+<li>626014 variants remaining.</li>
+</ul></li>
+<li>Exclude individuals with &gt;5% missingness (using <code>mind --0.05</code>):
+<ul>
+<li>3 individuals removed.</li>
+<li>2746 individuals remaining.</li>
+</ul></li>
+<li>Exclude variants with &gt;1% missingness (using <code>geno --0.01</code>):
+<ul>
+<li>35957 variants removed.</li>
+<li>590057 variants remaining.</li>
+</ul></li>
+<li>Exclude individuals with &gt;1% missingness (using <code>mind --0.01</code>):
+<ul>
+<li>5 individuals removed.</li>
+<li>2741 individuals remaining.</li>
+</ul></li>
+</ol>
+
+<p><strong>Total removed: 50693 variants (7.91%) and 11 individuals (0.40%).</strong></p>
+
+</div>
+<div id="sex-check." class="section level2">
+<h2>4. Sex check.</h2>
+<ol style="list-style-type: decimal">
+<li>Perform sex check.</li>
+<li>Remove unambiguous sex violations.
+<ul>
+<li>26 individuals removed.</li>
+<li>2715 individuals remaining.</li>
+</ul></li>
+</ol>
+</div>
+<div id="imputation-preparation." class="section level2">
+<h2>5. Imputation preparation.</h2>
+<ol style="list-style-type: decimal">
+<li>Write frequency of final QC’d file (from #4) to file (using <code>-- freq</code>).</li>
+<li>Using <a href="https://www.well.ox.ac.uk/~wrayner/tools/">McCarthy Group Tools</a>, QC’d files were prepared for imputation using the script <a href="https://www.well.ox.ac.uk/~wrayner/tools/HRC-1000G-check-bim-v4.2.11-NoReadKey.zip"><code>HRC-1000G-check-bim-NoReadKey.pl</code></a> (download link).
+<ul>
+<li>This script checks: Strand, alleles, position, Ref/Alt assignments and frequency differences.</li>
+<li>Produces: A set of plink commands to update or remove SNPs based on the checks as well as a file (FreqPlot) of cohort allele frequency vs reference panel allele frequency.</li>
+<li>Updates: Strand, position, ref/alt assignment.</li>
+<li>Removes: A/T &amp; G/C SNPs if MAF &gt; 0.4, SNPs with differing alleles, SNPs with &gt; 0.2 allele frequency difference (can be removed/changed in V4.2.2), SNPs not in reference panel</li>
+</ul></li>
+<li>Replace underscores in fam file since vcf conversion uses understcores between <code>FID</code> and <code>IID</code>.</li>
+<li>Run the generated <code>Run-plink.sh</code> script from #2.</li>
+<li>Sort outputed <code>vcf</code> files.</li>
+<li>Download zipped files to personl or CHUV files to copy to <a href="https://imputationserver.sph.umich.edu/index.html">Michigan Imputation Server</a>.</li>
+</ol>
+
+</div>
+</div>
+<div id="step-4-imputation." class="section level1">
+<h1>Step 4: Imputation.</h1>
+<p><strong>Source code for Step 4 can be found at: <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh">code/download_imputation.sh</a> and <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/check_imputation.sh">code/check_imputation.sh</a>.</strong></p>
+<div id="run-and-download-imputation." class="section level2">
+<h2>6. Run and download imputation.</h2>
+<ol style="list-style-type: decimal">
+<li>Upload downloaded QC’d <code>vcf.gz</code> files to <a href="https://imputationserver.sph.umich.edu/index.html">Michigan Imputation Server</a> as follows:
+<ul>
+<li>Select <code>Run</code>, <code>Genotype Imputation (Minimac4)</code>.</li>
+<li>Reference panel: <code>HRC r1.1 2016 (GRCh37/hg19)</code>.</li>
+<li>Array build: <code>GRCh37/hg19</code>.</li>
+<li>rsq Filter: <code>off</code>.</li>
+<li>Phasing: <code>Eagle v2.4 (phased output)</code>.</li>
+<li>Population: <code>EUR</code>.</li>
+<li>Mode: <code>Quality Control &amp; Imputation</code>. <img src="assets/michigan_imputation_screenshot_03022020.PNG" /></li>
+</ul></li>
+</ol>
+
+<ol start="2" style="list-style-type: decimal">
+<li>Download imputation, using password from email retrieve the following files:
+<ul>
+<li><a href="generated_reports/qcreport.html">QC report</a>.</li>
+<li>QC stats.</li>
+<li>Logs.</li>
+<li>Imputation results. </li>
+</ul></li>
+</ol>
+<pre><code> [1] &quot;chr_1.log&quot;         &quot;chr_1.zip&quot;         &quot;chr_10.log&quot;       
+ [4] &quot;chr_10.zip&quot;        &quot;chr_11.log&quot;        &quot;chr_11.zip&quot;       
+ [7] &quot;chr_12.log&quot;        &quot;chr_12.zip&quot;        &quot;chr_13.log&quot;       
+[10] &quot;chr_13.zip&quot;        &quot;chr_14.log&quot;        &quot;chr_14.zip&quot;       
+[13] &quot;chr_15.log&quot;        &quot;chr_15.zip&quot;        &quot;chr_16.log&quot;       
+[16] &quot;chr_16.zip&quot;        &quot;chr_17.log&quot;        &quot;chr_17.zip&quot;       
+[19] &quot;chr_18.log&quot;        &quot;chr_18.zip&quot;        &quot;chr_19.log&quot;       
+[22] &quot;chr_19.zip&quot;        &quot;chr_2.log&quot;         &quot;chr_2.zip&quot;        
+[25] &quot;chr_20.log&quot;        &quot;chr_20.zip&quot;        &quot;chr_21.log&quot;       
+[28] &quot;chr_21.zip&quot;        &quot;chr_22.log&quot;        &quot;chr_22.zip&quot;       
+[31] &quot;chr_3.log&quot;         &quot;chr_3.zip&quot;         &quot;chr_4.log&quot;        
+[34] &quot;chr_4.zip&quot;         &quot;chr_5.log&quot;         &quot;chr_5.zip&quot;        
+[37] &quot;chr_6.log&quot;         &quot;chr_6.zip&quot;         &quot;chr_7.log&quot;        
+[40] &quot;chr_7.zip&quot;         &quot;chr_8.log&quot;         &quot;chr_8.zip&quot;        
+[43] &quot;chr_9.log&quot;         &quot;chr_9.zip&quot;         &quot;chr1.dose.vcf.gz&quot; 
+[46] &quot;chr1.info.gz&quot;      &quot;chr10.dose.vcf.gz&quot; &quot;chr10.info.gz&quot;    
+[49] &quot;chr11.dose.vcf.gz&quot; &quot;chr11.info.gz&quot;     &quot;chr12.dose.vcf.gz&quot;
+[52] &quot;chr12.info.gz&quot;     &quot;chr13.dose.vcf.gz&quot; &quot;chr13.info.gz&quot;    
+[55] &quot;chr14.dose.vcf.gz&quot; &quot;chr14.info.gz&quot;     &quot;chr15.dose.vcf.gz&quot;
+[58] &quot;chr15.info.gz&quot;     &quot;chr16.dose.vcf.gz&quot; &quot;chr16.info.gz&quot;    
+[61] &quot;chr17.dose.vcf.gz&quot; &quot;chr17.info.gz&quot;     &quot;chr18.dose.vcf.gz&quot;
+[64] &quot;chr18.info.gz&quot;     &quot;chr19.dose.vcf.gz&quot; &quot;chr19.info.gz&quot;    
+[67] &quot;chr2.dose.vcf.gz&quot;  &quot;chr2.info.gz&quot;      &quot;chr20.dose.vcf.gz&quot;
+[70] &quot;chr20.info.gz&quot;     &quot;chr21.dose.vcf.gz&quot; &quot;chr21.info.gz&quot;    
+[73] &quot;chr22.dose.vcf.gz&quot; &quot;chr22.info.gz&quot;     &quot;chr3.dose.vcf.gz&quot; 
+[76] &quot;chr3.info.gz&quot;      &quot;chr4.dose.vcf.gz&quot;  &quot;chr4.info.gz&quot;     
+[79] &quot;chr5.dose.vcf.gz&quot;  &quot;chr5.info.gz&quot;      &quot;chr6.dose.vcf.gz&quot; 
+[82] &quot;chr6.info.gz&quot;      &quot;chr7.dose.vcf.gz&quot;  &quot;chr7.info.gz&quot;     
+[85] &quot;chr8.dose.vcf.gz&quot;  &quot;chr8.info.gz&quot;      &quot;chr9.dose.vcf.gz&quot; 
+[88] &quot;chr9.info.gz&quot;      &quot;qcreport.html&quot;     &quot;snps-excluded.txt&quot;</code></pre>
+<pre><code>   Chr Num imputed variants
+1    1              3069931
+2    2              3392237
+3    3              2821894
+4    4              2787581
+5    5              2588168
+6    6              2460111
+7    7              2289305
+8    8              2242705
+9    9              1686471
+10  10              1927503
+11  11              1936990
+12  12              1848117
+13  13              1385433
+14  14              1270436
+15  15              1139215
+16  16              1281297
+17  17              1090072
+18  18              1104755
+19  19               868554
+20  20               884983
+21  21               531276
+22  22               524544
+23 all             39131578</code></pre>
+
+</div>
+<div id="check-imputation." class="section level2">
+<h2>7. Check imputation.</h2>
+<ul>
+<li>Using Will Rayner’s <a href="https://www.well.ox.ac.uk/~wrayner/tools/Post-Imputation.html">post imputation tool</a>, produce a visual summary of the imputated results from the Michigan Imputation Server:
+<ul>
+<li><a href="generated_reports/07_imputation_check.html">Imputation report</a>.</li>
+<li><a href="generated_reports/CrossCohortReport.html">Cross cohort report</a>.</li>
+</ul></li>
+</ul>
+
+</div>
+</div>
+<div id="step-5-post-imputation-quality-control." class="section level1">
+<h1>Step 5: Post imputation quality control.</h1>
+<div id="plink-conversion." class="section level2">
+<h2>8. PLINK conversion.</h2>
+<p><strong>Source code for Step 5 can be found at: <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/post_imputation_qc.sh">code/post_imputation_qc.sh</a>.</strong></p>
+<ol style="list-style-type: decimal">
+<li>Remove SNPs with <code>info &lt; 0.30</code></li>
+</ol>
+<pre><code>   Chr Num imputed variants R2 filtered
+1    1              3069931     2223452
+2    2              3392237     2454557
+3    3              2821894     2059285
+4    4              2787581     2043343
+5    5              2588168     1887050
+6    6              2460111     1813223
+7    7              2289305     1659374
+8    8              2242705     1632513
+9    9              1686471     1218207
+10  10              1927503     1411585
+11  11              1936990     1421749
+12  12              1848117     1352003
+13  13              1385433     1019900
+14  14              1270436      920528
+15  15              1139215      816986
+16  16              1281297      894859
+17  17              1090072      771058
+18  18              1104755      798012
+19  19               868554      607422
+20  20               884983      631946
+21  21               531276      374376
+22  22               524544      367153
+23 all             39131578    28378581</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Update <code>bim</code> file to include rsIDs instead of <code>chr:bp</code> convention:
+<ul>
+<li>Output of Michigan Impuation server is in format <code>chr:bp:ref:alt</code>.</li>
+<li>Convenient to have SNPs in regular rsIDs for extraction, etc.</li>
+<li>If there is no known rsID, SNP name is left as <code>chr:bp:ref:alt</code>.</li>
+<li>Reference file for determining rsIDs can be found here: <code>/data/sgg2/jenny/data/dbSNP/dbSNP_SNP_list_chr${chr}.txt</code>, which was processed according to description in <code>jenny/SGG_generic/scripts/public_data.sh</code>.</li>
+</ul></li>
+</ol>
+
+</div>
+<div id="extract-typed-snps." class="section level2">
+<h2>9. Extract typed SNPs.</h2>
+<ol style="list-style-type: decimal">
+<li>Write a list of only genotypd data to run in snpweights software (using <code>require=info &quot;TYPED&quot;</code> flag).</li>
+</ol>
+<pre><code>   Chr Num imputed variants R2 filtered Typed SNPs
+1    1              3069931     2223452      44252
+2    2              3392237     2454557      45514
+3    3              2821894     2059285      37277
+4    4              2787581     2043343      34139
+5    5              2588168     1887050      32223
+6    6              2460111     1813223      38957
+7    7              2289305     1659374      30649
+8    8              2242705     1632513      28611
+9    9              1686471     1218207      23815
+10  10              1927503     1411585      27714
+11  11              1936990     1421749      27722
+12  12              1848117     1352003      26603
+13  13              1385433     1019900      19346
+14  14              1270436      920528      17920
+15  15              1139215      816986      17002
+16  16              1281297      894859      18447
+17  17              1090072      771058      16646
+18  18              1104755      798012      15625
+19  19               868554      607422      12997
+20  20               884983      631946      13557
+21  21               531276      374376       7582
+22  22               524544      367153       8104
+23 all             39131578    28378581     544702</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Hard call back to genotypes (<code>bim</code>, <code>bed</code>, and <code>fam</code> files) using the <code>--hard-call-threshold</code> flag set at <code>0.1</code>.</li>
+<li>Merge by chromosome genotyped data into single file.</li>
+</ol>
+
+</div>
+<div id="merge-imputed-snps." class="section level2">
+<h2>10. Merge imputed SNPs.</h2>
+<ol style="list-style-type: decimal">
+<li>Convert fileset from step #8 back to <code>vcf</code> as there is no merge function in plink (using the flag <code>--recode vcf id-paste=iid vcf-dosage=HDS</code>).</li>
+<li>Merge using <code>bcftools concat</code>.</li>
+<li>Convert back to pgen using <code>plink2 --vcf &lt;output-name&gt; dosage=HDS</code>.</li>
+</ol>
+
+</div>
+<div id="relatedness-using-data-from-10." class="section level2">
+<h2>11. Relatedness (using data from #10).</h2>
+<ol style="list-style-type: decimal">
+<li>Calculate missingness.</li>
+<li>Remove subjects and individuals with missingness &gt;10%.
+<ul>
+<li>1184212 variants removed.</li>
+<li>0 individuals removed.</li>
+</ul></li>
+<li>Compute KING table (<code>--make-king-table</code>).</li>
+<li>Identify duplicate individuals using kinship threshold &gt; 0.35 as recommended by <a href="https://www.cog-genomics.org/plink/2.0/distance#make_king">PLINK</a>.
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+#FID1
+</th>
+<th style="text-align:left;">
+ID1
+</th>
+<th style="text-align:left;">
+FID2
+</th>
+<th style="text-align:left;">
+ID2
+</th>
+<th style="text-align:right;">
+NSNP
+</th>
+<th style="text-align:right;">
+HETHET
+</th>
+<th style="text-align:right;">
+IBS0
+</th>
+<th style="text-align:right;">
+KINSHIP
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+1353_WIELRZDD
+</td>
+<td style="text-align:left;">
+1353_WIELRZDD
+</td>
+<td style="text-align:left;">
+1140_FJNJEXCM
+</td>
+<td style="text-align:left;">
+1140_FJNJEXCM
+</td>
+<td style="text-align:right;">
+26566719
+</td>
+<td style="text-align:right;">
+0.0685663
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499473
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1457_ABDJGAXW
+</td>
+<td style="text-align:left;">
+1457_ABDJGAXW
+</td>
+<td style="text-align:left;">
+104_ZXDVAJUD
+</td>
+<td style="text-align:left;">
+104_ZXDVAJUD
+</td>
+<td style="text-align:right;">
+27026535
+</td>
+<td style="text-align:right;">
+0.0515445
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499956
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1821_0030GE
+</td>
+<td style="text-align:left;">
+1821_0030GE
+</td>
+<td style="text-align:left;">
+628_SJJCZOXT
+</td>
+<td style="text-align:left;">
+628_SJJCZOXT
+</td>
+<td style="text-align:right;">
+27036506
+</td>
+<td style="text-align:right;">
+0.0520661
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499937
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1937_OINDBCQM
+</td>
+<td style="text-align:left;">
+1937_OINDBCQM
+</td>
+<td style="text-align:left;">
+1936_SONUEGRB
+</td>
+<td style="text-align:left;">
+1936_SONUEGRB
+</td>
+<td style="text-align:right;">
+27021954
+</td>
+<td style="text-align:right;">
+0.0516029
+</td>
+<td style="text-align:right;">
+0.0000001
+</td>
+<td style="text-align:right;">
+0.499964
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020_JNQSZGGL
+</td>
+<td style="text-align:left;">
+2020_JNQSZGGL
+</td>
+<td style="text-align:left;">
+1305_XTVNZTRY
+</td>
+<td style="text-align:left;">
+1305_XTVNZTRY
+</td>
+<td style="text-align:right;">
+26975108
+</td>
+<td style="text-align:right;">
+0.0526075
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499941
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2084_JO001
+</td>
+<td style="text-align:left;">
+2084_JO001
+</td>
+<td style="text-align:left;">
+220_UUHDCMNL
+</td>
+<td style="text-align:left;">
+220_UUHDCMNL
+</td>
+<td style="text-align:right;">
+27017927
+</td>
+<td style="text-align:right;">
+0.0512845
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499938
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2148_JO280
+</td>
+<td style="text-align:left;">
+2148_JO280
+</td>
+<td style="text-align:left;">
+2146_JO276
+</td>
+<td style="text-align:left;">
+2146_JO276
+</td>
+<td style="text-align:right;">
+27011983
+</td>
+<td style="text-align:right;">
+0.0519508
+</td>
+<td style="text-align:right;">
+0.0000001
+</td>
+<td style="text-align:right;">
+0.499942
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2187_S008
+</td>
+<td style="text-align:left;">
+2187_S008
+</td>
+<td style="text-align:left;">
+1298_YLXVRYDT
+</td>
+<td style="text-align:left;">
+1298_YLXVRYDT
+</td>
+<td style="text-align:right;">
+27014700
+</td>
+<td style="text-align:right;">
+0.0535244
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499975
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2239_S060
+</td>
+<td style="text-align:left;">
+2239_S060
+</td>
+<td style="text-align:left;">
+1851_0062GE
+</td>
+<td style="text-align:left;">
+1851_0062GE
+</td>
+<td style="text-align:right;">
+26706944
+</td>
+<td style="text-align:right;">
+0.0543625
+</td>
+<td style="text-align:right;">
+0.0000003
+</td>
+<td style="text-align:right;">
+0.499584
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2271_S092
+</td>
+<td style="text-align:left;">
+2271_S092
+</td>
+<td style="text-align:left;">
+1813_0021GE
+</td>
+<td style="text-align:left;">
+1813_0021GE
+</td>
+<td style="text-align:right;">
+26980867
+</td>
+<td style="text-align:right;">
+0.0534746
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499881
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2272_S093
+</td>
+<td style="text-align:left;">
+2272_S093
+</td>
+<td style="text-align:left;">
+2174_JO426
+</td>
+<td style="text-align:left;">
+2174_JO426
+</td>
+<td style="text-align:right;">
+27029496
+</td>
+<td style="text-align:right;">
+0.0521779
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499968
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2637_139CSM
+</td>
+<td style="text-align:left;">
+2637_139CSM
+</td>
+<td style="text-align:left;">
+2302_HLHILECG
+</td>
+<td style="text-align:left;">
+2302_HLHILECG
+</td>
+<td style="text-align:right;">
+27037160
+</td>
+<td style="text-align:right;">
+0.0520094
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499967
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2678_184CSM
+</td>
+<td style="text-align:left;">
+2678_184CSM
+</td>
+<td style="text-align:left;">
+2042_WXPQPUWI
+</td>
+<td style="text-align:left;">
+2042_WXPQPUWI
+</td>
+<td style="text-align:right;">
+27013112
+</td>
+<td style="text-align:right;">
+0.0525789
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499924
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2689_198CSM
+</td>
+<td style="text-align:left;">
+2689_198CSM
+</td>
+<td style="text-align:left;">
+509_CHMLAUKH
+</td>
+<td style="text-align:left;">
+509_CHMLAUKH
+</td>
+<td style="text-align:right;">
+26954876
+</td>
+<td style="text-align:right;">
+0.0518025
+</td>
+<td style="text-align:right;">
+0.0000002
+</td>
+<td style="text-align:right;">
+0.499894
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2693_202CSM
+</td>
+<td style="text-align:left;">
+2693_202CSM
+</td>
+<td style="text-align:left;">
+1955_OQLLRBMM
+</td>
+<td style="text-align:left;">
+1955_OQLLRBMM
+</td>
+<td style="text-align:right;">
+27019285
+</td>
+<td style="text-align:right;">
+0.0515285
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499944
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2760_274UAS
+</td>
+<td style="text-align:left;">
+2760_274UAS
+</td>
+<td style="text-align:left;">
+295_YGGZRBYJ
+</td>
+<td style="text-align:left;">
+295_YGGZRBYJ
+</td>
+<td style="text-align:right;">
+27047919
+</td>
+<td style="text-align:right;">
+0.0523141
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.499972
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>A set of 16 duplicate particpants were found that were not expected.</li>
+<li>These duplicates needed to be manually checked in database with Celine (see below).</li>
+</ul></li>
+<li>Manually determine cause for duplicates.
+<ul>
+<li>These pairs of individuals were found to be in both studies under different IDs (PSYMETAB and Severines):</li>
+</ul>
+<pre class="r"><code># 139CSM  HLHILECG
+# 184CSM  WXPQPUWI
+# 198CSM  CHMLAUKH
+# 202CSM  OQLLRBMM
+# 274UAS  YGGZRBYJ
+# JO001 UUHDCMNL
+# S008  YLXVRYDT
+# S092  0021GE</code></pre>
+<ul>
+<li>These pairs of individuals are duplicates but with different codes and we are keeping the one on the right:</li>
+</ul>
+<pre class="r"><code># ABDJGAXW  ZXDVAJUD
+# JO280 JO276
+# S093  JO426</code></pre>
+<ul>
+<li>These pair of individuals are not the same and the genetic info matches the one on the right (remove left):</li>
+</ul>
+<pre class="r"><code># JNQSZGGL  XTVNZTRY
+# WIELRZDD  FJNJEXCM
+# OINDBCQM  SONUEGRB</code></pre>
+<ul>
+<li>These pair of individuals could not be properly sorted and are therefore both being deleted:</li>
+</ul>
+<pre class="r"><code># S060  0062GE
+# 0030GE    SJJCZOXT</code></pre></li>
+<li>Create file of duplicates to be removed (based on above criteria).</li>
+<li>Remove duplicates.
+<ul>
+<li>2715 individuals originally.</li>
+<li>18 individuals removed.</li>
+<li>2697 individuals remaining.</li>
+</ul></li>
+<li>Recalculate kinship and identify remaining related individauls using kinship threshold &gt; 0.0884) as recommended by <a href="http://people.virginia.edu/~wc9c/KING/manual.html">KING authors</a>.
+<ul>
+<li><code>#r countLines(paste0(&quot;analysis/QC/10_merge_imputed/&quot;, study_name, &quot;2.related.filter.smiss&quot;))[1] - 1</code> related pairs identified.</li>
+<li><code>#r countLines(paste0(&quot;analysis/QC/10_merge_imputed/&quot;, study_name, &quot;2.duplicates&quot;))[1] - 1</code> duplicate pairs identified.</li>
+</ul></li>
+<li>Determine maximal set of unrelated individuals based on kinship results.
+<ul>
+<li>This was done using personal script (<code>code/qc/relatedness_filter.r</code>).</li>
+<li>PLINK does not guarantee maximum number of samples (see <a href="https://www.cog-genomics.org/plink/2.0/distance#make_king">here</a>: <em>Relationship-based pruning</em>), where it states: <em>PLINK tries to maximize the final sample size, but this maximum independent set problem is NP-hard, so we use a greedy algorithm which does not guarantee an optimal result.</em></li>
+</ul></li>
+<li>Remove related individuals <em>(note that if using mixed model design we can include all the related IDs, but remove the problematic duplicates)</em>.
+<ul>
+<li>50 related IDs removed.</li>
+<li>2647 individuals remaining.</li>
+</ul></li>
+</ol>
+
+</div>
+<div id="ethnicty-check-and-admixture-estimation." class="section level2">
+<h2>12. Ethnicty check and admixture estimation.</h2>
+<ol style="list-style-type: decimal">
+<li>Clean typed data (from #9).
+<ul>
+<li>Remove duplicate samples (from #11).</li>
+<li>Remove genotypes with missingness &gt; 10% (using <code>--geno 0.1</code>).</li>
+<li>Remove genotypes with MAF &lt; 5% (using <code>--maf 0.05</code>).</li>
+<li>Remove genotypes with HWE &lt; 5e-4 (using <code>--hwe 5e-4</code>).</li>
+<li>After filters, 249634 SNPs remaining.</li>
+<li>After filters, 2697 individuals remaining.</li>
+</ul></li>
+<li>Run <a href="https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/05/SNPweights2.1.tar.gz"><code>snpweights</code></a> software from Alkes Price <a href="https://www.hsph.harvard.edu/alkes-price/software/">software page</a> using SNP weights for European, West African, East Asian and Native American ancestral populations (downloaded <a href="https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/03/snpwt.NA_.zip">here</a>).
+<ul>
+<li>SNPweights is a software package for inferring genome-wide genetic ancestry using SNP weights precomputed from large external reference panels (<a href="http://bioinformatics.oxfordjournals.org.ezp-prod1.hul.harvard.edu/content/29/11/1399.long">Chen et al. 2013 Bioinformatics</a>).</li>
+<li>The software relies on external databases to infer ancestry weights, so related individuals can safely be included.</li>
+<li>This software creates a file with the name <code>${output_name}.NA.predpc</code>.</li>
+<li>The 10 columns in the <code>${output_name}.NA.predpc</code> output file are: <code>sample ID</code>, <code>population label</code>, <code>number of SNPs used for inference</code>, <code>predicted PC1</code>, <code>predicted PC2</code>, <code>predicted PC3</code>, <code>% YRI ancestry</code>, <code>% CEU ancestry</code>, <code>% East Asian ancestry</code>, and <code>% Native American ancestry</code>.</li>
+</ul></li>
+<li>Filter to Europeans.
+<ul>
+<li>Using threshold <code>% CEU ancestry</code> &gt; <code>0.8</code> as done in other papers.</li>
+<li>543 non-European individuals removed.</li>
+<li>2154 European individuals remaining.</li>
+</ul></li>
+<li>Run <code>snpweights</code> in Europeans using SNP weights for NW, SE and AJ ancestral populations of European Americans (downloaded [here] (<a href="https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/03/snpwt.EA_.zip" class="uri">https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/03/snpwt.EA_.zip</a>)).
+<ul>
+<li>The 8 columns in the <code>${output_name}.CEU80.EA.predpc</code> output file are: <code>sample ID</code>, <code>population label</code>, <code>number of SNPs used for inference</code>, <code>predicted PC1</code>, <code>predicted PC2</code>, <code>% Northwest European ancestry</code>, <code>% Southeast European ancestry</code>, <code>% Ashkenazi Jewish ancestry</code>.</li>
+<li>Note that nothing was done with these computed snpweights.</li>
+</ul></li>
+<li>Using data from step 1, create pruned set of SNPs.
+<ul>
+<li>Remove related individuals (idenified in #11).</li>
+<li>PLINK parameters set as: <code>--indep-pairwise 50 5 0.2</code>.</li>
+<li>After pruning, 152879 SNPs removed</li>
+<li>Could consider excluding regions suggested by flaspca by adding the following line: <code>--exclude range $flashpca/exclusion_regions_hg19.txt</code>.</li>
+</ul></li>
+<li>Create an unrelated dataset for calculating PCs using snps from step 5.
+<ul>
+<li>After pruning, 96755 SNPs remaining.</li>
+<li>50 related samples removed.</li>
+<li>2647 unrelated samples remaining.</li>
+</ul></li>
+<li>Create a full set for projecting PCs with same set of pruned SNPs.
+<ul>
+<li>As above, 96755 SNPs remaining.</li>
+<li>No samples removed, 2697 samples in total.</li>
+</ul></li>
+<li>Perform PCA using <code>[flashpca</code>](<a href="https://github.com/gabraham/flashpca" class="uri">https://github.com/gabraham/flashpca</a>) in unrelated set (from step 6).</li>
+<li>Perform PCA projections onto related sample set (from 12.7)</li>
+<li>Split data into seperate ethnic groups as determined in 12.2.
+<ul>
+<li>For all ethnic groups except <code>YRI</code> (African), use a threshold of <code>% ancestry</code> &gt; <code>0.8</code>.</li>
+<li>For African, use a threshold of <code>% ancestry</code> &gt; <code>0.7</code>.</li>
+<li>If a participant has no ethnic group that meets this criteria (note that it is impossible to follow into multiple categories), they are classified as <code>MIXED</code>, in this way 5 ethnic groups remain: <code>CEU</code> (European), <code>EA</code> (East Asian), <code>NA</code> (Native American), <code>YRI</code> (West African), and <code>MIXED</code>.</li>
+</ul></li>
+</ol>
+<pre><code>       
+        AFRICAN EAST_ASIAN EUROPEAN LATIN OTHER SOUTH_ASIAN UNKNOWN
+  CEU         0          0     1540     0    72           1     541
+  EA          0         17        0     0     2           3       7
+  MIXED      54          4       79     0    99          55     135
+  NA          0          0        0     1     3           0       1
+  YRI        47          4        1     1     3           0      27</code></pre>
+<p><img src="figure/genetic_quality_control.Rmd/eth_print-1.svg" width="672" style="display: block; margin: auto;" /><img src="figure/genetic_quality_control.Rmd/eth_print-2.svg" width="672" style="display: block; margin: auto;" /></p>
+
+</div>
+<div id="hwe-check." class="section level2">
+<h2>13. HWE check.</h2>
+<ol style="list-style-type: decimal">
+<li>Using imputed data from #10, remove duplicates (from #11).</li>
+<li>Split data into separate ethnicity files.</li>
+<li>Within each ethnic group:
+<ul>
+<li>Remove related IDs (from #11).</li>
+<li>If remaing n is <code>&lt; 100</code> ignore.</li>
+<li>If remaining n is <code>&gt; 100</code>, evaluate HWE for each variant.</li>
+</ul></li>
+<li>Identify SNPs failing HWE in at least one ethnic group.</li>
+<li>Remove HWE violations (<code>p &lt; 0.00000001</code>).
+<ul>
+<li>21062 SNPs removed.</li>
+<li>28357543 SNPs remaining.</li>
+</ul></li>
+</ol>
+
+</div>
+<div id="maf-check." class="section level2">
+<h2>14. MAF check.</h2>
+<ol style="list-style-type: decimal">
+<li>Using HWE filtered file (from #11 - which has duplicates removed), split data in separate ethnicity files.</li>
+<li>Within each ethnic group with n &gt; 100 (related individuals removed), calculate allele frequency.</li>
+<li>Filter to only SNPs that have at least one MAF &gt; threshold (0.01).
+<ul>
+<li>17975192 SNPs removed.</li>
+<li>10382351 SNPs remaining.</li>
+</ul></li>
+</ol>
+
+</div>
+</div>
+<div id="step-6-final-processing." class="section level1">
+<h1>Step 6: Final processing.</h1>
+<p><strong>Source code for Step 5 can be found at: <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/final_processing.sh">code/final_processing.sh</a>.</strong></p>
+<div id="final-processing." class="section level2">
+<h2>15. Final processing.</h2>
+<ol style="list-style-type: decimal">
+<li>Seperate into ethnic groups with n &gt; 100 and one file with all samples included (using data from #12).</li>
+<li>Convert each ethnic subset and full file to bgen format (some programs require this format).</li>
+<li>Convert each ethnic subset and full file to vcf format (some programs require this format).</li>
+<li>Create imputation info file (could be used to further filter SNPs later).</li>
+<li>Within each ethnic specific file, calculate final intra-ethnics PCs:
+<ol style="list-style-type: decimal">
+<li>Extract ethnicity samples from typed file with duplicates removed (from #12).</li>
+<li>Re-clean data within each ethnicity before final PCA (as before, using the followings flags: <code>--geno 0.1</code>, <code>--maf 0.05</code>, <code>--hwe 5e-4</code>).</li>
+<li>Prune, excluding related individuals (as before, using: <code>--indep-pairwise 50 5 0.2</code>).
+<ul>
+<li>PLINK2 will give an error if there are less than 50 samples to caclulate LD estimates.</li>
+<li>This can be overriden <code>--bad-ld</code>, but they suggest that <em>this is almost always a bad idea</em>.</li>
+<li>Of the five ethnic groups created in #12, the following groups did not proceed past this step due to insufficient sample size:</li>
+</ul></li>
+</ol>
+<pre><code>
+
+PCs were not successfully computed for ethnic group: EA. 
+The indep log file reads: 
+
+ [1] &quot;PLINK v2.00a3LM 64-bit Intel (10 Mar 2020)&quot;                                                     
+ [2] &quot;Options in effect:&quot;                                                                             
+ [3] &quot;  --bfile EA/PSYMETAB_GWAS.EA.QC&quot;                                                               
+ [4] &quot;  --indep-pairwise 50 5 0.2&quot;                                                                    
+ [5] &quot;  --out EA/PSYMETAB_GWAS.EA.indep&quot;                                                              
+ [6] &quot;  --remove ../../11_relatedness/PSYMETAB_GWAS_related_ids.txt&quot;                                  
+ [7] &quot;  --threads 16&quot;                                                                                 
+ [8] &quot;&quot;                                                                                               
+ [9] &quot;Hostname: node09.cluster&quot;                                                                       
+[10] &quot;Working directory: /data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/final_pca&quot;
+[11] &quot;Start time: Tue Jun  9 23:53:01 2020&quot;                                                           
+[12] &quot;&quot;                                                                                               
+[13] &quot;Random number seed: 1591739581&quot;                                                                 
+[14] &quot;128666 MiB RAM detected; reserving 64333 MiB for main workspace.&quot;                               
+[15] &quot;Using up to 16 threads (change this with --threads).&quot;                                           
+[16] &quot;29 samples (0 females, 0 males, 29 ambiguous; 29 founders) loaded from&quot;                         
+[17] &quot;EA/PSYMETAB_GWAS.EA.QC.fam.&quot;                                                                    
+[18] &quot;262668 variants loaded from EA/PSYMETAB_GWAS.EA.QC.bim.&quot;                                        
+[19] &quot;Note: No phenotype data present.&quot;                                                               
+[20] &quot;--remove: 28 samples remaining.&quot;                                                                
+[21] &quot;28 samples (0 females, 0 males, 28 ambiguous; 28 founders) remaining after main&quot;                
+[22] &quot;filters.&quot;                                                                                       
+[23] &quot;Error: This run estimates linkage disequilibrium between variants, but there&quot;                   
+[24] &quot;are less than 50 samples to estimate from.  You should perform this operation&quot;                  
+[25] &quot;on a larger dataset.&quot;                                                                           
+[26] &quot;(Strictly speaking, you can also override this error with --bad-ld, but this is&quot;                
+[27] &quot;almost always a bad idea.)&quot;                                                                     
+[28] &quot;&quot;                                                                                               
+[29] &quot;End time: Tue Jun  9 23:53:01 2020&quot;                                                             
+
+--------------------------------------------------------------------------- 
+
+
+PCs were not successfully computed for ethnic group: NA. 
+The indep log file reads: 
+
+ [1] &quot;PLINK v2.00a3LM 64-bit Intel (10 Mar 2020)&quot;                                                     
+ [2] &quot;Options in effect:&quot;                                                                             
+ [3] &quot;  --bfile NA/PSYMETAB_GWAS.NA.QC&quot;                                                               
+ [4] &quot;  --indep-pairwise 50 5 0.2&quot;                                                                    
+ [5] &quot;  --out NA/PSYMETAB_GWAS.NA.indep&quot;                                                              
+ [6] &quot;  --remove ../../11_relatedness/PSYMETAB_GWAS_related_ids.txt&quot;                                  
+ [7] &quot;  --threads 16&quot;                                                                                 
+ [8] &quot;&quot;                                                                                               
+ [9] &quot;Hostname: node09.cluster&quot;                                                                       
+[10] &quot;Working directory: /data/sgg2/jenny/projects/PSYMETAB/analysis/QC/15_final_processing/final_pca&quot;
+[11] &quot;Start time: Tue Jun  9 23:54:01 2020&quot;                                                           
+[12] &quot;&quot;                                                                                               
+[13] &quot;Random number seed: 1591739641&quot;                                                                 
+[14] &quot;128666 MiB RAM detected; reserving 64333 MiB for main workspace.&quot;                               
+[15] &quot;Using up to 16 threads (change this with --threads).&quot;                                           
+[16] &quot;5 samples (0 females, 0 males, 5 ambiguous; 5 founders) loaded from&quot;                            
+[17] &quot;NA/PSYMETAB_GWAS.NA.QC.fam.&quot;                                                                    
+[18] &quot;208292 variants loaded from NA/PSYMETAB_GWAS.NA.QC.bim.&quot;                                        
+[19] &quot;Note: No phenotype data present.&quot;                                                               
+[20] &quot;--remove: 5 samples remaining.&quot;                                                                 
+[21] &quot;5 samples (0 females, 0 males, 5 ambiguous; 5 founders) remaining after main&quot;                   
+[22] &quot;filters.&quot;                                                                                       
+[23] &quot;Error: This run estimates linkage disequilibrium between variants, but there&quot;                   
+[24] &quot;are less than 50 samples to estimate from.  You should perform this operation&quot;                  
+[25] &quot;on a larger dataset.&quot;                                                                           
+[26] &quot;(Strictly speaking, you can also override this error with --bad-ld, but this is&quot;                
+[27] &quot;almost always a bad idea.)&quot;                                                                     
+[28] &quot;&quot;                                                                                               
+[29] &quot;End time: Tue Jun  9 23:54:01 2020&quot;                                                             
+
+--------------------------------------------------------------------------- </code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li>Create an unrelated set for calculating PCs with same set of pruned SNPs.</li>
+<li>Create a full set based on pruning in unrelated samples.</li>
+<li>Compute PCA components in unrelated set.</li>
+<li>Project onto full set.</li>
+</ol></li>
+</ol>
+<p><em>In general, clean, ethnic specific imputed data were used for analyses (from #15.1), and ethnic-specific PCs were used as adjustments (from #15.5).</em></p>
+<p>Run the following commands to compress some large intermediate files.</p>
+<pre class="bash"><code>project_dir=&quot;/data/sgg2/jenny/projects/PSYMETAB&quot;
+output_dir=$project_dir/analysis/QC
+
+cd $output_dir/06_imputation_get
+mkdir archive
+tar --exclude=&#39;*.info.gz&#39; --exclude archive -czvf archive/06_imputation_get.tar.gz * --remove-files
+
+cd $output_dir
+tar -czvf 10_merge_imputed.tar.gz 10_merge_imputed --remove-files
+
+cd $output_dir/13_hwecheck
+mkdir archive
+tar --exclude=&#39;*.hardy.sig.unique&#39; --exclude &#39;*.hwecheck.step13.pvar&#39; --exclude archive -czvf archive/13_hwecheck.tar.gz * --remove-files
+
+cd $output_dir/14_mafcheck
+mkdir archive
+tar --exclude=&#39;_low_maf_snps.txt&#39; --exclude &#39;*.mafcheck.step14.pvar&#39; --exclude archive -czvf archive/14_mafcheck.tar.gz * --remove-files
+</code></pre>
+<p>If you need to unzip these files, it can be done as follows: <code>tar xvzf file.tar.gz</code></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.3 (2019-03-11)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: CentOS Linux 7 (Core)
+
+Matrix products: default
+BLAS: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRblas.so
+LAPACK: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRlapack.so
+
+locale:
+[1] en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] tidyselect_0.2.5        tidylog_1.0.1           OpenImageR_1.1.6       
+ [4] fuzzyjoin_0.1.5         kableExtra_1.1.0        R.utils_2.9.2          
+ [7] R.oo_1.23.0             R.methodsS3_1.7.1       TwoSampleMR_0.4.25     
+[10] reader_1.0.6            NCmisc_1.1.6            optparse_1.6.4         
+[13] readxl_1.3.1            ggthemes_4.2.0          tryCatchLog_1.1.6      
+[16] futile.logger_1.4.3     DataExplorer_0.8.0      taRifx_1.0.6.1         
+[19] qqman_0.1.4             MASS_7.3-51.5           bit64_0.9-7            
+[22] bit_1.1-14              rslurm_0.5.0            rmeta_3.0              
+[25] devtools_2.2.1          usethis_1.5.1           data.table_1.12.8      
+[28] clustermq_0.8.8.1       future.batchtools_0.8.1 future_1.15.1          
+[31] rlang_0.4.5             knitr_1.26              drake_7.12.0.9000      
+[34] forcats_0.4.0           stringr_1.4.0           dplyr_0.8.3            
+[37] purrr_0.3.3             readr_1.3.1             tidyr_1.0.3            
+[40] tibble_2.1.3            ggplot2_3.2.1           tidyverse_1.3.0        
+[43] pacman_0.5.1            processx_3.4.1          workflowr_1.6.0        
+
+loaded via a namespace (and not attached):
+  [1] backports_1.1.6      plyr_1.8.5           igraph_1.2.5        
+  [4] lazyeval_0.2.2       storr_1.2.1          listenv_0.8.0       
+  [7] digest_0.6.25        htmltools_0.4.0      tiff_0.1-5          
+ [10] fansi_0.4.1          magrittr_1.5         checkmate_1.9.4     
+ [13] memoise_1.1.0        base64url_1.4        remotes_2.1.0       
+ [16] globals_0.12.5       modelr_0.1.5         prettyunits_1.1.0   
+ [19] jpeg_0.1-8.1         colorspace_1.4-1     rvest_0.3.5         
+ [22] rappdirs_0.3.1       haven_2.2.0          xfun_0.11           
+ [25] callr_3.4.0          crayon_1.3.4         jsonlite_1.6        
+ [28] brew_1.0-6           glue_1.4.0           gtable_0.3.0        
+ [31] webshot_0.5.2        pkgbuild_1.0.6       scales_1.1.0        
+ [34] futile.options_1.0.1 DBI_1.1.0            Rcpp_1.0.3          
+ [37] xtable_1.8-4         viridisLite_0.3.0    progress_1.2.2      
+ [40] txtq_0.2.0           clisymbols_1.2.0     htmlwidgets_1.5.1   
+ [43] httr_1.4.1           getopt_1.20.3        calibrate_1.7.5     
+ [46] ellipsis_0.3.0       farver_2.0.1         pkgconfig_2.0.3     
+ [49] dbplyr_1.4.2         labeling_0.3         reshape2_1.4.3      
+ [52] later_1.0.0          munsell_0.5.0        cellranger_1.1.0    
+ [55] tools_3.5.3          cli_2.0.1            generics_0.0.2      
+ [58] broom_0.5.3          fastmap_1.0.1        evaluate_0.14       
+ [61] yaml_2.2.0           fs_1.3.1             packrat_0.5.0       
+ [64] nlme_3.1-143         mime_0.8             formatR_1.7         
+ [67] proftools_0.99-2     xml2_1.2.2           compiler_3.5.3      
+ [70] rstudioapi_0.10      png_0.1-7            filelock_1.0.2      
+ [73] testthat_2.3.1       reprex_0.3.0         stringi_1.4.5       
+ [76] highr_0.8            ps_1.3.0             desc_1.2.0          
+ [79] lattice_0.20-38      vctrs_0.2.4          pillar_1.4.3        
+ [82] lifecycle_0.1.0      networkD3_0.4        httpuv_1.5.2        
+ [85] R6_2.4.1             promises_1.1.0       gridExtra_2.3       
+ [88] sessioninfo_1.1.1    codetools_0.2-16     lambda.r_1.2.4      
+ [91] assertthat_0.2.1     pkgload_1.0.2        rprojroot_1.3-2     
+ [94] withr_2.1.2          batchtools_0.9.12    parallel_3.5.3      
+ [97] hms_0.5.3            grid_3.5.3           rmarkdown_1.18      
+[100] git2r_0.26.1         shiny_1.4.0          lubridate_1.7.4     </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

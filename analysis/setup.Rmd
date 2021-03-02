@@ -90,10 +90,13 @@ mkdir $project_dir/data/processed
 mkdir $project_dir/data/raw/reference_files
 mkdir $project_dir/data/raw/phenotype_data
 mkdir $project_dir/data/raw/extractions
+mkdir $project_dir/data/processed/reference_files
 mkdir $project_dir/data/processed/phenotype_data
 mkdir $project_dir/data/processed/extractions
+mkdir $project_dir/data/processed/ukbb_data
 mkdir $project_dir/docs/assets
 mkdir $project_dir/docs/generated_reports
+
 ```
 
 This will create the following directory structure in `PSYMETAB/`:
@@ -120,6 +123,7 @@ PSYMETAB/
 │   │   ├── phenotype_data/
 │   │   ├── reference_files/
 │   │   └── extractions/
+│   │   └── ukbb_data/
 ├── docs/
 │   ├── generated_reports/
 │   └── assets/
@@ -208,7 +212,7 @@ cat(readLines('slurm_batchtools.tmpl'), sep = '\n')
 
 Follow the general workflow outlined by [workflowr](https://jdblischak.GitHub.io/workflowr/articles/wflow-01-getting-started.html#the-workflow), with some minor revisions to accomodate workflow between personal computer and remote server:
 
-  1. Open a new or existing R Markdown file in `analysis/` (optionally using `wflow_open()`). (Usually created manually on personal computer and push to server to build later.) If creating manually, add the following to the top of the R Markdown file with an appropriate name for `Title`:
+  1. Open a new or existing R Markdown file in `analysis/` (optionally using `wflow_open()`, e.g. `wflow_open('analysis\summary.Rmd')`. (Usually created manually on personal computer and pushed to server to build later.) If creating manually, add the following to the top of the R Markdown file with an appropriate name for `Title`:
 
 ```{r eval=FALSE}
 ---

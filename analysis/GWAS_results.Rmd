@@ -1,0 +1,266 @@
+---
+title: "GWAS Results"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+
+
+```{css include=FALSE}
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+```
+
+```{r setup, include = FALSE}
+options(scipen=999)
+source("code/packages.R")
+source("code/functions.R")
+source("code/settings.R")
+```
+
+**The following document outlines and summarizes the GWAS results performed in PSYMETAB, for an overview of the method see [GWAS Method](GWAS_method.html).**
+
+# Model counts and distributions.
+
+```{r subgroup_covars, echo = FALSE}
+pheno_eths <- read_table2(paste0("data/processed/phenotype_data/", study_name, "_inferred_eths.txt")) %>% mutate(FID = paste0(COUNT, "_", GPCR))
+
+pheno <- GWAS_input$full_pheno %>% full_join(pheno_eths)
+covar <- GWAS_input$full_covar %>% full_join(pheno_eths)
+
+out <- numeric()
+for(i in 1:length(drug_classes)){
+  for(j in 1:length(interaction_outcome)){
+    for(analysis in c("_", "_sensitivity_")){
+      drug_class <- drug_classes[i]
+      outcome <- interaction_outcome[j]
+      outcome_colname <- paste0(outcome,analysis,drug_classes[i])
+      drug_colname <- paste0("high_inducer", analysis, drug_classes[i])
+      
+      pheno_temp <- pheno[which(!is.na(pheno[[outcome_colname]])),] 
+      
+      # pheno_temp <- pheno[which(!is.na(pheno[[outcome_colname]])),] %>% 
+      #   mutate_at(.vars = outcome_colname, .funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .)) %>% ## remove outliers
+      #   
+      
+      drug_eth_count <- table(pheno_temp[[drug_colname]], pheno_temp[["eth"]])
+      sensitivity <- ifelse(analysis=="_", "No", "Yes")
+      n <- dim(pheno_temp)[1]
+      row_temp <- cbind(drug_class, outcome, sensitivity, n,
+                        drug_eth_count["Drug", "CEU"], drug_eth_count["NoDrug", "CEU"],
+                        drug_eth_count["Drug", "MIXED"], drug_eth_count["NoDrug", "MIXED"],
+                        drug_eth_count["Drug", "YRI"], drug_eth_count["NoDrug", "YRI"])
+      
+      out <- rbind(out, row_temp)
+      
+      if(j==1){
+        hist(pheno_temp[[outcome_colname]], main=outcome_colname)
+        #https://www.r-graph-gallery.com/histogram_several_group.html
+      }
+      #summary(pheno_temp[[outcome_colname]]) hist(pheno_temp[[outcome_colname]])
+      
+    }
+  }
+}
+
+colnames(out) <- c("Drug_class", "Interaction_outcome", "Sensitivity_Model", "N",
+                   "Drug_CEU", "NoDrug_CEU", 
+                   "Drug_MIXED", "NoDrug_MIXED", 
+                   "Drug_YRI", "NoDrug_YRI")
+
+out <- out %>% as_tibble()
+out %>% kable() %>%
+  kable_styling(full_width = F, position = "left") %>% scroll_box(width = "100%", height="500px")
+
+```
+
+
+# GWAS results.
+
+## Baseline
+
+## Interaction
+
+```{r interaction_images, eval=FALSE, echo=FALSE, out.width='100%'}
+
+interaction_fig_files <- numeric()
+for(i in 1:length(drug_classes)){
+  for(j in 1:length(interaction_outcome)){
+    for(analysis in c("_", "_sensitivity_")){
+      drug_class <- drug_classes[i]
+      outcome <- interaction_outcome[j]
+      
+      CEU_qq_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, analysis, drug_class, "_CEU_qq.png")
+      MIXED_qq_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_qq.png")
+      META_qq_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_qq.png")
+      
+      
+      CEU_man_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_CEU_manhattan.png")
+      MIXED_man_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_manhattan.png")
+      META_man_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_manhattan.png")
+      
+      interaction_fig_files <- c(interaction_fig_files, c(CEU_qq_file, META_qq_file, CEU_man_file, META_man_file))
+      
+      
+      #https://community.rstudio.com/t/show-png-images-consecutively-with-loop-in-r-markdown-chunk-html/45279
+      
+    }
+  }
+}
+
+getwd()
+file.exists(interaction_fig_files)
+
+knitr::include_graphics("analysis/GWAS/interaction/processed/PSYMETAB_GWAS_bmi_change_all_CEU_qq.png")
+
+interaction_fig_files[1:10]
+
+
+knitr::include_graphics(interaction_fig_files[1:5])
+
+
+img<-OpenImageR::readImage(interaction_fig_files[1])
+
+#img<-OpenImageR::readImage("analysis/GWAS/interaction/processed/PSYMETAB_GWAS_bmi_slope_weight_valproate_MIXED_qq.png")
+imageShow(img)
+
+figures <- c("rplot.jpg", "Rlogo.png", "Rlogo2.png")
+file.exists(figures)
+knitr::include_graphics(figures)
+
+#test
+knitr::include_graphics("rplot.jpg")
+
+```
+
+
+## Subgroup 
+
+```{r subgroup_images, eval=F, echo=FALSE}
+
+fig_files <- numeric()
+for(i in 1:length(drug_classes)){
+  for(j in 1:length(interaction_outcome)){
+    for(analysis in c("_", "_sensitivity_")){
+      drug_class <- drug_classes[i]
+      outcome <- interaction_outcome[j]
+      
+      CEU_qq_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, analysis, drug_class, "_CEU_qq.png")
+      MIXED_qq_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_qq.png")
+      META_qq_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_qq.png")
+      
+      
+      CEU_man_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_CEU_manhattan.png")
+      MIXED_man_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_manhattan.png")
+      META_man_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_manhattan.png")
+      
+      fig_files <- c(fig_files, c(CEU_qq_file, META_qq_file, CEU_man_file, META_man_file))
+      
+      
+      #https://community.rstudio.com/t/show-png-images-consecutively-with-loop-in-r-markdown-chunk-html/45279
+      
+    }
+  }
+}
+
+knitr::include_graphics(fig_files)
+  
+#img<-OpenImageR::readImage("analysis/GWAS/interaction/processed/PSYMETAB_GWAS_bmi_slope_weight_valproate_MIXED_qq.png")
+#imageShow(img)
+```
+
+
+
+```{r, eval=F}
+het_out <-
+  fread(
+    paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,
+      "_", eth, ".", outcome_var, ".het"),
+    header = F,
+    data.table = F
+  )
+
+sig_list <- which(as.numeric(het_out[, 2]) < 5e-08)
+length(sig_list)
+colnames(het_out) <- c("ID", "P_HET")
+result <- cbind(filter, "P_HET" = het_out$P_HET)
+png(
+  paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix, "_", eth, ".", outcome_var, ".het.manhattan.png"),
+  width = 2000,
+  height = 1000,
+  pointsize = 18
+)
+manhattan(result, p = "P_HET", chr = "CHROM")
+dev.off()
+
+png(
+  paste0(
+    "analysis/GWAS/subgroup/", eth, "/", output, "_", suffix, "_", eth, ".", outcome_var, ".het.qq.png"),
+  width = 2000,
+  height = 1000, 
+  pointsize = 18
+)
+qq(result$P_HET)
+dev.off()
+
+
+#### GWAS
+    sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
+    sig_drug <- drug[which(drug$P < 5e-08),]
+    for(data in c("nodrug", "drug"))
+    {
+      gwas_result <- get(data)
+      joint <- reduce(list(gwas_result,freq,info), full_join, by = "ID")
+      sig <- joint %>%
+              mutate_at("P", as.numeric) %>%
+              filter(P < 5e-06) %>%
+              filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
+              filter(R2 > info_threshold)
+
+      joint_maf <- joint %>% filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1- maf_threshold))%>% mutate_at("P", as.numeric)
+      sig <- joint_maf  %>% filter(P < gw_sig)
+      png("man_interaction.png", width=2000, height=1000, pointsize=18)
+      manhattan(joint_maf)
+      dev.off()
+
+      png("interaction_qq2.png", width=2000, height=1000, pointsize=18)
+      qq(joint_maf$P)
+      dev.off()
+
+
+            qq(gwas_result2$P)
+    # sig_nodrug <- sig
+    }
+    
+    gwas_result <- fread(result, data.table=F, stringsAsFactors=F)
+  gwas_result2 <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+
+
+  #### GWAS
+  sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
+  sig_drug <- drug[which(drug$P < 5e-08),]
+
+  for(data in c("nodrug", "drug"))
+  {
+  gwas_result <- get(data)
+  gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
+  joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
+  sig <- joint %>%
+          mutate_at("P", as.numeric) %>%
+          filter(P < 5e-06) %>%
+          filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
+          filter(R2 > info_threshold)
+  # sig_nodrug <- sig
+  }
+
+
+
+
+```
+
+

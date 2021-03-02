@@ -1,5 +1,5 @@
 ---
-title: "GWAS"
+title: "GWAS Method"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -202,11 +202,9 @@ loadd(example_data)
 ```
 
 
-**The following document outlines and summarizes the GWAS analyses performed in PSYMETAB.**
+**The following document outlines and summarizes the method used for performing the GWAS analyses performed in PSYMETAB, for an overview of the results see [GWAS Results](GWAS_results.html).**
 
-# Analysis preparation.
-
-## Sample data. 
+# Sample data. 
 
 Original data has the following structure: 
 
@@ -224,7 +222,7 @@ example_data %>% dplyr::filter(Participant == "C") %>% kable() %>%
 Need to transform the above data to have one row per participant with the following columns:
 
 - Drug (Yes/No),
-- Outcome of interest (BMI change, slope, weighted slope, etc).
+- Possible outcomes of interest (BMI change, slope, weighted slope, etc).
 - Relevant covariates (age, sex, follow-up time, etc).
 
 Questions to consider:
@@ -233,13 +231,13 @@ Questions to consider:
 - If we are interested in a drug (e.g. `ZZ`) which is not taken by our patient, which follow-up do we use as control?
 
 
-## Data filtering and quality control. 
+# Data filtering and quality control. 
 
 Follow-ups (i.e. single rows as in sample data above) were removed if:
 
 - Missing height data. 
 - Missing weight data. 
-- Height +/- 5SD outside mean (this removes patients with the following heights (cm): 106 106 106 106 106 106 106 106 116  96  96  90).
+- Height +/- 5SD outside mean (this removed patients with the following heights (cm): `106 106 106 106 106 106 106 106 116  96  96  90`).
 - Missing date. 
 - Missing drug information (column name `AP1`).
 - Multiple sexes listed for the same participant (i.e. two different follow-up listed both M and F).
@@ -254,27 +252,27 @@ Data corrections:
 - All values equal to `999` were set to missing. 
 - If any sex field was missing, sex was taken from other follow-ups (if possible).
 
-## General settings. 
+# General info. 
 
 - Analyses were performed in each ethnicity seperately and then meta-anlayzed.
 - Min follow-up time was set as `r min_follow_up` days (i.e. follow-up <= `r min_follow_up` days).
-- Some analyses were restricted to ~6 months of followup (i.e. follow-up <= `r follow_up_limit` days).
+- Some analyses were restricted to ~6, 3 or 1 month(s), of followup (i.e. follow-up <= `r follow_up_6mo`,  `r follow_up_3mo`, `r follow_up_1mo` days, respectively).
 
-## Drug classification. 
+# Drug classification. 
 
-After discussion with others, it was decided to define drugs into three classes
+After discussion with others, it was decided to define drugs into three classes based on their propensity to induce weight gain:
 
-1. AP1 pour faible risque de prise de poids:
+1. **Low**: AP1 pour faible risque de prise de poids:
 
 Amisulpride, Aripiprazole, Brexpiprazole, Cariprazine, Carbamazepine, Chlorprothixene, Flupentixol, Fluphenazine, Haloperidol, Lurasidone,
 Pipampérone, Promazine, Sertindole, Sulpiride, Tiapride.
 
-2. AP2 pour risque intermédiaire de prise de poids:
+2. **Medium**: AP2 pour risque intermédiaire de prise de poids:
 
 Amitriptyline, Asenapine, Clomipramine, Dibenzepine, Doxepine, Imipramine, Lévomépromazine, Lithium, Mirtazapine,
 Nortriptyline, Opipramol, Palipéridone, Quétiapine, Rispéridone, Trimipramine,  Zuclopenthixol.
 
-3. AP3 pour risque élevé de prise de poids:
+3. **High**: AP3 pour risque élevé de prise de poids:
 
 Clozapine, Olanzapine, Valproate.
 
@@ -286,30 +284,33 @@ med_inducers
 low_inducers
 ```
 
-An additional group of drugs were defined as `antipsychotics` which excludes mood stabilizers and antidepressants as follows:
+An additional group of drugs were defined as `antipsychotics` which excludes mood stabilizers and antidepressants as follows (*as of 25/09/2020, no analyses have been performed with this group*):
 ```{r antipsychotic_definition, echo = TRUE}
 antipsychotics
 ```
 
-## Follow-up selection criteria and drug (yes/no) definition
+# Drug (case/control) definitions.
 
 - All drugs were defined based on their propensity to induce weight gain, and fall into one of three categories (see above): 
   1. Low inducers 
   2. Medium inducers
   3. High inducers
-- To test the gene*drug effect of a drug(s) of interest:
-  - **Cases** (participants that have taken drug of interest) were selected as:
-    - Participants who have taken the drug of interest at least once. 
-    - Partcipants who have been followed up >= `min_follow_up` (`r min_follow_up` days) for drug(s) of interest.
-    - If particpant has multiple follow-ups for the drug of interest that have duration >= `min_follow_up`, the first follow-up is retained.
-  - **Controls** were selected as: 
-    - Participants who do not meet above criteria. 
-    - Only follow-ups with duration > `min_follow_up` are retained.
-    - If particpant has multiple alternate follow-ups, *low inducing* drugs are prioritized, followed-by *medium inducing* drugs, and lastly *high inducing* drugs.
-    - Note that all controls are followed up for an alternate drug. 
+- To test the SNP*drug effect of a drug (or drug set) of interest participants were classified as either cases or controls. 
+- Cases were defined as:
+  - Participants who have taken the drug of interest at least once. 
+  - Partcipants who have been followed up >= `min_follow_up` (`r min_follow_up` days) for drug(s) of interest.
+  - If particpant has multiple follow-ups for the drug of interest that have duration >= `min_follow_up`, the first follow-up is retained.
+- Controls were defined as: 
+  - Participants who do not meet above criteria. 
+  - Only follow-ups with duration > `min_follow_up` are retained.
+  - If particpant has multiple alternate follow-ups, *low inducing* drugs are prioritized, followed-by *medium inducing* drugs, and lastly *high inducing* drugs.
+  - Note that all controls are followed up for an alternate drug. 
   - Individuals were filtered if they had taken the drug of interest at some point but it was not specifically followed. Therefore the follow-up data set is smaller than the baseline data set. These individuals were removed because we do not know when they took the drug and if it could have had some impact on their weight evolution. 
 - In this way, a different set of cases/controls exists for each drug of interest. 
-- The following drug(s) were tested: 
+
+## Drug/drug sets tested. 
+
+The following drug/drug combinations were tested: 
 
 ```{r drugs_tested2, echo = FALSE}
 
@@ -318,38 +319,19 @@ test_drugs %>% kable() %>%
 
 ```
 
-- A sensitivity data-set was built for each drug set which was also tested: 
-  - Define `max_category` for a set of drugs of interest as `high`, `medium`, or `low` depending on the highest inducing category found in the drug set. 
-  - Remove all controls which have a follow-up for a drug **higher** than the `max_category`.
-  - For example, if the gene*quetiapine interaction was tested:
-    - `max_category` = `medium`
-    - All cases falling in category `high` were removed. 
-    - If testing a set of drugs spanning multiple categories (i.e. quetiapine, clozapine, olanzapine), the `max_category` would be `high` and no individuals would be removed in the sensitivity set. 
+## Sensitivity drug sets.
 
-## Phenotype definitions.
+- A sensitivity data-set was built for each drug set was also tested: 
+- Define `max_category` for a set of drugs of interest as `high`, `medium`, or `low` depending on the highest inducing category found in the drug set. 
+- Remove all controls which have a follow-up for a drug **higher** than the `max_category`.
+- For example, if the gene*quetiapine interaction was tested:
+  - `max_category` = `medium`
+  - All cases falling in category `high` were removed. 
+  - If testing a set of drugs spanning multiple categories (i.e. quetiapine, clozapine, olanzapine), the `max_category` would be `high` and no individuals would be removed in the sensitivity set. 
 
-### Linear GWAS.
+# Phenotype definitions.
 
-- The following baseline variables were tested in a standard GWAS setting
-```{r baseline_vars, echo = TRUE}
-baseline_vars 
-caffeine_vars
-```
-- If multiple follow-ups were available for a given individual, the first time-point was used. 
-- Each interaction outcome (details below) * drug combination was also tested in a linear model. 
-- All phenotypes had an inverse normal transformation applied (IVT) to ensure a normal distribution before downstream analyses were performed (see function below). 
-
-```{r echo_ivt, echo = TRUE}
-ivt
-```
-
-### Interaction GWAS.
-
-- The following outcomes were tested in a gene*drug interaction GWAS setting
-```{r interaction_vars, echo = TRUE}
-interaction_outcome 
-```
-- Detailed definitions of each outcome:
+- The main phenotypes of interest were built using follow-up data, including:
   - **Pheno change**: raw change between first and last date of follow-up. 
   - **Pheno change 1mo**: raw change between first and last date of follow-up, limited to ~1 months (<= `r follow_up_1mo` days).
   - **Pheno change 3mo**: raw change between first and last date of follow-up, limited to ~3 months (<= `r follow_up_3mo` days).
@@ -358,11 +340,41 @@ interaction_outcome
   - **Pheno slope weight**: weighted beta coefficient from model used for **Pheno slope** by SE (i.e `std_beta <- beta/se`).
   - **Pheno slope 6mo**: same as **Pheno slope** but follow-up time restricted to ~6 months (<= `r follow_up_6mo` days).
   - **Pheno slope weight 6mo**: same as **Pheno slope weight** but follow-up time restricted to ~6 months (<= `r follow_up_6mo` days).
-- As above, all phenotpyes were tranformed according to IVT before downstream analyses.  
-  - Note that IVT was performed on full data set instead of before sensitivity phenotypes are created
+- Phenotypes tested in this way included: 
+```{r interaction_vars, echo = TRUE}
+interaction_vars
+```
+- A different follow-up phenotype was defined for each drug combination. 
+
+## Standard (linear) GWAS.
+
+- In addition to the follow-up phenotypes described above, the following baseline variables were tested in a standard GWAS setting:
+```{r baseline_vars, echo = TRUE}
+baseline_vars 
+caffeine_vars
+```
+- If multiple follow-ups were available for a given individual, the first time-point was used. 
+- Each follow-up phenotype (described above) * drug combination was also tested in a linear model including all participants.
+  - Note that there would be *very* little difference between some of these phenotypes.
+  - Because participants have multiple follow-ups for different drugs, a decision needs to be made when creating a follow-up phenotype, see case/control definitions above.
+  - In these crude models, there is no accounting for the drug of interest (this is done in the interaction or subgroup model below) and all individuals are included in the model.
+  - For example, the phenotype `BMI change` was defined using all possible case/control definitions. If definied using olanzapine (`olanz`) case/control status, olanzapine follow-ups were used (as cases) where possible, and if not, a low-inducing drug was selected, otherwise the first follow-up is taken (as controls). If defined using olanzapine + clozapine (`olanz_cloz`) case/control status, either olanzapine **or** clozapine follow-ups (whichever came first if a participant had taken both) were selected (as cases) as the follow-up of interest, and if a participant had not been followed for either drug, a low-inducing drug was selected, otherwise the first follow-up is taken (as control). In this way, these two phenotypes would likely be nearly identical. The **only** difference would be for those individuals that had a follow-up other than clozapine which used as the control follow-up in the `olanz` defined phenotype, but had been followed for clozapine at some other point in the dataset. Therefore this individual would have some `drugX` used as the followup period to define the phenotype in the `olonz` analysis, but the `clozapine` follow-up period used in the `olanz_cloz` defined phenotype (in this case `BMI change`). 
+- All phenotypes had an inverse variance normal transformation (IVT) applied to ensure a normal distribution before downstream analyses were performed (see function). 
+```{r echo_ivt, echo = TRUE}
+ivt
+```
+
+## Interaction GWAS.
+
+- The following outcomes were tested in a gene*drug interaction GWAS setting
+```{r interaction_outcome, echo = TRUE}
+interaction_outcome 
+```
+- As above, all phenotpyes were transformed according to IVT before downstream analyses.  
+  - Note that IVT was performed on full data set instead of before sensitivity phenotypes were created.
   - This means that the data used in the sensitivity models is exactly the same as the full models, just with some participants removed.
-- Drug definitions are defined above.
-- According to the drug definition (case/control), there could be some participants with:
+- Drug definitions were defined as described above.
+- According to the drug definition (case/control), there could be participants with:
   - A valid follow-up value if not limited to 6 months.
   - When limited to 6mo, the value is missing (i.e. the first follow-up visit is > `r follow_up_limit` days after the baseline visit), therefore there is no way to define BMI change or slope (as above).
   - Rather than redefine the control value, these participants simply were set to missing. 
@@ -371,36 +383,40 @@ interaction_outcome
 sapply(NA_6mo, length)
 
 ```  
-- Number of models tested = 2 (original/sensitivity model) * length(drugs_tested) * length(interaction_outcome) = `r 2*dim(test_drugs)[1]*length(interaction_outcome)`.
+- Number of models tested = 2 (original/sensitivity model) * length(drugs_tested) * length(interaction_outcome) * 3 ethnic models (European/mixed/meta) = `r 2*dim(test_drugs)[1]*length(interaction_outcome)*3`.
 - Values falling outside 5SD of mean were removed, the number removed  for each drug/outcome combination can be seen below: 
-```{r NA_6mo_count, echo = FALSE}
+```{r NA_6mo_count, echo = FALSE, eval=FALSE}
 num_outliers_removed %>% kable() %>%
   kable_styling(full_width = F, position = "left") 
 ```  
 
-### Subgroup GWAS. 
+## Subgroup GWAS. 
 
-- For each drug category tested, a GWAS was performed in each group (yes/no on drug(s)).
+- For each drug /drug set tested, a GWAS was performed in each group (yes/no on drug(s)).
 ```{r drugs_tested, echo = FALSE}
 test_drugs %>% kable() %>%
   kable_styling(full_width = F, position = "left") 
 ```
 - All outcomes used in interaction (above) were tested as outcomes.
-- Number of models tested = 2 (yes/no on drug) * 2 (original/sensitivity model) * length(drugs_tested) * length(interaction_outcome) = `r 2*2*dim(test_drugs)[1]*length(interaction_outcome)`.
+- Number of models tested = 2 (yes/no on drug) * 2 (original/sensitivity model) * length(drugs_tested) * length(interaction_outcome) * 3 ethnic models (European/mixed/meta) = `r 2*2*dim(test_drugs)[1]*length(interaction_outcome)*3`.
 
-## Covariate definitions.
+# Covariate definitions and adjustment.
 
-*In all models, phenotypes were adjusted for covariates via residualization rather than standard covariate adjustemnt.* 
+## Residualization.
 
-### Linear GWAS.
+- Phenotypes were adjusted for covariates via residualization rather than standard covariate adjustemnt.
+- Ethnic groups were residualized seperately since PCs were calculated in each ethnic group seperately and models were subsequently run for each ethnic group. 
+- Residualization rather than explicity covariate adjustment allows for far fewer input files into `PLINK` and consequently a much faster run time.
 
-- Baseline/caffeine analyses were adjusted for PC1-20, sex, age, age^2.
+## Standard (Linear) GWAS.
+
+- Baseline/caffeine analyses were adjusted for PC1-20, sex, age, age squared.
 - Linear models using follow-up data were adjusted for the same covariates as baseline models plus: 
   - Follow-up time.
   - Follow-up time squared.
   - BMI start.
-- If 6mo variable was used, follow-up time was adjusted accordingly. 
-
+- If 1mo, 3mo or 6mo variable was used, follow-up time was adjusted accordingly. 
+- Variable of interest: **SNP**.
 ```{r linear_covars, echo = TRUE}
 standard_covars 
 baseline_covars 
@@ -409,7 +425,7 @@ baseline_gwas_info %>% kable() %>%
   kable_styling(full_width = F, position = "left") %>% scroll_box(width = "100%", height="500px")
 ```
 
-### Interaction GWAS.
+## Interaction GWAS.
 
 - Interaction GWAS models were adjusted for PC1-20, sex, plus: 
   - Age started drug (varied depending on drug tested)
@@ -417,254 +433,20 @@ baseline_gwas_info %>% kable() %>%
   - Follow-up time.
   - Follow-up time squared.
   - BMI at start.
-- Variable of interest: **SNP*drug_status**
-  
+- Variable of interest: **SNP*drug_status**.
+- To test the interaction variable explicitly:
+  - The following model was applied in `PLINK`: _resid_pheno ~ SNP + drug_status + SNP*drug_status_
+  - Therefore, the phenotype of interest was residualized for all variables above, but the interaction term and it's parts were included explicitly as covariates.
+- Detailed covariate adjustment for each phenotype is shown below:  
 ```{r interaction_covars, echo = TRUE}
 standard_covars 
 interaction_gwas_info %>% kable() %>%
   kable_styling(full_width = F, position = "left") %>% scroll_box(width = "100%", height="500px")
 ```
 
-### Subgroup GWAS. 
+## Subgroup GWAS. 
 
-- Same adjustments as interaction GWAS. 
-
-# Model counts and distributions.
-
-```{r subgroup_covars, echo = FALSE}
-pheno_eths <- read_table2(paste0("data/processed/phenotype_data/", study_name, "_inferred_eths.txt")) %>% mutate(FID = paste0(COUNT, "_", GPCR))
-
-pheno <- GWAS_input$full_pheno %>% full_join(pheno_eths)
-covar <- GWAS_input$full_covar %>% full_join(pheno_eths)
-
-out <- numeric()
-for(i in 1:length(drug_classes)){
-  for(j in 1:length(interaction_outcome)){
-    for(analysis in c("_", "_sensitivity_")){
-      drug_class <- drug_classes[i]
-      outcome <- interaction_outcome[j]
-      outcome_colname <- paste0(outcome,analysis,drug_classes[i])
-      drug_colname <- paste0("high_inducer", analysis, drug_classes[i])
-      
-      pheno_temp <- pheno[which(!is.na(pheno[[outcome_colname]])),] 
-      
-      # pheno_temp <- pheno[which(!is.na(pheno[[outcome_colname]])),] %>% 
-      #   mutate_at(.vars = outcome_colname, .funs= ~ifelse(abs(.)>mean(., na.rm=T)+3*sd(., na.rm=T), NA, .)) %>% ## remove outliers
-      #   
-      
-      drug_eth_count <- table(pheno_temp[[drug_colname]], pheno_temp[["eth"]])
-      sensitivity <- ifelse(analysis=="_", "No", "Yes")
-      n <- dim(pheno_temp)[1]
-      row_temp <- cbind(drug_class, outcome, sensitivity, n,
-                        drug_eth_count["Drug", "CEU"], drug_eth_count["NoDrug", "CEU"],
-                        drug_eth_count["Drug", "MIXED"], drug_eth_count["NoDrug", "MIXED"],
-                        drug_eth_count["Drug", "YRI"], drug_eth_count["NoDrug", "YRI"])
-      
-      out <- rbind(out, row_temp)
-      
-      if(j==1){
-        hist(pheno_temp[[outcome_colname]], main=outcome_colname)
-        #https://www.r-graph-gallery.com/histogram_several_group.html
-      }
-      #summary(pheno_temp[[outcome_colname]]) hist(pheno_temp[[outcome_colname]])
-      
-    }
-  }
-}
-
-colnames(out) <- c("Drug_class", "Interaction_outcome", "Sensitivity_Model", "N",
-                   "Drug_CEU", "NoDrug_CEU", 
-                   "Drug_MIXED", "NoDrug_MIXED", 
-                   "Drug_YRI", "NoDrug_YRI")
-
-out <- out %>% as_tibble()
-out %>% kable() %>%
-  kable_styling(full_width = F, position = "left") %>% scroll_box(width = "100%", height="500px")
-
-```
-
-
-# GWAS results.
-
-## Baseline
-
-## Interaction
-
-```{r interaction_images, eval=FALSE, echo=FALSE, out.width='100%'}
-
-interaction_fig_files <- numeric()
-for(i in 1:length(drug_classes)){
-  for(j in 1:length(interaction_outcome)){
-    for(analysis in c("_", "_sensitivity_")){
-      drug_class <- drug_classes[i]
-      outcome <- interaction_outcome[j]
-      
-      CEU_qq_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, analysis, drug_class, "_CEU_qq.png")
-      MIXED_qq_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_qq.png")
-      META_qq_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_qq.png")
-      
-      
-      CEU_man_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_CEU_manhattan.png")
-      MIXED_man_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_manhattan.png")
-      META_man_file <- paste0("GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_manhattan.png")
-      
-      interaction_fig_files <- c(interaction_fig_files, c(CEU_qq_file, META_qq_file, CEU_man_file, META_man_file))
-      
-      
-      #https://community.rstudio.com/t/show-png-images-consecutively-with-loop-in-r-markdown-chunk-html/45279
-      
-    }
-  }
-}
-
-getwd()
-file.exists(interaction_fig_files)
-
-knitr::include_graphics("analysis/GWAS/interaction/processed/PSYMETAB_GWAS_bmi_change_all_CEU_qq.png")
-
-interaction_fig_files[1:10]
-
-
-knitr::include_graphics(interaction_fig_files[1:5])
-
-
-img<-OpenImageR::readImage(interaction_fig_files[1])
-
-#img<-OpenImageR::readImage("analysis/GWAS/interaction/processed/PSYMETAB_GWAS_bmi_slope_weight_valproate_MIXED_qq.png")
-imageShow(img)
-
-figures <- c("rplot.jpg", "Rlogo.png", "Rlogo2.png")
-file.exists(figures)
-knitr::include_graphics(figures)
-
-#test
-knitr::include_graphics("rplot.jpg")
-
-```
-
-
-## Subgroup 
-
-```{r subgroup_images, eval=F, echo=FALSE}
-
-fig_files <- numeric()
-for(i in 1:length(drug_classes)){
-  for(j in 1:length(interaction_outcome)){
-    for(analysis in c("_", "_sensitivity_")){
-      drug_class <- drug_classes[i]
-      outcome <- interaction_outcome[j]
-      
-      CEU_qq_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, analysis, drug_class, "_CEU_qq.png")
-      MIXED_qq_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_qq.png")
-      META_qq_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_qq.png")
-      
-      
-      CEU_man_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_CEU_manhattan.png")
-      MIXED_man_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_MIXED_manhattan.png")
-      META_man_file <- paste0("../analysis/GWAS/interaction/processed/PSYMETAB_GWAS_", outcome, "_", drug_class, "_META_manhattan.png")
-      
-      fig_files <- c(fig_files, c(CEU_qq_file, META_qq_file, CEU_man_file, META_man_file))
-      
-      
-      #https://community.rstudio.com/t/show-png-images-consecutively-with-loop-in-r-markdown-chunk-html/45279
-      
-    }
-  }
-}
-
-knitr::include_graphics(fig_files)
-  
-#img<-OpenImageR::readImage("analysis/GWAS/interaction/processed/PSYMETAB_GWAS_bmi_slope_weight_valproate_MIXED_qq.png")
-#imageShow(img)
-```
-
-
-
-```{r, eval=F}
-het_out <-
-  fread(
-    paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix,
-      "_", eth, ".", outcome_var, ".het"),
-    header = F,
-    data.table = F
-  )
-
-sig_list <- which(as.numeric(het_out[, 2]) < 5e-08)
-length(sig_list)
-colnames(het_out) <- c("ID", "P_HET")
-result <- cbind(filter, "P_HET" = het_out$P_HET)
-png(
-  paste0("analysis/GWAS/subgroup/", eth, "/", output, "_", suffix, "_", eth, ".", outcome_var, ".het.manhattan.png"),
-  width = 2000,
-  height = 1000,
-  pointsize = 18
-)
-manhattan(result, p = "P_HET", chr = "CHROM")
-dev.off()
-
-png(
-  paste0(
-    "analysis/GWAS/subgroup/", eth, "/", output, "_", suffix, "_", eth, ".", outcome_var, ".het.qq.png"),
-  width = 2000,
-  height = 1000, 
-  pointsize = 18
-)
-qq(result$P_HET)
-dev.off()
-
-
-#### GWAS
-    sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
-    sig_drug <- drug[which(drug$P < 5e-08),]
-    for(data in c("nodrug", "drug"))
-    {
-      gwas_result <- get(data)
-      joint <- reduce(list(gwas_result,freq,info), full_join, by = "ID")
-      sig <- joint %>%
-              mutate_at("P", as.numeric) %>%
-              filter(P < 5e-06) %>%
-              filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
-              filter(R2 > info_threshold)
-
-      joint_maf <- joint %>% filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1- maf_threshold))%>% mutate_at("P", as.numeric)
-      sig <- joint_maf  %>% filter(P < gw_sig)
-      png("man_interaction.png", width=2000, height=1000, pointsize=18)
-      manhattan(joint_maf)
-      dev.off()
-
-      png("interaction_qq2.png", width=2000, height=1000, pointsize=18)
-      qq(joint_maf$P)
-      dev.off()
-
-
-            qq(gwas_result2$P)
-    # sig_nodrug <- sig
-    }
-    
-    gwas_result <- fread(result, data.table=F, stringsAsFactors=F)
-  gwas_result2 <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
-
-
-  #### GWAS
-  sig_nodrug <-nodrug[ which(nodrug$P < 5e-08),]
-  sig_drug <- drug[which(drug$P < 5e-08),]
-
-  for(data in c("nodrug", "drug"))
-  {
-  gwas_result <- get(data)
-  gwas_munge <- gwas_result %>% rename(CHR = "#CHROM") %>% rename(BP = POS) %>% filter(!is.na(P))
-  joint <- reduce(list(gwas_munge,freq,info), full_join, by = "ID")
-  sig <- joint %>%
-          mutate_at("P", as.numeric) %>%
-          filter(P < 5e-06) %>%
-          filter(ALT_FREQS > maf_threshold & ALT_FREQS < (1 - maf_threshold)) %>%
-          filter(R2 > info_threshold)
-  # sig_nodrug <- sig
-  }
-
-
-
-
-```
-
-
+- Same adjustments as interaction GWAS but without drug status (since models are already split by drug status) and interaction term.
+- For subgroup models, residualization was performed in each ethnic group sepeartely (as in models above) but also in each drug category seperately.
+- In other words, phenotypes were residualized in each stratum (i.e. drug case/control subgroups) seperately in case there is any interaction between stratum and covariate. 
+- Variable of interest: **SNP**.
