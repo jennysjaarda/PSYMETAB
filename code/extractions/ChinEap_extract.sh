@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=extract_PSYMETAB_MarcodePieri                # Job name (this name will appear in the queue)
+#SBATCH --job-name=extract_PSYMETAB_ChinEap                # Job name (this name will appear in the queue)
 #SBATCH --chdir=/data/sgg2/jenny/projects/PSYMETAB                 # The Working Directory of the job
 #SBATCH --ntasks=1                                                 # Run on a single core
 #SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
@@ -9,8 +9,8 @@
 #SBATCH --partition=sgg                                            # runs on the sggg nodes
 
 project_dir="/data/sgg2/jenny/projects/PSYMETAB"
-input=$projects/PSYMETAB/data/raw/extractions/MarcodePieri
-output=$projects/PSYMETAB/data/processed/extractions/MarcodePieri
+input=$projects/PSYMETAB/data/raw/extractions/ChinEap
+output=$projects/PSYMETAB/data/processed/extractions/ChinEap
 QC_dir=$project_dir/analysis/QC
 #qc_data=${QC_dir}/15_final_processing/CEU/PSYMETAB_GWAS.CEU
 #pc_data=${QC_dir}/15_final_processing/final_pca/CEU/pcs.PSYMETAB_GWAS_CEU_unrelated.txt
@@ -51,4 +51,4 @@ do
 
 done
 
-#sbatch $projects/PSYMETAB/code/extractions/MarcodePieri_extract.sbatch
+#sbatch $projects/PSYMETAB/code/extractions/ChinEap_extract.sbatch
