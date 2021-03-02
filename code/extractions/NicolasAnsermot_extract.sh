@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=extract_PSYMETAB_NicolasAnsermot                             # Job name (this name will appear in the queue)
-#SBATCH --chdir=/data/sgg2/jenny/projects/PSYMETAB          # The Working Directory of the job
+#SBATCH --job-name=extract_PSYMETAB_NicolasAnsermot                # Job name (this name will appear in the queue)
+#SBATCH --chdir=/data/sgg2/jenny/projects/PSYMETAB                 # The Working Directory of the job
 #SBATCH --ntasks=1                                                 # Run on a single core
 #SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
 #SBATCH --output=data/processed/extractions/%x.out                 # Standard output and error log (%j: job allocation number)
@@ -35,6 +35,10 @@ do
   if [ ! -d "${output}/${out_name}" ] ; then
     mkdir ${output}/${out_name}
     sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data $QC_dir $input_chip
+  else
+    echo "All SNPs lists have already been processed, there are no new files to process."
+    echo "If the code has been modified, delete the folder located here: "${output}/${out_name}
+    echo "and the code will rerun."
   fi
 
 done
