@@ -13,7 +13,7 @@ template_file=$code_directory/template_extract.sh
 
 requestor_folders=`ls -d data/raw/extractions/*`
 
-for requestor_folder in $requestor_list
+for requestor_folder in $requestor_folders
 
 do
 
