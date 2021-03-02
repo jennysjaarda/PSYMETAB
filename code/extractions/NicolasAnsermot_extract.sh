@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=extract_PSYMETAB_NicolasAnsermot                             # Job name (this name will appear in the queue)
-#SBATCH --workdir=/data/sgg2/jenny/projects/PSYMETAB          # The Working Directory of the job
+#SBATCH --chdir=/data/sgg2/jenny/projects/PSYMETAB          # The Working Directory of the job
 #SBATCH --ntasks=1                                                 # Run on a single core
 #SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
 #SBATCH --output=data/processed/extractions/%x.out                 # Standard output and error log (%j: job allocation number)
@@ -36,7 +36,7 @@ do
     mkdir ${output}/${out_name}
     sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data $QC_dir $input_chip
   fi
-  
+
 done
 
 
