@@ -15,20 +15,15 @@ source("code/settings.R")
 
 *provided from iGE3*
 
-## General information
+## Genotype data
 - Files received from: Mylene Docquier (Mylene.Docquier@unige.ch), iGE3 Genomics Platform Manager, University of Geneva
 - ftp server details:
   - host: sftp://129.194.88.17
   - username: 080219CE
   - password: chinjennys
-- Genotype data received in genomestudio format on August 28, 2019; for processing and converting to PLINK format see docs/miscellaneous/data_processing.md
-
-## Genotype data
-- Genotype data found in data/raw/genotypes
-- Each folder contains:
-  - Initial data provided from Mylene in genomestudio format, with the original folder name ('XXX/').
-  - Cluster files in genomestudio format (see docs/miscellaneous/data_processing.md), and named 'XXX_cluster/'.
-  - PLINK files exported from genomestudio.
+- Genotype data received in genomestudio format on August 28, 2019; for processing and converting to PLINK format see [data processing in GenomeGtudio](data_processing_in_genomestudio.html)
+- After processing, genotype data was moved to the `hpc1` servers and save in data/raw/PLINK_091019_0920
+- Folder cotanains PLINK files exported from genomestudio.
 
 ## Miscellaneous GSA information provided in the following files:
 
@@ -42,6 +37,7 @@ source("code/settings.R")
 8. GSPMA24v1_0-A_4349HNR_Samples.egt
 
 ### Details
+
 - Files 1 and 2 appear to be identical and correspond to strand illumina strand information, same file can be found [here](http://glimdna.org/assets/gsamd-24v2-0_20024620_a1.zip).
 - xlsx files contain 2 tabs: "Coverage Summary" and "GSAMD-24v2-0_A1-XXX-GeneAnnota"
 - bpm file corresponds to manifest file for use in genomestudio. Manifest files provide a description of the SNP or probe content on a standard BeadChip or in an assay product.
@@ -49,11 +45,12 @@ source("code/settings.R")
 - all saved in data/reference_files
 
 ## Chip details from Illumina
+
 - Files received from: Fe Magbanua (techsupport@illumina.com),Technical Applications Scientist, Technical Support, Illumina
 - GSAMD-24v2-0_20024620_A4_StrandReport_FDT.txt: strand report build38 (build37 not available).
 - GSAMD-24v2-0_20024620_A1_b151_rsids.txt: loci to rsid conversion file build37.
 - GSAMD-24v2-0_20024620_A4_b151_rsids.txt: loci to rsid conversion file build38.
-- all saved in data/reference_files (copied using FileZilla)
+- all saved in data/raw/reference_files (copied using FileZilla)
 
 ## Strand files from Welcome Centre
 - The data for each chip and genome build combination are freely downloadable from the links localted [here](https://www.well.ox.ac.uk/~wrayner/strand/), each zip file contains three files, these are:
@@ -79,7 +76,14 @@ source("code/settings.R")
     - GSA_UPPC_20023490X357589_A1_custom_only-b37-strand.zip
   - Zipped strand files were copied to SGG server (${project_dir}/data/raw/reference_files/) and subsequently unzipped and used in QC (only b37 files was needed).
 
+## Miscellaneous files
+
+- Saved under `data/raw/
+- `ID_key.csv`: a copy of GPCR to sampleID coversion (**confidential!!**).
+- `custom_SNP_list.xlsx`: provided from Aurelie, a list of custom SNPs which were added to the genotyping panel. 
+
 ## Phenotype data
+
 ### Sex/ethnicity data
 - Provided by Celine (via email) for each batch on July 18, 2019: `GSA_sex-ethnicity.xlsx`.
 - Used for genetic quality control. 
@@ -126,7 +130,7 @@ mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex
   
   >I spotted the problem, it was a mismatch in the ambulatory codes as some of them are written XXXAMB instead of AMBXXX or XXX+letter. I will send Jenny a new version of the file with paying attention to these codes  if ok for you?
   
-- A New dataset was provided by Cliare on May 7, 2020: `CAF_Sleep_Jenny_07_05_2020_CG.xlsx`.
+- A New dataset was provided by Claire on May 7, 2020: `CAF_Sleep_Jenny_07_05_2020_CG.xlsx`.
   - There were still issues with this dataset (as per email on 07/07/2020):
   
   >Il y a toujours un petit problème avec les IDs : GAWZCNNL et WIFRYNSK. Je mets les problèmes en dessous. Je crois que deux participants ont reçu le meme GEN ID. Peut-être il y avait encore un problème avec le merge ? 
@@ -188,6 +192,7 @@ mv data/raw/phenotype_data/GSA_sex-ethnicity.xlsx data/raw/phenotype_data/QC_sex
   
   - The following line was added to the script to manually change this entry: `caffeine_raw %>% mutate(age=replace(age, GEN=="WIFRYNSK" & as.Date(Date)=="2009-01-07", 21)`
 
+- Additional variables were provided from Nermine on 09/06/2020: `CAF_Sleep_Jenny_09_06_2020.xlsx` 
 
 
   

@@ -22,20 +22,48 @@ See [Data sources](data_sources.html) for details on data origins.
 See [Setup](setup.html) for details on setting up the analyses for this project.
 
 
-**Result shortcuts**
+**Useful shortcuts**
 
-1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html)
-2. [Genotype quality control](genetic_quality_control.html) and [phenotype quality control](pheno_quality_control.html)
-3. [Imputation report](GWAS.html)
-4. [GWAS]()
-
+1. [Overview of processing in genomestudio](data_processing_in_genomestudio.html).
+2. [Genotype quality control](genetic_quality_control.html) and [phenotype quality control](pheno_quality_control.html).
+3. [Extraction procedure]()
+4. [GWAS results](GWAS.html)
+5. [Drake plants](plans.html)
 
 **Useful papers**
 
 **Notes**
-  - [Creating custom cluster files](create_custom_cluster_files.html)
+
+- [Creating custom cluster files](create_custom_cluster_files.html)
 
 Powered by [drake](https://github.com/ropensci/drake) + [workflowr](https://github.com/jdblischak/workflowr)
 
-### Acknowledgements
+## Current Analyses 
+
+GWAS in PSYMETAB (our study)
+- Run within various subsets. 
+- Subsets were defined based on drug use, for various drug groups of interest (we had 9 groups of drugs that we analyzed).
+- Phenotypes included various measures of the evolution of BMI: BMI change, BMI slope, weighted slope for SE, etc. 
+- Restricted to only European subset.
+- Phenotypes were residualized for: age, age^2, sex, PC1-20, follow-up time, follow-up time^2, and baseline BMI (Zoltan: we discussed this last time, but to again clarify - should follow-up time be included, it seems redundant if we are analyzing slope which already considers time between BMI measures).
+
+GWAS in UKBB 
+- Phenotype: BMI slope.
+- GWAS restricted to participants having at least 2 BMI measures restricted to unrelated, British individuals. 
+- Phenotype was first residualized for: age, sex, PC1-40, and baseline BMI 
+
+COMPARISON BETWEEN PSYMETAB and UKBB: 
+- In PSYMETAB, I took only endpoints involving slope since this would represent the best comparison to UKBB. 
+- I extracted nominally significant hits in PSYMETAB (p < 5e-06) (as there were very few less with p< 5e-08).
+- For these SNPs, I compared with UKBB using a standard heterogeneity statistic. 
+- Limited to only GW-sig results based on het p-value. 
+- Identified 68 GW-significant SNPs (i.e. SNPs that show significant difference between some PSYMETAB subset and UKBB based on a BMI slope measure, for only those SNPs in PSYMETAB that have p < 5e-06). 
+
+1) Test top SNPs from our GWAS (within drug subgroups) with BMI in UKBB within a group defined as under the same drug as the association in our psychiatric cohort (using drug information data in UKBB). Note that in contrast to our psychiatric cohort, we don't have information for how long a UKBB participant has been taking a specific drug. 
+2) To justify (1), ensure that BMI is a good proxy for change in BMI (i.e. the phenotype used in the psychiatric cohort), correlate BMI at end of follow-up with BMI slope in our psychiatric cohort.
+3) For rare (0.01 < MAF < 0.05) SNPs, perform permutation test (i.e. shuffle phenotype ~1M times and perform same association: pheno ~ SNP + covars) to see if the effect found with the real data (i.e. unshuffled phenotype) is significantly larger than using the 1M shuffled phenotypes and not just some artifact of low AF.
+4) Meta-analyze GWAS results across drug subgroups and use Cochran's Q test (i.e. test for heterogeneity) to determine effects differ across subgroups. 
+
+## Acknowledgements
+
 This work has been supported by the [Swiss National Science Foundation](http://www.snf.ch/en/funding/Pages/default.aspx).

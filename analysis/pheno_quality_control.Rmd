@@ -146,8 +146,13 @@ table(flagged_rows$problem_category)
   5. **Month mismatch**: date between two follow-ups is > 90 days off based on the `Date` and `Mois` column, these may not be as big of a problem - but I have still flagged them (for e.g. say participant has the following entries: month 0 on January 1, and month 3 on September 1. The number of days between those two dates is 244 which is greater than 3 - the month follow-up it was supposed to be based on the `Mois` column - times 30 + 90 days, in this case 3*30 + 90 = 180. Since 244 is greater than 180, this follow-up for at the month 3 mark would be flagged). Note that I chose 90 days as an arbitrary cutoff. There are 162 individuals in this category/206 rows, e.g. _YSFHMSHX_ on 07-07-2018.
   6. **Drug mis-match**: two drugs listed for the same `GEN` and `PatientsRecNum`, 25 individuals, not sure the number of rows as it's unclear which ones are correct, e.g. _BPOCXXYD_ has both aripiprazole and amisulpride listed for `PatientsRecNum` 18.
 - Sent `data/raw/phenotype_data/PHENO_GWAS_160320_flagged_rows.txt` to Celine for revision (along with help of Claire, Marianna and Nermine). 
-- New data received on 16/04/2020: `PHENO_GWAS_160420.xlsx` (processed according to description at [Data Sources page](data_sources.html)). 
-- Procedure above was repeated to see if all problems were solved. 
+- New data received on 16/04/2020: `PHENO_GWAS_160420.xlsx` (processed according to description at [Data Sources page](data_sources.html)):
+- There were some rows that were flagged, but were not errors (therefore they were not changed), it was mainly for (according to Celine's response 17/04/2020):
+  - Drug mismatch: if you have risperidone and paliperidone, it is considered as he same drug (*since corrected this flag*).
+  - Month mismatch: for all patients whose data came from an annual check-up, previously entered in a different database, the value in var month represents annual visits.
+  - Some month mismatch/discrepancy could not be corrected… but we checked that the dates were correct for those, so you can rely on dates to calculate the duration.
+  - For all sex mismatch, there should be no more mistakes… tell me if you find more. And we filled all the AP1 and date that we could find.
+- Procedure above was repeated to see how many problems remained. 
 
 ```{r sort_problems2, eval=T, echo=T}
 
