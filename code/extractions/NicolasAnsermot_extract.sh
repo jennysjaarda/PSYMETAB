@@ -36,8 +36,9 @@ do
     mkdir ${output}/${out_name}
     sh code/extractions/extract_snps.sh $file $output $qc_data $pc_data $QC_dir $input_chip
   else
-    echo "All SNPs lists have already been processed, there are no new files to process."
-    echo "If the code has been modified, delete the folder located here: "${output}/${out_name}
+    echo "The following SNP list has already been processed: "$file
+    echo "If the code has been modified, delete the folder located here:"
+    echo ${output}/${out_name}
     echo "and the code will rerun."
   fi
 
