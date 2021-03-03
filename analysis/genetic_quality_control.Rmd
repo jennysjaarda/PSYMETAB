@@ -580,3 +580,98 @@ for(col_type in c("genetic", "reported"))
 
 \newline
 
+## 13. HWE check.
+
+1. Using imputed data from #10, remove duplicates (from #11).
+2. Split data into separate ethnicity files.
+3. Within each ethnic group:
+    - Remove related IDs (from #11).
+    - If remaing n is `< 100` ignore.
+    - If remaining n is `> 100`, evaluate HWE for each variant.
+4. Identify SNPs failing HWE in at least one ethnic group.
+5. Remove HWE violations (`p < 0.00000001`).
+    - `r countLines(paste0("analysis/QC/13_hwecheck/", study_name, ".hardy.sig.unique"))` SNPs removed.
+    - `r countLines(paste0("analysis/QC/13_hwecheck/", study_name, ".hwecheck.step13.pvar"))[1] - 14` SNPs remaining.
+
+\newline
+
+## 14. MAF check.
+1. Using HWE filtered file (from #11 - which has duplicates removed), split data in separate ethnicity files.
+2. Within each ethnic group with n > 100 (related individuals removed), calculate allele frequency.
+3. Filter to only SNPs that have at least one MAF > threshold (0.01).
+    - `r countLines(paste0("analysis/QC/14_mafcheck/", study_name, "_low_maf_snps.txt"))` SNPs removed.
+    - `r countLines(paste0("analysis/QC/14_mafcheck/", study_name, ".mafcheck.step14.pvar"))[1] - 14` SNPs remaining.
+
+\newline
+
+# Step 6: Final processing.
+
+**Source code for Step 5 can be found at: [code/final_processing.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/final_processing.sh).**
+
+## 15. Final processing.
+
+1. Seperate into ethnic groups with n > 100 and one file with all samples included (using data from #12).
+2. Convert each ethnic subset and full file to bgen format (some programs require this format).
+3. Convert each ethnic subset and full file to vcf format (some programs require this format).
+4. Create imputation info file (could be used to further filter SNPs later).
+5. Within each ethnic specific file, calculate final intra-ethnics PCs:
+    1. Extract ethnicity samples from typed file with duplicates removed (from #12).
+    2. Re-clean data within each ethnicity before final PCA (as before, using the followings flags: `--geno 0.1`, `--maf 0.05`, `--hwe 5e-4`).
+    3. Prune, excluding related individuals (as before, using: `--indep-pairwise 50 5 0.2`).
+        - PLINK2 will give an error if there are less than 50 samples to caclulate LD estimates. 
+        - This can be overriden `--bad-ld`, but they suggest that *this is almost always a bad idea*. 
+        - Of the five ethnic groups created in #12, the following groups did not proceed past this step due to insufficient sample size: 
+    ```{r eth_size, echo = FALSE}
+    
+    for (eth in eths){
+      pca_exists <- FALSE
+      n <- NA
+      if(file.exists(file.path(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))){
+        pca_exists <- TRUE
+        
+      } else {
+        cat("\n \n")
+        cat(paste0("PCs were not successfully computed for ethnic group: ", eth, ". \n"))
+        cat("The indep log file reads: \n \n")
+        print(readLines(file.path(pc_dir, eth, paste0(study_name,".",eth,".indep.log"))))
+        cat("\n--------------------------------------------------------------------------- \n")
+      }
+      
+    }
+
+    
+    ```
+    4. Create an unrelated set for calculating PCs with same set of pruned SNPs.
+    5. Create a full set based on pruning in unrelated samples.
+    6. Compute PCA components in unrelated set.
+    7. Project onto full set.
+
+*In general, clean, ethnic specific imputed data were used for analyses (from #15.1), and ethnic-specific PCs were used as adjustments (from #15.5).*
+
+
+Run the following commands to compress some large intermediate files.
+
+```{r, engine = 'bash', eval = FALSE}
+project_dir="/data/sgg2/jenny/projects/PSYMETAB"
+output_dir=$project_dir/analysis/QC
+
+cd $output_dir/06_imputation_get
+mkdir archive
+tar --exclude='*.info.gz' --exclude qcreport.html --exclude snps-excluded.txt --exclude archive -czvf archive/06_imputation_get.tar.gz * --remove-files
+
+cd $output_dir
+mkdir archive
+tar --exclude='*.psam' --exclude='*.pvar' -czvf 10_merge_imputed.tar.gz 10_merge_imputed --remove-files
+
+cd $output_dir/13_hwecheck
+mkdir archive
+tar --exclude='*.hardy.sig.unique' --exclude '*.hwecheck.step13.pvar' --exclude archive -czvf archive/13_hwecheck.tar.gz * --remove-files
+
+cd $output_dir/14_mafcheck
+mkdir archive
+tar --exclude='*_low_maf_snps.txt' --exclude '*/*.afreq' --exclude '*.mafcheck.step14.pvar' --exclude archive -czvf archive/14_mafcheck.tar.gz * --remove-files
+
+```
+
+If you need to unzip these files, it can be done as follows: `tar xvzf file.tar.gz`
+
