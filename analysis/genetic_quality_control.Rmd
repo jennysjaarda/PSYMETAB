@@ -421,3 +421,68 @@ imputed_var
 1. Convert fileset from step #8 back to `vcf` as there is no merge function in plink (using the flag `--recode vcf id-paste=iid vcf-dosage=HDS`).
 2. Merge using `bcftools concat`.
 3. Convert back to pgen using `plink2 --vcf <output-name> dosage=HDS`.
+
+\newline
+## 11. Relatedness (using data from #10).
+
+1. Calculate missingness.
+2. Remove subjects and individuals with missingness >10%.
+    - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, ".filter.vmiss"))[1] - 1` variants removed.
+    - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, ".filter.smiss")) - 1` individuals removed.
+3. Compute KING table (`--make-king-table`).
+4. Identify duplicate individuals using kinship threshold > 0.35 as recommended by [PLINK](https://www.cog-genomics.org/plink/2.0/distance#make_king).
+    ```{r duplicates2, echo = FALSE}
+  t <- read.table(  paste0("analysis/QC/11_relatedness/", study_name, ".duplicates"))
+  colnames(t) <- c('#FID1', 'ID1', 'FID2', 'ID2', 'NSNP', 'HETHET', 'IBS0', 'KINSHIP')
+  kable(t) %>%
+    kable_styling() %>%
+    scroll_box(width = "100%")
+    ```
+    - A set of `r dim(t)[1]` duplicate particpants were found that were not expected.
+    - These duplicates needed to be manually checked in database with Celine (see below).
+5. Manually determine cause for duplicates.
+    - These pairs of individuals were found to be in both studies under different IDs (PSYMETAB and Severines):
+
+    ```{r eval=FALSE}
+# 139CSM  HLHILECG
+# 184CSM  WXPQPUWI
+# 198CSM  CHMLAUKH
+# 202CSM  OQLLRBMM
+# 274UAS  YGGZRBYJ
+# JO001 UUHDCMNL
+# S008  YLXVRYDT
+# S092  0021GE
+    ```
+    - These pairs of individuals are duplicates but with different codes and we are keeping the one on the right:
+    ```{r eval=FALSE}
+# ABDJGAXW  ZXDVAJUD
+# JO280 JO276
+# S093  JO426
+    ```
+    - These pair of individuals are not the same and the genetic info matches the one on the right (remove left):
+    ```{r eval=FALSE}
+# JNQSZGGL	XTVNZTRY
+# WIELRZDD	FJNJEXCM
+# OINDBCQM	SONUEGRB
+    ```
+    - These pair of individuals could not be properly sorted and are therefore both being deleted:
+    ```{r eval=FALSE}
+# S060	0062GE
+# 0030GE	SJJCZOXT
+    ```
+6. Create file of duplicates to be removed (based on above criteria).
+7. Remove duplicates.
+    - `r countLines(paste0("analysis/QC/10_merge_imputed/", study_name, ".psam"))[1] - 1` individuals originally.
+    - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, ".duplicates2.FID_IID.txt"))[1]` individuals removed.
+    - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, "_remove_dups.psam")) - 1` individuals remaining.
+8. Recalculate kinship and identify remaining related individauls using kinship threshold > 0.0884) as recommended by [KING authors](http://people.virginia.edu/~wc9c/KING/manual.html).
+    - `#r countLines(paste0("analysis/QC/10_merge_imputed/", study_name, "2.related.filter.smiss"))[1] - 1` related pairs identified.
+    - `#r countLines(paste0("analysis/QC/10_merge_imputed/", study_name, "2.duplicates"))[1] - 1` duplicate pairs identified.
+9. Determine maximal set of unrelated individuals based on kinship results.
+    - This was done using personal script (`code/qc/relatedness_filter.r`).
+    - PLINK does not guarantee maximum number of samples (see [here](https://www.cog-genomics.org/plink/2.0/distance#make_king): *Relationship-based pruning*), where it states: *PLINK tries to maximize the final sample size, but this maximum independent set problem is NP-hard, so we use a greedy algorithm which does not guarantee an optimal result.*
+10. Remove related individuals *(note that if using mixed model design we can include all the related IDs, but remove the problematic duplicates)*.
+    - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))` related IDs removed.
+    - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, ".relatedness.step11.psam")) - 1` individuals remaining.
+
+\newline
