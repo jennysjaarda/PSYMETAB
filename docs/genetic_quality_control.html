@@ -25,6 +25,7 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -565,10 +566,10 @@ relative
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreee98e3a06d5c1eabd6d170dd2ddf00c72d3664f90targetblanke98e3a0a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/e98e3a06d5c1eabd6d170dd2ddf00c72d3664f90" target="_blank">e98e3a0</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree105ad4ff87efc2e2f9053978abef03ed4c3d5155targetblank105ad4fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/105ad4ff87efc2e2f9053978abef03ed4c3d5155" target="_blank">105ad4f</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreee98e3a06d5c1eabd6d170dd2ddf00c72d3664f90targetblanke98e3a0a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree105ad4ff87efc2e2f9053978abef03ed4c3d5155targetblank105ad4fa" class="panel-collapse collapse">
 <div class="panel-body">
   
 
@@ -584,11 +585,14 @@ Ignored files:
     Ignored:    analysis/._data_processing_in_genomestudio.Rmd
     Ignored:    analysis/._quality_control.Rmd
     Ignored:    analysis/GWAS/
+    Ignored:    analysis/GWAS_results.knit.md
+    Ignored:    analysis/GWAS_results.utf8.md
     Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
     Ignored:    analysis/Rlogo2.png
     Ignored:    analysis/figure/
     Ignored:    analysis/rplot.jpg
+    Ignored:    analysis/site_libs/
     Ignored:    data/processed/
     Ignored:    data/raw/
     Ignored:    packrat/lib-R/
@@ -667,6 +671,7 @@ Untracked files:
     Untracked:  ukbb_analysis.log
 
 Unstaged changes:
+    Modified:   analysis/plans.Rmd
     Modified:   cache_log.csv
     Modified:   post_impute.log
 
@@ -707,6 +712,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/105ad4ff87efc2e2f9053978abef03ed4c3d5155/analysis/genetic_quality_control.Rmd" target="_blank">105ad4f</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Testing genetic QC Rmd
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/551bdb5fc474babbcee8072ccfef9900bf2658c2/analysis/genetic_quality_control.Rmd" target="_blank">551bdb5</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+testing genetics_qc
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/843aad9490996ce565a800222f1774330164c0d0/docs/genetic_quality_control.html" target="_blank">843aad9</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1122,12 +1178,15 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 </ul></li>
 </ol>
 <p>2. Download imputation, using password from email retrieve the following files: - <a href="generated_reports/qcreport.html">QC report</a>. - QC stats. - Logs. - Imputation results. </p>
-<pre><code> [1] &quot;archive&quot;       &quot;chr1.info.gz&quot;  &quot;chr10.info.gz&quot; &quot;chr11.info.gz&quot;
- [5] &quot;chr12.info.gz&quot; &quot;chr13.info.gz&quot; &quot;chr14.info.gz&quot; &quot;chr15.info.gz&quot;
- [9] &quot;chr16.info.gz&quot; &quot;chr17.info.gz&quot; &quot;chr18.info.gz&quot; &quot;chr19.info.gz&quot;
-[13] &quot;chr2.info.gz&quot;  &quot;chr20.info.gz&quot; &quot;chr21.info.gz&quot; &quot;chr22.info.gz&quot;
-[17] &quot;chr3.info.gz&quot;  &quot;chr4.info.gz&quot;  &quot;chr5.info.gz&quot;  &quot;chr6.info.gz&quot; 
-[21] &quot;chr7.info.gz&quot;  &quot;chr8.info.gz&quot;  &quot;chr9.info.gz&quot; </code></pre>
+<pre><code> [1] &quot;archive&quot;           &quot;chr1.info.gz&quot;      &quot;chr10.info.gz&quot;    
+ [4] &quot;chr11.info.gz&quot;     &quot;chr12.info.gz&quot;     &quot;chr13.info.gz&quot;    
+ [7] &quot;chr14.info.gz&quot;     &quot;chr15.info.gz&quot;     &quot;chr16.info.gz&quot;    
+[10] &quot;chr17.info.gz&quot;     &quot;chr18.info.gz&quot;     &quot;chr19.info.gz&quot;    
+[13] &quot;chr2.info.gz&quot;      &quot;chr20.info.gz&quot;     &quot;chr21.info.gz&quot;    
+[16] &quot;chr22.info.gz&quot;     &quot;chr3.info.gz&quot;      &quot;chr4.info.gz&quot;     
+[19] &quot;chr5.info.gz&quot;      &quot;chr6.info.gz&quot;      &quot;chr7.info.gz&quot;     
+[22] &quot;chr8.info.gz&quot;      &quot;chr9.info.gz&quot;      &quot;qcreport.html&quot;    
+[25] &quot;snps-excluded.txt&quot;</code></pre>
 <pre><code>   Chr Num imputed variants
 1    1              3069931
 2    2              3392237
@@ -1242,6 +1301,521 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 <li>Merge using <code>bcftools concat</code>.</li>
 <li>Convert back to pgen using <code>plink2 --vcf &lt;output-name&gt; dosage=HDS</code>.</li>
 </ol>
+<p>## 11. Relatedness (using data from #10).</p>
+<ol style="list-style-type: decimal">
+<li>Calculate missingness.</li>
+<li>Remove subjects and individuals with missingness &gt;10%.
+<ul>
+<li>1184212 variants removed.</li>
+<li>0 individuals removed.</li>
+</ul></li>
+<li>Compute KING table (<code>--make-king-table</code>).</li>
+<li>Identify duplicate individuals using kinship threshold &gt; 0.35 as recommended by <a href="https://www.cog-genomics.org/plink/2.0/distance#make_king">PLINK</a>.
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; "><table class="table" style="margin-left: auto; margin-right: auto;">
+     <thead>
+      <tr>
+       <th style="text-align:left;"> 
+#FID1
+</th>
+       <th style="text-align:left;"> 
+ID1
+</th>
+       <th style="text-align:left;"> 
+FID2
+</th>
+       <th style="text-align:left;"> 
+ID2
+</th>
+       <th style="text-align:right;"> 
+NSNP
+</th>
+       <th style="text-align:right;"> 
+HETHET
+</th>
+       <th style="text-align:right;"> 
+IBS0
+</th>
+       <th style="text-align:right;"> 
+KINSHIP
+</th>
+      </tr>
+     </thead>
+    <tbody>
+      <tr>
+       <td style="text-align:left;"> 
+1353_WIELRZDD
+</td>
+       <td style="text-align:left;"> 
+1353_WIELRZDD
+</td>
+       <td style="text-align:left;"> 
+1140_FJNJEXCM
+</td>
+       <td style="text-align:left;"> 
+1140_FJNJEXCM
+</td>
+       <td style="text-align:right;"> 
+26566719
+</td>
+       <td style="text-align:right;"> 
+0.0685663
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499473
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+1457_ABDJGAXW
+</td>
+       <td style="text-align:left;"> 
+1457_ABDJGAXW
+</td>
+       <td style="text-align:left;"> 
+104_ZXDVAJUD
+</td>
+       <td style="text-align:left;"> 
+104_ZXDVAJUD
+</td>
+       <td style="text-align:right;"> 
+27026535
+</td>
+       <td style="text-align:right;"> 
+0.0515445
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499956
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+1821_0030GE
+</td>
+       <td style="text-align:left;"> 
+1821_0030GE
+</td>
+       <td style="text-align:left;"> 
+628_SJJCZOXT
+</td>
+       <td style="text-align:left;"> 
+628_SJJCZOXT
+</td>
+       <td style="text-align:right;"> 
+27036506
+</td>
+       <td style="text-align:right;"> 
+0.0520661
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499937
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+1937_OINDBCQM
+</td>
+       <td style="text-align:left;"> 
+1937_OINDBCQM
+</td>
+       <td style="text-align:left;"> 
+1936_SONUEGRB
+</td>
+       <td style="text-align:left;"> 
+1936_SONUEGRB
+</td>
+       <td style="text-align:right;"> 
+27021954
+</td>
+       <td style="text-align:right;"> 
+0.0516029
+</td>
+       <td style="text-align:right;"> 
+0.0000001
+</td>
+       <td style="text-align:right;"> 
+0.499964
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2020_JNQSZGGL
+</td>
+       <td style="text-align:left;"> 
+2020_JNQSZGGL
+</td>
+       <td style="text-align:left;"> 
+1305_XTVNZTRY
+</td>
+       <td style="text-align:left;"> 
+1305_XTVNZTRY
+</td>
+       <td style="text-align:right;"> 
+26975108
+</td>
+       <td style="text-align:right;"> 
+0.0526075
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499941
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2084_JO001
+</td>
+       <td style="text-align:left;"> 
+2084_JO001
+</td>
+       <td style="text-align:left;"> 
+220_UUHDCMNL
+</td>
+       <td style="text-align:left;"> 
+220_UUHDCMNL
+</td>
+       <td style="text-align:right;"> 
+27017927
+</td>
+       <td style="text-align:right;"> 
+0.0512845
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499938
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2148_JO280
+</td>
+       <td style="text-align:left;"> 
+2148_JO280
+</td>
+       <td style="text-align:left;"> 
+2146_JO276
+</td>
+       <td style="text-align:left;"> 
+2146_JO276
+</td>
+       <td style="text-align:right;"> 
+27011983
+</td>
+       <td style="text-align:right;"> 
+0.0519508
+</td>
+       <td style="text-align:right;"> 
+0.0000001
+</td>
+       <td style="text-align:right;"> 
+0.499942
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2187_S008
+</td>
+       <td style="text-align:left;"> 
+2187_S008
+</td>
+       <td style="text-align:left;"> 
+1298_YLXVRYDT
+</td>
+       <td style="text-align:left;"> 
+1298_YLXVRYDT
+</td>
+       <td style="text-align:right;"> 
+27014700
+</td>
+       <td style="text-align:right;"> 
+0.0535244
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499975
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2239_S060
+</td>
+       <td style="text-align:left;"> 
+2239_S060
+</td>
+       <td style="text-align:left;"> 
+1851_0062GE
+</td>
+       <td style="text-align:left;"> 
+1851_0062GE
+</td>
+       <td style="text-align:right;"> 
+26706944
+</td>
+       <td style="text-align:right;"> 
+0.0543625
+</td>
+       <td style="text-align:right;"> 
+0.0000003
+</td>
+       <td style="text-align:right;"> 
+0.499584
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2271_S092
+</td>
+       <td style="text-align:left;"> 
+2271_S092
+</td>
+       <td style="text-align:left;"> 
+1813_0021GE
+</td>
+       <td style="text-align:left;"> 
+1813_0021GE
+</td>
+       <td style="text-align:right;"> 
+26980867
+</td>
+       <td style="text-align:right;"> 
+0.0534746
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499881
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2272_S093
+</td>
+       <td style="text-align:left;"> 
+2272_S093
+</td>
+       <td style="text-align:left;"> 
+2174_JO426
+</td>
+       <td style="text-align:left;"> 
+2174_JO426
+</td>
+       <td style="text-align:right;"> 
+27029496
+</td>
+       <td style="text-align:right;"> 
+0.0521779
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499968
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2637_139CSM
+</td>
+       <td style="text-align:left;"> 
+2637_139CSM
+</td>
+       <td style="text-align:left;"> 
+2302_HLHILECG
+</td>
+       <td style="text-align:left;"> 
+2302_HLHILECG
+</td>
+       <td style="text-align:right;"> 
+27037160
+</td>
+       <td style="text-align:right;"> 
+0.0520094
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499967
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2678_184CSM
+</td>
+       <td style="text-align:left;"> 
+2678_184CSM
+</td>
+       <td style="text-align:left;"> 
+2042_WXPQPUWI
+</td>
+       <td style="text-align:left;"> 
+2042_WXPQPUWI
+</td>
+       <td style="text-align:right;"> 
+27013112
+</td>
+       <td style="text-align:right;"> 
+0.0525789
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499924
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2689_198CSM
+</td>
+       <td style="text-align:left;"> 
+2689_198CSM
+</td>
+       <td style="text-align:left;"> 
+509_CHMLAUKH
+</td>
+       <td style="text-align:left;"> 
+509_CHMLAUKH
+</td>
+       <td style="text-align:right;"> 
+26954876
+</td>
+       <td style="text-align:right;"> 
+0.0518025
+</td>
+       <td style="text-align:right;"> 
+0.0000002
+</td>
+       <td style="text-align:right;"> 
+0.499894
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2693_202CSM
+</td>
+       <td style="text-align:left;"> 
+2693_202CSM
+</td>
+       <td style="text-align:left;"> 
+1955_OQLLRBMM
+</td>
+       <td style="text-align:left;"> 
+1955_OQLLRBMM
+</td>
+       <td style="text-align:right;"> 
+27019285
+</td>
+       <td style="text-align:right;"> 
+0.0515285
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499944
+</td>
+      </tr>
+      <tr>
+       <td style="text-align:left;"> 
+2760_274UAS
+</td>
+       <td style="text-align:left;"> 
+2760_274UAS
+</td>
+       <td style="text-align:left;"> 
+295_YGGZRBYJ
+</td>
+       <td style="text-align:left;"> 
+295_YGGZRBYJ
+</td>
+       <td style="text-align:right;"> 
+27047919
+</td>
+       <td style="text-align:right;"> 
+0.0523141
+</td>
+       <td style="text-align:right;"> 
+0.0000000
+</td>
+       <td style="text-align:right;"> 
+0.499972
+</td>
+      </tr>
+    </tbody>
+    </table></div>
+<ul>
+<li>A set of 16 duplicate particpants were found that were not expected.</li>
+<li>These duplicates needed to be manually checked in database with Celine (see below).</li>
+</ul></li>
+<li>Manually determine cause for duplicates.
+<ul>
+<li>These pairs of individuals were found to be in both studies under different IDs (PSYMETAB and Severines):</li>
+</ul>
+<pre class="r"><code># 139CSM  HLHILECG
+# 184CSM  WXPQPUWI
+# 198CSM  CHMLAUKH
+# 202CSM  OQLLRBMM
+# 274UAS  YGGZRBYJ
+# JO001 UUHDCMNL
+# S008  YLXVRYDT
+# S092  0021GE</code></pre>
+<ul>
+<li>These pairs of individuals are duplicates but with different codes and we are keeping the one on the right:</li>
+</ul>
+<pre class="r"><code># ABDJGAXW  ZXDVAJUD
+# JO280 JO276
+# S093  JO426</code></pre>
+<ul>
+<li>These pair of individuals are not the same and the genetic info matches the one on the right (remove left):</li>
+</ul>
+<pre class="r"><code># JNQSZGGL  XTVNZTRY
+# WIELRZDD  FJNJEXCM
+# OINDBCQM  SONUEGRB</code></pre>
+<ul>
+<li>These pair of individuals could not be properly sorted and are therefore both being deleted:</li>
+</ul>
+<pre class="r"><code># S060  0062GE
+# 0030GE    SJJCZOXT</code></pre></li>
+<li>Create file of duplicates to be removed (based on above criteria).</li>
+<li>Remove duplicates.
+<ul>
+<li>2715 individuals originally.</li>
+<li>18 individuals removed.</li>
+<li>2697 individuals remaining.</li>
+</ul></li>
+<li>Recalculate kinship and identify remaining related individauls using kinship threshold &gt; 0.0884) as recommended by <a href="http://people.virginia.edu/~wc9c/KING/manual.html">KING authors</a>.
+<ul>
+<li><code>#r countLines(paste0(&quot;analysis/QC/11_relatedness/&quot;, study_name, &quot;2.related.filter.smiss&quot;))[1] - 1</code> related pairs identified.</li>
+<li><code>#r countLines(paste0(&quot;analysis/QC/11_relatedness/&quot;, study_name, &quot;2.duplicates&quot;))[1] - 1</code> duplicate pairs identified.</li>
+</ul></li>
+<li>Determine maximal set of unrelated individuals based on kinship results.
+<ul>
+<li>This was done using personal script (<code>code/qc/relatedness_filter.r</code>).</li>
+<li>PLINK does not guarantee maximum number of samples (see <a href="https://www.cog-genomics.org/plink/2.0/distance#make_king">here</a>: <em>Relationship-based pruning</em>), where it states: <em>PLINK tries to maximize the final sample size, but this maximum independent set problem is NP-hard, so we use a greedy algorithm which does not guarantee an optimal result.</em></li>
+</ul></li>
+<li>Remove related individuals <em>(note that if using mixed model design we can include all the related IDs, but remove the problematic duplicates)</em>.
+<ul>
+<li>50 related IDs removed.</li>
+<li>2647 individuals remaining.</li>
+</ul></li>
+</ol>
+<p></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo"
