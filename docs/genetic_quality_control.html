@@ -566,10 +566,10 @@ relative
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree105ad4ff87efc2e2f9053978abef03ed4c3d5155targetblank105ad4fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/105ad4ff87efc2e2f9053978abef03ed4c3d5155" target="_blank">105ad4f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreecf00a10e50a7f501c2e86945f61d6f56748c84dftargetblankcf00a10a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/cf00a10e50a7f501c2e86945f61d6f56748c84df" target="_blank">cf00a10</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree105ad4ff87efc2e2f9053978abef03ed4c3d5155targetblank105ad4fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreecf00a10e50a7f501c2e86945f61d6f56748c84dftargetblankcf00a10a" class="panel-collapse collapse">
 <div class="panel-body">
   
 
@@ -592,7 +592,6 @@ Ignored files:
     Ignored:    analysis/Rlogo2.png
     Ignored:    analysis/figure/
     Ignored:    analysis/rplot.jpg
-    Ignored:    analysis/site_libs/
     Ignored:    data/processed/
     Ignored:    data/raw/
     Ignored:    packrat/lib-R/
@@ -712,6 +711,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/cf00a10e50a7f501c2e86945f61d6f56748c84df/analysis/genetic_quality_control.Rmd" target="_blank">cf00a10</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Testing genetic QC Rmd
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/6d2a07ec12f4b6b1d1b17cf688f4e17260824f70/docs/genetic_quality_control.html" target="_blank">6d2a07e</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1073,7 +1106,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 13  2067 SSITXXAY002  283 SSITXXAY 702409 0.152603 0.00000284734 0.499418
 14  1947 WKBFDWJF002  566 WKBFDWJF 703642 0.153506 0.00000284235 0.499783
 15  1657 XABRILAR002 1385 XABRILAR 698282 0.154672 0.00000000000 0.497315</code></pre>
-<p>## 1. Strand alignment (so all SNPs are on positive strand).</p>
+<p></p>
+</div>
+<div id="strand-alignment-so-all-snps-are-on-positive-strand." class="section level2">
+<h2>1. Strand alignment (so all SNPs are on positive strand).</h2>
 <ol style="list-style-type: decimal">
 <li>Update chromosome</li>
 <li>Update position</li>
@@ -1091,7 +1127,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 <li>734328 variants remaining.</li>
 </ul></li>
 </ol>
-<p>## 2. Removal of SNPs that have MAF zero.</p>
+<p></p>
+</div>
+<div id="removal-of-snps-that-have-maf-zero." class="section level2">
+<h2>2. Removal of SNPs that have MAF zero.</h2>
 <ol style="list-style-type: decimal">
 <li>Calculate frequency of all SNPs</li>
 <li>Remove MAF 0 SNPs:
@@ -1100,7 +1139,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 <li>640750 variants remaining.</li>
 </ul></li>
 </ol>
-<p>## 3. Missingness.</p>
+<p></p>
+</div>
+<div id="missingness." class="section level2">
+<h2>3. Missingness.</h2>
 <ol style="list-style-type: decimal">
 <li>Exclude variants with &gt;10% missingness (using <code>geno --0.1</code>):
 <ul>
@@ -1134,7 +1176,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 </ul></li>
 </ol>
 <p>*Total removed: 50693 variants (7.91%) and 11 individuals (0.40%).**</p>
-<p>## 4. Sex check.</p>
+<p></p>
+</div>
+<div id="sex-check." class="section level2">
+<h2>4. Sex check.</h2>
 <ol style="list-style-type: decimal">
 <li>Perform sex check.</li>
 <li>Remove unambiguous sex violations.
@@ -1160,9 +1205,12 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 <li>Sort outputed <code>vcf</code> files.</li>
 <li>Download zipped files to personl or CHUV files to copy to <a href="https://imputationserver.sph.umich.edu/index.html">Michigan Imputation Server</a>.</li>
 </ol>
-<p># Step 4: Imputation.</p>
-<p><strong>Source code for Step 4 can be found at: <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh">code/download_imputation.sh</a> and <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/check_imputation.sh">code/check_imputation.sh</a>.</strong></p>
+<p></p>
 </div>
+</div>
+<div id="step-4-imputation." class="section level1">
+<h1>Step 4: Imputation.</h1>
+<p><strong>Source code for Step 4 can be found at: <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh">code/download_imputation.sh</a> and <a href="https://github.com/jennysjaarda/PSYMETAB/blob/master/code/check_imputation.sh">code/check_imputation.sh</a>.</strong></p>
 <div id="run-and-download-imputation." class="section level2">
 <h2>6. Run and download imputation.</h2>
 <ol style="list-style-type: decimal">
@@ -1211,7 +1259,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 21  21               531276
 22  22               524544
 23 all             39131578</code></pre>
-<p>## 7. Check imputation.</p>
+<p></p>
+</div>
+<div id="check-imputation." class="section level2">
+<h2>7. Check imputation.</h2>
 <ul>
 <li>Using Will Rayner’s <a href="https://www.well.ox.ac.uk/~wrayner/tools/Post-Imputation.html">post imputation tool</a>, produce a visual summary of the imputated results from the Michigan Imputation Server:
 <ul>
@@ -1263,7 +1314,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 <li>Reference file for determining rsIDs can be found here: <code>/data/sgg2/jenny/data/dbSNP/dbSNP_SNP_list_chr${chr}.txt</code>, which was processed according to description in <code>jenny/SGG_generic/scripts/public_data.sh</code>.</li>
 </ul></li>
 </ol>
-<p>## 9. Extract typed SNPs.</p>
+<p></p>
+</div>
+<div id="extract-typed-snps." class="section level2">
+<h2>9. Extract typed SNPs.</h2>
 <ol style="list-style-type: decimal">
 <li>Write a list of only genotypd data to run in snpweights software (using <code>require=info &quot;TYPED&quot;</code> flag).</li>
 </ol>
@@ -1295,13 +1349,19 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 <li>Hard call back to genotypes (<code>bim</code>, <code>bed</code>, and <code>fam</code> files) using the <code>--hard-call-threshold</code> flag set at <code>0.1</code>.</li>
 <li>Merge by chromosome genotyped data into single file.</li>
 </ol>
-<p>## 10. Merge imputed SNPs.</p>
+<p></p>
+</div>
+<div id="merge-imputed-snps." class="section level2">
+<h2>10. Merge imputed SNPs.</h2>
 <ol style="list-style-type: decimal">
 <li>Convert fileset from step #8 back to <code>vcf</code> as there is no merge function in plink (using the flag <code>--recode vcf id-paste=iid vcf-dosage=HDS</code>).</li>
 <li>Merge using <code>bcftools concat</code>.</li>
 <li>Convert back to pgen using <code>plink2 --vcf &lt;output-name&gt; dosage=HDS</code>.</li>
 </ol>
-<p>## 11. Relatedness (using data from #10).</p>
+<p></p>
+</div>
+<div id="relatedness-using-data-from-10." class="section level2">
+<h2>11. Relatedness (using data from #10).</h2>
 <ol style="list-style-type: decimal">
 <li>Calculate missingness.</li>
 <li>Remove subjects and individuals with missingness &gt;10%.
@@ -1816,6 +1876,72 @@ KINSHIP
 </ul></li>
 </ol>
 <p></p>
+</div>
+<div id="ethnicty-check-and-admixture-estimation." class="section level2">
+<h2>12. Ethnicty check and admixture estimation.</h2>
+<ol style="list-style-type: decimal">
+<li>Clean typed data (from #9).
+<ul>
+<li>Remove duplicate samples (from #11).</li>
+<li>Remove genotypes with missingness &gt; 10% (using <code>--geno 0.1</code>).</li>
+<li>Remove genotypes with MAF &lt; 5% (using <code>--maf 0.05</code>).</li>
+<li>Remove genotypes with HWE &lt; 5e-4 (using <code>--hwe 5e-4</code>).</li>
+<li>After filters, 249634 SNPs remaining.</li>
+<li>After filters, 2697 individuals remaining.</li>
+</ul></li>
+<li>Run <a href="https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/05/SNPweights2.1.tar.gz"><code>snpweights</code></a> software from Alkes Price <a href="https://www.hsph.harvard.edu/alkes-price/software/">software page</a> using SNP weights for European, West African, East Asian and Native American ancestral populations (downloaded <a href="https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/03/snpwt.NA_.zip">here</a>).
+<ul>
+<li>SNPweights is a software package for inferring genome-wide genetic ancestry using SNP weights precomputed from large external reference panels (<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3661048/">Chen et al. 2013 Bioinformatics</a>).</li>
+<li>The software relies on external databases to infer ancestry weights, so related individuals can safely be included.</li>
+<li>This software creates a file with the name <code>${output_name}.NA.predpc</code>.</li>
+<li>The 10 columns in the <code>${output_name}.NA.predpc</code> output file are: <code>sample ID</code>, <code>population label</code>, <code>number of SNPs used for inference</code>, <code>predicted PC1</code>, <code>predicted PC2</code>, <code>predicted PC3</code>, <code>% YRI ancestry</code>, <code>% CEU ancestry</code>, <code>% East Asian ancestry</code>, and <code>% Native American ancestry</code>.</li>
+</ul></li>
+<li>Filter to Europeans.
+<ul>
+<li>Using threshold <code>% CEU ancestry</code> &gt; <code>0.8</code> as done in other papers.</li>
+<li>543 non-European individuals removed.</li>
+<li>2154 European individuals remaining.</li>
+</ul></li>
+<li>Run <code>snpweights</code> in Europeans using SNP weights for NW, SE and AJ ancestral populations of European Americans (downloaded <a href="https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/03/snpwt.EA_.zip">here</a>).
+<ul>
+<li>The 8 columns in the <code>${output_name}.CEU80.EA.predpc</code> output file are: <code>sample ID</code>, <code>population label</code>, <code>number of SNPs used for inference</code>, <code>predicted PC1</code>, <code>predicted PC2</code>, <code>% Northwest European ancestry</code>, <code>% Southeast European ancestry</code>, <code>% Ashkenazi Jewish ancestry</code>.</li>
+<li>Note that nothing was done with these computed snpweights.</li>
+</ul></li>
+<li>Using data from step 1, create pruned set of SNPs.
+<ul>
+<li>Remove related individuals (idenified in #11).</li>
+<li>PLINK parameters set as: <code>--indep-pairwise 50 5 0.2</code>.</li>
+<li>After pruning, 152879 SNPs removed</li>
+<li>Could consider excluding regions suggested by flaspca by adding the following line: <code>--exclude range $flashpca/exclusion_regions_hg19.txt</code>.</li>
+</ul></li>
+<li>Create an unrelated dataset for calculating PCs using snps from step 5.
+<ul>
+<li>After pruning, 96755 SNPs remaining.</li>
+<li>50 related samples removed.</li>
+<li>2647 unrelated samples remaining.</li>
+</ul></li>
+<li>Create a full set for projecting PCs with same set of pruned SNPs.
+<ul>
+<li>As above, 96755 SNPs remaining.</li>
+<li>No samples removed, 2697 samples in total.</li>
+</ul></li>
+<li>Perform PCA using <a href="https://github.com/gabraham/flashpca"><code>flashpca</code></a> in unrelated set (from step 6).</li>
+<li>Perform PCA projections onto related sample set (from 12.7)</li>
+<li>Split data into seperate ethnic groups as determined in 12.2.
+<ul>
+<li>For all ethnic groups except <code>YRI</code> (African), use a threshold of <code>% ancestry</code> &gt; <code>0.8</code>.</li>
+<li>For African, use a threshold of <code>% ancestry</code> &gt; <code>0.7</code>.</li>
+<li>If a participant has no ethnic group that meets this criteria (note that it is impossible to follow into multiple categories), they are classified as <code>MIXED</code>, in this way 5 ethnic groups remain: <code>CEU</code> (European), <code>EA</code> (East Asian), <code>NA</code> (Native American), <code>YRI</code> (West African), and <code>MIXED</code>.</li>
+</ul></li>
+</ol>
+<pre><code>      AFRICAN EAST_ASIAN EUROPEAN LATIN OTHER SOUTH_ASIAN UNKNOWN Total
+CEU         0          0     1540     0    72           1     541  2154
+EA          0         17        0     0     2           3       7    29
+MIXED      54          4       79     0    99          55     135   426
+NA          0          0        0     1     3           0       1     5
+YRI        47          4        1     1     3           0      27    83</code></pre>
+<p><img src="figure/genetic_quality_control.Rmd/eth_print-1.svg" width="672" style="display: block; margin: auto;" /><img src="figure/genetic_quality_control.Rmd/eth_print-2.svg" width="672" style="display: block; margin: auto;" /></p>
+<p></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo"
@@ -1838,12 +1964,7 @@ BLAS: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRblas.so
 LAPACK: /data/sgg2/jenny/bin/R-3.5.3/lib64/R/lib/libRlapack.so
 
 locale:
- [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
- [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
- [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
- [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
- [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+[1] en_US.UTF-8
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
@@ -1884,25 +2005,26 @@ loaded via a namespace (and not attached):
  [43] xtable_1.8-4         viridisLite_0.3.0    progress_1.2.2      
  [46] txtq_0.2.0           htmlwidgets_1.5.1    httr_1.4.1          
  [49] getopt_1.20.3        calibrate_1.7.5      ellipsis_0.3.0      
- [52] XML_3.98-1.20        pkgconfig_2.0.3      dbplyr_1.4.2        
- [55] reshape2_1.4.3       later_1.0.0          munsell_0.5.0       
- [58] cellranger_1.1.0     tools_3.5.3          cli_2.0.1           
- [61] generics_0.0.2       broom_0.5.3          fastmap_1.0.1       
- [64] evaluate_0.14        yaml_2.2.0           fs_1.3.1            
- [67] packrat_0.5.0        nlme_3.1-143         mime_0.8            
- [70] whisker_0.4          formatR_1.7          proftools_0.99-2    
- [73] xml2_1.2.2           compiler_3.5.3       rstudioapi_0.10     
- [76] png_0.1-7            filelock_1.0.2       testthat_2.3.1      
- [79] reprex_0.3.0         stringi_1.4.5        highr_0.8           
- [82] ps_1.3.0             desc_1.2.0           gdtools_0.2.2       
- [85] lattice_0.20-38      vctrs_0.2.4          pillar_1.4.3        
- [88] lifecycle_0.1.0      networkD3_0.4        httpuv_1.5.2        
- [91] R6_2.4.1             promises_1.1.0       gridExtra_2.3       
- [94] sessioninfo_1.1.1    codetools_0.2-16     lambda.r_1.2.4      
- [97] assertthat_0.2.1     pkgload_1.0.2        rprojroot_1.3-2     
-[100] withr_2.1.2          batchtools_0.9.12    parallel_3.5.3      
-[103] hms_0.5.3            grid_3.5.3           rmarkdown_1.18      
-[106] git2r_0.26.1         shiny_1.4.0          lubridate_1.7.4     </code></pre>
+ [52] farver_2.0.1         XML_3.98-1.20        pkgconfig_2.0.3     
+ [55] dbplyr_1.4.2         labeling_0.3         reshape2_1.4.3      
+ [58] later_1.0.0          munsell_0.5.0        cellranger_1.1.0    
+ [61] tools_3.5.3          cli_2.0.1            generics_0.0.2      
+ [64] broom_0.5.3          fastmap_1.0.1        evaluate_0.14       
+ [67] yaml_2.2.0           fs_1.3.1             packrat_0.5.0       
+ [70] nlme_3.1-143         mime_0.8             whisker_0.4         
+ [73] formatR_1.7          proftools_0.99-2     xml2_1.2.2          
+ [76] compiler_3.5.3       rstudioapi_0.10      png_0.1-7           
+ [79] filelock_1.0.2       testthat_2.3.1       reprex_0.3.0        
+ [82] stringi_1.4.5        highr_0.8            ps_1.3.0            
+ [85] desc_1.2.0           gdtools_0.2.2        lattice_0.20-38     
+ [88] vctrs_0.2.4          pillar_1.4.3         lifecycle_0.1.0     
+ [91] networkD3_0.4        httpuv_1.5.2         R6_2.4.1            
+ [94] promises_1.1.0       gridExtra_2.3        sessioninfo_1.1.1   
+ [97] codetools_0.2-16     lambda.r_1.2.4       assertthat_0.2.1    
+[100] pkgload_1.0.2        rprojroot_1.3-2      withr_2.1.2         
+[103] batchtools_0.9.12    parallel_3.5.3       hms_0.5.3           
+[106] grid_3.5.3           rmarkdown_1.18       git2r_0.26.1        
+[109] shiny_1.4.0          lubridate_1.7.4     </code></pre>
 </div>
 
 
