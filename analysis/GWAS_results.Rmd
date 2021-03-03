@@ -23,6 +23,19 @@ source("code/functions.R")
 source("code/settings.R")
 ```
 
+```{r load_data, include = FALSE}
+loadd(pheno_raw)
+loadd(pheno_baseline)
+loadd(pheno_followup)
+loadd(GWAS_input)
+loadd(baseline_gwas_info)
+loadd(interaction_gwas_info)
+loadd(subgroup_gwas_info)
+
+pheno_baseline_dup <- pheno_baseline
+pheno_followup_dup <- pheno_followup
+```
+
 **The following document outlines and summarizes the GWAS results performed in PSYMETAB, for an overview of the method see [GWAS Method](GWAS_method.html).**
 
 # Model counts and distributions.
