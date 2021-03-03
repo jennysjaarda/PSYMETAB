@@ -476,8 +476,8 @@ imputed_var
     - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, ".duplicates2.FID_IID.txt"))[1]` individuals removed.
     - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, "_remove_dups.psam")) - 1` individuals remaining.
 8. Recalculate kinship and identify remaining related individauls using kinship threshold > 0.0884) as recommended by [KING authors](http://people.virginia.edu/~wc9c/KING/manual.html).
-    - `#r countLines(paste0("analysis/QC/10_merge_imputed/", study_name, "2.related.filter.smiss"))[1] - 1` related pairs identified.
-    - `#r countLines(paste0("analysis/QC/10_merge_imputed/", study_name, "2.duplicates"))[1] - 1` duplicate pairs identified.
+    - `#r countLines(paste0("analysis/QC/11_relatedness/", study_name, "2.related.filter.smiss"))[1] - 1` related pairs identified.
+    - `#r countLines(paste0("analysis/QC/11_relatedness/", study_name, "2.duplicates"))[1] - 1` duplicate pairs identified.
 9. Determine maximal set of unrelated individuals based on kinship results.
     - This was done using personal script (`code/qc/relatedness_filter.r`).
     - PLINK does not guarantee maximum number of samples (see [here](https://www.cog-genomics.org/plink/2.0/distance#make_king): *Relationship-based pruning*), where it states: *PLINK tries to maximize the final sample size, but this maximum independent set problem is NP-hard, so we use a greedy algorithm which does not guarantee an optimal result.*
