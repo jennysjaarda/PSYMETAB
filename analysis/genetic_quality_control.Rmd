@@ -246,6 +246,7 @@ t
 
 
 \newline
+
 ## 1. Strand alignment (so all SNPs are on positive strand).
 
 1. Update chromosome
@@ -261,6 +262,7 @@ t
     - `r countLines(paste0("analysis/QC/01_strandflip/", study_name, ".strandflip.step1.bim"))` variants remaining.
 
 \newline
+
 ## 2. Removal of SNPs that have MAF zero.
 
 1. Calculate frequency of all SNPs
@@ -269,6 +271,7 @@ t
     - `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.bim"))` variants remaining.
 
 \newline
+
 ## 3. Missingness.
 
 1. Exclude variants with >10% missingness (using `geno --0.1`): 
@@ -294,6 +297,7 @@ t
 **Total removed: `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_10.bim"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.bim"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.bim"))[1]` variants (`r formatC(round(missingness_variants_removed*100/initial_variants, 2), format='f', digits=2)`%) and `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.fam"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.fam"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness.step3.fam"))[1]` individuals (`r formatC(round(missingness_indiv_removed*100/initial_ind, 2), format='f', digits=2)`%).**
 
 \newline
+
 ## 4. Sex check.
 
 1. Perform sex check. 
@@ -315,6 +319,7 @@ t
 6. Download zipped files to personl or CHUV files to copy to [Michigan Imputation Server](https://imputationserver.sph.umich.edu/index.html).
 
 \newline
+
 # Step 4: Imputation.
 
 **Source code for Step 4 can be found at: [code/download_imputation.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh) and [code/check_imputation.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/check_imputation.sh).**
@@ -358,8 +363,8 @@ imputed_var <- as.data.frame(imputed_var)
 imputed_var
 ```
 
-
 \newline
+
 ## 7. Check imputation.
 
 - Using Will Rayner's [post imputation tool](https://www.well.ox.ac.uk/~wrayner/tools/Post-Imputation.html), produce a visual summary of the imputated results from the Michigan Imputation Server:
@@ -396,6 +401,7 @@ imputed_var
     - Reference file for determining rsIDs can be found here: `/data/sgg2/jenny/data/dbSNP/dbSNP_SNP_list_chr${chr}.txt`, which was processed according to description in `jenny/SGG_generic/scripts/public_data.sh`.
 
 \newline
+
 ## 9. Extract typed SNPs.
 
 1. Write a list of only genotypd data to run in snpweights software (using `require=info "TYPED"` flag).
@@ -416,6 +422,7 @@ imputed_var
 3. Merge by chromosome genotyped data into single file.
 
 \newline
+
 ## 10. Merge imputed SNPs.
 
 1. Convert fileset from step #8 back to `vcf` as there is no merge function in plink (using the flag `--recode vcf id-paste=iid vcf-dosage=HDS`).
@@ -423,6 +430,7 @@ imputed_var
 3. Convert back to pgen using `plink2 --vcf <output-name> dosage=HDS`.
 
 \newline
+
 ## 11. Relatedness (using data from #10).
 
 1. Calculate missingness.
@@ -486,3 +494,89 @@ imputed_var
     - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, ".relatedness.step11.psam")) - 1` individuals remaining.
 
 \newline
+
+## 12. Ethnicty check and admixture estimation.
+
+1. Clean typed data (from #9).
+    - Remove duplicate samples (from #11).
+    - Remove genotypes with missingness > 10% (using `--geno 0.1`).
+    - Remove genotypes with MAF < 5% (using `--maf 0.05`).
+    - Remove genotypes with HWE < 5e-4 (using `--hwe 5e-4`).
+    - After filters, `r countLines(paste0("analysis/QC/12_ethnicity_admixture/", study_name, ".typed.QC.bim"))` SNPs remaining.
+    - After filters, `r countLines(paste0("analysis/QC/12_ethnicity_admixture/", study_name, ".typed.QC.fam"))` individuals remaining.
+2. Run [`snpweights`](https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/05/SNPweights2.1.tar.gz) software from Alkes Price [software page](https://www.hsph.harvard.edu/alkes-price/software/) using SNP weights for European, West African, East Asian and Native American ancestral populations (downloaded [here](https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/03/snpwt.NA_.zip)).
+    - SNPweights is a software package for inferring genome-wide genetic ancestry using SNP weights precomputed from large external reference panels ([Chen et al. 2013 Bioinformatics](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3661048/)).
+    - The software relies on external databases to infer ancestry weights, so related individuals can safely be included.
+    - This software creates a file with the name `${output_name}.NA.predpc`.
+    - The 10 columns in the `${output_name}.NA.predpc` output file are: `sample ID`, `population label`, `number of SNPs used for inference`, `predicted PC1`, `predicted PC2`, `predicted PC3`, `% YRI ancestry`, `% CEU ancestry`, `% East Asian ancestry`, and `% Native American ancestry`.
+3. Filter to Europeans.
+    - Using threshold `% CEU ancestry` > `0.8` as done in other papers.
+    - `r countLines(paste0("analysis/QC/12_ethnicity_admixture/", study_name, ".typed.QC.fam")) - countLines(paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".CEU80"))` non-European individuals removed.
+    - `r countLines(paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".CEU80"))` European individuals remaining.
+4. Run `snpweights` in Europeans using SNP weights for NW, SE and AJ ancestral populations of European Americans (downloaded [here](https://cdn1.sph.harvard.edu/wp-content/uploads/sites/181/2014/03/snpwt.EA_.zip)).
+    - The 8 columns in the `${output_name}.CEU80.EA.predpc` output file are: `sample ID`, `population label`, `number of SNPs used for inference`, `predicted PC1`, `predicted PC2`, `% Northwest European ancestry`, `% Southeast European ancestry`, `% Ashkenazi Jewish ancestry`.
+    - Note that nothing was done with these computed snpweights.
+5. Using data from step 1, create pruned set of SNPs.
+    - Remove related individuals (idenified in #11).
+    - PLINK parameters set as: `--indep-pairwise 50 5 0.2`.
+    - After pruning, `r countLines(paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, ".indep.prune.out"))` SNPs removed
+    - Could consider excluding regions suggested by flaspca by adding the following line: `--exclude range $flashpca/exclusion_regions_hg19.txt`.
+6. Create an unrelated dataset for calculating PCs using snps from step 5.
+    - After pruning, `r countLines(paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, ".indep.prune.in"))` SNPs remaining.
+    - `r countLines(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))` related samples removed.
+    - `r countLines(paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, ".pruned.unrelated.fam"))` unrelated samples remaining.
+7. Create a full set for projecting PCs with same set of pruned SNPs.
+    - As above, `r countLines(paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, ".pruned.full.bim"))` SNPs remaining.
+    - No samples removed, `r countLines(paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, ".pruned.full.fam"))` samples in total.
+8. Perform PCA using [`flashpca`](https://github.com/gabraham/flashpca) in unrelated set (from step 6).
+9. Perform PCA projections onto related sample set (from 12.7)
+10. Split data into seperate ethnic groups as determined in 12.2.
+    - For all ethnic groups except `YRI` (African), use a threshold of `% ancestry` > `0.8`.
+    - For African, use a threshold of `% ancestry` > `0.7`.
+    - If a participant has no ethnic group that meets this criteria (note that it is impossible to follow into multiple categories), they are classified as `MIXED`, in this way 5 ethnic groups remain: `CEU` (European), `EA` (East Asian), `NA` (Native American), `YRI` (West African), and `MIXED`.
+```{r eth_count, include = FALSE}
+
+eth_count <- numeric()
+for (eth in c("CEU", "EA", "NA", "YRI", "MIXED")){
+
+  temp <- countLines(paste0("analysis/QC/12_ethnicity_admixture/pca/",output_name, "_", eth, "_samples.txt"))[1]
+  temp <- cbind(eth, temp)
+  eth_count <- rbind(eth_count, temp)
+
+
+}
+total <- cbind("all", sum(as.numeric(as.character(eth_count[,2]))))
+eth_count <- rbind(eth_count, total)
+colnames(eth_count) <- c("Eth", "Sample size")
+eth_count <- as.data.frame(eth_count)
+eth_count
+
+
+data_clean <- munge_snpweights(study_name, pc_data = read.table(paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, "_projections.txt"), header = T),
+                               snp_weights = read.table(paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".NA.predpc"), header = F),
+                               eth_file = "data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt")
+```
+
+```{r eth_print, echo = FALSE}
+tab <- table(data_clean$genetic_eth, data_clean$reported_eth)
+tab <- cbind(tab, Total = rowSums(tab))
+tab
+
+### plot according to genetic eth
+for(col_type in c("genetic", "reported"))
+{
+
+
+  #pdf(paste0(output_dir, "/", study_name,"_PCA_",col_type, "_eth.pdf"))
+  out_plot <- pca_plot(data_clean, paste0(col_type,"_eth"), paste0(str_to_title(col_type), "Ancestry"),
+                       paste0(study_name, " PCA according to ",col_type, " ancestry"))
+
+  print(out_plot)
+  #dev.off()
+
+}
+
+```
+
+\newline
+
