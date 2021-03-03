@@ -18,7 +18,7 @@ project_dir <- "/data/sgg2/jenny/projects/PSYMETAB"
 output_name <- "PSYMETAB_GWAS"
 ```
 
-[`drake`](https://books.ropensci.org/drake/) was used to manage all workflow. 
+[`drake`](https://books.ropensci.org/drake/) was used to manage all workflow.
 
 ```{r plans}
 outdated(qc_prep)
@@ -31,8 +31,8 @@ vis_drake_graph(qc_prep)
 vis_drake_graph(pre_impute_qc)
 vis_drake_graph(download_impute)
 vis_drake_graph(post_impute)
-vis_drake_graph(analysis)
 
+#vis_drake_graph(analysis)
 #vis_drake_graph(download_impute, make_imports = FALSE)
 #vis_drake_graph(post_impute,  make_imports = FALSE)
 options(scipen=999)

@@ -168,6 +168,7 @@ library(drake)
 
 For execution of drake plan: see [`make.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/make.R).
 For drake plan(s) see: [`code/plan.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R).
+For functions see: [`code/functions.R`](https://GitHub.com/jennysjaarda/PSYMETAB/blob/master/code/functions.R).
 
 To run drake plans on slurm nodes with parallel backends, there are two options:
 
