@@ -282,6 +282,38 @@ $(document).ready(function () {
 <li>
   <a href="setup.html">Setup</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Project
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">GWAS</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="GWAS_method.html">GWAS methods</a>
+        </li>
+        <li>
+          <a href="GWAS_results.html">GWAS results</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Meetings
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="Zoltan_meeting_25_09_2020.html">Update with Zoltan 25-09-2020</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -313,50 +345,56 @@ div.section {
 
 
 <p>
-<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
+  data-toggle="collapse" data-target="#workflowr-report">
+  
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
+
 <div id="workflowr-report" class="collapse">
 <ul class="nav nav-tabs">
-<li class="active">
+  <li class="active">
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
-<li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+  <li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
-<li>
+  <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
 </li>
 </ul>
+
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
-<p>
-<strong>Last updated:</strong> 2020-06-23
+  <p>
+<strong>Last updated:</strong> 2021-03-04
 </p>
-<p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+  <p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
-<p>
+  <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
-<p>
+  <p>
+  
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
   href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
 <div id="checks" class="tab-pane fade">
-<div id="workflowr-checks" class="panel-group">
-<div class="panel panel-default">
+  <div class="panel-group" id="workflowr-checks">
+  <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+  
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
@@ -368,6 +406,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
 </div>
 </div>
@@ -380,6 +419,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongSeedstrongcodesetseed20191126code" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>The command <code>set.seed(20191126)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
 </div>
 </div>
@@ -392,6 +432,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
 </div>
 </div>
@@ -404,6 +445,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
 </div>
 </div>
@@ -416,6 +458,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
 </div>
 </div>
@@ -423,15 +466,17 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree55b0a65463c2a86fab310892f4f1bb68a6087013targetblank55b0a65a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/55b0a65463c2a86fab310892f4f1bb68a6087013" target="_blank">55b0a65</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec96d28fe674dee4f066eaa79587384e0b4f67921targetblankc96d28fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/c96d28fe674dee4f066eaa79587384e0b4f67921" target="_blank">c96d28f</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree55b0a65463c2a86fab310892f4f1bb68a6087013targetblank55b0a65a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec96d28fe674dee4f066eaa79587384e0b4f67921targetblankc96d28fa" class="panel-collapse collapse">
 <div class="panel-body">
+  
+
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
-<pre><code>
+ <pre><code>
 Ignored files:
     Ignored:    ._docs
     Ignored:    .drake/
@@ -440,26 +485,30 @@ Ignored files:
     Ignored:    analysis/._data_processing_in_genomestudio.Rmd
     Ignored:    analysis/._quality_control.Rmd
     Ignored:    analysis/GWAS/
+    Ignored:    analysis/GWAS_results.knit.md
+    Ignored:    analysis/GWAS_results.utf8.md
     Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
+    Ignored:    analysis/Rlogo2.png
+    Ignored:    analysis/figure/
+    Ignored:    analysis/rplot.jpg
+    Ignored:    analysis_prep_10_clustermq.out
+    Ignored:    analysis_prep_11_clustermq.out
+    Ignored:    analysis_prep_12_clustermq.out
     Ignored:    analysis_prep_1_clustermq.out
     Ignored:    analysis_prep_2_clustermq.out
     Ignored:    analysis_prep_3_clustermq.out
     Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    analysis_prep_5_clustermq.out
+    Ignored:    analysis_prep_6_clustermq.out
+    Ignored:    analysis_prep_7_clustermq.out
+    Ignored:    analysis_prep_8_clustermq.out
+    Ignored:    analysis_prep_9_clustermq.out
     Ignored:    data/processed/
     Ignored:    data/raw/
-    Ignored:    download_impute_1_clustermq.out
-    Ignored:    init_analysis_1_clustermq.out
-    Ignored:    init_analysis_2_clustermq.out
-    Ignored:    init_analysis_3_clustermq.out
-    Ignored:    init_analysis_4_clustermq.out
-    Ignored:    init_analysis_5_clustermq.out
-    Ignored:    init_analysis_6_clustermq.out
     Ignored:    packrat/lib-R/
     Ignored:    packrat/lib-ext/
     Ignored:    packrat/lib/
-    Ignored:    post_impute_1_clustermq.out
-    Ignored:    pre_impute_qc_1_clustermq.out
     Ignored:    process_init_10_clustermq.out
     Ignored:    process_init_11_clustermq.out
     Ignored:    process_init_12_clustermq.out
@@ -474,16 +523,7 @@ Ignored files:
     Ignored:    process_init_20_clustermq.out
     Ignored:    process_init_21_clustermq.out
     Ignored:    process_init_22_clustermq.out
-    Ignored:    process_init_23_clustermq.out
-    Ignored:    process_init_24_clustermq.out
-    Ignored:    process_init_25_clustermq.out
-    Ignored:    process_init_26_clustermq.out
-    Ignored:    process_init_27_clustermq.out
-    Ignored:    process_init_28_clustermq.out
-    Ignored:    process_init_29_clustermq.out
     Ignored:    process_init_2_clustermq.out
-    Ignored:    process_init_30_clustermq.out
-    Ignored:    process_init_31_clustermq.out
     Ignored:    process_init_3_clustermq.out
     Ignored:    process_init_4_clustermq.out
     Ignored:    process_init_5_clustermq.out
@@ -495,32 +535,61 @@ Ignored files:
     Ignored:    prs_2_clustermq.out
     Ignored:    prs_3_clustermq.out
     Ignored:    prs_4_clustermq.out
+    Ignored:    prs_5_clustermq.out
+    Ignored:    prs_6_clustermq.out
+    Ignored:    prs_7_clustermq.out
+    Ignored:    prs_8_clustermq.out
+    Ignored:    ukbb_analysis_10_clustermq.out
+    Ignored:    ukbb_analysis_11_clustermq.out
+    Ignored:    ukbb_analysis_12_clustermq.out
+    Ignored:    ukbb_analysis_13_clustermq.out
+    Ignored:    ukbb_analysis_14_clustermq.out
+    Ignored:    ukbb_analysis_15_clustermq.out
+    Ignored:    ukbb_analysis_16_clustermq.out
+    Ignored:    ukbb_analysis_17_clustermq.out
+    Ignored:    ukbb_analysis_18_clustermq.out
+    Ignored:    ukbb_analysis_19_clustermq.out
+    Ignored:    ukbb_analysis_1_clustermq.out
+    Ignored:    ukbb_analysis_20_clustermq.out
+    Ignored:    ukbb_analysis_21_clustermq.out
+    Ignored:    ukbb_analysis_22_clustermq.out
+    Ignored:    ukbb_analysis_2_clustermq.out
+    Ignored:    ukbb_analysis_3_clustermq.out
+    Ignored:    ukbb_analysis_4_clustermq.out
+    Ignored:    ukbb_analysis_5_clustermq.out
+    Ignored:    ukbb_analysis_6_clustermq.out
+    Ignored:    ukbb_analysis_7_clustermq.out
+    Ignored:    ukbb_analysis_8_clustermq.out
+    Ignored:    ukbb_analysis_9_clustermq.out
 
 Untracked files:
-    Untracked:  analysis/genetic_quality_control.Rmd
-    Untracked:  analysis/plans.Rmd
+    Untracked:  Rlogo.png
+    Untracked:  Rlogo2.png
     Untracked:  analysis_prep.log
     Untracked:  download_impute.log
+    Untracked:  extract_sig.log
     Untracked:  grs.log
     Untracked:  init_analysis.log
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison.csv
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison2.csv
+    Untracked:  output/PSYMETAB_GWAS_baseline_CEU_result.csv
+    Untracked:  output/PSYMETAB_GWAS_subgroup_CEU_result.csv
+    Untracked:  output/coffee_consumed_Neale_UKBB_analysis.csv
     Untracked:  process_init.log
     Untracked:  prs.log
+    Untracked:  rplot.jpg
+    Untracked:  test
+    Untracked:  ukbb_analysis.log
 
 Unstaged changes:
-    Modified:   analysis/GWAS.Rmd
-    Modified:   analysis/data_sources.Rmd
-    Modified:   analysis/index.Rmd
-    Modified:   analysis/pheno_quality_control.Rmd
-    Deleted:    analysis/project.Rmd
-    Modified:   analysis/quality_control.Rmd
+    Modified:   analysis/plans.Rmd
     Modified:   cache_log.csv
     Modified:   post_impute.log
-    Modified:   slurm_clustermq.tmpl
 
-</code></pre>
-<p>
+</code></pre> <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
 </p>
+
 </div>
 </div>
 </div>
@@ -528,7 +597,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
+  
 <p>
 These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
 </p>
@@ -554,6 +623,74 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/c96d28fe674dee4f066eaa79587384e0b4f67921/analysis/index.Rmd" target="_blank">c96d28f</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Rebuilding index
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/941b66dff7d9f6ebb58759cb9e2ab4a610d9aab3/analysis/index.Rmd" target="_blank">941b66d</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+add new Rmd files and respective html files
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/85955b30c2e66a5d9a2383739e037050dbc634a5/analysis/index.Rmd" target="_blank">85955b3</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-06-23
+</td>
+<td>
+Update site
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/85955b30c2e66a5d9a2383739e037050dbc634a5/docs/index.html" target="_blank">85955b3</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-06-23
+</td>
+<td>
+Update site
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -846,34 +983,98 @@ Start workflowr project.
 </tbody>
 </table>
 </div>
+
 <hr>
 </div>
 </div>
 </div>
-<p><a href="https://github.com/jennysjaarda/PSYMETAB"><img src="https://img.shields.io/badge/last%20change-2020--06--23-brightgreen.svg" alt="Last-changedate" /></a> <a href="https://cran.r-project.org/"><img src="https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg" alt="minimal R version" /></a></p>
-<p>This <a href="">workflowr</a> site contains all information and results about this research project.</p>
+
+
+
+
+
+
+
+<p><a href="https://github.com/jennysjaarda/PSYMETAB"><img src="https://img.shields.io/badge/last%20change-2021--03--04-brightgreen.svg" alt="Last-changedate" /></a> <a href="https://cran.r-project.org/"><img src="https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg" alt="minimal R version" /></a></p>
+<p>This website contains all information and results about this research project.</p>
 <p>Project details and overview can be found in the <a href="about.html">About</a> page.</p>
-<p>See <a href="data_sources.html">Data sources</a> for details on data origins. See <a href="setup.html">Setup</a> for details on setting up the analyses for this project.</p>
-<p><strong>Result shortcuts</strong></p>
+<p>See <a href="setup.html">Setup</a> for details on setting up the project and the various analyses for this project.</p>
+<p>See <a href="plans.html">Drake plans</a> for a visual representation of analytical pipelines.</p>
+<div id="useful-shortcuts" class="section level2">
+<h2>Useful shortcuts</h2>
 <ol style="list-style-type: decimal">
-<li><a href="data_processing_in_genomestudio.html">Overview of processing in genomestudio</a></li>
-<li><a href="genetic_quality_control.html">Genotype quality control</a> and <a href="pheno_quality_control.html">phenotype quality control</a></li>
-<li><a href="GWAS.html">Imputation report</a></li>
-<li><a href="">GWAS</a></li>
+<li><a href="data_sources.html">Data sources</a> for details on data sources and origins.</li>
+<li><a href="data_processing_in_genomestudio.html">Overview of processing in genomestudio</a>.</li>
+<li><a href="genetic_quality_control.html">Genetic quality control</a>.</li>
+<li><a href="pheno_quality_control.html">Phenotypic quality control</a>.</li>
+<li><a href="extract_genetic_data.html">Genetic data extraction protocol</a>.</li>
+<li><a href="GWAS_method.html">GWAS methods</a>.</li>
+<li><a href="GWAS_results.html">GWAS results</a>.</li>
 </ol>
-<p><strong>Useful papers</strong></p>
-<p><strong>Notes</strong> - <a href="create_custom_cluster_files.html">Creating custom cluster files</a></p>
 <p>Powered by <a href="https://github.com/ropensci/drake">drake</a> + <a href="https://github.com/jdblischak/workflowr">workflowr</a></p>
-<div id="acknowledgements" class="section level3">
-<h3>Acknowledgements</h3>
+</div>
+<div id="useful-papers" class="section level2">
+<h2>Useful papers</h2>
+<ul>
+<li><a href="https://pubmed.ncbi.nlm.nih.gov/16314759/">Clozapine-induced weight gain: a study in monozygotic twins and same-sex sib pairs.</a></li>
+<li><a href="https://pubmed.ncbi.nlm.nih.gov/32126890/">A new genetic locus for antipsychotic-induced weight gain: A genome-wide study of first-episode psychosis patients using amisulpride (from the OPTiMiSE cohort).</a></li>
+<li><a href="https://pubmed.ncbi.nlm.nih.gov/22316639/">Psychotropic drug-induced weight gain and other metabolic complications in a Swiss psychiatric population.</a></li>
+<li><a href="https://www.nature.com/articles/mp2011109">Pharmacogenetics of antipsychotic-induced weight gain: review and clinical implications.</a></li>
+</ul>
+</div>
+<div id="current-analyses" class="section level2">
+<h2>Current Analyses</h2>
+<div id="gwas-in-psymetab-our-study" class="section level3">
+<h3>GWAS in PSYMETAB (our study)</h3>
+<ul>
+<li>Run within various subsets.</li>
+<li>Subsets were defined based on drug use, for various drug groups of interest (we had 9 groups of drugs that we analyzed).</li>
+<li>Phenotypes included various measures of the evolution of BMI: BMI change, BMI slope, weighted slope for SE, etc.</li>
+<li>Restricted to only European subset.</li>
+<li>Phenotypes were residualized for: age, age^2, sex, PC1-20, follow-up time, follow-up time^2, and baseline BMI (Zoltan: we discussed this last time, but to again clarify - should follow-up time be included, it seems redundant if we are analyzing slope which already considers time between BMI measures).</li>
+</ul>
+</div>
+<div id="gwas-in-ukbb" class="section level3">
+<h3>GWAS in UKBB</h3>
+<ul>
+<li>Phenotype: BMI slope.</li>
+<li>GWAS restricted to participants having at least 2 BMI measures restricted to unrelated, British individuals.</li>
+<li>Phenotype was first residualized for: age, sex, PC1-40, and baseline BMI</li>
+</ul>
+</div>
+<div id="comparison-between-psymetab-and-ukbb" class="section level3">
+<h3>COMPARISON BETWEEN PSYMETAB and UKBB:</h3>
+<ul>
+<li>In PSYMETAB, I took only endpoints involving slope since this would represent the best comparison to UKBB.</li>
+<li>I extracted nominally significant hits in PSYMETAB (p &lt; 5e-06) (as there were very few less with p&lt; 5e-08).</li>
+<li>For these SNPs, I compared with UKBB using a standard heterogeneity statistic.</li>
+<li>Limited to only GW-sig results based on het p-value.</li>
+<li>Identified 68 GW-significant SNPs (i.e. SNPs that show significant difference between some PSYMETAB subset and UKBB based on a BMI slope measure, for only those SNPs in PSYMETAB that have p &lt; 5e-06).</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>Test top SNPs from our GWAS (within drug subgroups) with BMI in UKBB within a group defined as under the same drug as the association in our psychiatric cohort (using drug information data in UKBB). Note that in contrast to our psychiatric cohort, we don’t have information for how long a UKBB participant has been taking a specific drug.</li>
+<li>To justify (1), ensure that BMI is a good proxy for change in BMI (i.e. the phenotype used in the psychiatric cohort), correlate BMI at end of follow-up with BMI slope in our psychiatric cohort.</li>
+<li>For rare (0.01 &lt; MAF &lt; 0.05) SNPs, perform permutation test (i.e. shuffle phenotype ~1M times and perform same association: pheno ~ SNP + covars) to see if the effect found with the real data (i.e. unshuffled phenotype) is significantly larger than using the 1M shuffled phenotypes and not just some artifact of low AF.</li>
+<li>Meta-analyze GWAS results across drug subgroups and use Cochran’s Q test (i.e. test for heterogeneity) to determine effects differ across subgroups.</li>
+</ol>
+</div>
+</div>
+<div id="acknowledgements" class="section level2">
+<h2>Acknowledgements</h2>
+<p>Primary analysis performed by: <a href="jennysjaarda@gmail.com">Jenny Sjaarda</a>. Project supervisor: <a href="https://www.unil.ch/fbm/fr/home/menuinst/la-releve-academique/nominations--promotions/professeurs-a-a-z/d-g/eap-chin-bin.html">Professor Chin Bin Eap</a>. Analysis support: <a href="https://wp.unil.ch/sgg/people/zoltan/">Professor Zoltan Kutalik</a>.</p>
 <p>This work has been supported by the <a href="http://www.snf.ch/en/funding/Pages/default.aspx">Swiss National Science Foundation</a>.</p>
 <br>
 <p>
-<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo"
+  data-toggle="collapse" data-target="#workflowr-sessioninfo"
+  style = "display: block;">
+  
 <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
 </button>
 </p>
+
 <div id="workflowr-sessioninfo" class="collapse">
+
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 3.5.3 (2019-03-11)
 Platform: x86_64-pc-linux-gnu (64-bit)
@@ -906,6 +1107,8 @@ loaded via a namespace (and not attached):
 [21] httpuv_1.5.2    xfun_0.11       compiler_3.5.3  htmltools_0.4.0
 [25] knitr_1.26     </code></pre>
 </div>
+
+
 </div>
 
 
