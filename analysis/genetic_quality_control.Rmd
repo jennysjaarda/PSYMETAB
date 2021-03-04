@@ -648,6 +648,9 @@ for(col_type in c("genetic", "reported"))
 
 *In general, clean, ethnic specific imputed data were used for analyses (from #15.1), and ethnic-specific PCs were used as adjustments (from #15.5).*
 
+\newline
+
+## 16. Compressing large intermediate files.
 
 Run the following commands to compress some large intermediate files.
 
@@ -659,9 +662,9 @@ cd $output_dir/06_imputation_get
 mkdir archive
 tar --exclude='*.info.gz' --exclude qcreport.html --exclude snps-excluded.txt --exclude archive -czvf archive/06_imputation_get.tar.gz * --remove-files
 
-cd $output_dir
+cd $output_dir/10_merge_imputed
 mkdir archive
-tar --exclude='*.psam' --exclude='*.pvar' -czvf 10_merge_imputed.tar.gz 10_merge_imputed --remove-files
+tar --exclude='*.psam' --exclude='*.pvar' -czvf archive/10_merge_imputed.tar.gz * --remove-files
 
 cd $output_dir/13_hwecheck
 mkdir archive
