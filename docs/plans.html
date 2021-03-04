@@ -11,7 +11,7 @@
 
 
 
-<title>Project</title>
+<title>Project Plans</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -419,7 +419,7 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">Project</h1>
+<h1 class="title toc-ignore">Project Plans</h1>
 
 </div>
 
@@ -428,7 +428,7 @@ div.section {
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
   data-toggle="collapse" data-target="#workflowr-report">
   
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 
@@ -438,7 +438,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
   <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
   <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -448,10 +448,10 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
   <p>
-<strong>Last updated:</strong> 2021-03-03
+<strong>Last updated:</strong> 2021-03-04
 </p>
   <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
   <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -533,46 +533,23 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongabsolute"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>File paths:</strong> absolute </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
 </p>
 </div>
-<div id="strongFilepathsstrongabsolute" class="panel-collapse collapse">
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
-  <p>
-Using absolute paths to the files within your workflowr project makes it difficult for you and others to run your code on a different machine. Change the absolute path(s) below to the suggested relative path(s) to make your code more reproducible.
-</p>
-<table class="table table-condensed table-hover">
- <thead>
-  <tr>
-   <th style="text-align:left;"> 
-absolute
-</th>
-   <th style="text-align:left;"> 
-relative
-</th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> 
-/data/sgg2/jenny/projects/PSYMETAB
-</td>
-   <td style="text-align:left;"> 
-.
-</td>
-  </tr>
-</tbody>
-</table>
+  
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree030499889e2676ee2a2d81d6bedb6d7c60b8836ctargetblank0304998a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/030499889e2676ee2a2d81d6bedb6d7c60b8836c" target="_blank">0304998</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreedab6add3e73b2a0728e57712e071be9fa101b990targetblankdab6adda"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/dab6add3e73b2a0728e57712e071be9fa101b990" target="_blank">dab6add</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree030499889e2676ee2a2d81d6bedb6d7c60b8836ctargetblank0304998a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreedab6add3e73b2a0728e57712e071be9fa101b990targetblankdab6adda" class="panel-collapse collapse">
 <div class="panel-body">
   
 
@@ -588,10 +565,25 @@ Ignored files:
     Ignored:    analysis/._data_processing_in_genomestudio.Rmd
     Ignored:    analysis/._quality_control.Rmd
     Ignored:    analysis/GWAS/
+    Ignored:    analysis/GWAS_results.knit.md
+    Ignored:    analysis/GWAS_results.utf8.md
     Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
     Ignored:    analysis/Rlogo2.png
+    Ignored:    analysis/figure/
     Ignored:    analysis/rplot.jpg
+    Ignored:    analysis_prep_10_clustermq.out
+    Ignored:    analysis_prep_11_clustermq.out
+    Ignored:    analysis_prep_12_clustermq.out
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    analysis_prep_5_clustermq.out
+    Ignored:    analysis_prep_6_clustermq.out
+    Ignored:    analysis_prep_7_clustermq.out
+    Ignored:    analysis_prep_8_clustermq.out
+    Ignored:    analysis_prep_9_clustermq.out
     Ignored:    data/processed/
     Ignored:    data/raw/
     Ignored:    packrat/lib-R/
@@ -711,6 +703,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/dab6add3e73b2a0728e57712e071be9fa101b990/analysis/plans.Rmd" target="_blank">dab6add</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Building plans Rmd
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/b4487b78ed10e0eaadd6a5c96310befe56bd6521/docs/plans.html" target="_blank">b4487b7</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -916,16 +942,16 @@ loaded via a namespace (and not attached):
  [73] formatR_1.7          proftools_0.99-2     xml2_1.2.2          
  [76] compiler_3.5.3       rstudioapi_0.10      png_0.1-7           
  [79] filelock_1.0.2       testthat_2.3.1       reprex_0.3.0        
- [82] stringi_1.4.5        highr_0.8            ps_1.3.0            
- [85] desc_1.2.0           gdtools_0.2.2        lattice_0.20-38     
- [88] vctrs_0.2.4          pillar_1.4.3         lifecycle_0.1.0     
- [91] networkD3_0.4        httpuv_1.5.2         R6_2.4.1            
- [94] promises_1.1.0       gridExtra_2.3        sessioninfo_1.1.1   
- [97] codetools_0.2-16     lambda.r_1.2.4       assertthat_0.2.1    
-[100] pkgload_1.0.2        rprojroot_1.3-2      withr_2.1.2         
-[103] batchtools_0.9.12    parallel_3.5.3       hms_0.5.3           
-[106] grid_3.5.3           rmarkdown_1.18       git2r_0.26.1        
-[109] shiny_1.4.0          lubridate_1.7.4     </code></pre>
+ [82] stringi_1.4.5        ps_1.3.0             desc_1.2.0          
+ [85] gdtools_0.2.2        lattice_0.20-38      vctrs_0.2.4         
+ [88] pillar_1.4.3         lifecycle_0.1.0      networkD3_0.4       
+ [91] httpuv_1.5.2         R6_2.4.1             promises_1.1.0      
+ [94] gridExtra_2.3        sessioninfo_1.1.1    codetools_0.2-16    
+ [97] lambda.r_1.2.4       assertthat_0.2.1     pkgload_1.0.2       
+[100] rprojroot_1.3-2      withr_2.1.2          batchtools_0.9.12   
+[103] parallel_3.5.3       hms_0.5.3            grid_3.5.3          
+[106] rmarkdown_1.18       git2r_0.26.1         shiny_1.4.0         
+[109] lubridate_1.7.4     </code></pre>
 </div>
 
 
