@@ -1,5 +1,5 @@
 ---
-title: "Project"
+title: "Project Plans"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -14,7 +14,7 @@ source("code/functions.R")
 source("code/plan.R")
 library(R.utils)
 library(kableExtra)
-project_dir <- "/data/sgg2/jenny/projects/PSYMETAB"
+
 output_name <- "PSYMETAB_GWAS"
 ```
 
