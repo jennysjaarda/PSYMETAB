@@ -282,6 +282,38 @@ $(document).ready(function () {
 <li>
   <a href="setup.html">Setup</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Project
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">GWAS</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="GWAS_method.html">GWAS methods</a>
+        </li>
+        <li>
+          <a href="GWAS_results.html">GWAS results</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Meetings
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="Zoltan_meeting_25_09_2020.html">Update with Zoltan 25-09-2020</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -313,42 +345,47 @@ div.section {
 
 
 <p>
-<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
+  data-toggle="collapse" data-target="#workflowr-report">
+  
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
+
 <div id="workflowr-report" class="collapse">
 <ul class="nav nav-tabs">
-<li class="active">
+  <li class="active">
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
-<li>
+  <li>
 <a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
-<li>
+  <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
 </li>
 </ul>
+
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
-<p>
-<strong>Last updated:</strong> 2019-12-06
+  <p>
+<strong>Last updated:</strong> 2021-03-04
 </p>
-<p>
+  <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
-<p>
+  <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
-<p>
+  <p>
+  
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
 <div id="checks" class="tab-pane fade">
-<div id="workflowr-checks" class="panel-group">
-<div class="panel panel-default">
+  <div class="panel-group" id="workflowr-checks">
+  <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
 <a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
@@ -356,6 +393,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
@@ -368,6 +406,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
 </div>
 </div>
@@ -380,6 +419,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongSeedstrongcodesetseed20191126code" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>The command <code>set.seed(20191126)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
 </div>
 </div>
@@ -392,6 +432,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
 </div>
 </div>
@@ -404,6 +445,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongCachestrongnone" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
 </div>
 </div>
@@ -416,6 +458,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
 </div>
 </div>
@@ -423,34 +466,130 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree5e454c33eb2720be586b82acfc4be3c4c52c9124targetblank5e454c3a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/5e454c33eb2720be586b82acfc4be3c4c52c9124" target="_blank">5e454c3</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree3cea988925216111aea6b7a3cf16ddc9b156cd22targetblank3cea988a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/3cea988925216111aea6b7a3cf16ddc9b156cd22" target="_blank">3cea988</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree5e454c33eb2720be586b82acfc4be3c4c52c9124targetblank5e454c3a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree3cea988925216111aea6b7a3cf16ddc9b156cd22targetblank3cea988a" class="panel-collapse collapse">
 <div class="panel-body">
+  
+
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
-<pre><code>
+ <pre><code>
 Ignored files:
+    Ignored:    ._docs
     Ignored:    .drake/
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/._GWAS.Rmd
+    Ignored:    analysis/._data_processing_in_genomestudio.Rmd
+    Ignored:    analysis/._quality_control.Rmd
+    Ignored:    analysis/GWAS/
+    Ignored:    analysis/GWAS_results.knit.md
+    Ignored:    analysis/GWAS_results.utf8.md
+    Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
+    Ignored:    analysis/Rlogo2.png
+    Ignored:    analysis/figure/
+    Ignored:    analysis/rplot.jpg
+    Ignored:    analysis_prep_10_clustermq.out
+    Ignored:    analysis_prep_11_clustermq.out
+    Ignored:    analysis_prep_12_clustermq.out
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    analysis_prep_5_clustermq.out
+    Ignored:    analysis_prep_6_clustermq.out
+    Ignored:    analysis_prep_7_clustermq.out
+    Ignored:    analysis_prep_8_clustermq.out
+    Ignored:    analysis_prep_9_clustermq.out
     Ignored:    data/processed/
     Ignored:    data/raw/
+    Ignored:    packrat/lib-R/
+    Ignored:    packrat/lib-ext/
+    Ignored:    packrat/lib/
+    Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_12_clustermq.out
+    Ignored:    process_init_13_clustermq.out
+    Ignored:    process_init_14_clustermq.out
+    Ignored:    process_init_15_clustermq.out
+    Ignored:    process_init_16_clustermq.out
+    Ignored:    process_init_17_clustermq.out
+    Ignored:    process_init_18_clustermq.out
+    Ignored:    process_init_19_clustermq.out
+    Ignored:    process_init_1_clustermq.out
+    Ignored:    process_init_20_clustermq.out
+    Ignored:    process_init_21_clustermq.out
+    Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_9_clustermq.out
+    Ignored:    prs_1_clustermq.out
+    Ignored:    prs_2_clustermq.out
+    Ignored:    prs_3_clustermq.out
+    Ignored:    prs_4_clustermq.out
+    Ignored:    prs_5_clustermq.out
+    Ignored:    prs_6_clustermq.out
+    Ignored:    prs_7_clustermq.out
+    Ignored:    prs_8_clustermq.out
+    Ignored:    ukbb_analysis_10_clustermq.out
+    Ignored:    ukbb_analysis_11_clustermq.out
+    Ignored:    ukbb_analysis_12_clustermq.out
+    Ignored:    ukbb_analysis_13_clustermq.out
+    Ignored:    ukbb_analysis_14_clustermq.out
+    Ignored:    ukbb_analysis_15_clustermq.out
+    Ignored:    ukbb_analysis_16_clustermq.out
+    Ignored:    ukbb_analysis_17_clustermq.out
+    Ignored:    ukbb_analysis_18_clustermq.out
+    Ignored:    ukbb_analysis_19_clustermq.out
+    Ignored:    ukbb_analysis_1_clustermq.out
+    Ignored:    ukbb_analysis_20_clustermq.out
+    Ignored:    ukbb_analysis_21_clustermq.out
+    Ignored:    ukbb_analysis_22_clustermq.out
+    Ignored:    ukbb_analysis_2_clustermq.out
+    Ignored:    ukbb_analysis_3_clustermq.out
+    Ignored:    ukbb_analysis_4_clustermq.out
+    Ignored:    ukbb_analysis_5_clustermq.out
+    Ignored:    ukbb_analysis_6_clustermq.out
+    Ignored:    ukbb_analysis_7_clustermq.out
+    Ignored:    ukbb_analysis_8_clustermq.out
+    Ignored:    ukbb_analysis_9_clustermq.out
 
 Untracked files:
-    Untracked:  post_impute_qc.out
+    Untracked:  Rlogo.png
+    Untracked:  Rlogo2.png
+    Untracked:  analysis_prep.log
+    Untracked:  download_impute.log
+    Untracked:  extract_sig.log
+    Untracked:  grs.log
+    Untracked:  init_analysis.log
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison.csv
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison2.csv
+    Untracked:  output/PSYMETAB_GWAS_baseline_CEU_result.csv
+    Untracked:  output/PSYMETAB_GWAS_subgroup_CEU_result.csv
+    Untracked:  output/coffee_consumed_Neale_UKBB_analysis.csv
+    Untracked:  process_init.log
+    Untracked:  prs.log
+    Untracked:  rplot.jpg
+    Untracked:  test
+    Untracked:  ukbb_analysis.log
 
 Unstaged changes:
-    Deleted:    post_imputation_qc.log
-    Deleted:    pre_imputation_qc.log
-    Modified:   pre_impute_qc.out
-    Deleted:    qc_part2.out
+    Modified:   analysis/plans.Rmd
+    Modified:   cache_log.csv
+    Modified:   post_impute.log
 
-</code></pre>
-<p>
+</code></pre> <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
 </p>
+
 </div>
 </div>
 </div>
@@ -458,7 +597,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
+  
 <p>
 These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
 </p>
@@ -484,6 +623,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/941b66dff7d9f6ebb58759cb9e2ab4a610d9aab3/analysis/about.Rmd" target="_blank">941b66d</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+add new Rmd files and respective html files
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/9f1ba5e2539136e5a4cdcbba996ba481e11d4cc0/docs/about.html" target="_blank">9f1ba5e</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2019-12-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -572,203 +745,78 @@ Start workflowr project.
 </tbody>
 </table>
 </div>
+
 <hr>
 </div>
 </div>
 </div>
+
+
+
+
+
+
 <p>Describe your project.</p>
 <p>see <code>data/README.md</code> for information on data inputs see <code>scripst/README.md</code> for information on scripts</p>
 <ul>
 <li><a href="info.html">INFO</a></li>
 </ul>
-<p><strong>Last updated:</strong> 2019-12-06</p>
-<p><strong>Code version:</strong> 5e454c33eb2720be586b82acfc4be3c4c52c9124</p>
-<p>We used this site to collaborate and share our results. Please feel free to explore. The results that made it into the final paper are in the section <a href="#finalizing">Finalizing</a> below. Here are some useful links:</p>
+<p><strong>Last updated:</strong> 2021-03-04</p>
+<p><strong>Code version:</strong> 3cea988925216111aea6b7a3cf16ddc9b156cd22</p>
+<p>We used this site to collaborate and share our results. Please feel free to explore.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <ul>
-<li><a href="http://www.nature.com/articles/srep39921">Batch effects and the effective design of single-cell gene expression studies</a> (published in 2017) - <a href="http://biorxiv.org/content/early/2016/07/08/062919">Pre-print</a> (posted in 2016)</li>
-<li>GEO record <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE77288">GSE77288</a> for the raw FASTQ files</li>
-<li><a href="https://github.com/jennysjaarda/PSYMETAB">GitHub repo</a> for code and data</li>
-</ul>
-<div id="setting-up-the-project" class="section level2">
-<h2>Setting up the project</h2>
-</div>
-<div id="finalizing" class="section level2">
-<h2>Finalizing</h2>
-<ul>
-<li><a href="process-samples.html">Process sequencing data - From fastq to gene counts</a></li>
-<li><a href="prepare-counts.html">Create gene-x-sample count matrices and annotation files</a></li>
-<li><a href="qc-filter-ipsc.html">Quality control of single cells</a></li>
-<li><a href="filter.html">Filter genes and low-quality single cells</a></li>
-<li><a href="qc-plots.html">Quality control of UMIs and ERCC spike-ins</a></li>
-<li><a href="compare-reads-v-molecules-per-batch-test.html">Compare reads to molecules counts</a></li>
-<li><a href="subsample-final.html">Subsampling</a> (<a href="subsample-lcl-final.html">LCL</a>, <a href="subsample-final-rep.html">per batch</a>)</li>
-<li><a href="cpm.html">Standardize with counts per million</a></li>
-<li><a href="poisson-glm-normalization.html">Account for technical noise measured with ERCC controls using Poisson GLM transformation</a></li>
-<li><a href="batch-correction.html">Mixed effect model for batch correction</a></li>
-<li><a href="data-transformation.html">Visualization of data transformations</a></li>
-<li><a href="cv-adjusted-summary-pois-final.html">Comparing cell-to-cell variation between individuals</a> (<a href="paper-additional-analysis.html">Additional figures</a>)</li>
+<li>Antipsychotic induced weight gain is a common side effect of antipsychotic treatement.</li>
+<li>However, this observation varies considerably across patients, and has been shown to be linked to many factors, including type of treatment, pre-treatment body mass index (BMI), sex and age.</li>
+<li>Beyond these variables, significant variability across individuals remains, pointing to a potential role of inter-individual genetic variability in antipsychotic induce weight gain.</li>
+<li>Indeed, the heritability (h2) for antipsychotic induced weight gain has been estimated to be 0.8 (Theisen et al., 2005).</li>
+<li>Despite these observations, few genome-wide significant loci have been discovered. Identification of genetic polymorphisms responsible for antipsychotic induced weight gain is a valuable research endeavor which could lead to both improved treatment and more personalized interventions to combat this harmful and debilitating side-effect of antipsychotics and improve quality of life.</li>
 </ul>
 </div>
-<div id="process-sequence-data" class="section level2">
-<h2>Process sequence data</h2>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
 <ul>
-<li><a href="process-samples.html">Pipeline</a> - (<a href="process-lcl.html">LCLs</a>)</li>
-<li><a href="total-counts.html">Total counts</a></li>
-<li><a href="qc-by-lane.html">Quality control at level of sequencing lane</a></li>
-<li><a href="sum-counts-per-sample.html">Sum counts per sample</a></li>
-<li><a href="qc-cell-ipsc.html">Quality control at level of single cell samples</a> - (<a href="qc-cell-lcl.html">LCLs</a>)
-<ul>
-<li><a href="depth.html">Sequencing depth and cellular RNA content</a> - (<a href="depth-final.html">Final</a>)</li>
-<li><a href="qc-filter-ipsc.html">Attempt to finalize quality control</a></li>
-</ul></li>
+<li>In this study, we sought to identify novel genetic polymorphisms for antipsychotic induced weight gain across a range of antipsychotic treatments.</li>
+<li>These treatments included olanzapine, clozapine, valproate, quetiapine, risperidone, amisulpride, among others.</li>
+<li>The study population included 2767 psychiatric participants who have been followed up to XX years with up to XX number of visits, and under at least one antipsychotic treatment at each visit.</li>
+<li>Standard clinical measures were assessed and recorded at each visit, including weight-gain, to evaluate the evolution of BMI overtime.</li>
+<li>All participants were genotyped on the Global Screening Array (GSA) v2 with multiple disease option (MD) chip.</li>
+<li>After standard quality control filters (i.e. missingness, sex check, excess relatedness, minor allele frequency and Hardy-Weinberg) and imputation were performed, our study sample consisted of 2647 samples and 10382351 SNPs.</li>
+<li>We chose to limit the analyses to only the European subset comprising 2116 samples.</li>
+<li>European ancestry was determined using snpweights, a software for inferring genome-wide genetic ancestry using SNP weights precomputed from large external reference panels (Chen et al., 2013).</li>
+<li>We analyzed drugs both separately and combined (based on mode of action and biological pathways).</li>
+<li>Additionally, we investigated the evolution of BMI using various definitions, including delta change in BMI over time, slope of BMI over time (estimated using a linear model with BMI regressed on time between follow-up visits, in days), and weighted slope of BMI over time (weighted by the inverse SE).</li>
+<li>These definitions were then repeated restricting to only 6, 3 and 1 month of follow-up, as weight gain has been shown to be greatest in the first 6 months and plateau with continual antipsychotic use.</li>
+<li>We also utilized the UKBiobnak (UKB), a very large population-based cohort, as a control population. Briefly, we included 31056 participants with at least two measures for BMI and performed a GWAS with the change in BMI over time (as in the psychiatric cohort) as the dependent phenotype.</li>
+<li>Analyses were restricted to British individuals. These results served as a control GWAS to ensure that GW-significant findings within the psychiatric cohort, truly represent antipsychotic-induced weight gain-associated loci as apposed weight gain-associated loci, in general.</li>
 </ul>
 </div>
-<div id="analysis" class="section level2">
-<h2>Analysis</h2>
+<div id="results" class="section level1">
+<h1>Results</h1>
 <ul>
-<li><a href="noisy-gene.html">Identification of noisy genes</a></li>
-<li><a href="compare-reads-v-molecules.html">Compare read versus molecule counts</a> - (<a href="compare-reads-v-molecules-per-batch.html">per batch</a>,<a href="compare-reads-v-molecules-per-batch-test.html">per batch conversion rates comparison</a>, <a href="compare-reads-v-molecules-in-cells.html">per cell</a>)
-<ul>
-<li><a href="islam2014.html">Islam et al., 2014</a></li>
-<li><a href="vallejos2015.html">Vallejos et al., 2015</a></li>
-</ul></li>
-<li><a href="variance.html">Variance within and between individaul</a></li>
-<li><a href="ercc-correlation.html">Correlation with ERCC spike-ins</a>
-<ul>
-<li><a href="ercc-counts.html">Counts of each ERCC in single cell</a></li>
-<li><a href="capture-efficiency.html">Capture efficiency</a></li>
-<li><a href="ercc-over-sequenced.html">Over-sequenced ERCC in LCLs</a></li>
-<li><a href="ercc-cpm.html">cmp ERCC or not</a></li>
-</ul></li>
-<li><a href="ercc-normalization.html">ERCC normalization</a>
-<ul>
-<li><a href="gamma-regression-model.html">Gamma regression model (GRM)</a></li>
-<li><a href="basics.html">BASiCS</a>
-<ul>
-<li><a href="basics-wo-batch.html">without modeling batch</a></li>
-<li>Using too few iterations gives a poor fit. These are older versions of the analysis kept to demonstrate this(<a href="basics-4000.html">4000 iterations</a>, <a href="basics-20000.html">20000 iterations</a>)</li>
-</ul></li>
-<li><a href="shrunk-linear-transform.html">Shrunk linear transformation</a></li>
-<li><a href="basics-variance-components.html">Variance components</a></li>
-<li><a href="poisson-glm-normalization.html">Poisson GLM normalization</a></li>
-</ul></li>
-<li><a href="subsample.html">Subsample</a> - (<a href="subsample-lcl.html">LCLs</a>)
-<ul>
-<li><a href="correlate-single-to-bulk.html">Correlation of single and bulk cells</a></li>
-<li><a href="detect-genes.html">Number of expressed genes</a> - (<a href="detect-genes-lcl.html">LCLs</a>)</li>
-<li><a href="subsample-high-coverage-lcl.html">High coverage single cells</a></li>
-<li><a href="subsample-variance.html">Cell to cell variance</a></li>
-</ul></li>
-<li><a href="cell-cycle.html">Cell-cycle analysis</a> - (<a href="cell-cycle-post-correction.html">final</a>), (<a href="cell-cycle-investigate.html">cycle-gene-set</a>)</li>
-<li><a href="stemness.html">pluripotency gene expression</a></li>
-<li><a href="pca-correlation-rafa.html">Proportion of detected genes</a> - (<a href="pca-correlation-rafa-filter.html">filter and final</a>)
-<ul>
-<li><a href="gene-and-total-molecule.html">Detected genes and total molecule counts</a></li>
-<li><a href="prop-genes-detected.html">More exploring of the proportion of genes detected</a> - <a href="prop-genes-detected-unfiltered.html">Using all cells</a></li>
-</ul></li>
-<li><a href="batch-limma.html">Batch effect correction with mixed modeling</a> - (<a href="batch-limma-final.html">linear transformation, filter and final</a>, <a href="batch-limma-poisson.html">Poisson transformation, filter and final</a>)
-<ul>
-<li><a href="batch-limma-final-per-gene.html">Per gene correction (filtered and final)</a></li>
-</ul></li>
-<li><a href="pca-individual.html">Individual PCAs</a></li>
-<li>Ordering effect of capture sites
-<ul>
-<li>All genes (<a href="oefinder-analysis.html">DESeq-normalized</a>, <a href="oefinder-analysis-cpm.html">CPM-normalized</a>)</li>
-<li><a href="oefinder-analysis-ercc.html">ERCC genes</a></li>
-<li><a href="oefinder-analysis-cpm-batch.html">Endogeneous genes per batch, per individual</a></li>
-</ul></li>
-<li><a href="gene-symbol.html">Extract gene symbols</a></li>
-<li>Cell-to-cell variation analysis
-<ul>
-<li><a href="cv-sparsity.html">CV and sparsity</a></li>
-<li>Mean-adjusted CV – ( <a href="cv-adjusted-wo-19098-r2.html">Normalize CV excluding outlier batch</a>, <a href="cv-adjusted.html">Normalize CV including outlier batch</a>, <a href="cv-adjusted-profile.html">Gene rankings</a>, <a href="cv-adjusted-profile-annotation.html">Annotations</a>, <a href="cv-adjusted-comparison.html">Gene-level dissimilarity measure</a> )</li>
-<li>Compare mean-adjusted CVs – (<a href="cv-adjusted-all-genes-wo-19098-2.html">ANOVA</a>, <a href="cv-annotation.html">ANOVA &amp; annotations</a>, <a href="cv-adjusted-statistical-test.html">Sum of Squared Deviation from the Median</a>, <a href="cv-adjusted-statistical-test-permute.html">Permutation-based p-values</a> )</li>
-<li>Noisy genes analysis – (<a href="cv-adjusted-summary.html">final and Gaussian-based transformation</a>, <a href="cv-adjusted-summary-pois.html">final and Poisson-based transformation</a>, <a href="compare-distribution-pluripotency.html">Pluripotent gene density plots</a> )</li>
-<li>Putting it all together… (<a href="cv-adjusted-summary-pois.html">All cells</a>, <a href="cv-adjusted-summary-pois-expressed.html">Expressed cells</a>, <a href="cv-adjusted-summary-pois-dropout.html">Undetected cells</a> )</li>
-</ul></li>
-<li><a href="qc-plots.html">Quality control plots</a></li>
-<li><a href="total-molecule.html">Total molecule-counts and standardization</a></li>
-<li>Exploring sequence coverage
-<ul>
-<li>Endogenous genes
-<ul>
-<li><a href="coverage-endogenous.html">molecules</a></li>
-<li><a href="coverage-endogenous-reads.html">reads</a></li>
-<li><a href="coverage-endogenous-bulk.html">bulk</a></li>
-</ul></li>
-<li>ERCC spike-ins
-<ul>
-<li><a href="coverage-ercc.html">molecules</a></li>
-<li><a href="coverage-ercc-reads.html">reads</a></li>
-<li><a href="coverage-ercc-bulk.html">bulk</a></li>
-</ul></li>
-<li>Using ngsplot
-<ul>
-<li><a href="ngsplot-setup.html">Setup</a></li>
-<li><a href="ngsplot-endogenous.html">endogenous genes</a></li>
-<li><a href="ngsplot-ercc.html">ERCC genes</a></li>
-</ul></li>
-</ul></li>
-<li><a href="pca-quantification.html">PCA quantification</a></li>
+<li>In summary, we identified 15 loci showing a GW-significant difference between the UKBB and our psychiatric cohort for four different antipsychotic drugs (olanzapine, clozapine, risperidone, and amisulpride) whereby a stronger (p &lt; 5e-06) association was identified between these loci and BMI slope in the psychiatric cohort compared to the general population in the UKBB.</li>
+<li>These results suggest that these loci may represent a weight-inducing effect specific to antipsychotic use rather than some wide-ranging mechanism present in the general population.</li>
 </ul>
 </div>
-<div id="download-data" class="section level2">
-<h2>Download data</h2>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
 <ul>
-<li><a href="download_flow_cell_01.html">Download flow cell 01 - C6WYKACXX</a></li>
-<li><a href="download_flow_cell_02.html">Download flow cell 02 - C6WURACXX</a></li>
-<li><a href="download_flow_cell_03.html">Download flow cell 03 - C723YACXX</a></li>
-<li><a href="download_flow_cell_04.html">Download flow cell 04 - C72JMACXX</a></li>
+<li>Future analyses will seek to replicate these findings in a larger cohort, compare these findings to a GWAS of BMI in both the general population (using the GIANT consortium, for example) and within our psychiatric cohort, and finally expand the phenotypes of interest to biomarker levels including LDL, HDL, creatine, and glucose levels.</li>
 </ul>
-</div>
-<div id="one-time-investigations" class="section level2">
-<h2>One-time investigations</h2>
-<ul>
-<li><a href="verify-md5sum.html">Verify md5 checksums</a></li>
-<li><a href="files-for-testing.html">Small and large files for testing</a></li>
-<li><a href="bug-conversion-01.html">Tracking down bug in reads to molecules conversion - Attempt 01</a></li>
-<li><a href="read2pos.html">The effect of using featureCounts read2pos flag</a></li>
-<li><a href="bug-conversion-02.html">Tracking down bug in reads to molecules conversion - Attempt 02</a></li>
-<li><a href="bug-conversion-03.html">Tracking down bug in reads to molecules conversion - Attempt 03</a></li>
-<li><a href="bug-conversion-04.html">Tracking down bug in reads to molecules conversion - Attempt 04</a></li>
-</ul>
-</div>
-<div id="other" class="section level2">
-<h2>Other</h2>
-<ul>
-<li><a href="analysis.html">Assessment of rapid run flow cell</a></li>
-</ul>
-</div>
-<div id="lcl-data-from-a-full-flowcell" class="section level2">
-<h2>LCL data from a full flowcell</h2>
-<ul>
-<li><a href="qc-cell-library.html">Quality control of cell/library</a></li>
-</ul>
-<p><br> <img src="divvy.jpg" alt="Divvy bikes" /> <br> <em><a href="https://www.flickr.com/photos/jamesbondsv/9041673199">Photo</a> by <a href="https://www.flickr.com/photos/jamesbondsv">Steven Vance</a> / <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></em></p>
-</div>
-<div id="project-overview" class="section level2">
-<h2>Project overview</h2>
-<p>The purpose of this project is to gain some insight into city-wide biking trends by analyzing the <a href="https://www.divvybikes.com/system-data">Divvy trip data</a>. Also, I examine trip data from one bike station at the University of Chicago to compare the biking patterns at the university against city-wide trends.</p>
-<p>All the results and plots presented in the pages below should be reproduceable on your computer. Follow the <a href="setup.html">Setup Instructions</a> if you are interested in reproducing the results for yourself.</p>
-<p>These are the results of my analyses. They were generated by rendering the <a href="https://github.com/stephenslab/wflow-divvy/tree/master/analysis">R Markdown documents</a> into webpages.</p>
-<ol style="list-style-type: decimal">
-<li><p><a href="first-glance.html">A first glance at the Divvy data.</a></p></li>
-<li><p><a href="station-map.html">A map of the Divvy stations in Chicago.</a></p></li>
-<li><p><a href="time-of-day-trends.html">Exploring daily bike commuting trends from the Divvy data.</a></p></li>
-<li><p><a href="seasonal-trends.html">Exploring seasonal biking trends from the Divvy data.</a></p></li>
-</ol>
-</div>
-<div id="credits" class="section level2">
-<h2>Credits</h2>
-<p>This workflowr project was developed by <a href="http://pcarbo.github.io">Peter Carbonetto</a> at the <a href="https://www.uchicago.edu">University of Chicago</a>.</p>
-<p>Thanks to <a href="https://github.com/jdblischak">John Blischak</a> and <a href="http://stephenslab.uchicago.edu">Matthew Stephens</a> for their assistance and support. Also, thanks to <a href="https://rstudio-pubs-static.s3.amazonaws.com/63061_90f5136ffdf74740b6ba4ad8f2fd72fe.html">Larry Layne</a> and <a href="http://www.austinwehrwein.com/data-visualization/heatmaps-with-divvy-data">Austin Wehrwein</a> for sharing their analyses of the Divvy trip data that inspired some of the investigations here.</p>
+<p>Here are some useful links:</p>
 <br>
 <p>
-<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo"
+  data-toggle="collapse" data-target="#workflowr-sessioninfo"
+  style = "display: block;">
+  
 <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
 </button>
 </p>
+
 <div id="workflowr-sessioninfo" class="collapse">
+
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 3.5.3 (2019-03-11)
 Platform: x86_64-pc-linux-gnu (64-bit)
@@ -789,15 +837,20 @@ locale:
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
+other attached packages:
+[1] workflowr_1.6.0
+
 loaded via a namespace (and not attached):
- [1] workflowr_1.5.0 Rcpp_1.0.3      rprojroot_1.3-2 digest_0.6.23  
- [5] later_1.0.0     R6_2.4.1        backports_1.1.5 git2r_0.26.1   
- [9] magrittr_1.5    evaluate_0.14   stringi_1.4.3   rlang_0.4.1    
+ [1] Rcpp_1.0.3      rprojroot_1.3-2 packrat_0.5.0   digest_0.6.25  
+ [5] later_1.0.0     R6_2.4.1        backports_1.1.6 git2r_0.26.1   
+ [9] magrittr_1.5    evaluate_0.14   stringi_1.4.5   rlang_0.4.5    
 [13] fs_1.3.1        promises_1.1.0  whisker_0.4     rmarkdown_1.18 
-[17] tools_3.5.3     stringr_1.4.0   glue_1.3.1      httpuv_1.5.2   
-[21] xfun_0.11       yaml_2.2.0      compiler_3.5.3  htmltools_0.4.0
+[17] tools_3.5.3     stringr_1.4.0   glue_1.4.0      yaml_2.2.0     
+[21] httpuv_1.5.2    xfun_0.11       compiler_3.5.3  htmltools_0.4.0
 [25] knitr_1.26     </code></pre>
 </div>
+
+
 </div>
 
 
