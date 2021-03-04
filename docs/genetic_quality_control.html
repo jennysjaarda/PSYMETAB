@@ -445,7 +445,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
   <p>
-<strong>Last updated:</strong> 2021-03-03
+<strong>Last updated:</strong> 2021-03-04
 </p>
   <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -566,10 +566,10 @@ relative
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreeae05ca93a4e3871656c8747c8b98622f94ede637targetblankae05ca9a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/ae05ca93a4e3871656c8747c8b98622f94ede637" target="_blank">ae05ca9</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree7a651100ff4a8ef6dc3a861b2396c2dea1a2df20targetblank7a65110a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/7a651100ff4a8ef6dc3a861b2396c2dea1a2df20" target="_blank">7a65110</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreeae05ca93a4e3871656c8747c8b98622f94ede637targetblankae05ca9a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree7a651100ff4a8ef6dc3a861b2396c2dea1a2df20targetblank7a65110a" class="panel-collapse collapse">
 <div class="panel-body">
   
 
@@ -592,6 +592,18 @@ Ignored files:
     Ignored:    analysis/Rlogo2.png
     Ignored:    analysis/figure/
     Ignored:    analysis/rplot.jpg
+    Ignored:    analysis_prep_10_clustermq.out
+    Ignored:    analysis_prep_11_clustermq.out
+    Ignored:    analysis_prep_12_clustermq.out
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    analysis_prep_5_clustermq.out
+    Ignored:    analysis_prep_6_clustermq.out
+    Ignored:    analysis_prep_7_clustermq.out
+    Ignored:    analysis_prep_8_clustermq.out
+    Ignored:    analysis_prep_9_clustermq.out
     Ignored:    data/processed/
     Ignored:    data/raw/
     Ignored:    packrat/lib-R/
@@ -711,6 +723,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/7a651100ff4a8ef6dc3a861b2396c2dea1a2df20/analysis/genetic_quality_control.Rmd" target="_blank">7a65110</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Rebuilding genetic QC Rmd
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/eabaa1acf38d2b4bff31cd448352c2c5594cfcb1/docs/genetic_quality_control.html" target="_blank">eabaa1a</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-03
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -2196,6 +2242,10 @@ The indep log file reads:
 </ol></li>
 </ol>
 <p><em>In general, clean, ethnic specific imputed data were used for analyses (from #15.1), and ethnic-specific PCs were used as adjustments (from #15.5).</em></p>
+<p></p>
+</div>
+<div id="compressing-large-intermediate-files." class="section level2">
+<h2>16. Compressing large intermediate files.</h2>
 <p>Run the following commands to compress some large intermediate files.</p>
 <pre class="bash"><code>project_dir=&quot;/data/sgg2/jenny/projects/PSYMETAB&quot;
 output_dir=$project_dir/analysis/QC
@@ -2204,9 +2254,9 @@ cd $output_dir/06_imputation_get
 mkdir archive
 tar --exclude=&#39;*.info.gz&#39; --exclude qcreport.html --exclude snps-excluded.txt --exclude archive -czvf archive/06_imputation_get.tar.gz * --remove-files
 
-cd $output_dir
+cd $output_dir/10_merge_imputed
 mkdir archive
-tar --exclude=&#39;*.psam&#39; --exclude=&#39;*.pvar&#39; -czvf 10_merge_imputed.tar.gz 10_merge_imputed --remove-files
+tar --exclude=&#39;*.psam&#39; --exclude=&#39;*.pvar&#39; -czvf archive/10_merge_imputed.tar.gz * --remove-files
 
 cd $output_dir/13_hwecheck
 mkdir archive
