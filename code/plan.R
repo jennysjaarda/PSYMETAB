@@ -35,6 +35,8 @@ qc_prep <- drake_plan (
 
 )
 
+# vis_drake_graph(qc_prep)
+
 psy_miscellaneous <- drake_plan(
   custom_snp_list = read_excel(file_in("data/raw/custom_SNP_list.xlsx"),sheet = 1),
   HRC_list = fread("/data/sgg2/jenny/data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab", data.table=F),
@@ -46,8 +48,8 @@ psy_miscellaneous <- drake_plan(
 
 
 )
-# config <- drake_config(qc_prep)
-# vis_drake_graph(config)
+
+# vis_drake_graph(psy_miscellaneous)
 
 pre_impute_qc <- drake_plan(
   # run pre-imupation quality control ----------------------
@@ -59,8 +61,7 @@ pre_impute_qc <- drake_plan(
   ),
 )
 
-# config <- drake_config(pre_impute_qc)
-# vis_drake_graph(config)
+# vis_drake_graph(pre_impute_qc)
 
 ################################################################
 ## here download output and upload to Michigan server
@@ -73,6 +74,8 @@ download_impute <- drake_plan(
       processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
   }),
 )
+
+# vis_drake_graph(download_impute)
 
 post_impute <- drake_plan(
 
@@ -121,6 +124,8 @@ post_impute <- drake_plan(
 
 )
 
+# vis_drake_graph(post_impute)
+
 qc_process <- drake_plan(
 
   imputed_var = count_imputed_var(),
@@ -153,9 +158,6 @@ qc_process <- drake_plan(
 
 
 )
-
-# config <- drake_config(post_impute)
-# vis_drake_graph(config)
 
 analysis_prep <- drake_plan(
   # prepare phenotype files for analysis in GWAS/GRS etc. ------------
@@ -248,8 +250,7 @@ analysis_prep <- drake_plan(
 
 )
 
-# config <- drake_config(analysis_prep)
-# vis_drake_graph(config)
+# vis_drake_graph(analysis_prep)
 
 ##### Run GWAS in PSYMETAB ---------
 
@@ -339,8 +340,7 @@ init_analysis <- drake_plan(
 
 )
 
-# config <- drake_config(init_analysis)
-# vis_drake_graph(config)
+# vis_drake_graph(init_analysis)
 
 
 ### troubleshooting
@@ -421,6 +421,8 @@ ukbb_analysis <- drake_plan(
   }, dynamic = map(chr_num), format = "file"),
 
 )
+
+# vis_drake_graph(ukbb_analysis)
 
 process_init <- drake_plan(
 
@@ -623,6 +625,37 @@ process_init <- drake_plan(
       related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
   }, dynamic = map(subgroup_gwas_process)),
 
+
+
+
+  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
+  sqc = fread(file_in(!!paste0(UKBB_dir, ukbb_sqc_file)), header=F, data.table=F),
+  fam = fread(file_in(!!paste0(UKBB_dir, ukbb_fam_file)), header=F,data.table=F),
+  relatives = read.table(file_in(!!paste0(UKBB_dir, ukbb_relatives_file)), header=T),
+  exclusion_list = fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_file)), data.table=F),
+  ukbb_bgen_sample = fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T,data.table=F),
+
+  #med_codes = read_tsv(file_in(!!medication_codes)),
+  qc_data = ukb_gen_sqc_names(sqc),
+  sqc_munge = munge_sqc(sqc,fam),
+  british_subset = get_british_ids(qc_data, fam),
+  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, !!bmi_var, !!sex_var, !!age_var),
+
+  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
+  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_list[,1], british_subset),
+  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
+  ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid, variable = "bmi_slope_resid"),
+  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
+
+  chr_num = tibble(chr = 1:22),
+
+  bgenie_out = target({
+    launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8, !!UKBB_dir)
+    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
+  }, dynamic = map(chr_num), format = "file"),
+
+
   bgenie_unzip = target({
     bgenie_out
     unzip_bgenie(chr_num$chr)
@@ -666,6 +699,8 @@ process_init <- drake_plan(
   # write.csv(ukbb_comparison_format,  file_out("output/PSYMETAB_GWAS_UKBB_comparison2.csv"),row.names = F)
 
 )
+
+# vis_drake_graph(process_init)
 
 #
 # ## GARBAGE
