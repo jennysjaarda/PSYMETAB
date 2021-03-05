@@ -1,5 +1,5 @@
 ---
-title: "Project Plans"
+title: "Project"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -14,26 +14,88 @@ source("code/functions.R")
 source("code/plan.R")
 library(R.utils)
 library(kableExtra)
-
+project_dir <- "/data/sgg2/jenny/projects/PSYMETAB"
 output_name <- "PSYMETAB_GWAS"
 ```
 
-[`drake`](https://books.ropensci.org/drake/) was used to manage all workflow.
+[`drake`](https://books.ropensci.org/drake/) was used to manage all workflows. See [plan.R](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R) and [functions.R](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/functions.R) for code. 
 
-```{r plans}
+## Plan 1: Prep data for quality control using prepared genomestudio files.
+
+```{r qc_prep, include=TRUE, echo=TRUE}
+
 outdated(qc_prep)
-deps_profile(fam_munge, qc_prep)
 
-deps_code(munge_fam)
-deps_target(fam_munge, qc_prep)
+vis_drake_graph(qc_prep, main="QC preparation drake plan")
 
-vis_drake_graph(qc_prep, main="QC Preparation Plan")
-vis_drake_graph(pre_impute_qc, main="Pre-Imputation Plan")
-vis_drake_graph(download_impute, main="Download Imputation Plan")
-vis_drake_graph(post_impute, main="Post-Imputation Plan")
+```
 
-#vis_drake_graph(analysis)
-#vis_drake_graph(download_impute, make_imports = FALSE)
-#vis_drake_graph(post_impute,  make_imports = FALSE)
-options(scipen=999)
+## Plan 2: Pre-imputation quality control. 
+
+```{r pre_impute_qc, include=TRUE, echo=TRUE}
+
+outdated(pre_impute_qc)
+
+vis_drake_graph(pre_impute_qc, main="Pre-imputation drake plan")
+
+```
+
+## Plan 3: Download imputed data. 
+
+```{r download_impute, include=TRUE, echo=TRUE}
+
+outdated(download_impute)
+
+vis_drake_graph(download_impute, main="Download imputed data drake plan")
+
+```
+
+## Plan 4: Post-imputation quality control. 
+
+```{r post_impute, include=TRUE, echo=TRUE}
+
+outdated(post_impute)
+
+vis_drake_graph(post_impute, main="Post-imputation quality control drake plan")
+
+```
+
+## Plan 5: Analysis prep. 
+
+```{r analysis_prep, include=TRUE, echo=TRUE}
+
+outdated(analysis_prep)
+
+vis_drake_graph(analysis_prep, main="Analysis prep drake plan")
+
+```
+
+## Plan 6: Initial analysis. 
+
+```{r init_analysis, include=TRUE, echo=TRUE}
+
+outdated(init_analysis)
+
+vis_drake_graph(init_analysis, main="Initial analysis drake plan")
+
+```
+
+## Plan 7: UKBB analysis. 
+
+```{r ukbb_analysis, include=TRUE, echo=TRUE}
+
+#outdated(ukbb_analysis)
+
+#vis_drake_graph(ukbb_analysis, main="UKBB analysis drake plan")
+
+```
+
+## Plan 8: Process initial analysis. 
+
+```{r process_init, include=TRUE, echo=TRUE}
+
+outdated(process_init)
+
+vis_drake_graph(process_init, main="Process initial analysis drake plan")
+
 ```
