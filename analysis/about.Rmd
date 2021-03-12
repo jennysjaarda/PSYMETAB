@@ -2,30 +2,16 @@
 title: "About"
 output:
   workflowr::wflow_html:
-    toc: false
+    toc: true
 editor_options:
   chunk_output_type: console
----
-
-Describe your project.
-
-see `data/README.md` for information on data inputs
-see `scripst/README.md` for information on scripts
-
-*  [INFO](info.html)
-
----
-title: "Home"
 ---
 
 **Last updated:** `r Sys.Date()`
 
 **Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
 
-We used this site to collaborate and share our results.
-Please feel free to explore.
-
-# Introduction
+# Introduction and Rationale
 
 - Antipsychotic induced weight gain is a common side effect of antipsychotic treatement. 
 - However, this observation varies considerably across patients, and has been shown to be linked to many factors, including type of treatment, pre-treatment body mass index (BMI), sex and age. 
@@ -51,14 +37,19 @@ Please feel free to explore.
 
 # Results 
 
-- In summary, we identified 15 loci showing a GW-significant difference between the UKBB and our psychiatric cohort for four different antipsychotic drugs (olanzapine, clozapine, risperidone, and amisulpride) whereby a stronger (p < 5e-06) association was identified between these loci and BMI slope in the psychiatric cohort compared to the general population in the UKBB. 
-- These results suggest that these loci may represent a weight-inducing effect specific to antipsychotic use rather than some wide-ranging mechanism present in the general population. 
+- We analyzed drugs both separately and combined (based on mode of action and biological pathways). 
+- Additionally, we investigated the evolution of BMI using various definitions, including delta change in BMI over time, slope of BMI over time (estimated using a linear model with BMI regressed on time between follow-up visits, in days), and weighted slope of BMI over time (weighted by the inverse SE). 
+- These definitions were then repeated restricting to only 6, 3 and 1 month of follow-up, as weight gain has been shown to be greatest in the first 6 months and plateau with continual antipsychotic use. 
+- We also utilized the UKBiobnak (UKB), a very large population-based cohort, as a control population. Briefly, we included 31056 participants with at least two measures for BMI and performed a GWAS with the change in BMI over time (as in the psychiatric cohort) as the dependent phenotype. 
+- Analyses were restricted to British individuals. These results served as a control GWAS to ensure that GW-significant findings within the psychiatric cohort, truly represent antipsychotic-induced weight gain-associated loci as apposed weight gain-associated loci, in general. 
+
 
 # Discussion
 
+- In summary, we identified 15 loci showing a GW-significant difference between the UKBB and our psychiatric cohort for four different antipsychotic drugs (olanzapine, clozapine, risperidone, and amisulpride) whereby a stronger (p < 5e-06) association was identified between these loci and BMI slope in the psychiatric cohort compared to the general population in the UKBB. 
+- These results suggest that these loci may represent a weight-inducing effect specific to antipsychotic use rather than some wide-ranging mechanism present in the general population. 
 - Future analyses will seek to replicate these findings in a larger cohort, compare these findings to a GWAS of BMI in both the general population (using the GIANT consortium, for example) and within our psychiatric cohort, and finally expand the phenotypes of interest to biomarker levels including LDL, HDL, creatine, and glucose levels. 
 
-Here are some useful links:
 
 
 
