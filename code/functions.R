@@ -363,7 +363,7 @@ munge_pheno <- function(pheno_raw, baseline_vars, leeway_time, caffeine_munge, f
     ungroup() %>% group_by(GEN,AP1) %>%
     filter(grepl('round1$', AP1_mod)) %>% # restrict to only round1 of each drug
     #filter(Num_followups == max(Num_followups)) %>% # restrict to drug with most number of follow-ups
-    mutate_at(baseline_vars, list(change = ~X_diff(.))) %>%
+      mutate_at(baseline_vars, list(change = ~X_diff(.))) %>%
     mutate(time_between_visits = as.numeric(Date-lag(Date))) %>% replace_na(list(time_between_visits=0)) %>%
     mutate_at(baseline_vars, as.numeric) %>%
     mutate_at(baseline_vars, list(change_6mo = ~X_diff_time(., date_difference_first, follow_up_6mo),
@@ -931,8 +931,7 @@ residualize_pheno <- function(GWAS_input, pheno, covars, outcome_type, eths, eth
 create_analysis_dirs <- function(top_level, eths){
   dir.create(top_level,showWarnings=F)
 
-  to_create <- c(file.path(top_level, "interaction"), file.path(top_level, "full"), file.path(top_level, "subgroup"))
-  ß
+  to_create <- c(file.path(top_level, "interaction"), file.path(top_level, "full"), file.path(top_level, "subgroup"),  file.path(top_level, "case_only"))
   for(dir in to_create){
     dir.create(dir,showWarnings=F)
     for (eth in eths){
@@ -1151,19 +1150,17 @@ define_subgroup_models <- function(GWAS_input, drug_classes, interaction_outcome
   return(subgroup_gwas_info)
 }
 
-
 define_case_only_models <- function(GWAS_input, drug_prioritization, interaction_outcome, baseline_vars){
   case_only_covars <- list()
-  case_only_pheno <- list()
+  case_only_pheno <- numeric()
   output_suffix <- numeric()
   for(i in 1:length(drug_prioritization)){
     for(j in 1:length(interaction_outcome)){
-      for(analysis in c("_", "_sensitivity_"))
-      {
+      #for(analysis in c("_", "_sensitivity_"))
+      #{
+        analysis <- "_"
         outcome <- interaction_outcome[j]
-        pheno <- c(paste0(outcome, analysis,drug_classes[i]),paste0("high_inducer",analysis,drug_prioritization[i]))
-        subgroup_vars <- c(case_only_covars,
-          colnames(GWAS_input_case_only$full_pheno)[which(colnames(GWAS_input_case_only$full_pheno)==paste0("high_inducer",analysis,drug_prioritization[i]))])
+        pheno <- paste0(outcome, analysis,drug_prioritization[i])
         covars <- c(standard_covars)
 
         for(pheno_temp in baseline_vars){
@@ -1176,11 +1173,11 @@ define_case_only_models <- function(GWAS_input, drug_prioritization, interaction
         if(outcome_ending=="mo"){
           month_str <- substrRight(outcome, 3)
           covars <- c(covars,
-            colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i]))) %>%
-              dplyr::select(matches('age'), paste0(phenotype, "_start_", drug_classes[i])))
+            colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_prioritization[i]))) %>%
+              dplyr::select(matches('age'), paste0(phenotype, "_start_", drug_prioritization[i])))
             )
           covars <- c(covars,
-            colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i]))) %>%
+            colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_prioritization[i]))) %>%
               dplyr::select(matches('follow_up_time_')) %>%
               dplyr::select(contains(month_str)))
             )
@@ -1188,8 +1185,8 @@ define_case_only_models <- function(GWAS_input, drug_prioritization, interaction
         }
         if(!outcome_ending=="mo"){
           covars <- c(covars,
-            colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_classes[i])) %>%
-              dplyr::select(matches('age|follow_up_time_'), paste0(phenotype, "_start_", drug_classes[i]))))
+            colnames((dplyr::select(GWAS_input$full_covar, ends_with(drug_prioritization[i])) %>%
+              dplyr::select(matches('age|follow_up_time_'), paste0(phenotype, "_start_", drug_prioritization[i]))))
             )
 
           covars <- covars[-which(grepl("_[1-9]mo_", covars))]
@@ -1197,19 +1194,18 @@ define_case_only_models <- function(GWAS_input, drug_prioritization, interaction
         }
 
 
-        subgroup_covars[[length(subgroup_covars)+1]]  <- covars
-        subgroup_pheno[[length(subgroup_pheno)+1]]  <- pheno
-        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], analysis, drug_classes[i]))
-      }
+        case_only_covars[[length(case_only_covars)+1]]  <- covars
+        case_only_pheno[[length(case_only_pheno)+1]]  <- pheno
+        output_suffix <- c(output_suffix, paste0(interaction_outcome[j], analysis, drug_prioritization[i]))
+      #}
 
     }
 
   }
-  subgroup_gwas_info <- tibble( pheno = subgroup_pheno,
-                                subgroup = subgroup_vars,
-                                covars = subgroup_covars,
+  case_only_gwas_info <- tibble( pheno = case_only_pheno,
+                                covars = case_only_covars,
                                 output_suffix = output_suffix)
-  return(subgroup_gwas_info)
+  return(case_only_gwas_info)
 }
 
 extract_colnames <- function(data, pattern, additional_columns = c("FID", "IID")){
@@ -1219,6 +1215,40 @@ extract_colnames <- function(data, pattern, additional_columns = c("FID", "IID")
   data_out <- data[,c(additional_columns, columns_extract)]
   return(data_out)
 }
+
+
+residualize_pheno_case_only <- function(GWAS_input, pheno, covars, outcome_type, eths, eth_data){
+  covars <- unlist(covars)
+  pheno_name <- pheno
+
+  model_data <- GWAS_input$full_pheno %>% dplyr::select(FID, pheno) %>%
+    left_join(GWAS_input$full_covar %>% dplyr::select(FID, IID, covars)) %>%
+    rename("outcome" = pheno_name) %>%
+    left_join(eth_data %>% dplyr::select(FID, eth)) %>%
+    mutate(eth=as.factor(eth))
+
+
+  if(outcome_type=="case_only"){
+    resid_data <- model_data %>% group_by(eth) %>%
+    do(  #
+      {
+        if(all(is.na(.$outcome))){
+          resid_eth <- rep(NA, length(dim(.)[1]))
+        } else resid_eth <- resid(lm(outcome ~ ., data = subset(., select=c( -FID, -IID, -eth) ), na.action = na.exclude))
+
+        data.frame(., resid_eth)
+      }) %>% ungroup() %>%
+
+    dplyr::select(FID, IID, resid_eth) %>%
+    rename(!!pheno := resid_eth)
+  }
+
+  out <- list()
+  out[[pheno_name]] <- resid_data
+  return(out)
+
+}
+
 
 write_interaction_resid <- function(interaction_resid_data, drug_name){
 
@@ -1588,15 +1618,24 @@ ukbb_weighted_slope <- function(date1, date2, date3, val1, val2, val3){
 }
 
 
-munge_ukbb_bmi_slope <- function(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var){
+
+munge_ukbb_drug_users <- function(ukbb_org, drug_codes_interest, medication_columns){
+
+  data_munge <- ukbb_org %>%
+    cbind(mapply(classify_ukbb_drugs, drug_codes_interest$codes, list(.[,medication_columns])) %>% set_colnames(paste0(drug_codes_interest$molecule, "_users"))) %>%
+    dplyr::select(eid, paste0(drug_codes_interest$molecule, "_users"))
+
+}
+
+munge_ukbb_bmi_slope <- function(ukbb_org, ukb_key, date_followup, bmi_var){
 
   cols_date <- dplyr::pull(ukb_key[which(ukb_key[,1] == date_followup),"col.name"])
   cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
   #cols_field =  dplyr::pull(ukb_key[which(ukb_key[,1] == !!bmi_var),"field.tab"]),
-  cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
-  cols_age <- dplyr::pull(ukb_key[which(ukb_key[,1] == age_var),"col.name"])
+  #cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
+  #cols_age <- dplyr::pull(ukb_key[which(ukb_key[,1] == age_var),"col.name"])
   ## GET AGE COLUMN
-  cols_interest <- c(cols_date, cols_pheno, cols_sex, cols_age)
+  cols_interest <- c(cols_date, cols_pheno)
   ukbb_sub <- ukbb_org %>% dplyr::select(eid, cols_interest) %>%
     rowwise %>% mutate(bmi_followup_value = bmi_followup_exists(c(!!!syms(cols_pheno)))) %>%
     filter(bmi_followup_value==TRUE)
@@ -1606,19 +1645,63 @@ munge_ukbb_bmi_slope <- function(ukbb_org, ukb_key, date_followup, bmi_var, sex_
         body_mass_index_bmi_f21001_0_0, body_mass_index_bmi_f21001_1_0, body_mass_index_bmi_f21001_2_0)) %>%
     mutate(bmi_wt_slope = ukbb_weighted_slope(date_of_attending_assessment_centre_f53_0_0, date_of_attending_assessment_centre_f53_1_0, date_of_attending_assessment_centre_f53_2_0,
         body_mass_index_bmi_f21001_0_0, body_mass_index_bmi_f21001_1_0, body_mass_index_bmi_f21001_2_0))
-  return(ukbb_sub_slope)
+
+
+  output <- list()
+
+  for(col in c("bmi_slope", "bmi_wt_slope")){
+    out_i <- ukbb_sub_slope %>% dplyr::select(eid, !!sym(col)) %>% filter(!is.na(!!sym(col)))
+    output[[paste(col)]] <- out_i
+  }
+
+  return(output)
 
 }
 
-filter_ukbb <- function(ukbb_munge, related_IDs_remove, exclusion_list, british_subset){
+munge_ukbb_drug_users_bmi <- function(ukbb_org, ukb_key, ukbb_munge_drug_users, bmi_var){
+  cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
+  #cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
+  #cols_age <- dplyr::pull(ukb_key[which(ukb_key[,1] == age_var),"col.name"])
 
-  temp <- ukbb_munge %>% filter(!eid %in% !!related_IDs_remove) %>% filter(!eid %in% !!exclusion_list) %>%
+  ukbb_join <- full_join(ukbb_org %>% dplyr::select(eid, cols_pheno[1]), ukbb_munge_drug_users, by="eid")
+  data_out <- ukbb_join %>%
+
+    mutate_at(vars(ends_with("_users")), list(BMI = ~ case_when(
+                                                . == 1 ~ !!!syms(cols_pheno[1]),
+                                                . == 0 ~ NA_real_ )))
+
+  BMI_cols <- data_out %>% dplyr::select(ends_with("_BMI")) %>% colnames()
+  #cols_interest <- c(BMI_cols, cols_sex, cols_age)
+
+  data_BMI <- data_out %>% dplyr::select(eid, BMI_cols)
+
+  output <- list()
+
+  for(col in BMI_cols){
+    out_i <- data_BMI %>% dplyr::select(eid, !!sym(col)) %>% filter(!is.na(!!sym(col)))
+    output[[paste(col)]] <- out_i
+  }
+
+  return(output)
+}
+
+filter_ukbb <- function(ukb_with_data_df, relatives, exclusion_list, british_subset){
+
+  # ukb_with_data_df should be a dataframe with only 2 columns: (1) eid and (2) variable of interest
+  data <- ukb_with_data_df[[1]]
+  related_IDs_remove <- ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(data$eid))
+
+  ukbb_filter <- data %>% filter(!eid %in% !!related_IDs_remove) %>% filter(!eid %in% !!exclusion_list) %>%
     filter(eid %in% !!british_subset)
-  return(temp)
+
+  out <- list()
+  out[[colnames(data)[2]]] <- ukbb_filter
+  return(out)
 }
 
-resid_ukbb <- function(ukbb_filter, ukb_key, sqc_munge, outcome, bmi_var, sex_var, age_var){
+resid_ukbb <- function(ukbb_filter, ukb_org, ukb_key, sqc_munge, outcome, bmi_var, sex_var, age_var){
 
+  data <- ukbb_filter[[1]]
   ukbb_merge <- merge(ukbb_filter, sqc_munge, by.x="eid", by.y="ID")
   cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
   cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
@@ -1632,6 +1715,15 @@ resid_ukbb <- function(ukbb_filter, ukb_key, sqc_munge, outcome, bmi_var, sex_va
   out <- as.data.frame(cbind(data[["eid"]], resid_data))
   colnames(out) <- c("eid", "bmi_slope_resid")
   return(out)
+}
+
+
+# define function to classify drugs into based on list of IDs
+classify_ukbb_drugs <- function(risk_codes, ...){
+
+  t <- cbind(...)
+  #return(t)
+  return(apply(t, 1, function(x) ifelse(any(x %in% risk_codes), 1, 0)))
 }
 
 

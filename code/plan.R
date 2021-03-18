@@ -190,8 +190,10 @@ analysis_prep <- drake_plan(
   pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, pheno_drug_combinations$class, pheno_drug_combinations$pheno, !!low_inducers, !!high_inducers),
     dynamic = map(pheno_drug_combinations)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
   # follow-up data is smaller than baseline data because participants were filtered if who have they had taken drug but it wasn't followed (because we don't know when they would have taken the drug)
+
   GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars, !!test_drugs,
     !!high_inducers, !!med_inducers, !!low_inducers, !!outcomes),
+
 
   ## linear model GWAS:
   #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
@@ -252,6 +254,70 @@ analysis_prep <- drake_plan(
 
 # vis_drake_graph(analysis_prep)
 
+
+# based on Zoltan's suggestion, divide PSYMETAB into subgroups based on different drugs such that each participant is only in one subgroup.
+
+analysis_prep_case_only <- drake_plan(
+
+  interaction_vars_tibble = tibble(phenotype = !!interaction_vars),
+
+  pheno_case_only = target(munge_pheno_case_only(pheno_baseline, !!drug_prioritization, interaction_vars_tibble$phenotype, !!low_inducers, !!high_inducers),
+    dynamic = map(interaction_vars_tibble)),
+
+  GWAS_input_case_only = create_GWAS_pheno_case_only(pheno_baseline, pheno_case_only, !!caffeine_vars, !!test_drugs,
+    !!high_inducers, !!med_inducers, !!low_inducers, !!outcomes),
+
+  out_case_only_pheno =  target({
+    GWAS_input
+    write.table(GWAS_input_case_only$full_pheno, file_out("data/processed/phenotype_data/GWAS_input/case_only_pheno_input.txt"), row.names = F, quote = F, col.names = T)}),
+  out_case_only_covar =  target({
+    GWAS_input
+    write.table(GWAS_input_case_only$full_covar, file_out("data/processed/phenotype_data/GWAS_input/case_only_covar_input.txt"), row.names = F, quote = F, col.names = T)}),
+
+
+  case_only_gwas_info = target(define_case_only_models(GWAS_input_case_only, !!drug_prioritization, !!interaction_outcome, !!baseline_vars),
+    hpc = FALSE),
+
+  case_only_resid = target(residualize_pheno_case_only(GWAS_input_case_only, pheno = case_only_gwas_info$pheno, covars = case_only_gwas_info$covars, outcome_type = "case_only", !!eths, eth_data = pc_raw),
+    dynamic = map(case_only_gwas_info)),
+
+  case_only_resid_data = reduce(case_only_resid, inner_join),
+
+  out_case_only_resid = target({
+    write.table(case_only_resid_data,
+    file_out("data/processed/phenotype_data/GWAS_input/case_only_input_resid.txt"), row.names = F, quote = F, col.names = T)}),
+
+
+)
+
+analysis_prep_merge <- bind_plans(analysis_prep, analysis_prep_case_only)
+
+## Case only resid data has one number of columns equal to length(drug_prioritization) * length(outcomes),
+## where each drug in `drug_prioritization` corresponds to length(outcomes) columns (i.e. BMI slope, 6mo, 3mo, weighted slope, etc.).
+## The database is split into length(drug_prioritization) independent groups.
+
+## Test the independence with the following code:
+
+# test <- reduce(case_only_resid[seq(1, 144, 16)], inner_join)
+#
+#
+# result <- numeric()
+# for (i in 3:dim(test)[2]){
+#
+#   non_na_i <- which(!is.na(test[,i]))
+#   result <- c(result, non_na_i)
+# }
+#
+#
+# length(unique(result))
+# length(result)
+# dim(test)[2]
+
+# Test if they all equal each other:
+# all(sapply(list(length(unique(result)), length(result), dim(test)[1]), function(x) x == dim(test)[1]))
+
+
+
 ##### Run GWAS in PSYMETAB ---------
 
 init_analysis <- drake_plan(
@@ -260,6 +326,11 @@ init_analysis <- drake_plan(
                                     full_covar = read_table2(file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"))),
     hpc = FALSE), # this should be identical to GWAS_input above, but needs to be a different name
 
+  GWAS_input_case_only_analysis = target(list(full_pheno = read_table2(file_in("data/processed/phenotype_data/GWAS_input/case_only_pheno_input.txt")),
+                                    full_covar = read_table2(file_in("data/processed/phenotype_data/GWAS_input/case_only_covar_input.txt"))),
+    hpc = FALSE), # this should be identical to GWAS_input_case_only above, but needs to be a different name
+
+
   # define endpoint, covars and outputs ---------------------------
 
   baseline_gwas_input = target(define_baseline_models(GWAS_input_analysis, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
@@ -267,6 +338,8 @@ init_analysis <- drake_plan(
   interaction_gwas_input = target(define_interaction_inputs(!!drug_classes),
     hpc = FALSE),
   subgroup_gwas_input = target(define_subgroup_inputs(!!drug_classes),
+    hpc = FALSE),
+  case_only_gwas_input = target(define_case_only_models(GWAS_input_case_only_analysis, !!drug_prioritization, !!interaction_outcome, !!baseline_vars),
     hpc = FALSE),
 
 
@@ -278,6 +351,18 @@ init_analysis <- drake_plan(
     run_gwas(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
                pheno_file = file_in("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"),
                threads = 8, eths = !!eths,
+               eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+               eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+               remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+               output_dir = (!!plink_output_dir), output = !!study_name)}
+  ),
+
+  case_only_out = target({
+    #loadd(baseline_gwas_info
+    file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.log"))
+    run_gwas(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
+               pheno_file = file_in("data/processed/phenotype_data/GWAS_input/case_only_input_resid.txt"),
+               threads = 8, eths = !!eths, type="case_only",
                eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
@@ -392,37 +477,6 @@ init_analysis <- drake_plan(
 # subgroup_var = subgroup_gwas_info$subgroup[2]
 #
 
-ukbb_analysis <- drake_plan(
-  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  sqc = fread(file_in(!!paste0(UKBB_dir, ukbb_sqc_file)), header=F, data.table=F),
-  fam = fread(file_in(!!paste0(UKBB_dir, ukbb_fam_file)), header=F,data.table=F),
-  relatives = read.table(file_in(!!paste0(UKBB_dir, ukbb_relatives_file)), header=T),
-  exclusion_list = fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_file)), data.table=F),
-  ukbb_bgen_sample = fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T,data.table=F),
-
-  #med_codes = read_tsv(file_in(!!medication_codes)),
-  qc_data = ukb_gen_sqc_names(sqc),
-  sqc_munge = munge_sqc(sqc,fam),
-  british_subset = get_british_ids(qc_data, fam),
-  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, !!bmi_var, !!sex_var, !!age_var),
-
-  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
-  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_list[,1], british_subset),
-  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
-  ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid, variable = "bmi_slope_resid"),
-  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
-
-  chr_num = tibble(chr = 1:22),
-
-  bgenie_out = target({
-    launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8, !!UKBB_dir)
-    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
-  }, dynamic = map(chr_num), format = "file"),
-
-)
-
-# vis_drake_graph(ukbb_analysis)
 
 process_init <- drake_plan(
 
@@ -559,7 +613,7 @@ process_init <- drake_plan(
     format = "file"
   ),
 
-  # extract significant results ---------------------------
+  # extract nominally significant results (results in a list of nominally significant tibbles)---------------------------
 
   baseline_gwas_sig = target({
 
@@ -585,14 +639,19 @@ process_init <- drake_plan(
     dynamic = map(subgroup_gwas_files)
   ),
 
+  # combined nominally significant results into one tibble ---------------------------
+
   baseline_gwas_nom_com = bind_rows(baseline_gwas_sig, .id = "pheno_name"),
   interaction_gwas_nom_com = bind_rows(interaction_gwas_sig, .id = "pheno_name"),
   subgroup_gwas_nom_com = bind_rows(subgroup_gwas_sig, .id = "pheno_name"),
+
+  # filter above nominally significant results into GW-significant results  ---------------------------
 
   baseline_gwas_sig_com = baseline_gwas_nom_com %>% filter(P < !!gw_sig),
   interaction_gwas_sig_com = interaction_gwas_nom_com %>% filter(P < !!gw_sig),
   subgroup_gwas_sig_com = subgroup_gwas_nom_com %>% filter(P < !!gw_sig),
 
+  # filter into only categories of interest ---------------------------
 
   baseline_interest = baseline_gwas_sig_com %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", pheno)),
   subgroup_interest = subgroup_gwas_sig_com %>% filter(drug=="Drug") %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", drug_class)) %>% filter(grepl("BMI", pheno)),
@@ -600,6 +659,7 @@ process_init <- drake_plan(
   write_baseline_interest = write.csv(baseline_interest,  file_out("output/PSYMETAB_GWAS_baseline_CEU_result.csv"),row.names = F),
   write_subgroup_interest = write.csv(subgroup_interest,  file_out("output/PSYMETAB_GWAS_subgroup_CEU_result.csv"),row.names = F),
 
+  # count significant results ---------------------------
 
   baseline_GWAS_count = count_GWAS_n(psam_file = file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.psam")),
     pheno_file = file_in("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"), output_suffix = "baseline",
@@ -626,46 +686,97 @@ process_init <- drake_plan(
   }, dynamic = map(subgroup_gwas_process)),
 
 
+)
+
+# vis_drake_graph(process_init)
+
+ukbb_analysis <- drake_plan(
+    ukbb_org = target(ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")), hpc = FALSE),
+    ukb_key = target(ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")), hpc = FALSE),
+    sqc = target(fread(file_in(!!paste0(UKBB_dir, ukbb_sqc_file)), header=F, data.table=F), hpc = FALSE),
+    fam = target(fread(file_in(!!paste0(UKBB_dir, ukbb_fam_file)), header=F,data.table=F), hpc = FALSE),
+    relatives = target(read.table(file_in(!!paste0(UKBB_dir, ukbb_relatives_file)), header=T), hpc = FALSE),
+    exclusion_list = target(fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_file)), data.table=F), hpc = FALSE),
+    ukbb_bgen_sample = target(fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T, data.table=F), hpc = FALSE),
+
+    qc_data = target(ukb_gen_sqc_names(sqc), hpc = FALSE),
+    sqc_munge = target(munge_sqc(sqc,fam), hpc = FALSE),
+    british_subset = target(get_british_ids(qc_data, fam), hpc = FALSE),
+
+    ukbb_med_codes = read_tsv(file_in(!!ukbb_med_codes_file)),
+    medication_columns = ukb_key %>% filter(field.showcase == "20003") %>% filter(str_extract(field.html, "(?<=.[-]).")==0) %>% pull(col.name),
+
+    psy_ukbb_drugs = read_excel(file_in(!!psychiatric_ukbb_drugs_file), sheet=1),
+    psy_ukbb_drugs2 = read_excel(file_in(!!psychiatric_ukbb_drugs_file), sheet=2) %>% # this list of drugs were not in the original analysis but can be included to increase sample size
+      mutate_at(vars(Coding), ~as.character(.)),
+    psy_ukbb_drugs3 = read_excel(file_in(!!psychiatric_ukbb_drugs_file), sheet=3) %>% # this list of drugs were not in the original analysis but can be included to increase sample size
+      mutate(risk = 0) %>% rename(molecule = Molecule) %>%  mutate_at(vars(Coding), ~as.character(.)),
+    psy_ukbb_drugs_all = dplyr::bind_rows(psy_ukbb_drugs, psy_ukbb_drugs2, psy_ukbb_drugs3) %>%
+      mutate(molecule = case_when(molecule == "Sulpiride (N05AL01)" ~ "amisulpride",
+                                TRUE ~ molecule
+                             )),
+
+    drug_codes_summary = psy_ukbb_drugs_all %>% group_by(molecule) %>% summarize(codes= list(Coding)), #group codes together by molecule
+    drug_codes_interest = drug_codes_summary %>%
+      filter(molecule %in% c("olanzapine", "clozapine", "valproate", "quetiapine", "risperidone", "aripiprazole", "mirtazapine", "amisulpride")),
+
+    ukbb_munge_bmi_slope = munge_ukbb_bmi_slope(ukbb_org, ukb_key, !!date_followup, !!bmi_var),
+    ukbb_filter_bmi_slope = target(filter_ukbb(ukbb_munge_bmi_slope, relatives, exclusion_list, british_subset),
+      dynamic = map(ukbb_munge_bmi_slope)),
+
+    #related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge_bmi_slope$eid)),
+    #ukbb_filter_bmi_slope = full_join(tibble(eid=ukbb_org$eid), filter_ukbb_relatives(ukbb_munge_bmi_slope, related_IDs_remove, exclusion_list[,1], british_subset)),
 
 
-  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  sqc = fread(file_in(!!paste0(UKBB_dir, ukbb_sqc_file)), header=F, data.table=F),
-  fam = fread(file_in(!!paste0(UKBB_dir, ukbb_fam_file)), header=F,data.table=F),
-  relatives = read.table(file_in(!!paste0(UKBB_dir, ukbb_relatives_file)), header=T),
-  exclusion_list = fread(file_in(!!paste0(UKBB_dir, ukbb_exclusion_file)), data.table=F),
-  ukbb_bgen_sample = fread(file_in(!!paste0(UKBB_dir, ukbb_sample_file)), header=T,data.table=F),
+    ukbb_munge_drug_users = munge_ukbb_drug_users(ukbb_org, drug_codes_interest, medication_columns),
+    ukbb_drug_counts = ukbb_munge_drug_users %>% dplyr::select(paste0(drug_codes_interest$molecule, "_users")) %>% map_df(~length(which(.==1))) %>% t(), ## get counts in UKBB for each molecule
 
-  #med_codes = read_tsv(file_in(!!medication_codes)),
-  qc_data = ukb_gen_sqc_names(sqc),
-  sqc_munge = munge_sqc(sqc,fam),
-  british_subset = get_british_ids(qc_data, fam),
-  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, !!bmi_var, !!sex_var, !!age_var),
-
-  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
-  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_list[,1], british_subset),
-  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
-  ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid, variable = "bmi_slope_resid"),
-  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
-
-  chr_num = tibble(chr = 1:22),
-
-  bgenie_out = target({
-    launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8, !!UKBB_dir)
-    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
-  }, dynamic = map(chr_num), format = "file"),
+    ukbb_munge_drug_users_bmi = munge_ukbb_drug_users_bmi(ukbb_org, ukb_key, ukbb_munge_drug_users, !!bmi_var),
+    ukbb_filter_drug_users_bmi = target(filter_ukbb(ukbb_munge_drug_users_bmi, relatives, exclusion_list, british_subset),
+      dynamic = map(ukbb_munge_drug_users_bmi)),
 
 
-  bgenie_unzip = target({
-    bgenie_out
-    unzip_bgenie(chr_num$chr)
-    paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out")
+    ukbb_filter_all = c(ukbb_filter_bmi_slope, ukbb_filter_drug_users_bmi),
+
+    ukbb_resid_bmi_slope = target(resid_ukbb(ukbb_filter_all, ukb_org, ukb_key, sqc_munge, !!sex_var, !!age_var),
+      dynamic = map(ukbb_filter_all))
+
+    #ukbb_resid_bmi_slope = resid_ukbb(ukbb_filter_bmi_slope, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
+    ukbb_bgen_order_bmi_slope = order_bgen(ukbb_bgen_sample, ukbb_resid_bmi_slope, variable = "bmi_slope_resid"),
+
+
+    ukbb_bgen_out_bmi_slope = write.table(ukbb_bgen_order_bmi_slope, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F, col.names = T),
+
+    chr_num = tibble(chr = 1:22),
+
+    bgenie_out = target({
+      launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8, !!UKBB_dir)
+      paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
     }, dynamic = map(chr_num), format = "file"),
 
-  bgenie_merge = {
-    bgenie_unzip
-    merge_bgenie_output()
-  },
+    bgenie_unzip = target({
+      bgenie_out
+      unzip_bgenie(chr_num$chr)
+      paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out")
+    }, dynamic = map(chr_num), format = "file"),
+
+)
+
+
+# vis_drake_graph(ukbb_analysis)
+
+process_ukbb <- drake_plan(
+
+  # bgenie_read = target(
+  #   fread(paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out"), data.table=F),
+  #   #read_bgenie_output(paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out")),
+  #   dynamic = map(chr_num)
+  # ),
+
+  ukbb_med_codes = read_tsv(file_in(!!ukbb_med_codes_file)),
+  psy_ukbb_drugs = read_excel(file_in(!!psychiatric_ukbb_drugs_file), sheet=1),
+  psy_ukbb_drugs2 = read_excel(file_in(!!psychiatric_ukbb_drugs_file), sheet=2),
+  medication_columns = ukb_key %>% filter(field.showcase == "20003") %>% filter(str_extract(field.html, "(?<=.[-]).")==0) %>% pull(col.name),
 
   subgroup_files = list.files(path="analysis/GWAS/subgroup/processed", pattern=".txt", full.names=T),
 
@@ -676,22 +787,24 @@ process_init <- drake_plan(
 
   BMI_slope_nominal_AF = add_AF(BMI_slope_nominal, AF_file = file_in("analysis/QC/14_mafcheck/CEU/PSYMETAB_GWAS.CEU.afreq")),
 
-  psy_ukbb_merge = {
-    colnames(bgenie_merge) <- paste(colnames(bgenie_merge), "UKBB", sep = "_")
-    psy_ukbb_merge <- left_join(BMI_slope_nominal_AF, bgenie_merge, by = c("SNP" = "rsid_UKBB"))
-    psy_ukbb_merge
-  },
+  psy_ukbb_merge = target({
+    bgenie_unzip
+    bgenie_read <- fread(paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out"), data.table=F)
+    colnames(bgenie_read) <- paste(colnames(bgenie_read), "UKBB", sep = "_")
+    psy_ukbb_merge <- left_join(BMI_slope_nominal_AF, bgenie_read, by = c("SNP" = "rsid_UKBB"))
+    psy_ukbb_merge},
+    dynamic = map(chr_num)),
 
-  psy_ukbb_merge_AF = calc_het(psy_ukbb_merge, "SNP", "BETA", "bmi_slope_res_ivt_beta_UKBB", "SE", "bmi_slope_res_ivt_se_UKBB"),
+  psy_ukbb_het = calc_het(psy_ukbb_merge, "SNP", "BETA", "bmi_slope_res_ivt_beta_UKBB", "SE", "bmi_slope_res_ivt_se_UKBB"),
 
-  psy_ukbb_merge_AF_prune = prune_psy_ukbb(psy_ukbb_merge_AF),
+  psy_ukbb_het_prune = prune_psy_ukbb(psy_ukbb_het),
 
-  write_ukbb_comparison = write.csv(psy_ukbb_merge_AF_prune,  file_out("output/PSYMETAB_GWAS_UKBB_comparison.csv"),row.names = F),
+  write_ukbb_comparison = write.csv(psy_ukbb_het_prune,  file_out("output/PSYMETAB_GWAS_UKBB_comparison.csv"),row.names = F),
 
-  ukbb_top_snps_chr = tibble(chr = psy_ukbb_merge_AF$CHR, rsid = psy_ukbb_merge_AF$SNP),
+  ukbb_top_snps_chr = tibble(chr = psy_ukbb_het$CHR, rsid = psy_ukbb_het$SNP),
 
   ukbb_geno = load_geno(bgen_sample_file, ukbb_top_snps_chr, !!UKBB_dir),
-
+  med_codes = read_tsv(!!file_in(ukbb_med_codes))
 
   # ukbb_comparison = read.csv(file_in("output/PSYMETAB_GWAS_UKBB_comparison.csv")),
   #
@@ -699,6 +812,11 @@ process_init <- drake_plan(
   # write.csv(ukbb_comparison_format,  file_out("output/PSYMETAB_GWAS_UKBB_comparison2.csv"),row.names = F)
 
 )
+
+ukbb <- bind_plans(ukbb_analysis, process_ukbb)
+
+
+
 
 # vis_drake_graph(process_init)
 
@@ -724,72 +842,6 @@ process_init <- drake_plan(
 
 
 ##### Run GWAS in UKBB --------
-
-ukbb_analysis <- drake_plan(
-
-  ukbb_org = ukb_df_mod("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  ukb_key = ukb_df_field("ukb21067", path = !!paste0(UKBB_dir, "/org")),
-  sqc = fread(file_in(!!paste0(UKBB_dir,"/geno/ukb_sqc_v2.txt")), header=F, data.table=F),
-  fam = fread(file_in(!!paste0(UKBB_dir,"/plink/_001_ukb_cal_chr9_v2.fam")), header=F,data.table=F),
-  relatives = read.table(file_in(!!paste0(UKBB_dir,"/geno/",ukbb_relatives_file)), header=T),
-  exclusion_file = fread(file_in(!!paste0(UKBB_dir, "/org/", ukbb_exclusion_file)), data.table=F),
-  bgen_file = fread(file_in(!!paste0(UKBB_dir, "/", ukbb_sample_file)), header=T,data.table=F),
-
-
-  #med_codes = read_tsv(file_in(!!medication_codes)),
-  qc_data = ukb_gen_sqc_names(sqc),
-
-  sqc_munge = munge_sqc(sqc,fam),
-  british_subset = get_british_ids(qc_data, fam),
-  ukbb_munge = munge_ukbb(ukbb_org, ukb_key, date_followup, bmi_var, sex_var, age_var),
-
-  related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge$eid)),
-  ukbb_filter = filter_ukbb(ukbb_munge, related_IDs_remove, exclusion_file[,1], british_subset),
-  ukbb_resid = resid_ukbb(ukbb_filter, ukb_key, sqc_munge, outcome = "bmi_slope", bmi_var, sex_var, age_var),
-  ukbb_bgen_order = order_bgen(bgen_file, ukbb_resid, variable = "bmi_slope_res_ivt"),
-  ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F,col.names = T),
-
-  chr_num = tibble(chr = 1:22),
-
-  bgenie_out = target(launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=1, !!UKBB_dir),
-    dynamic = map(chr_num)),
-
-  bgenie_unzip = target({
-    bgenie_out
-    unzip_bgenie(chr_num$chr)
-    },
-    dynamic = map(chr_num)),
-
-  bgenie_merge = {
-    bgenie_unzip
-    merge_bgenie_output()
-  },
-
-  subgroup_files = list.files(path="analysis/GWAS/subgroup/processed", pattern=".txt", full.names=T),
-
-  BMI_slope_sub_files = subgroup_files[grepl("CEU[.]Drug[.]BMI_slope", subgroup_files) & !grepl("weight", subgroup_files) & !grepl( "sensitivity", subgroup_files)],
-
-  BMI_slope_nominal = target(extract_sig_files(BMI_slope_sub_files, !!gw_sig_nominal),
-    dynamic = map(BMI_slope_sub_files)),
-
-  BMI_slope_nominal_AF = add_AF(BMI_slope_nominal, AF_file = file_in("analysis/QC/14_mafcheck/CEU/PSYMETAB_GWAS.CEU.afreq")),
-
-  psy_ukbb_merge = {
-    colnames(bgenie_merge) <- paste(colnames(bgenie_merge), "UKBB", sep = "_")
-    psy_ukbb_merge <- left_join(BMI_slope_nominal_AF, bgenie_merge, by = c("SNP" = "rsid_UKBB"))
-    psy_ukbb_merge
-  },
-
-  psy_ukbb_merge_AF = calc_het(psy_ukbb_merge, "SNP", "BETA", "bmi_slope_res_ivt_beta_UKBB", "SE", "bmi_slope_res_ivt_se_UKBB"),
-
-  psy_ukbb_merge_AF_prune = prune_psy_ukbb(psy_ukbb_merge_AF),
-
-  write_ukbb_comparison = write.csv(psy_ukbb_merge_AF_prune,  file_out("output/PSYMETAB_GWAS_UKBB_comparison.csv"),row.names = F)
-
-
-
-)
-
 
 prs <- drake_plan(
   prs_info = target(define_prs_inputs(!!consortia_dir, "analysis/PRS"), hpc = FALSE),
