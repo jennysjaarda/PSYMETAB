@@ -739,7 +739,7 @@ ukbb_analysis <- drake_plan(
     ukbb_filter_all = c(ukbb_filter_bmi_slope, ukbb_filter_drug_users_bmi),
 
     ukbb_resid_bmi_slope = target(resid_ukbb(ukbb_filter_all, ukb_org, ukb_key, sqc_munge, !!sex_var, !!age_var),
-      dynamic = map(ukbb_filter_all))
+      dynamic = map(ukbb_filter_all)),
 
     #ukbb_resid_bmi_slope = resid_ukbb(ukbb_filter_bmi_slope, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
     ukbb_bgen_order_bmi_slope = order_bgen(ukbb_bgen_sample, ukbb_resid_bmi_slope, variable = "bmi_slope_resid"),
