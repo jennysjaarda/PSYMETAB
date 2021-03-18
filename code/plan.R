@@ -812,7 +812,7 @@ process_ukbb <- drake_plan(
 
 )
 
-ukbb <- bind_plans(ukbb_analysis, process_ukbb)
+#ukbb <- bind_plans(ukbb_analysis, process_ukbb)
 
 
 
