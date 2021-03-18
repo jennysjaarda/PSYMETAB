@@ -44,3 +44,5 @@ library(OpenImageR) # https://stackoverflow.com/questions/50937921/save-and-load
 library(hrbrthemes)
 library(ukbtools)
 library(rbgen)
+library(DT)
+library(magrittr)

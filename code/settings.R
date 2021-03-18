@@ -106,6 +106,9 @@ antipsychotics <- c("Amisulpride", "Chlorprothixene", "Aripiprazole", "Flupentix
   "Brexpiprazole", "Levomépromazine", "Cariprazine", "Pipamperone", "Clozapine", "Promazine", "Olanzapine",
   "Sulpiride", "Lurasidone", "Tiapride", "Paliperidone", "Zuclopenthixol", "Quetiapine", "Risperidone", "Sertindole")
 
+drug_prioritization <- c("Olanzapine", "Clozapine", "Valproate", "Quetiapine", "Risperidone", "Aripiprazole", "Mirtazapine", "Amisulpride", "Other")
+
+
 baseline_vars <- c("BMI", "Creatinine", "Glucose", "CholesterolHDL", "LDL", "Tryglycerides")
 interaction_vars <- c("BMI", "LDL")
 caffeine_vars <-  c("logCAF", "logTHEOBR", "logPARAX", "Sleep_disorder")
@@ -141,7 +144,7 @@ info_threshold <- 0.8
 UKBB_dir <- "/data/sgg3/data/UKBB/"
 
 #eid_var<- c("53", "21001")
-date_followup <- "53"
+date_followup <- "53" # date_of_attending_assessment_centre_f53_0_0
 bmi_var<- "21001"
 sex_var <- "31"
 age_var <- "21022"
@@ -153,6 +156,8 @@ ukbb_sqc_file <- "geno/ukb_sqc_v2.txt"
 ukbb_fam_file <- "plink/_001_ukb_cal_chr9_v2.fam"
 
 # medication codes downloaded from UKBB
-medication_codes <- "/data/sgg2/collabs/UKBB_psy_medications/UKBB_medication_codings.tsv"
+
+#UKBB medication coding downloaded from: https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=4&nl=1
+
 # psychiatric drugs as defined by Celine
-psychiatric_drugs <- "/data/sgg2/collabs/UKBB_psy_medications/drugs_UK.xlsx"
+psychiatric_ukbb_drugs_file <- "/data/sgg2/jenny/collabs/UKBB_psy_medications/drugs_UK.xlsx"
