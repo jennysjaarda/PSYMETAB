@@ -804,7 +804,6 @@ process_ukbb <- drake_plan(
   ukbb_top_snps_chr = tibble(chr = psy_ukbb_het$CHR, rsid = psy_ukbb_het$SNP),
 
   ukbb_geno = load_geno(bgen_sample_file, ukbb_top_snps_chr, !!UKBB_dir),
-  med_codes = read_tsv(!!file_in(ukbb_med_codes))
 
   # ukbb_comparison = read.csv(file_in("output/PSYMETAB_GWAS_UKBB_comparison.csv")),
   #
