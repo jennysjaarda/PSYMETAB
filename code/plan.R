@@ -746,11 +746,12 @@ ukbb_analysis <- drake_plan(
     ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid_join),
 
 
-    ukbb_bgen_out_bmi_slope = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/ukbb_GWAS"), sep=" ", quote=F, row.names=F, col.names = T),
+    ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/ukbb_GWAS"), sep=" ", quote=F, row.names=F, col.names = T),
 
     chr_num = tibble(chr = 1:22),
 
     bgenie_out = target({
+      ukbb_bgen_out
       launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), threads=8, !!UKBB_dir)
       paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
     }, dynamic = map(chr_num), format = "file"),
