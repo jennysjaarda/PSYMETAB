@@ -292,7 +292,7 @@ analysis_prep_case_only <- drake_plan(
 
 analysis_prep_merge <- bind_plans(analysis_prep, analysis_prep_case_only)
 
-## Case only resid data has one number of columns equal to length(drug_prioritization) * length(outcomes),
+## Case only resid data has number of columns equal to length(drug_prioritization) * length(outcomes),
 ## where each drug in `drug_prioritization` corresponds to length(outcomes) columns (i.e. BMI slope, 6mo, 3mo, weighted slope, etc.).
 ## The database is split into length(drug_prioritization) independent groups.
 
@@ -738,19 +738,20 @@ ukbb_analysis <- drake_plan(
 
     ukbb_filter_all = c(ukbb_filter_bmi_slope, ukbb_filter_drug_users_bmi),
 
-    ukbb_resid_bmi_slope = target(resid_ukbb(ukbb_filter_all, ukb_org, ukb_key, sqc_munge, !!sex_var, !!age_var),
+    ukbb_resid_list = target(resid_ukbb(ukbb_filter_all, ukbb_org, ukb_key, sqc_munge, !!sex_var, !!age_var),
       dynamic = map(ukbb_filter_all)),
 
+    ukbb_resid_join = reduce(ukbb_resid_list, full_join),
     #ukbb_resid_bmi_slope = resid_ukbb(ukbb_filter_bmi_slope, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
-    ukbb_bgen_order_bmi_slope = order_bgen(ukbb_bgen_sample, ukbb_resid_bmi_slope, variable = "bmi_slope_resid"),
+    ukbb_bgen_order_bmi_slope = order_bgen(ukbb_bgen_sample, ukbb_resid_join, variable = "bmi_slope_resid"),
 
 
-    ukbb_bgen_out_bmi_slope = write.table(ukbb_bgen_order_bmi_slope, file_out("data/processed/ukbb_data/BMI_slope"), sep=" ", quote=F, row.names=F, col.names = T),
+    ukbb_bgen_out_bmi_slope = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/ukbb_GWAS"), sep=" ", quote=F, row.names=F, col.names = T),
 
     chr_num = tibble(chr = 1:22),
 
     bgenie_out = target({
-      launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/BMI_slope"), threads=8, !!UKBB_dir)
+      launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), threads=8, !!UKBB_dir)
       paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
     }, dynamic = map(chr_num), format = "file"),
 

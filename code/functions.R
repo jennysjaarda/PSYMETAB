@@ -1678,7 +1678,7 @@ munge_ukbb_drug_users_bmi <- function(ukbb_org, ukb_key, ukbb_munge_drug_users, 
   output <- list()
 
   for(col in BMI_cols){
-    out_i <- data_BMI %>% dplyr::select(eid, !!sym(col)) %>% filter(!is.na(!!sym(col)))
+    out_i <- data_BMI %>% dplyr::select(eid, !!sym(col)) %>% filter(!is.na(!!sym(col))) %>% as_tibble
     output[[paste(col)]] <- out_i
   }
 
@@ -1699,22 +1699,32 @@ filter_ukbb <- function(ukb_with_data_df, relatives, exclusion_list, british_sub
   return(out)
 }
 
-resid_ukbb <- function(ukbb_filter, ukb_org, ukb_key, sqc_munge, outcome, bmi_var, sex_var, age_var){
+resid_ukbb <- function(ukbb_filter, ukbb_org, ukb_key, sqc_munge, sex_var, age_var){
 
   data <- ukbb_filter[[1]]
-  ukbb_merge <- merge(ukbb_filter, sqc_munge, by.x="eid", by.y="ID")
-  cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
+  outcome <- colnames(data)[2]
+
+  ## join with genetic data
+  ukbb_merge <- merge(data, ukbb_org, by="eid")
+
+  ukbb_plus_geno_covars <- merge(ukbb_merge, sqc_munge, by.x="eid", by.y="ID")
+  #cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
   cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
   cols_age <- dplyr::pull(ukb_key[which(ukb_key[,1] == age_var),"col.name"])
 
-  cols_interest <- c("eid", outcome, cols_pheno[1], cols_sex, cols_age, colnames(ukbb_merge)[grepl("PC", colnames(ukbb_merge))])
+  #cols_interest <- c("eid", outcome, cols_pheno[1], cols_sex, cols_age, colnames(ukbb_merge)[grepl("PC", colnames(ukbb_merge))])
+  cols_interest <- c("eid", outcome, cols_sex, cols_age, colnames(ukbb_merge)[grepl("PC", colnames(ukbb_merge))])
 
-  data <- ukbb_merge[, cols_interest] %>% rename(outcome = outcome)
-  data <- data %>% mutate(outcome_ivt = ivt(outcome))
-  resid_data <- resid(lm(outcome_ivt ~ ., data = subset(data, select=c( -eid, -outcome) ), na.action = na.exclude))
-  out <- as.data.frame(cbind(data[["eid"]], resid_data))
-  colnames(out) <- c("eid", "bmi_slope_resid")
-  return(out)
+  data_sub <- ukbb_plus_geno_covars[, cols_interest] %>% rename(outcome = outcome)
+  data_sub <- data_sub %>% mutate(outcome_ivt = ivt(outcome))
+  resid_data <- resid(lm(outcome_ivt ~ ., data = subset(data_sub, select=c( -eid, -outcome) ), na.action = na.exclude))
+  out <- as.data.frame(cbind(data_sub[["eid"]], resid_data))
+  colnames(out) <- c("eid", paste0(outcome, "_resid"))
+
+  out_list <- list()
+  out_list[[paste0(outcome, "_resid")]] <- out
+  return(out_list)
+
 }
 
 
@@ -1734,10 +1744,9 @@ order_bgen <- function(bgen_file, data, variable){
   bgen_merge <- left_join(bgen_file %>% slice(-1), data, by=c("ID_1" = "eid"))
 
   colnames(bgen_merge)[which(colnames(bgen_merge)==variable)] <- "outcome"
-  add_na <- bgen_merge %>% mutate(outcome = replace_na(outcome, -999))
+  add_na <- bgen_merge %>% mutate_at(vars(-ID_1, -ID_2, -missing), ~replace_na(., -999))
 
-  output <- add_na %>% dplyr::select(outcome)
-  colnames(output) <- variable
+  output <- add_na %>% dplyr::select(-ID_1, -ID_2, -missing)
   return(output)
 }
 
