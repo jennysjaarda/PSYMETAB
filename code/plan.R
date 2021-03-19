@@ -743,7 +743,7 @@ ukbb_analysis <- drake_plan(
 
     ukbb_resid_join = reduce(ukbb_resid_list, full_join),
     #ukbb_resid_bmi_slope = resid_ukbb(ukbb_filter_bmi_slope, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
-    ukbb_bgen_order_bmi_slope = order_bgen(ukbb_bgen_sample, ukbb_resid_join, variable = "bmi_slope_resid"),
+    ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid_join),
 
 
     ukbb_bgen_out_bmi_slope = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/ukbb_GWAS"), sep=" ", quote=F, row.names=F, col.names = T),

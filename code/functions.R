@@ -1737,13 +1737,12 @@ classify_ukbb_drugs <- function(risk_codes, ...){
 }
 
 
-order_bgen <- function(bgen_file, data, variable){
+order_bgen <- function(bgen_file, data){
 
   ord = match(bgen_file$ID_1[-1], data$eid)
 
   bgen_merge <- left_join(bgen_file %>% slice(-1), data, by=c("ID_1" = "eid"))
 
-  colnames(bgen_merge)[which(colnames(bgen_merge)==variable)] <- "outcome"
   add_na <- bgen_merge %>% mutate_at(vars(-ID_1, -ID_2, -missing), ~replace_na(., -999))
 
   output <- add_na %>% dplyr::select(-ID_1, -ID_2, -missing)
