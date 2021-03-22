@@ -1749,23 +1749,51 @@ order_bgen <- function(bgen_file, data){
   return(output)
 }
 
+make_ukbb_chunks <- function(v2_snp_list_file, chunk_size=1e6){
 
-launch_bgenie <- function(chr, phenofile, threads, UKBB_dir){
+  v2_snp_list <- fread(v2_snp_list_file, data.table=F)
+  min_positon <- min(v2_snp_list$position)
+  max_position <- max(v2_snp_list$position)
+  chr <- as.character(v2_snp_list$chr[1])
+  if(nchar(as.character(v2_snp_list$chr[1]))==1){
+    chr_char <- paste0("0", as.character(v2_snp_list$chr[1])) } else chr_char <- as.character(v2_snp_list$chr[1])
+
+  out <- numeric()
+
+  chunk_starts <- seq(min_positon, max_position, chunk_size)
+  for(i in 1:length(chunk_starts)){
+    chunk_num <- i
+    start <- chunk_starts[i]
+    if(i!=length(chunk_starts)){
+      end <- chunk_starts[i+1]-1
+    }
+    if(i==length(chunk_starts)){
+      end <- max_position
+    }
+      out_i <- cbind(chunk_num, chr, chr_char, start, end)
+      out <- rbind(out, out_i)
+  }
+  out <- as_tibble(out) %>% mutate_all(as.character)
+
+}
+
+launch_bgenie <- function(chr, phenofile, UKBB_dir, chr_char, start_pos, end_pos, chunk_num){
   cat(paste0("Running chr: ", chr, ".\n"))
   system(paste0("/data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 ",
                 "--bgen ", UKBB_dir, "imp/_001_ukb_imp_chr", chr, "_v2.bgen ",
                 "--pheno ", phenofile, " ",
-                "--thread ", threads, " ",
-                "--pvals --out analysis/GWAS/UKBB/chr", chr, ".out"))
+                "--range ", chr_char, " ", start_pos, " ", end_pos, " ",
+                "--pvals --out analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out"))
   # Eleonora's command line
   # /data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 --bgen
   # /data/sgg3/eleonora/projects/UKBB_GWAS/UK10K_SNPrs/CHR11/chr11.bgen ## this script would not include SNPs specific to HRC_list
   # --pheno ../phenofile --pvals --out chr11.out
 }
 
-unzip_bgenie <- function(chr){
+unzip_bgenie <- function(chr, chunk_num){
   # system(paste0("gzip -dk analysis/GWAS/UKBB/chr", chr, ".out.gz")) ## keep flag doesn't exist on this system
-  file <- paste0("analysis/GWAS/UKBB/chr", chr, ".out")
+
+  file <- paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out")
   system(paste0("gunzip < ", paste0(file, ".gz"), " > ", file))
 }
 

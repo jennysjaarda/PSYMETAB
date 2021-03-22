@@ -750,17 +750,30 @@ ukbb_analysis <- drake_plan(
 
     chr_num = tibble(chr = 1:22),
 
+    v2_snp_list_files = chr_num %>% mutate(v2_snp_list_files = paste0(UKBB_processed, "v2_snp_list/", "snp_list_chr", chr, ".txt")),
+
+    check_v2_snp_list_files = target({
+      c(v2_snp_list_files$v2_snp_list_files)},
+      dynamic = map(v2_snp_list_files), format = "file"),
+
+    chunk_ukbb = target({
+      check_v2_snp_list_files
+      make_ukbb_chunks(v2_snp_list_files$v2_snp_list_files, chunk_size=1e6)
+    }, dynamic = map(v2_snp_list_files)),
+
+    chunk_ukbb_run = as_tibble(chunk_ukbb),
+
     bgenie_out = target({
       ukbb_bgen_out
-      launch_bgenie(chr_num$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), threads=8, !!UKBB_dir)
-      paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out.gz")
-    }, dynamic = map(chr_num), format = "file"),
+      launch_bgenie(chunk_ukbb_run$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), !!UKBB_dir, chunk_ukbb_run$chr_char, chunk_ukbb_run$start, chunk_ukbb_run$end, chunk_ukbb_run$chunk_num)
+      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb$chr, "_chunk", chunk_ukbb$chunk_num, ".out.gz")
+    }, dynamic = map(chunk_ukbb_run), format = "file"),
 
     bgenie_unzip = target({
       bgenie_out
-      unzip_bgenie(chr_num$chr)
-      paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out")
-    }, dynamic = map(chr_num), format = "file"),
+      unzip_bgenie(chunk_ukbb$chr, chunk_ukbb_chunk_num)
+      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb$chr, "_chunk", chunk_ukbb$chunk_num, ".out")
+    }, dynamic = map(chunk_ukbb), format = "file"),
 
 )
 
