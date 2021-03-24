@@ -1562,13 +1562,12 @@ meta_case_only_eths <- function(output, output_suffix="", eths, pheno, output_di
       file_name_eth <- paste0(file_name,"_",eth)
       eth_dir <- file.path(output_dir, type)
 
-      if(type=="full"){
-        eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
+      eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, ".", pheno, ".glm.linear"))
 
-        if(file.exists(eth_output)){
-          gwas_results <- c(gwas_results, eth_output)
-        }
+      if(file.exists(eth_output)){
+        gwas_results <- c(gwas_results, eth_output)
       }
+
 
     }
 
