@@ -501,13 +501,17 @@ process_init <- drake_plan(
                                     full_covar = read_table2(file_in("data/processed/phenotype_data/GWAS_input/covar_input.txt"))),
     hpc = FALSE), # this should be identical to GWAS_input above, but needs to be a different name
 
+  GWAS_input_case_only_process = target(list(full_pheno = read_table2(file_in("data/processed/phenotype_data/GWAS_input/case_only_pheno_input.txt")),
+                                    full_covar = read_table2(file_in("data/processed/phenotype_data/GWAS_input/case_only_covar_input.txt"))),
+    hpc = FALSE), # this should be identical to GWAS_input_case_only above, but needs to be a different name
+
   baseline_gwas_process = target(define_baseline_models(GWAS_input_process, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
     hpc = FALSE),
   interaction_gwas_process = target(define_interaction_inputs(!!drug_classes),
     hpc = FALSE),
   subgroup_gwas_process = target(define_subgroup_inputs(!!drug_classes),
     hpc = FALSE),
-  case_only_gwas_process = target(define_case_only_models(GWAS_input_case_only_analysis, !!drug_prioritization, !!interaction_outcome, !!baseline_vars),
+  case_only_gwas_process = target(define_case_only_models(GWAS_input_case_only_process, !!drug_prioritization, !!interaction_outcome, !!baseline_vars),
     hpc = FALSE),
 
 
