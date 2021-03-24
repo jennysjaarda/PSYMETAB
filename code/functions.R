@@ -2447,7 +2447,7 @@ define_subgroup_files <- function(info = subgroup_gwas_process, output = "PSYMET
 
 
 define_case_only_files <- function(info = case_only_gwas_process, output = "PSYMETAB_GWAS", eths,
-  output_dir = "analysis/GWAS", type = "case_only"){
+  output_dir = "analysis/GWAS", type = "case_only", pheno_list = interaction_outcome){
   file_name <- output
   output_suffix <- info$output_suffix
   pheno <- info$pheno
@@ -2474,7 +2474,7 @@ define_case_only_files <- function(info = case_only_gwas_process, output = "PSYM
 
     if(eth=="META_DRUGS"){
       # pheno_without_drug <- unique(sub("_[^_]+$", "", pheno))
-      pheno_eths <- apply(expand.grid(eths, interaction_outcome), 1, paste, collapse=".")
+      pheno_eths <- apply(expand.grid(eths, pheno_list), 1, paste, collapse=".")
       file_name_eth <- file_name
       eth_output <- file.path(eth_dir,eth,paste0(file_name_eth, "_", pheno_eths, ".meta"))
         # apply(expand.grid(eths, pheno_without_drug), 1, paste, collapse=".")
