@@ -514,8 +514,6 @@ process_init <- drake_plan(
   case_only_gwas_process = target(define_case_only_models(GWAS_input_case_only_process, !!drug_prioritization, !!interaction_outcome, !!baseline_vars),
     hpc = FALSE),
 
-
-
   baseline_gwas_files = target({
     define_baseline_files(baseline_gwas_process, output = !!study_name, eths = !!eths,
     output_dir = "analysis/GWAS", type = "full")},
@@ -683,6 +681,7 @@ process_init <- drake_plan(
 
   baseline_gwas_sig = target({
 
+    process_baseline_gwas
     gw_sig_extract(gwas_file = baseline_gwas_files$processed_file, !!gw_sig_nominal, eth = baseline_gwas_files$eth,
       pheno = baseline_gwas_files$pheno, drug_class = NA, drug = baseline_gwas_files$drug)
     },
@@ -691,6 +690,7 @@ process_init <- drake_plan(
 
   interaction_gwas_sig = target({
 
+    process_interaction_gwas
     gw_sig_extract(gwas_file = interaction_gwas_files$processed_file, !!gw_sig_nominal, eth = interaction_gwas_files$eth,
       pheno = interaction_gwas_files$pheno, drug_class = interaction_gwas_files$drug_class, drug = interaction_gwas_files$drug)
     },
@@ -699,6 +699,7 @@ process_init <- drake_plan(
 
   subgroup_gwas_sig = target({
 
+    process_subgroup_gwas
     gw_sig_extract(gwas_file = subgroup_gwas_files$processed_file, !!gw_sig_nominal, eth = subgroup_gwas_files$eth,
       pheno = subgroup_gwas_files$pheno, drug_class = subgroup_gwas_files$drug_class, drug = subgroup_gwas_files$drug)
     },
@@ -707,8 +708,9 @@ process_init <- drake_plan(
 
   case_only_gwas_sig = target({
 
+    process_case_only_gwas
     gw_sig_extract(gwas_file = case_only_gwas_files_mod$processed_file, !!gw_sig_nominal, eth = case_only_gwas_files_mod$eth,
-      pheno = case_only_gwas_files_mod$pheno, drug_class = case_only_gwas_files_mod$drug_class, drug = case_only_gwas_files_mod$drug)
+      pheno = case_only_gwas_files_mod$pheno, drug_class = NA, drug = case_only_gwas_files_mod$drug)
     },
     dynamic = map(case_only_gwas_files_mod)
   ),
