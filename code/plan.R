@@ -832,11 +832,15 @@ ukbb_analysis <- drake_plan(
 
     chunk_ukbb_run = as_tibble(chunk_ukbb),
 
+
     bgenie_out = target({
       ukbb_bgen_out
       launch_bgenie(chunk_ukbb_run$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), !!UKBB_dir, chunk_ukbb_run$chr_char, chunk_ukbb_run$start, chunk_ukbb_run$end, chunk_ukbb_run$chunk_num)
       paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz")
     }, dynamic = map(chunk_ukbb_run), format = "file"),
+
+    # Not all runs will produce a file, because there are no variants in the selected chunk, for example:
+    # launch_bgenie(chunk_ukbb_run$chr[133], phenofile = ("data/processed/ukbb_data/ukbb_GWAS"), UKBB_dir, chunk_ukbb_run$chr_char[133], chunk_ukbb_run$start[133], chunk_ukbb_run$end[133], chunk_ukbb_run$chunk_num[133])
 
     bgenie_unzip = target({
       bgenie_out
