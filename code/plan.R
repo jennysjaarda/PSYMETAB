@@ -640,7 +640,7 @@ process_init <- drake_plan(
 
   # write formatted GWAS file ---------------------------
 
-  case_only_gwas_files_mod = case_only_gwas_files %>% mutate(eth_mod = case_when(eth == "META_DRUGS" ~ "META", TRUE ~ eth))
+  case_only_gwas_files_mod = case_only_gwas_files %>% mutate(eth_mod = case_when(eth == "META_DRUGS" ~ "META", TRUE ~ eth)),
 
   process_case_only_gwas = target({
     check_case_only_files
