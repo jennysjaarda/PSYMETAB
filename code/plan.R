@@ -434,7 +434,7 @@ init_analysis <- drake_plan(
     meta_case_only_eths
     meta_case_only_drugs(output = !!study_name, output_suffix = "", eths = !!eths, drug_groups = !!drug_prioritization,
       outcome = !!interaction_outcome, threads = 8, output_dir = (!!plink_output_dir), type = "case_only")},
-    transform = map(!!interaction_outcome)),
+    dynamic = map(!!interaction_outcome)),
 
 )
 
