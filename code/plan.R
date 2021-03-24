@@ -423,6 +423,19 @@ init_analysis <- drake_plan(
       pheno_list = !!interaction_outcome, type = "subgroup", threads = 8, output_dir = (!!plink_output_dir))},
     dynamic = map(subgroup_gwas_input)),
 
+  case_only_meta_eths_out = target({
+    case_only_out
+    meta_case_only_eths(output = !!study_name, output_suffix = "", eths = !!eths,
+      pheno = case_only_gwas_input$output_suffix, threads = 8, output_dir = (!!plink_output_dir), type = "case_only")},
+    dynamic = map(case_only_gwas_input)),
+
+  case_only_meta_drugs_out = target({ ##zip during this run
+    case_only_out
+    meta_case_only_eths
+    meta_case_only_drugs(output = !!study_name, output_suffix = "", eths = !!eths, drug_groups = !!drug_prioritization,
+      outcome = !!interaction_outcome, threads = 8, output_dir = (!!plink_output_dir), type = "case_only")},
+    transform = map(!!interaction_outcome)),
+
 )
 
 # vis_drake_graph(init_analysis)
@@ -492,6 +505,10 @@ process_init <- drake_plan(
     hpc = FALSE),
   subgroup_gwas_process = target(define_subgroup_inputs(!!drug_classes),
     hpc = FALSE),
+  case_only_gwas_process = target(define_case_only_models(GWAS_input_case_only_analysis, !!drug_prioritization, !!interaction_outcome, !!baseline_vars),
+    hpc = FALSE),
+
+
 
   baseline_gwas_files = target({
     define_baseline_files(baseline_gwas_process, output = !!study_name, eths = !!eths,
@@ -505,6 +522,10 @@ process_init <- drake_plan(
     define_subgroup_files(subgroup_gwas_process, output = !!study_name, eths = !!eths,
     output_dir = "analysis/GWAS", type = "subgroup", pheno_list = !!interaction_outcome)},
     hpc = FALSE),
+  case_only_gwas_files = target({
+    define_case_only_files(case_only_gwas_process, output = !!study_name, eths = !!eths,
+    output_dir = "analysis/GWAS", type = "case_only", pheno_list = !!interaction_outcome)},
+    hpc = FALSE),
 
   check_baseline_files = target({
     baseline_gwas_files$log_file},
@@ -517,6 +538,10 @@ process_init <- drake_plan(
   check_subgroup_files = target({
     subgroup_gwas_files$log_file},
     dynamic=map(subgroup_gwas_files), format = "file"),
+
+  check_case_only_files = target({
+    case_only_gwas_files$log_file},
+    dynamic=map(case_only_gwas_files), format = "file"),
 
   # write formatted GWAS file ---------------------------
 
@@ -613,6 +638,41 @@ process_init <- drake_plan(
     format = "file"
   ),
 
+  # write formatted GWAS file ---------------------------
+
+  case_only_gwas_files_mod = case_only_gwas_files %>% mutate(eth_mod = case_when(eth == "META_DRUGS" ~ "META", TRUE ~ eth))
+
+  process_case_only_gwas = target({
+    check_case_only_files
+    process_gwas(eth = case_only_gwas_files_mod$eth_mod, pheno=case_only_gwas_files_mod$pheno, drug=case_only_gwas_files_mod$drug, file=case_only_gwas_files_mod$plink_file,
+      output = !!study_name, output_dir = "analysis/GWAS", type = "case_only",
+      info_file = paste0("analysis/QC/15_final_processing/", !!study_name, ".info"), out_file = case_only_gwas_files_mod$processed_file)
+    case_only_gwas_files_mod$processed_file
+    },
+    dynamic = map(case_only_gwas_files_mod), format = "file"
+  ),
+
+  case_only_gwas_figures_input = target({
+    process_case_only_gwas
+    gwas_figures_input(eth = case_only_gwas_files_mod$eth_mod, pheno=case_only_gwas_files_mod$pheno, drug=case_only_gwas_files_mod$drug, file=case_only_gwas_files_mod$plink_file,
+      output = !!study_name, output_dir = "analysis/GWAS", type = "case_only",
+      info_file = paste0("analysis/QC/15_final_processing/", !!study_name, ".info"), out_file = case_only_gwas_files_mod$processed_file)},
+    dynamic = map(case_only_gwas_files_mod), hpc = FALSE),
+
+  # create manhattan and qq figures ---------------------------
+
+  case_only_gwas_figures = target({
+    process_case_only_gwas
+    create_figures(
+      case_only_gwas_figures_input$joint_file, case_only_gwas_figures_input$manhattan_file_name,
+      case_only_gwas_figures_input$qq_file_name, case_only_gwas_figures_input$title, !!gw_sig)
+
+      c(case_only_gwas_figures_input$manhattan_file_name, case_only_gwas_figures_input$qq_file_name)
+    },
+    dynamic = map(case_only_gwas_figures_input) ,format = "file"
+  ),
+
+
   # extract nominally significant results (results in a list of nominally significant tibbles)---------------------------
 
   baseline_gwas_sig = target({
@@ -639,17 +699,26 @@ process_init <- drake_plan(
     dynamic = map(subgroup_gwas_files)
   ),
 
+  case_only_gwas_sig = target({
+
+    gw_sig_extract(gwas_file = case_only_gwas_files_mod$processed_file, !!gw_sig_nominal, eth = case_only_gwas_files_mod$eth,
+      pheno = case_only_gwas_files_mod$pheno, drug_class = case_only_gwas_files_mod$drug_class, drug = case_only_gwas_files_mod$drug)
+    },
+    dynamic = map(case_only_gwas_files_mod)
+  ),
   # combined nominally significant results into one tibble ---------------------------
 
   baseline_gwas_nom_com = bind_rows(baseline_gwas_sig, .id = "pheno_name"),
   interaction_gwas_nom_com = bind_rows(interaction_gwas_sig, .id = "pheno_name"),
   subgroup_gwas_nom_com = bind_rows(subgroup_gwas_sig, .id = "pheno_name"),
+  case_only_gwas_nom_com = bind_rows(case_only_gwas_sig, .id = "pheno_name"),
 
   # filter above nominally significant results into GW-significant results  ---------------------------
 
   baseline_gwas_sig_com = baseline_gwas_nom_com %>% filter(P < !!gw_sig),
   interaction_gwas_sig_com = interaction_gwas_nom_com %>% filter(P < !!gw_sig),
   subgroup_gwas_sig_com = subgroup_gwas_nom_com %>% filter(P < !!gw_sig),
+  case_only_gwas_sig_com = case_only_gwas_nom_com %>% filter(P < !!gw_sig),
 
   # filter into only categories of interest ---------------------------
 
@@ -766,14 +835,14 @@ ukbb_analysis <- drake_plan(
     bgenie_out = target({
       ukbb_bgen_out
       launch_bgenie(chunk_ukbb_run$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), !!UKBB_dir, chunk_ukbb_run$chr_char, chunk_ukbb_run$start, chunk_ukbb_run$end, chunk_ukbb_run$chunk_num)
-      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb$chr, "_chunk", chunk_ukbb$chunk_num, ".out.gz")
+      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz")
     }, dynamic = map(chunk_ukbb_run), format = "file"),
 
     bgenie_unzip = target({
       bgenie_out
-      unzip_bgenie(chunk_ukbb$chr, chunk_ukbb_chunk_num)
-      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb$chr, "_chunk", chunk_ukbb$chunk_num, ".out")
-    }, dynamic = map(chunk_ukbb), format = "file"),
+      unzip_bgenie(chunk_ukbb_run$chr, chunk_ukbb_run$chunk_num)
+      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out")
+    }, dynamic = map(chunk_ukbb_run), format = "file"),
 
 )
 
