@@ -429,12 +429,14 @@ init_analysis <- drake_plan(
       pheno = case_only_gwas_input$output_suffix, threads = 8, output_dir = (!!plink_output_dir), type = "case_only")},
     dynamic = map(case_only_gwas_input)),
 
+  interaction_outcome_tibble = tibble(outcome = !!interaction_outcome),
+
   case_only_meta_drugs_out = target({ ##zip during this run
     case_only_out
     meta_case_only_eths
     meta_case_only_drugs(output = !!study_name, output_suffix = "", eths = !!eths, drug_groups = !!drug_prioritization,
-      outcome = !!interaction_outcome, threads = 8, output_dir = (!!plink_output_dir), type = "case_only")},
-    dynamic = map(!!interaction_outcome)),
+      outcome = interaction_outcome_tibble$outcome, threads = 8, output_dir = (!!plink_output_dir), type = "case_only")},
+    dynamic = map(interaction_outcome_tibble)),
 
 )
 
