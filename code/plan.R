@@ -163,6 +163,11 @@ analysis_prep <- drake_plan(
   # prepare phenotype files for analysis in GWAS/GRS etc. ------------
 
   pheno_raw = readr::read_delim(file_in(!!pheno_file), na = c("#pdt", "#ccannul", "#pam", "#di", "#pnc"), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
+
+  ## create a file with start and end dates for each particpant for extracting ECG data
+  pheno_dates = pheno_raw %>% group_by(GEN) %>% mutate(Date = as.Date(Date, format = '%d.%m.%y')) %>% mutate(min_date = min(Date, na.rm=T)) %>% mutate(max_date = max(Date, na.rm=T)) %>% dplyr::select(GEN, min_date, max_date) %>% unique(),
+  pheno_dates_out =  write.table(pheno_dates, file_out("output/PSYMETAB_inclusion_dates.txt"), row.names = F, quote = F, col.names = T),
+
   caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet=1) %>% type_convert(),
     hpc = FALSE),
   # found a mistake that the age of WIFRYNSK was wrong at one instance.
@@ -253,7 +258,6 @@ analysis_prep <- drake_plan(
 )
 
 # vis_drake_graph(analysis_prep)
-
 
 # based on Zoltan's suggestion, divide PSYMETAB into subgroups based on different drugs such that each participant is only in one subgroup.
 
@@ -716,10 +720,17 @@ process_init <- drake_plan(
   ),
   # combined nominally significant results into one tibble ---------------------------
 
-  baseline_gwas_nom_com = bind_rows(baseline_gwas_sig, .id = "pheno_name"),
-  interaction_gwas_nom_com = bind_rows(interaction_gwas_sig, .id = "pheno_name"),
-  subgroup_gwas_nom_com = bind_rows(subgroup_gwas_sig, .id = "pheno_name"),
-  case_only_gwas_nom_com = bind_rows(case_only_gwas_sig, .id = "pheno_name"),
+  baseline_gwas_sig_clean = target(clean_gwas_summary(baseline_gwas_sig), dynamic = map(baseline_gwas_sig)),
+  interaction_gwas_sig_clean = target(clean_gwas_summary(interaction_gwas_sig), dynamic = map(interaction_gwas_sig)),
+  subgroup_gwas_sig_clean = target(clean_gwas_summary(subgroup_gwas_sig), dynamic = map(subgroup_gwas_sig)),
+
+  case_only_gwas_sig_clean = target(clean_case_only_summary(case_only_gwas_sig),
+    dynamic = map(case_only_gwas_sig)),
+
+  baseline_gwas_nom_com = bind_rows(baseline_gwas_sig_clean, .id = "pheno_name"),
+  interaction_gwas_nom_com = bind_rows(interaction_gwas_sig_clean, .id = "pheno_name"),
+  subgroup_gwas_nom_com = bind_rows(subgroup_gwas_sig_clean, .id = "pheno_name"),
+  case_only_gwas_nom_com = bind_rows(case_only_gwas_sig_clean, .id = "pheno_name"),
 
   # filter above nominally significant results into GW-significant results  ---------------------------
 
@@ -727,6 +738,8 @@ process_init <- drake_plan(
   interaction_gwas_sig_com = interaction_gwas_nom_com %>% filter(P < !!gw_sig),
   subgroup_gwas_sig_com = subgroup_gwas_nom_com %>% filter(P < !!gw_sig),
   case_only_gwas_sig_com = case_only_gwas_nom_com %>% filter(P < !!gw_sig),
+
+  case_only_gwas_sig_meta = case_only_gwas_sig_com %>% filter(group=="META_DRUGS"),
 
   # filter into only categories of interest ---------------------------
 
@@ -762,6 +775,12 @@ process_init <- drake_plan(
       related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
   }, dynamic = map(subgroup_gwas_process)),
 
+  # extract model specific results for case-only and pull Q-statistic
+
+  case_only_meta_summ = target(summarize_case_only_meta(case_only_gwas_sig_meta$SNP, case_only_gwas_sig_meta$eth, case_only_gwas_sig_meta$variable, case_only_gwas_sig_meta$outcome,
+    !!study_name, !!drug_prioritization, directory = "analysis/GWAS/case_only"),
+    dynamic=map(case_only_gwas_sig_meta)
+  )
 
 )
 
