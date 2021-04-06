@@ -419,7 +419,7 @@ init_analysis <- drake_plan(
                 eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
                 remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
-                output_dir = (!!plink_output_dir), output = paste0(!!study_name, "_FREQ")},
+                output_dir = (!!plink_output_dir), output = paste0(!!study_name, "_FREQ"))},
     dynamic = map(subgroup_gwas_input)
   ),
 
