@@ -408,6 +408,33 @@ init_analysis <- drake_plan(
     dynamic = map(subgroup_gwas_input)
   ),
 
+  # get frequency counts for each GWAS
+
+  subgroup_freq_out = target({
+    check_subgroup_input_files
+    file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.log"))
+    run_gwas_freq_counts(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"), pheno_file = subgroup_gwas_input$pheno_file,
+                type = "subgroup", subgroup_var = subgroup_gwas_input$subgroup,
+                threads = 8, output_suffix = subgroup_gwas_input$output_suffix,
+                eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+                eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+                remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+                output_dir = (!!plink_output_dir), output = paste0(!!study_name, "_FREQ")},
+    dynamic = map(subgroup_gwas_input)
+  ),
+
+  case_only_freq_out = target({
+    #loadd(baseline_gwas_info
+    file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.log"))
+    run_gwas_freq_counts(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
+               pheno_file = file_in("data/processed/phenotype_data/GWAS_input/case_only_input_resid.txt"),
+               threads = 8, eths = !!eths, type="case_only",
+               eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+               eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+               remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+               output_dir = (!!plink_output_dir), output = paste0(!!study_name, "_FREQ"))}
+  ),
+
   # run meta analyses ---------------------------
 
   linear_meta_out = target({

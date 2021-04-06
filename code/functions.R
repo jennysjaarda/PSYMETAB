@@ -1446,6 +1446,87 @@ run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_
   #return(paste(plink_input, collapse="|"))
 }
 
+# run_gwas_freq_counts is the same function as run_gwas but with frequency observations and counts recorded.
+
+run_gwas_freq_counts <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_names=NULL, eths,
+  eth_sample_file, output_dir, output,
+  remove_sample_file=NULL,threads=1,type="full",
+  subgroup=NULL, subgroup_var="", interaction=FALSE,parameters=NULL, output_suffix="",
+  freq_file="analysis/QC/15_final_processing/CEU/PSYMETAB_GWAS.CEU.afreq",
+  eth_low_maf_file){
+
+  # eth_sample_file : in the form of "keep_this_ETH.txt"
+  # default option: --variance-standardize
+  file_name <- output
+  if(output_suffix!=""){
+    file_name <- paste0(file_name,"_",output_suffix)
+  }
+
+  sample_file <- read.table(paste0(pfile, ".psam"), header=F)
+  nsamples <- dim(sample_file)[1]
+
+
+  if(type=="subgroup")
+  {
+    subgroup_commands <- c("--loop-cats", subgroup_var)
+  } else subgroup_commands <- NULL
+
+  if(!is.null(remove_sample_file)){
+    remove_commands <- c("--remove",remove_sample_file)
+    remove_samples <- read.table(remove_sample_file, header=F)
+  } else remove_commands <- NULL
+
+  if(type=="interaction")
+  {
+    analysis_commands <- c("--glm", "cols=+a1count,+a1freq", "interaction", "skip", "--parameters", parameters)
+    file_name <- paste0(file_name,"_int")
+  } else analysis_commands <- c("--glm", "cols=+a1count,+a1freq", "hide-covar", "skip")
+
+  if(!is.null(covar_names)){
+    covar_commands <- unlist(c("--covar", covar_file, "--covar-name", unlist(covar_names)))
+  } else covar_commands <- NULL
+
+  if(!is.null(pheno_name)){
+    pheno_commands <- unlist(c("--pheno-name", pheno_name))
+  } else pheno_commands <- NULL
+
+  general_commands <- unlist(c("--pfile", pfile, "--read-freq", freq_file,
+          "--threads", threads, "--variance-standardize", "--pheno", pheno_file))
+  #maf_input <- unlist(c("--pfile", pfile, "--make-pfile", "--threads", threads, "--maf", maf_threshold))
+
+
+  out <- list()
+  for (eth in eths)
+  {
+    keep_file <- str_replace(eth_sample_file, "ETH", eth)
+    low_maf_eth_file <- str_replace(eth_low_maf_file, "ETH", eth)
+    eth_samples <- read.table(keep_file, header=F)
+
+    file_name_eth <- paste0(file_name,"_",eth)
+    write_dir <- file.path(output_dir, type)
+    full_output <- file.path(write_dir,eth,file_name_eth)
+
+    eth_commands <- c("--keep", keep_file, "--out", full_output, "--exclude", low_maf_eth_file)#, "--maf", maf_threshold)
+
+    final_sample_list <- sample_file %>%
+      filter(V1 %in% eth_samples$V1) %>%
+      filter(!(V1 %in% remove_samples$V1))
+
+    eth_count <- dim(final_sample_list)[1]
+    if(eth_count > 100)
+    {
+
+      #maf_filter <- processx::run(command="plink2", c(maf_input, eth_commands), error_on_status=F)
+
+      plink_input <- c(general_commands, analysis_commands, remove_commands, subgroup_commands,eth_commands,covar_commands,pheno_commands)
+      temp_out <- processx::run(command="plink2",plink_input, error_on_status=F)
+      out[[eth]] <- temp_out
+    }
+  }
+  return(out)
+  #return(paste(plink_input, collapse="|"))
+}
+
 meta <- function(output, output_suffix="", eths, pheno_list, output_dir = "analysis/GWAS", type = "full",
   threads=1, interaction_var = NA){
 
