@@ -2611,6 +2611,122 @@ gw_sig_extract <- function(gwas_file, gw_sig_nominal, eth, pheno, drug_class, dr
 
 }
 
+clean_gwas_summary <- function(gwas_data){
+
+  output_name <- names(gwas_data)
+  gwas_data <- gwas_data[[1]]
+
+  if(dim(gwas_data)[1]==0){
+    gwas_data$variable <- character()
+    gwas_data$outcome <- character()
+  }
+  if(dim(gwas_data)[1]!=0){
+
+    pheno_name <- gwas_data$pheno[1]
+
+    variable <- str_extract(string=pheno_name, pattern="[^_]*")
+    outcome <- str_replace(pheno_name, paste0(variable, "_"), "")
+
+    gwas_data$variable <- variable
+    gwas_data$outcome <- outcome
+
+  }
+
+  output <- list()
+  output[[output_name]] <- gwas_data
+  return(output)
+}
+
+clean_case_only_summary <- function(case_only_data){
+
+  output_name <- names(case_only_data)
+  case_only_data <- case_only_data[[1]]
+
+  if(dim(case_only_data)[1]==0){
+
+    case_only_data$group <- character()
+    case_only_data$variable <- character()
+    case_only_data$outcome <- character()
+  }
+  if(dim(case_only_data)[1]!=0){
+    pheno_name <- case_only_data$pheno[1]
+    group <- case_only_data$eth[1]
+
+    if(group == "META_DRUGS"){
+      eth <- str_extract(string=pheno_name, pattern="[^\\.]*")
+      drug <- NA
+      pheno <-  str_extract(string=pheno_name, pattern="[^\\.]+$")
+
+    } else {
+      eth <- group
+      drug <-  drug <- sub('.*\\_', '', pheno_name)
+      pheno <- sub("_[^_]+$", "", pheno_name)
+    }
+
+    outcome <- str_extract(string=pheno, pattern="[^_]+$")
+
+
+    variable <- str_extract(string=pheno, pattern="[^_]*")
+    outcome <- str_replace(pheno, paste0(variable, "_"), "")
+
+    case_only_data$drug <- drug
+    case_only_data$eth <- eth
+    case_only_data$group <- group
+    case_only_data$variable <- variable
+    case_only_data$outcome <- outcome
+  }
+
+  output <- list()
+  output[[output_name]] <- case_only_data
+  return(output)
+
+
+}
+
+summarize_case_only_meta <- function(snp, eth, variable, outcome, study_name, drug_prioritization, directory){
+
+  pheno <- paste0(eth, ".", variable, "_", outcome)
+  meta_file <- paste0(study_name, "_", pheno, ".meta")
+  meta_gwas <- fread(file.path(directory, "META_DRUGS", meta_file), data.table=F)
+
+  meta_row <- which(meta_gwas$SNP==snp)
+  P_META <- as.numeric(meta_gwas[meta_row, "P"])
+  BETA_META <- as.numeric(meta_gwas[meta_row, "BETA"])
+  SE_META <-abs(BETA_META/qnorm(P_META/2))
+
+  drug_result <- numeric()
+  for(drug in drug_prioritization){
+    drug_file <- paste0(study_name, "_", pheno, "_", drug, ".GWAS.txt")
+    if(file.exists(file.path(directory, "processed", drug_file))){
+      drug_gwas <- fread(file.path(directory, "processed", drug_file), data.table=F)
+      row_num <-  which(drug_gwas$SNP==snp)
+      if(length(row_num)!=0){
+        drug_p <- as.numeric(drug_gwas[row_num, "P"])
+        drug_beta <- as.numeric(drug_gwas[row_num, "BETA"])
+        drug_se <- as.numeric(drug_gwas[row_num, "SE"])
+      } else {
+        drug_p <- NA
+        drug_beta <- NA
+        drug_se <- NA
+      }
+    }
+    if(!file.exists(file.path(directory, "processed", drug_file))){
+      drug_p <- NA
+      drug_beta <- NA
+      drug_se <- NA
+    }
+    drug_result <- cbind(drug_result, drug_p, drug_beta, drug_se)
+
+  }
+
+  colnames(drug_result) <- apply(expand.grid( c("P_", "BETA_", "SE_"), drug_prioritization),
+                               1, paste, collapse="")
+
+
+  result <- cbind(snp, eth, variable, outcome, drug_result, P_META, BETA_META, SE_META)
+
+}
+
 count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, covar_file=NA, covars=NA, eths,
   eth_sample_file, related_ids_file){
 
