@@ -358,6 +358,9 @@ div.tocify {
 <li>
   <a href="setup.html">Setup</a>
 </li>
+<li>
+  <a href="plans.html">Analysis plans</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -389,42 +392,47 @@ div.section {
 
 
 <p>
-<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
+  data-toggle="collapse" data-target="#workflowr-report">
+  
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
+
 <div id="workflowr-report" class="collapse">
 <ul class="nav nav-tabs">
-<li class="active">
+  <li class="active">
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
-<li>
+  <li>
 <a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
-<li>
+  <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
 </li>
 </ul>
+
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
-<p>
-<strong>Last updated:</strong> 2020-09-10
+  <p>
+<strong>Last updated:</strong> 2021-04-13
 </p>
-<p>
+  <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
-<p>
+  <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
-<p>
+  <p>
+  
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
   href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
 <div id="checks" class="tab-pane fade">
-<div id="workflowr-checks" class="panel-group">
-<div class="panel panel-default">
+  <div class="panel-group" id="workflowr-checks">
+  <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
 <a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
@@ -432,6 +440,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
+  
 <p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
@@ -439,15 +448,17 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree4b9915760a5afdd8642b0bc0091510812268c91btargetblank4b99157a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/4b9915760a5afdd8642b0bc0091510812268c91b" target="_blank">4b99157</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree65a214efdfed80b6197f6e73c29d400ec3794afbtargetblank65a214ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/65a214efdfed80b6197f6e73c29d400ec3794afb" target="_blank">65a214e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree4b9915760a5afdd8642b0bc0091510812268c91btargetblank4b99157a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree65a214efdfed80b6197f6e73c29d400ec3794afbtargetblank65a214ea" class="panel-collapse collapse">
 <div class="panel-body">
+  
+
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
-<pre><code>
+ <pre><code>
 Ignored files:
     Ignored:    ._docs
     Ignored:    .drake/
@@ -459,6 +470,7 @@ Ignored files:
     Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
     Ignored:    analysis/Rlogo2.png
+    Ignored:    analysis/figure/
     Ignored:    analysis/rplot.jpg
     Ignored:    analysis_prep_10_clustermq.out
     Ignored:    analysis_prep_11_clustermq.out
@@ -494,50 +506,14 @@ Ignored files:
     Ignored:    analysis_prep_39_clustermq.out
     Ignored:    analysis_prep_3_clustermq.out
     Ignored:    analysis_prep_40_clustermq.out
-    Ignored:    analysis_prep_41_clustermq.out
-    Ignored:    analysis_prep_42_clustermq.out
-    Ignored:    analysis_prep_43_clustermq.out
-    Ignored:    analysis_prep_44_clustermq.out
-    Ignored:    analysis_prep_45_clustermq.out
-    Ignored:    analysis_prep_46_clustermq.out
-    Ignored:    analysis_prep_47_clustermq.out
-    Ignored:    analysis_prep_48_clustermq.out
-    Ignored:    analysis_prep_49_clustermq.out
     Ignored:    analysis_prep_4_clustermq.out
-    Ignored:    analysis_prep_50_clustermq.out
-    Ignored:    analysis_prep_51_clustermq.out
-    Ignored:    analysis_prep_52_clustermq.out
-    Ignored:    analysis_prep_53_clustermq.out
-    Ignored:    analysis_prep_54_clustermq.out
-    Ignored:    analysis_prep_55_clustermq.out
-    Ignored:    analysis_prep_56_clustermq.out
-    Ignored:    analysis_prep_57_clustermq.out
-    Ignored:    analysis_prep_58_clustermq.out
-    Ignored:    analysis_prep_59_clustermq.out
     Ignored:    analysis_prep_5_clustermq.out
-    Ignored:    analysis_prep_60_clustermq.out
-    Ignored:    analysis_prep_61_clustermq.out
-    Ignored:    analysis_prep_62_clustermq.out
-    Ignored:    analysis_prep_63_clustermq.out
-    Ignored:    analysis_prep_64_clustermq.out
-    Ignored:    analysis_prep_65_clustermq.out
-    Ignored:    analysis_prep_66_clustermq.out
-    Ignored:    analysis_prep_67_clustermq.out
-    Ignored:    analysis_prep_68_clustermq.out
-    Ignored:    analysis_prep_69_clustermq.out
     Ignored:    analysis_prep_6_clustermq.out
-    Ignored:    analysis_prep_70_clustermq.out
-    Ignored:    analysis_prep_71_clustermq.out
-    Ignored:    analysis_prep_72_clustermq.out
-    Ignored:    analysis_prep_73_clustermq.out
-    Ignored:    analysis_prep_74_clustermq.out
-    Ignored:    analysis_prep_75_clustermq.out
     Ignored:    analysis_prep_7_clustermq.out
     Ignored:    analysis_prep_8_clustermq.out
     Ignored:    analysis_prep_9_clustermq.out
     Ignored:    data/processed/
     Ignored:    data/raw/
-    Ignored:    download_impute_1_clustermq.out
     Ignored:    init_analysis_10_clustermq.out
     Ignored:    init_analysis_11_clustermq.out
     Ignored:    init_analysis_12_clustermq.out
@@ -550,90 +526,17 @@ Ignored files:
     Ignored:    init_analysis_19_clustermq.out
     Ignored:    init_analysis_1_clustermq.out
     Ignored:    init_analysis_20_clustermq.out
-    Ignored:    init_analysis_21_clustermq.out
-    Ignored:    init_analysis_22_clustermq.out
-    Ignored:    init_analysis_23_clustermq.out
-    Ignored:    init_analysis_24_clustermq.out
-    Ignored:    init_analysis_25_clustermq.out
-    Ignored:    init_analysis_26_clustermq.out
-    Ignored:    init_analysis_27_clustermq.out
-    Ignored:    init_analysis_28_clustermq.out
-    Ignored:    init_analysis_29_clustermq.out
     Ignored:    init_analysis_2_clustermq.out
-    Ignored:    init_analysis_30_clustermq.out
-    Ignored:    init_analysis_31_clustermq.out
-    Ignored:    init_analysis_32_clustermq.out
-    Ignored:    init_analysis_33_clustermq.out
-    Ignored:    init_analysis_34_clustermq.out
-    Ignored:    init_analysis_35_clustermq.out
-    Ignored:    init_analysis_36_clustermq.out
-    Ignored:    init_analysis_37_clustermq.out
-    Ignored:    init_analysis_38_clustermq.out
-    Ignored:    init_analysis_39_clustermq.out
     Ignored:    init_analysis_3_clustermq.out
-    Ignored:    init_analysis_40_clustermq.out
-    Ignored:    init_analysis_41_clustermq.out
-    Ignored:    init_analysis_42_clustermq.out
-    Ignored:    init_analysis_43_clustermq.out
-    Ignored:    init_analysis_44_clustermq.out
-    Ignored:    init_analysis_45_clustermq.out
-    Ignored:    init_analysis_46_clustermq.out
-    Ignored:    init_analysis_47_clustermq.out
-    Ignored:    init_analysis_48_clustermq.out
-    Ignored:    init_analysis_49_clustermq.out
     Ignored:    init_analysis_4_clustermq.out
-    Ignored:    init_analysis_50_clustermq.out
-    Ignored:    init_analysis_51_clustermq.out
-    Ignored:    init_analysis_52_clustermq.out
-    Ignored:    init_analysis_53_clustermq.out
-    Ignored:    init_analysis_54_clustermq.out
-    Ignored:    init_analysis_55_clustermq.out
-    Ignored:    init_analysis_56_clustermq.out
-    Ignored:    init_analysis_57_clustermq.out
-    Ignored:    init_analysis_58_clustermq.out
-    Ignored:    init_analysis_59_clustermq.out
     Ignored:    init_analysis_5_clustermq.out
-    Ignored:    init_analysis_60_clustermq.out
-    Ignored:    init_analysis_61_clustermq.out
-    Ignored:    init_analysis_62_clustermq.out
-    Ignored:    init_analysis_63_clustermq.out
-    Ignored:    init_analysis_64_clustermq.out
-    Ignored:    init_analysis_65_clustermq.out
-    Ignored:    init_analysis_66_clustermq.out
-    Ignored:    init_analysis_67_clustermq.out
-    Ignored:    init_analysis_68_clustermq.out
-    Ignored:    init_analysis_69_clustermq.out
     Ignored:    init_analysis_6_clustermq.out
-    Ignored:    init_analysis_70_clustermq.out
-    Ignored:    init_analysis_71_clustermq.out
-    Ignored:    init_analysis_72_clustermq.out
-    Ignored:    init_analysis_73_clustermq.out
-    Ignored:    init_analysis_74_clustermq.out
-    Ignored:    init_analysis_75_clustermq.out
-    Ignored:    init_analysis_76_clustermq.out
-    Ignored:    init_analysis_77_clustermq.out
-    Ignored:    init_analysis_78_clustermq.out
-    Ignored:    init_analysis_79_clustermq.out
     Ignored:    init_analysis_7_clustermq.out
-    Ignored:    init_analysis_80_clustermq.out
-    Ignored:    init_analysis_81_clustermq.out
-    Ignored:    init_analysis_82_clustermq.out
-    Ignored:    init_analysis_83_clustermq.out
-    Ignored:    init_analysis_84_clustermq.out
-    Ignored:    init_analysis_85_clustermq.out
-    Ignored:    init_analysis_86_clustermq.out
-    Ignored:    init_analysis_87_clustermq.out
-    Ignored:    init_analysis_88_clustermq.out
-    Ignored:    init_analysis_89_clustermq.out
     Ignored:    init_analysis_8_clustermq.out
-    Ignored:    init_analysis_90_clustermq.out
-    Ignored:    init_analysis_91_clustermq.out
     Ignored:    init_analysis_9_clustermq.out
     Ignored:    packrat/lib-R/
     Ignored:    packrat/lib-ext/
     Ignored:    packrat/lib/
-    Ignored:    post_impute_1_clustermq.out
-    Ignored:    pre_impute_qc_1_clustermq.out
     Ignored:    process_init_100_clustermq.out
     Ignored:    process_init_101_clustermq.out
     Ignored:    process_init_102_clustermq.out
@@ -657,11 +560,6 @@ Ignored files:
     Ignored:    process_init_119_clustermq.out
     Ignored:    process_init_11_clustermq.out
     Ignored:    process_init_120_clustermq.out
-    Ignored:    process_init_121_clustermq.out
-    Ignored:    process_init_122_clustermq.out
-    Ignored:    process_init_123_clustermq.out
-    Ignored:    process_init_124_clustermq.out
-    Ignored:    process_init_125_clustermq.out
     Ignored:    process_init_12_clustermq.out
     Ignored:    process_init_13_clustermq.out
     Ignored:    process_init_14_clustermq.out
@@ -759,14 +657,105 @@ Ignored files:
     Ignored:    process_init_98_clustermq.out
     Ignored:    process_init_99_clustermq.out
     Ignored:    process_init_9_clustermq.out
+    Ignored:    process_ukbb_10_clustermq.out
+    Ignored:    process_ukbb_11_clustermq.out
+    Ignored:    process_ukbb_12_clustermq.out
+    Ignored:    process_ukbb_13_clustermq.out
+    Ignored:    process_ukbb_14_clustermq.out
+    Ignored:    process_ukbb_15_clustermq.out
+    Ignored:    process_ukbb_16_clustermq.out
+    Ignored:    process_ukbb_17_clustermq.out
+    Ignored:    process_ukbb_18_clustermq.out
+    Ignored:    process_ukbb_19_clustermq.out
+    Ignored:    process_ukbb_1_clustermq.out
+    Ignored:    process_ukbb_20_clustermq.out
+    Ignored:    process_ukbb_21_clustermq.out
+    Ignored:    process_ukbb_22_clustermq.out
+    Ignored:    process_ukbb_2_clustermq.out
+    Ignored:    process_ukbb_3_clustermq.out
+    Ignored:    process_ukbb_4_clustermq.out
+    Ignored:    process_ukbb_5_clustermq.out
+    Ignored:    process_ukbb_6_clustermq.out
+    Ignored:    process_ukbb_7_clustermq.out
+    Ignored:    process_ukbb_8_clustermq.out
+    Ignored:    process_ukbb_9_clustermq.out
     Ignored:    prs_1_clustermq.out
     Ignored:    prs_2_clustermq.out
     Ignored:    prs_3_clustermq.out
     Ignored:    prs_4_clustermq.out
+    Ignored:    prs_5_clustermq.out
+    Ignored:    prs_6_clustermq.out
+    Ignored:    prs_7_clustermq.out
+    Ignored:    prs_8_clustermq.out
+    Ignored:    ukbb_1_clustermq.out
+    Ignored:    ukbb_analysis_100_clustermq.out
+    Ignored:    ukbb_analysis_101_clustermq.out
+    Ignored:    ukbb_analysis_102_clustermq.out
+    Ignored:    ukbb_analysis_103_clustermq.out
+    Ignored:    ukbb_analysis_104_clustermq.out
+    Ignored:    ukbb_analysis_105_clustermq.out
+    Ignored:    ukbb_analysis_106_clustermq.out
+    Ignored:    ukbb_analysis_107_clustermq.out
+    Ignored:    ukbb_analysis_108_clustermq.out
+    Ignored:    ukbb_analysis_109_clustermq.out
     Ignored:    ukbb_analysis_10_clustermq.out
+    Ignored:    ukbb_analysis_110_clustermq.out
+    Ignored:    ukbb_analysis_111_clustermq.out
+    Ignored:    ukbb_analysis_112_clustermq.out
+    Ignored:    ukbb_analysis_113_clustermq.out
+    Ignored:    ukbb_analysis_114_clustermq.out
+    Ignored:    ukbb_analysis_115_clustermq.out
+    Ignored:    ukbb_analysis_116_clustermq.out
+    Ignored:    ukbb_analysis_117_clustermq.out
+    Ignored:    ukbb_analysis_118_clustermq.out
+    Ignored:    ukbb_analysis_119_clustermq.out
     Ignored:    ukbb_analysis_11_clustermq.out
+    Ignored:    ukbb_analysis_120_clustermq.out
+    Ignored:    ukbb_analysis_121_clustermq.out
+    Ignored:    ukbb_analysis_122_clustermq.out
+    Ignored:    ukbb_analysis_123_clustermq.out
+    Ignored:    ukbb_analysis_124_clustermq.out
+    Ignored:    ukbb_analysis_125_clustermq.out
+    Ignored:    ukbb_analysis_126_clustermq.out
+    Ignored:    ukbb_analysis_127_clustermq.out
+    Ignored:    ukbb_analysis_128_clustermq.out
+    Ignored:    ukbb_analysis_129_clustermq.out
     Ignored:    ukbb_analysis_12_clustermq.out
+    Ignored:    ukbb_analysis_130_clustermq.out
+    Ignored:    ukbb_analysis_131_clustermq.out
+    Ignored:    ukbb_analysis_132_clustermq.out
+    Ignored:    ukbb_analysis_133_clustermq.out
+    Ignored:    ukbb_analysis_134_clustermq.out
+    Ignored:    ukbb_analysis_135_clustermq.out
+    Ignored:    ukbb_analysis_136_clustermq.out
+    Ignored:    ukbb_analysis_137_clustermq.out
+    Ignored:    ukbb_analysis_138_clustermq.out
+    Ignored:    ukbb_analysis_139_clustermq.out
+    Ignored:    ukbb_analysis_13_clustermq.out
+    Ignored:    ukbb_analysis_140_clustermq.out
+    Ignored:    ukbb_analysis_141_clustermq.out
+    Ignored:    ukbb_analysis_142_clustermq.out
+    Ignored:    ukbb_analysis_143_clustermq.out
+    Ignored:    ukbb_analysis_144_clustermq.out
+    Ignored:    ukbb_analysis_145_clustermq.out
+    Ignored:    ukbb_analysis_146_clustermq.out
+    Ignored:    ukbb_analysis_147_clustermq.out
+    Ignored:    ukbb_analysis_148_clustermq.out
+    Ignored:    ukbb_analysis_149_clustermq.out
     Ignored:    ukbb_analysis_14_clustermq.out
+    Ignored:    ukbb_analysis_150_clustermq.out
+    Ignored:    ukbb_analysis_151_clustermq.out
+    Ignored:    ukbb_analysis_152_clustermq.out
+    Ignored:    ukbb_analysis_153_clustermq.out
+    Ignored:    ukbb_analysis_154_clustermq.out
+    Ignored:    ukbb_analysis_155_clustermq.out
+    Ignored:    ukbb_analysis_156_clustermq.out
+    Ignored:    ukbb_analysis_157_clustermq.out
+    Ignored:    ukbb_analysis_158_clustermq.out
+    Ignored:    ukbb_analysis_159_clustermq.out
+    Ignored:    ukbb_analysis_15_clustermq.out
+    Ignored:    ukbb_analysis_160_clustermq.out
+    Ignored:    ukbb_analysis_16_clustermq.out
     Ignored:    ukbb_analysis_17_clustermq.out
     Ignored:    ukbb_analysis_18_clustermq.out
     Ignored:    ukbb_analysis_19_clustermq.out
@@ -774,48 +763,136 @@ Ignored files:
     Ignored:    ukbb_analysis_20_clustermq.out
     Ignored:    ukbb_analysis_21_clustermq.out
     Ignored:    ukbb_analysis_22_clustermq.out
+    Ignored:    ukbb_analysis_23_clustermq.out
+    Ignored:    ukbb_analysis_24_clustermq.out
+    Ignored:    ukbb_analysis_25_clustermq.out
+    Ignored:    ukbb_analysis_26_clustermq.out
+    Ignored:    ukbb_analysis_27_clustermq.out
+    Ignored:    ukbb_analysis_28_clustermq.out
+    Ignored:    ukbb_analysis_29_clustermq.out
     Ignored:    ukbb_analysis_2_clustermq.out
+    Ignored:    ukbb_analysis_30_clustermq.out
+    Ignored:    ukbb_analysis_31_clustermq.out
+    Ignored:    ukbb_analysis_32_clustermq.out
+    Ignored:    ukbb_analysis_33_clustermq.out
+    Ignored:    ukbb_analysis_34_clustermq.out
+    Ignored:    ukbb_analysis_35_clustermq.out
+    Ignored:    ukbb_analysis_36_clustermq.out
+    Ignored:    ukbb_analysis_37_clustermq.out
+    Ignored:    ukbb_analysis_38_clustermq.out
+    Ignored:    ukbb_analysis_39_clustermq.out
     Ignored:    ukbb_analysis_3_clustermq.out
+    Ignored:    ukbb_analysis_40_clustermq.out
+    Ignored:    ukbb_analysis_41_clustermq.out
+    Ignored:    ukbb_analysis_42_clustermq.out
+    Ignored:    ukbb_analysis_43_clustermq.out
+    Ignored:    ukbb_analysis_44_clustermq.out
+    Ignored:    ukbb_analysis_45_clustermq.out
+    Ignored:    ukbb_analysis_46_clustermq.out
+    Ignored:    ukbb_analysis_47_clustermq.out
+    Ignored:    ukbb_analysis_48_clustermq.out
+    Ignored:    ukbb_analysis_49_clustermq.out
     Ignored:    ukbb_analysis_4_clustermq.out
+    Ignored:    ukbb_analysis_50_clustermq.out
+    Ignored:    ukbb_analysis_51_clustermq.out
+    Ignored:    ukbb_analysis_52_clustermq.out
+    Ignored:    ukbb_analysis_53_clustermq.out
+    Ignored:    ukbb_analysis_54_clustermq.out
+    Ignored:    ukbb_analysis_55_clustermq.out
+    Ignored:    ukbb_analysis_56_clustermq.out
+    Ignored:    ukbb_analysis_57_clustermq.out
+    Ignored:    ukbb_analysis_58_clustermq.out
+    Ignored:    ukbb_analysis_59_clustermq.out
     Ignored:    ukbb_analysis_5_clustermq.out
+    Ignored:    ukbb_analysis_60_clustermq.out
+    Ignored:    ukbb_analysis_61_clustermq.out
+    Ignored:    ukbb_analysis_62_clustermq.out
+    Ignored:    ukbb_analysis_63_clustermq.out
+    Ignored:    ukbb_analysis_64_clustermq.out
+    Ignored:    ukbb_analysis_65_clustermq.out
+    Ignored:    ukbb_analysis_66_clustermq.out
+    Ignored:    ukbb_analysis_67_clustermq.out
+    Ignored:    ukbb_analysis_68_clustermq.out
+    Ignored:    ukbb_analysis_69_clustermq.out
     Ignored:    ukbb_analysis_6_clustermq.out
+    Ignored:    ukbb_analysis_70_clustermq.out
+    Ignored:    ukbb_analysis_71_clustermq.out
+    Ignored:    ukbb_analysis_72_clustermq.out
+    Ignored:    ukbb_analysis_73_clustermq.out
+    Ignored:    ukbb_analysis_74_clustermq.out
+    Ignored:    ukbb_analysis_75_clustermq.out
+    Ignored:    ukbb_analysis_76_clustermq.out
+    Ignored:    ukbb_analysis_77_clustermq.out
+    Ignored:    ukbb_analysis_78_clustermq.out
+    Ignored:    ukbb_analysis_79_clustermq.out
     Ignored:    ukbb_analysis_7_clustermq.out
+    Ignored:    ukbb_analysis_80_clustermq.out
+    Ignored:    ukbb_analysis_81_clustermq.out
+    Ignored:    ukbb_analysis_82_clustermq.out
+    Ignored:    ukbb_analysis_83_clustermq.out
+    Ignored:    ukbb_analysis_84_clustermq.out
+    Ignored:    ukbb_analysis_85_clustermq.out
+    Ignored:    ukbb_analysis_86_clustermq.out
+    Ignored:    ukbb_analysis_87_clustermq.out
+    Ignored:    ukbb_analysis_88_clustermq.out
+    Ignored:    ukbb_analysis_89_clustermq.out
     Ignored:    ukbb_analysis_8_clustermq.out
+    Ignored:    ukbb_analysis_90_clustermq.out
+    Ignored:    ukbb_analysis_91_clustermq.out
+    Ignored:    ukbb_analysis_92_clustermq.out
+    Ignored:    ukbb_analysis_93_clustermq.out
+    Ignored:    ukbb_analysis_94_clustermq.out
+    Ignored:    ukbb_analysis_95_clustermq.out
+    Ignored:    ukbb_analysis_96_clustermq.out
+    Ignored:    ukbb_analysis_97_clustermq.out
+    Ignored:    ukbb_analysis_98_clustermq.out
+    Ignored:    ukbb_analysis_99_clustermq.out
     Ignored:    ukbb_analysis_9_clustermq.out
 
 Untracked files:
     Untracked:  Rlogo.png
     Untracked:  Rlogo2.png
-    Untracked:  analysis/GWAS_test.Rmd
-    Untracked:  analysis/genetic_quality_control.Rmd
-    Untracked:  analysis/plans.Rmd
+    Untracked:  analysis/GWAS_case_only.Rmd
+    Untracked:  analysis/meetings.Rmd
     Untracked:  analysis_prep.log
-    Untracked:  code/extractions/Severine_extract.sh
+    Untracked:  code/extractions/Aurelie09032021_extract.sh
+    Untracked:  code/extractions/MarcodePieri_09032021_extract.sh
+    Untracked:  code/extractions/MarcodePieri_09032021_proxies_extract.sh
     Untracked:  download_impute.log
     Untracked:  extract_sig.log
     Untracked:  grs.log
     Untracked:  init_analysis.log
-    Untracked:  master.out
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison.csv
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison2.csv
+    Untracked:  output/PSYMETAB_GWAS_baseline_CEU_result.csv
+    Untracked:  output/PSYMETAB_GWAS_subgroup_CEU_result.csv
+    Untracked:  output/PSYMETAB_inclusion_dates.txt
+    Untracked:  output/coffee_consumed_Neale_UKBB_analysis.csv
     Untracked:  process_init.log
+    Untracked:  process_ukbb.log
     Untracked:  prs.log
     Untracked:  rplot.jpg
+    Untracked:  temp
+    Untracked:  ukbb.log
     Untracked:  ukbb_analysis.log
-    Untracked:  ukbb_vs_psy_sig.csv
 
 Unstaged changes:
-    Modified:   analysis/GWAS.Rmd
-    Modified:   analysis/about.Rmd
-    Modified:   analysis/data_sources.Rmd
+    Modified:   analysis/GWAS_method.Rmd
+    Modified:   analysis/GWAS_results.Rmd
+    Modified:   analysis/_site.yml
+    Modified:   analysis/genetic_quality_control.Rmd
     Modified:   analysis/index.Rmd
     Modified:   analysis/pheno_quality_control.Rmd
+    Modified:   analysis/plans.Rmd
     Modified:   analysis/setup.Rmd
     Modified:   cache_log.csv
+    Modified:   code/extractions/AurelieReymond_extract.sh
     Modified:   post_impute.log
 
-</code></pre>
-<p>
+</code></pre> <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
 </p>
+
 </div>
 </div>
 </div>
@@ -823,7 +900,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
+  
 <p>
 These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
 </p>
@@ -849,6 +926,74 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/d0e069575d8e175a96963e5260a87998c6a7b620/analysis/extract_genetic_data.Rmd" target="_blank">d0e0695</a>
+</td>
+<td>
+jennysjaarda
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+Merge branch ‘master’ of <a href="https://github.com/jennysjaarda/PSYMETAB">https://github.com/jennysjaarda/PSYMETAB</a>
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/941b66dff7d9f6ebb58759cb9e2ab4a610d9aab3/analysis/extract_genetic_data.Rmd" target="_blank">941b66d</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+add new Rmd files and respective html files
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/a87444c5e8147772fbdc9d1d2bcb814c099c6db4/analysis/extract_genetic_data.Rmd" target="_blank">a87444c</a>
+</td>
+<td>
+jennysjaarda
+</td>
+<td>
+2021-03-02
+</td>
+<td>
+update how to extract genetic data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/16d080066c0d3890ceeef44364a0a33f82b1d79d/docs/extract_genetic_data.html" target="_blank">16d0800</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2020-09-10
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -920,52 +1065,50 @@ wflow_publish(“analysis/extract_genetic_data.Rmd”)
 </tbody>
 </table>
 </div>
+
 <hr>
 </div>
 </div>
 </div>
+
+
+
+
 <p><strong>The following document outlines the procedure to extract genetic data located on the <code>HPC1</code> servers.</strong></p>
-<div id="format-input-files." class="section level1">
-<h1>1. Format input files.</h1>
 <ul>
-<li>Text file.<br />
-</li>
+<li>Text file.</li>
 <li>One line per SNP.</li>
 <li>Name of file is not important, but should have some simple description of the SNP list (<code>${snp_list}</code>).</li>
 </ul>
-</div>
 <div id="transfer-input-file-to-hpc1-server." class="section level1">
 <h1>2. Transfer input file to HPC1 server.</h1>
 <ul>
-<li>Connect to <code>HPC1</code> server via filezilla:
-<ul>
+<li>Connect to <code>HPC1</code> server via filezilla:</li>
 <li>host: <code>hpc1.chuv.ch</code></li>
 <li>username: <code>je4649</code></li>
-<li>password: <code>LacLeman2020</code></li>
+<li>password: <code>XXXX</code></li>
 <li>port: <code>22</code></li>
-</ul></li>
 <li>Navigate to <code>/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions</code></li>
-<li>If necessary, create directory for person who made data extraction request (“requester”).</li>
-<li>Save text file from #1 into the folder: <code>/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions/${requester}</code>.</li>
+<li>If necessary, create directory for person who made data extraction request (<code>requestor</code>) with the format: <code>FirstnameLastname</code>.</li>
+<li>Save text file from #1 into the folder: <code>/data/sgg2/jenny/projects/PSYMETAB/data/raw/extractions/${requestor}</code> (Note: to maintain file organization, please maintain only <em>one</em> folder per requestor).</li>
 </ul>
 </div>
-<div id="create-and-run-extraction-script-for-requester." class="section level1">
-<h1>3. Create and run extraction script for “requester”.</h1>
+<div id="create-and-run-extraction-script-for-requestor." class="section level1">
+<h1>3. Create and run extraction script for “requestor”.</h1>
 <ul>
-<li>Extraction script templates are found in: <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions</code> (for e.g. <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions/Aurelie.sh</code>)</li>
-<li>If an extraction script already exists for the “requester” skip to next step, otherwise:
-<ul>
-<li>Create an extraction script for the “requester”: <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions/${requester}.sh</code>.</li>
-<li>Recommend simply copying and pastying all code from <code>Nicolas_extract.sh</code> script as the new one will be nearly identical.</li>
-<li>Replace all instances of template’s name with new “requester” (e.g. replace <strong>Aurelie</strong> with <strong>Severine</strong>), there should be four replace instances: (1) SBATCH <code>job-name</code>, (2) folder <code>input</code>, (3) folder <code>ouput</code>, (4) comment at end of file indicating how to launch the script.</li>
-<li>Ensure file is saved as: /data/sgg2/jenny/projects/PSYMETAB/code/extractions/requester.sh`</li>
-</ul></li>
-<li>Login to <code>HPC1</code> using PUTTY:
-<ul>
+<li>Login to <code>HPC1</code> using PUTTY:</li>
 <li>hostname: <code>je4649@hpc1.chuv.ch</code></li>
-<li>password: <code>LacLeman2020</code></li>
+<li>password: <code>XXXX</code></li>
+<li>Launch sbatch master script from master as follows: <code>sbatch $projects/PSYMETAB/code/extractions/master_extract.sh</code> (this assumes projects is defined as <code>/data/sgg2/jenny/projects</code>, if not replace <code>$projects</code> with explicit path or define projects before hand, if logged in as <code>je4649</code>, <code>project</code> is automatically defined).</li>
+<li>Code details:</li>
+<li>An extraction script template is found here: <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions/template_extract.sh</code>.</li>
+<li>The master script (<code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions/master_extract.sh</code>) will automatically do the following:
+<ul>
+<li>Create a new extraction script for each requestor saved to the name: <code>/data/sgg2/jenny/projects/PSYMETAB/code/extractions/${requestor}.sh</code>.</li>
+<li>Replace all instances of <code>FirstnameLastname</code> in Template with new “requestor” (e.g. replace <strong>Aurelie</strong> with <strong>FirstnameLastname</strong>), there should be four replace instances: (1) SBATCH <code>job-name</code>, (2) folder <code>input</code>, (3) folder <code>ouput</code>, (4) comment at end of file indicating how to launch the script.</li>
+<li>Run the extraction script for each requestor as an <code>sbatch</code> job.</li>
 </ul></li>
-<li>Launch sbatch script from master as follows: <code>sbatch $projects/PSYMETAB/code/extractions/${requester}_extract.sh</code> (this assumes projects is defined as <code>/data/sgg2/jenny/projects</code>, if not replace <code>$projects</code> with explicit path or define projects before hand, if logged in as <code>je4649</code>, <code>project</code> is automatically defined).</li>
+<li>The extraction script will only try to perform the extraction for a given file (i.e. the memory intensive portion of the script) if a folder does not already exists which corresponds to that SNP lists here: <code>/data/sgg2/jenny/projects/PSYMETAB/data/processed/extractions/${resquester}/${snp_list}</code></li>
 </ul>
 </div>
 <div id="summary-of-result-files." class="section level1">
@@ -974,8 +1117,7 @@ wflow_publish(“analysis/extract_genetic_data.Rmd”)
 <li>Results will be saved to the following location: <code>/data/sgg2/jenny/projects/PSYMETAB/data/processed/extractions/${resquester}/${snp_list}</code>.</li>
 <li><code>${snp_list}_rsids.txt</code>: list of rsIDs with empty characters removed (in most cases this should be identical to the input file from #1).</li>
 <li><code>${snp_list}_SNP_info.txt</code>: info file for each rsID, extracted from HRC list (see <a href="http://www.haplotype-reference-consortium.org/home">HRC website</a>), columns correspond to: <code>#CHROM  POS ID  REF ALT AC  AN  AF  AC_EXCLUDING_1000G  AN_EXCLUDING_1000G  AF_EXCLUDING_1000G  AA</code>.</li>
-<li>For each chromosome (<code>$chr</code>), extracted from imputed data, there are the following files from extracting the chromosome specific genetic data using <a href="https://www.cog-genomics.org/plink/2.0/">PLINK</a>:
-<ul>
+<li>For each chromosome (<code>$chr</code>), extracted from imputed data, there are the following files from extracting the chromosome specific genetic data using <a href="https://www.cog-genomics.org/plink/2.0/">PLINK</a>:</li>
 <li><code>${snp_list}_chr${chr}.txt</code>: list of rsIDs on <code>chr${chr}</code></li>
 <li><code>${snp_list}_chr${chr}.psam</code></li>
 <li><code>${snp_list}_chr${chr}.pvar</code></li>
@@ -983,10 +1125,8 @@ wflow_publish(“analysis/extract_genetic_data.Rmd”)
 <li><code>${snp_list}_chr${chr}.pgen</code></li>
 <li><code>${snp_list}_chr${chr}.raw</code></li>
 <li><code>${snp_list}_chr${chr}.log</code></li>
-</ul></li>
 <li><code>${snp_list}_extraction.txt</code>: merged genetic data from imputed files.</li>
-<li>Some SNPs of interest (usually insertions and deletions) were genotyped directly on our custom SNP panel, but were not imputed (HRC reference panel does not include insertion/deletion SNPs) and therefore would not be extracted and included in the above extraction. If the “requester” has requested such SNPs, there are also the following files provided:
-<ul>
+<li>Some SNPs of interest (usually insertions and deletions) were genotyped directly on our custom SNP panel, but were not imputed (HRC reference panel does not include insertion/deletion SNPs) and therefore would not be extracted and included in the above extraction. If the “requestor” has requested such SNPs, there are also the following files provided:</li>
 <li><code>${snp_list}_missing_snps.txt</code>: list of SNPs that were not extracted from imputed files (if this file is empty, all SNPs were in imputed data set).</li>
 <li><code>${snp_list}_missing_snps_extract.fam</code>: PLINK extraction from original genotype data.</li>
 <li><code>${snp_list}_missing_snps_extract.bim</code>: PLINK extraction from original genotype data.</li>
@@ -1006,16 +1146,15 @@ wflow_publish(“analysis/extract_genetic_data.Rmd”)
 <li><em>Note</em>: data from the original genotype data has not been cleaned or filtered, so should be used with some caution.</li>
 <li>List of SNPs extracted from original genotype data can be seen in the bim file: <code>${snp_list}_missing_snps_extract.bim</code>.</li>
 </ul></li>
-</ul></li>
 <li>All data from imputed files has been processed according to the description outlined in the <a href="genetic_quality_control.html">Genotype quality control page</a> (i.e. SNPs filtered for MAF, HW, info, etc. and participants filtered for sex check, relatedness, etc.).</li>
 </ul>
 </div>
-<div id="send-results-to-requester." class="section level1">
-<h1>5. Send results to “requester”.</h1>
+<div id="send-results-to-requestor." class="section level1">
+<h1>5. Send results to “requestor”.</h1>
 <ul>
 <li>The simplest way is to likely to move the main results file (<code>${snp_list}_extraction_geno.txt</code>) to a CHUV computer via filezilla.</li>
 <li>Results then need to be sent to Claire or Celine to convert the GPCR ID to a patient ID.</li>
-<li>Celine and/or Claire will then transfer the recoded data to the “requester”.</li>
+<li>Celine and/or Claire will then transfer the recoded data to the <code>requestor</code>.</li>
 </ul>
 </div>
 
