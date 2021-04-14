@@ -1446,7 +1446,8 @@ run_gwas <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_
   #return(paste(plink_input, collapse="|"))
 }
 
-# run_gwas_freq_counts is the same function as run_gwas but with frequency observations and counts recorded.
+# run_gwas_freq_counts is the same function as run_gwas but with frequency observations and counts recorded using the 'cols' argument,
+# see here: https://www.cog-genomics.org/plink/2.0/general_usage#colset and https://www.cog-genomics.org/plink/2.0/formats#glm_linear
 
 run_gwas_freq_counts <- function(pfile, pheno_file, pheno_name=NULL, covar_file=NULL, covar_names=NULL, eths,
   eth_sample_file, output_dir, output,
@@ -1945,13 +1946,19 @@ make_ukbb_chunks <- function(v2_snp_list_file, chunk_size=1e6){
 
 }
 
+
 launch_bgenie <- function(chr, phenofile, UKBB_dir, chr_char, start_pos, end_pos, chunk_num){
+
   cat(paste0("Running chr: ", chr, ".\n"))
+  cancel_if(file.exists(paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out")))
   system(paste0("/data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 ",
                 "--bgen ", UKBB_dir, "imp/_001_ukb_imp_chr", chr, "_v2.bgen ",
                 "--pheno ", phenofile, " ",
                 "--range ", chr_char, " ", start_pos, " ", end_pos, " ",
                 "--pvals --out analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out"))
+  if(!file.exists(paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out.gz"))){
+    file.create(paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out.gz"))
+  }
   # Eleonora's command line
   # /data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 --bgen
   # /data/sgg3/eleonora/projects/UKBB_GWAS/UK10K_SNPrs/CHR11/chr11.bgen ## this script would not include SNPs specific to HRC_list
@@ -1962,7 +1969,28 @@ unzip_bgenie <- function(chr, chunk_num){
   # system(paste0("gzip -dk analysis/GWAS/UKBB/chr", chr, ".out.gz")) ## keep flag doesn't exist on this system
 
   file <- paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out")
-  system(paste0("gunzip < ", paste0(file, ".gz"), " > ", file))
+  cancel_if(file.exists(file))
+  if(file.info(paste0(file, ".gz"))$size!=0){
+    system(paste0("gunzip < ", paste0(file, ".gz"), " > ", file))} else file.create(file)
+
+}
+
+process_bgenie <- function(directory, extension=".out", HRC_panel){
+
+  current_dir <- getwd()
+  setwd(directory)
+  system(paste0("tail -q -n +2 *", extension, " > temp"))
+
+  header_file <- fread(list.files(pattern=paste0("\\", extension, "$"))[1], nrows=2, data.table=F)
+  bgenie_columns <- colnames(header_file)
+  full_data <- fread("temp", data.table=F, header=F)
+  setwd(current_dir)
+  colnames(full_data) <- bgenie_columns
+
+  HRC_list <- fread(HRC_panel, data.table=F)
+  HRC_filtered_data <- full_data %>% filter(rsid %in%  HRC_list$ID)
+  return(HRC_filtered_data)
+
 }
 
 read_bgenie_output <- function(bgen_file){
@@ -1970,6 +1998,18 @@ read_bgenie_output <- function(bgen_file){
   out <- fread(bgen_file, data.table=F)
   return(out)
 
+}
+
+corr_bmi_slope <- function(bmi_data, ukbb_org, ukb_key, bmi_var){
+
+  data <- bmi_data[[1]]
+  cols_sex <- dplyr::pull(ukb_key[which(ukb_key[,1] == sex_var),"col.name"])
+  cols_age <- dplyr::pull(ukb_key[which(ukb_key[,1] == age_var),"col.name"])
+
+  cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
+  cols_pheno_first <- cols_pheno[1]
+  ukbb_sub <- ukbb_org %>% dplyr::select(eid, !!cols_pheno_first, !!cols_sex, !!cols_age) %>%  mutate(outcome = ivt(body_mass_index_bmi_f21001_0_0))
+  full_data <- inner_join(data, ukbb_sub)
 }
 
 extract_sig_files <- function(file, threshold){
