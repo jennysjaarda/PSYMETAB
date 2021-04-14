@@ -1,20 +1,20 @@
 ---
-title: GWAS summary"
+title: "Analysis summary"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
     toc: true
 ---
 
-**The following document outlines and summarizes the GWAS performed in PSYMETAB.**
+**The following document gives a highlevel overview of the analyses performed in PSYMETAB.**
 
-## Overview of analyses
+## GWAS overview 
 
 ### 1. Initial GWAS.
 - Initially, three GWAS were performed (see [GWAS method](GWAS_method.html) and [GWAS results](GWAS_method.html) for more details):
-  (a) Baseline GWAS: standard GWAS with miscellaneous baseline variables using first round of follow-up (eg. LDL, HDL, BMI, etc.).
-  (b) Interaction GWAS: to test gene*drug interaction on the evolution of BMI to identify SNPs which interact with psychiatric drug use to cause an increase in BMI.
-  (c) Subgroup GWAS: to test GWAS of evolution of BMI in those under a certain drug vs those not under that drug (i.e. two distinct subgroups for each drug of interest: cases and controls).
+    a. Baseline GWAS: standard GWAS with miscellaneous baseline variables using first round of follow-up (eg. LDL, HDL, BMI, etc.).
+    b. Interaction GWAS: to test gene*drug interaction on the evolution of BMI to identify SNPs which interact with psychiatric drug use to cause an increase in BMI.
+    c. Subgroup GWAS: to test GWAS of evolution of BMI in those under a certain drug vs those not under that drug (i.e. two distinct subgroups for each drug of interest: cases and controls).
 - Analayses (b) and (c) are very similar, where a SNP association which differs significantly between the two subgroups in (c) (using a heterogeneity test for example) would suggest that this SNP acts through the drug to exert its effect on BMI.
 
 ### 2. Comparison with UKBB as control population.
@@ -35,10 +35,10 @@ output:
 ### 4. Case-only analysis.
 - There was also interest to identify SNPs linked to an evolution of BMI in the general psychiatric population (i.e. all PSYMETAB regardless of which drug being taken).
 - Signals identified in this analysis would be indictative of one of three relationships:
-  (a) SNPs linked to BMI change in general (not specific to the psychiatric population).
-  (b) SNPs linked to BMI change in the psychiatric population (i.e. are not important in the general, non-psychiatric population, interact somehow with disease status).
-  (c) SNPs which act through psychiatric drugs generally speaking but not one drug individually.
-- Impossible for us to distinguish between (a) and (c) but we can test if SNPs are associated with BMI change in the UKBB to rule out/in (b).
+    a. SNPs linked to BMI change in general (not specific to the psychiatric population).
+    b. SNPs linked to BMI change in the psychiatric population (i.e. are not important in the general, non-psychiatric population, interact somehow with disease status).
+    c. SNPs which act through psychiatric drugs generally speaking but not one drug individually.
+- Impossible for us to distinguish between (a) and (c) but we can test if SNPs are associated with BMI change in the UKBB to rule out/in (2).
 - To perform this analysis, the PSYMETAB population was divided into distinct subgroups and results were then meta-analyzed.
 - For more details see: [GWAS case only](GWAS_case_only.html).
-- Motivatation for 1(c) was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.
+- Motivatation for #1.c was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.

@@ -11,7 +11,7 @@
 
 
 
-<title>GWAS summary&quot;</title>
+<title>Analysis summary</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -386,7 +386,7 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">GWAS summary&quot;</h1>
+<h1 class="title toc-ignore">Analysis summary</h1>
 
 </div>
 
@@ -395,7 +395,7 @@ div.section {
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
   data-toggle="collapse" data-target="#workflowr-report">
   
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 
@@ -405,7 +405,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
   <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
   <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -418,7 +418,7 @@ div.section {
 <strong>Last updated:</strong> 2021-04-14
 </p>
   <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
   <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -435,23 +435,23 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
   <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
   
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree3ce7c51855367140b44e83dad9166fc5ad096e77targetblank3ce7c51a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/3ce7c51855367140b44e83dad9166fc5ad096e77" target="_blank">3ce7c51</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec7f87fb1782c72c20c7e374966953bdda1fb8621targetblankc7f87fba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/c7f87fb1782c72c20c7e374966953bdda1fb8621" target="_blank">c7f87fb</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree3ce7c51855367140b44e83dad9166fc5ad096e77targetblank3ce7c51a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec7f87fb1782c72c20c7e374966953bdda1fb8621targetblankc7f87fba" class="panel-collapse collapse">
 <div class="panel-body">
   
 
@@ -879,6 +879,7 @@ Untracked files:
 Unstaged changes:
     Modified:   analysis/GWAS_method.Rmd
     Modified:   analysis/GWAS_results.Rmd
+    Modified:   analysis/GWAS_summary.Rmd
     Modified:   analysis/_site.yml
     Modified:   analysis/genetic_quality_control.Rmd
     Modified:   analysis/index.Rmd
@@ -928,6 +929,23 @@ Message
 <tbody>
 <tr>
 <td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/c7f87fb1782c72c20c7e374966953bdda1fb8621/docs/GWAS_summary.html" target="_blank">c7f87fb</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-04-14
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
 Rmd
 </td>
 <td>
@@ -955,20 +973,18 @@ add GWAS summary Rmd
 
 
 
-<p><strong>The following document outlines and summarizes the GWAS performed in PSYMETAB.</strong></p>
-<div id="overview-of-analyses" class="section level2">
-<h2>Overview of analyses</h2>
+<p><strong>The following document gives a highlevel overview of the analyses performed in PSYMETAB.</strong></p>
+<div id="gwas-overview" class="section level2">
+<h2>GWAS overview</h2>
 <div id="initial-gwas." class="section level3">
 <h3>1. Initial GWAS.</h3>
 <ul>
-<li>Initially, three GWAS were performed (see <a href="GWAS_method.html">GWAS method</a> and <a href="GWAS_method.html">GWAS results</a> for more details):</li>
-</ul>
+<li>Initially, three GWAS were performed (see <a href="GWAS_method.html">GWAS method</a> and <a href="GWAS_method.html">GWAS results</a> for more details):
 <ol style="list-style-type: lower-alpha">
 <li>Baseline GWAS: standard GWAS with miscellaneous baseline variables using first round of follow-up (eg. LDL, HDL, BMI, etc.).</li>
 <li>Interaction GWAS: to test gene*drug interaction on the evolution of BMI to identify SNPs which interact with psychiatric drug use to cause an increase in BMI.</li>
 <li>Subgroup GWAS: to test GWAS of evolution of BMI in those under a certain drug vs those not under that drug (i.e. two distinct subgroups for each drug of interest: cases and controls).</li>
-</ol>
-<ul>
+</ol></li>
 <li>Analayses (b) and (c) are very similar, where a SNP association which differs significantly between the two subgroups in (c) (using a heterogeneity test for example) would suggest that this SNP acts through the drug to exert its effect on BMI.</li>
 </ul>
 </div>
@@ -997,18 +1013,16 @@ add GWAS summary Rmd
 <h3>4. Case-only analysis.</h3>
 <ul>
 <li>There was also interest to identify SNPs linked to an evolution of BMI in the general psychiatric population (i.e. all PSYMETAB regardless of which drug being taken).</li>
-<li>Signals identified in this analysis would be indictative of one of three relationships:</li>
-</ul>
+<li>Signals identified in this analysis would be indictative of one of three relationships:
 <ol style="list-style-type: lower-alpha">
 <li>SNPs linked to BMI change in general (not specific to the psychiatric population).</li>
 <li>SNPs linked to BMI change in the psychiatric population (i.e. are not important in the general, non-psychiatric population, interact somehow with disease status).</li>
 <li>SNPs which act through psychiatric drugs generally speaking but not one drug individually.</li>
-</ol>
-<ul>
-<li>Impossible for us to distinguish between (a) and (c) but we can test if SNPs are associated with BMI change in the UKBB to rule out/in (b).</li>
+</ol></li>
+<li>Impossible for us to distinguish between (a) and (c) but we can test if SNPs are associated with BMI change in the UKBB to rule out/in (2).</li>
 <li>To perform this analysis, the PSYMETAB population was divided into distinct subgroups and results were then meta-analyzed.</li>
 <li>For more details see: <a href="GWAS_case_only.html">GWAS case only</a>.</li>
-<li>Motivatation for 1(c) was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.</li>
+<li>Motivatation for #1.c was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.</li>
 </ul>
 </div>
 </div>
