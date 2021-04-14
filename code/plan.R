@@ -905,7 +905,9 @@ ukbb_analysis <- drake_plan(
 
     bgenie_out = target({
       ukbb_bgen_out
-      launch_bgenie(chunk_ukbb_run$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), !!UKBB_dir, chunk_ukbb_run$chr_char, chunk_ukbb_run$start, chunk_ukbb_run$end, chunk_ukbb_run$chunk_num)
+      if(!file.exists(paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz"))){
+        launch_bgenie(chunk_ukbb_run$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), !!UKBB_dir, chunk_ukbb_run$chr_char, chunk_ukbb_run$start, chunk_ukbb_run$end, chunk_ukbb_run$chunk_num)
+      }
       paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz")
     }, dynamic = map(chunk_ukbb_run), format = "file"),
 
@@ -914,7 +916,9 @@ ukbb_analysis <- drake_plan(
 
     bgenie_unzip = target({
       bgenie_out
-      unzip_bgenie(chunk_ukbb_run$chr, chunk_ukbb_run$chunk_num)
+      if(!file.exists(paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out"))){
+        unzip_bgenie(chunk_ukbb_run$chr, chunk_ukbb_run$chunk_num)
+      }
       paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out")
     }, dynamic = map(chunk_ukbb_run), format = "file"),
 

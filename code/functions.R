@@ -1950,7 +1950,7 @@ make_ukbb_chunks <- function(v2_snp_list_file, chunk_size=1e6){
 launch_bgenie <- function(chr, phenofile, UKBB_dir, chr_char, start_pos, end_pos, chunk_num){
 
   cat(paste0("Running chr: ", chr, ".\n"))
-  cancel_if(file.exists(paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out")))
+  #cancel_if(file.exists(paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out")))
   system(paste0("/data/sgg3/jonathan/bgenie_v1.3/bgenie_v1.3_static1 ",
                 "--bgen ", UKBB_dir, "imp/_001_ukb_imp_chr", chr, "_v2.bgen ",
                 "--pheno ", phenofile, " ",
@@ -1969,7 +1969,7 @@ unzip_bgenie <- function(chr, chunk_num){
   # system(paste0("gzip -dk analysis/GWAS/UKBB/chr", chr, ".out.gz")) ## keep flag doesn't exist on this system
 
   file <- paste0("analysis/GWAS/UKBB/chr", chr, "_chunk", chunk_num, ".out")
-  cancel_if(file.exists(file))
+  #cancel_if(file.exists(file))
   if(file.info(paste0(file, ".gz"))$size!=0){
     system(paste0("gunzip < ", paste0(file, ".gz"), " > ", file))} else file.create(file)
 
