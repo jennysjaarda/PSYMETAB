@@ -13,6 +13,7 @@ data/*
 .git/
 packrat/lib*/
 *clustermq.out
+*.log
 ._*
 docs/presentations/*
 docs/documents/*
