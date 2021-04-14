@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>GWAS summary&quot;</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PSYMETAB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="setup.html">Setup</a>
+</li>
+<li>
+  <a href="plans.html">Analysis plans</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jennysjaarda/PSYMETAB">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">GWAS summary&quot;</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
+  data-toggle="collapse" data-target="#workflowr-report">
+  
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+  <li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+  <li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+  <li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+  <p>
+<strong>Last updated:</strong> 2021-04-14
+</p>
+  <p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+  <p>
+<strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+  <p>
+  
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+  <div class="panel-group" id="workflowr-checks">
+  <div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+  
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree3ce7c51855367140b44e83dad9166fc5ad096e77targetblank3ce7c51a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/3ce7c51855367140b44e83dad9166fc5ad096e77" target="_blank">3ce7c51</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtree3ce7c51855367140b44e83dad9166fc5ad096e77targetblank3ce7c51a" class="panel-collapse collapse">
+<div class="panel-body">
+  
+
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+ <pre><code>
+Ignored files:
+    Ignored:    ._docs
+    Ignored:    .drake/
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/._GWAS.Rmd
+    Ignored:    analysis/._data_processing_in_genomestudio.Rmd
+    Ignored:    analysis/._quality_control.Rmd
+    Ignored:    analysis/GWAS/
+    Ignored:    analysis/PRS/
+    Ignored:    analysis/QC/
+    Ignored:    analysis/Rlogo2.png
+    Ignored:    analysis/figure/
+    Ignored:    analysis/rplot.jpg
+    Ignored:    analysis_prep.log
+    Ignored:    analysis_prep_10_clustermq.out
+    Ignored:    analysis_prep_11_clustermq.out
+    Ignored:    analysis_prep_12_clustermq.out
+    Ignored:    analysis_prep_13_clustermq.out
+    Ignored:    analysis_prep_14_clustermq.out
+    Ignored:    analysis_prep_15_clustermq.out
+    Ignored:    analysis_prep_16_clustermq.out
+    Ignored:    analysis_prep_17_clustermq.out
+    Ignored:    analysis_prep_18_clustermq.out
+    Ignored:    analysis_prep_19_clustermq.out
+    Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_20_clustermq.out
+    Ignored:    analysis_prep_21_clustermq.out
+    Ignored:    analysis_prep_22_clustermq.out
+    Ignored:    analysis_prep_23_clustermq.out
+    Ignored:    analysis_prep_24_clustermq.out
+    Ignored:    analysis_prep_25_clustermq.out
+    Ignored:    analysis_prep_26_clustermq.out
+    Ignored:    analysis_prep_27_clustermq.out
+    Ignored:    analysis_prep_28_clustermq.out
+    Ignored:    analysis_prep_29_clustermq.out
+    Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_30_clustermq.out
+    Ignored:    analysis_prep_31_clustermq.out
+    Ignored:    analysis_prep_32_clustermq.out
+    Ignored:    analysis_prep_33_clustermq.out
+    Ignored:    analysis_prep_34_clustermq.out
+    Ignored:    analysis_prep_35_clustermq.out
+    Ignored:    analysis_prep_36_clustermq.out
+    Ignored:    analysis_prep_37_clustermq.out
+    Ignored:    analysis_prep_38_clustermq.out
+    Ignored:    analysis_prep_39_clustermq.out
+    Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_40_clustermq.out
+    Ignored:    analysis_prep_4_clustermq.out
+    Ignored:    analysis_prep_5_clustermq.out
+    Ignored:    analysis_prep_6_clustermq.out
+    Ignored:    analysis_prep_7_clustermq.out
+    Ignored:    analysis_prep_8_clustermq.out
+    Ignored:    analysis_prep_9_clustermq.out
+    Ignored:    data/processed/
+    Ignored:    data/raw/
+    Ignored:    download_impute.log
+    Ignored:    extract_sig.log
+    Ignored:    grs.log
+    Ignored:    init_analysis.log
+    Ignored:    init_analysis_10_clustermq.out
+    Ignored:    init_analysis_11_clustermq.out
+    Ignored:    init_analysis_12_clustermq.out
+    Ignored:    init_analysis_13_clustermq.out
+    Ignored:    init_analysis_14_clustermq.out
+    Ignored:    init_analysis_15_clustermq.out
+    Ignored:    init_analysis_16_clustermq.out
+    Ignored:    init_analysis_17_clustermq.out
+    Ignored:    init_analysis_18_clustermq.out
+    Ignored:    init_analysis_19_clustermq.out
+    Ignored:    init_analysis_1_clustermq.out
+    Ignored:    init_analysis_20_clustermq.out
+    Ignored:    init_analysis_2_clustermq.out
+    Ignored:    init_analysis_3_clustermq.out
+    Ignored:    init_analysis_4_clustermq.out
+    Ignored:    init_analysis_5_clustermq.out
+    Ignored:    init_analysis_6_clustermq.out
+    Ignored:    init_analysis_7_clustermq.out
+    Ignored:    init_analysis_8_clustermq.out
+    Ignored:    init_analysis_9_clustermq.out
+    Ignored:    packrat/lib-R/
+    Ignored:    packrat/lib-ext/
+    Ignored:    packrat/lib/
+    Ignored:    process_init.log
+    Ignored:    process_init_100_clustermq.out
+    Ignored:    process_init_101_clustermq.out
+    Ignored:    process_init_102_clustermq.out
+    Ignored:    process_init_103_clustermq.out
+    Ignored:    process_init_104_clustermq.out
+    Ignored:    process_init_105_clustermq.out
+    Ignored:    process_init_106_clustermq.out
+    Ignored:    process_init_107_clustermq.out
+    Ignored:    process_init_108_clustermq.out
+    Ignored:    process_init_109_clustermq.out
+    Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_110_clustermq.out
+    Ignored:    process_init_111_clustermq.out
+    Ignored:    process_init_112_clustermq.out
+    Ignored:    process_init_113_clustermq.out
+    Ignored:    process_init_114_clustermq.out
+    Ignored:    process_init_115_clustermq.out
+    Ignored:    process_init_116_clustermq.out
+    Ignored:    process_init_117_clustermq.out
+    Ignored:    process_init_118_clustermq.out
+    Ignored:    process_init_119_clustermq.out
+    Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_120_clustermq.out
+    Ignored:    process_init_12_clustermq.out
+    Ignored:    process_init_13_clustermq.out
+    Ignored:    process_init_14_clustermq.out
+    Ignored:    process_init_15_clustermq.out
+    Ignored:    process_init_16_clustermq.out
+    Ignored:    process_init_17_clustermq.out
+    Ignored:    process_init_18_clustermq.out
+    Ignored:    process_init_19_clustermq.out
+    Ignored:    process_init_1_clustermq.out
+    Ignored:    process_init_20_clustermq.out
+    Ignored:    process_init_21_clustermq.out
+    Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_23_clustermq.out
+    Ignored:    process_init_24_clustermq.out
+    Ignored:    process_init_25_clustermq.out
+    Ignored:    process_init_26_clustermq.out
+    Ignored:    process_init_27_clustermq.out
+    Ignored:    process_init_28_clustermq.out
+    Ignored:    process_init_29_clustermq.out
+    Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_30_clustermq.out
+    Ignored:    process_init_31_clustermq.out
+    Ignored:    process_init_32_clustermq.out
+    Ignored:    process_init_33_clustermq.out
+    Ignored:    process_init_34_clustermq.out
+    Ignored:    process_init_35_clustermq.out
+    Ignored:    process_init_36_clustermq.out
+    Ignored:    process_init_37_clustermq.out
+    Ignored:    process_init_38_clustermq.out
+    Ignored:    process_init_39_clustermq.out
+    Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_40_clustermq.out
+    Ignored:    process_init_41_clustermq.out
+    Ignored:    process_init_42_clustermq.out
+    Ignored:    process_init_43_clustermq.out
+    Ignored:    process_init_44_clustermq.out
+    Ignored:    process_init_45_clustermq.out
+    Ignored:    process_init_46_clustermq.out
+    Ignored:    process_init_47_clustermq.out
+    Ignored:    process_init_48_clustermq.out
+    Ignored:    process_init_49_clustermq.out
+    Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_50_clustermq.out
+    Ignored:    process_init_51_clustermq.out
+    Ignored:    process_init_52_clustermq.out
+    Ignored:    process_init_53_clustermq.out
+    Ignored:    process_init_54_clustermq.out
+    Ignored:    process_init_55_clustermq.out
+    Ignored:    process_init_56_clustermq.out
+    Ignored:    process_init_57_clustermq.out
+    Ignored:    process_init_58_clustermq.out
+    Ignored:    process_init_59_clustermq.out
+    Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_60_clustermq.out
+    Ignored:    process_init_61_clustermq.out
+    Ignored:    process_init_62_clustermq.out
+    Ignored:    process_init_63_clustermq.out
+    Ignored:    process_init_64_clustermq.out
+    Ignored:    process_init_65_clustermq.out
+    Ignored:    process_init_66_clustermq.out
+    Ignored:    process_init_67_clustermq.out
+    Ignored:    process_init_68_clustermq.out
+    Ignored:    process_init_69_clustermq.out
+    Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_70_clustermq.out
+    Ignored:    process_init_71_clustermq.out
+    Ignored:    process_init_72_clustermq.out
+    Ignored:    process_init_73_clustermq.out
+    Ignored:    process_init_74_clustermq.out
+    Ignored:    process_init_75_clustermq.out
+    Ignored:    process_init_76_clustermq.out
+    Ignored:    process_init_77_clustermq.out
+    Ignored:    process_init_78_clustermq.out
+    Ignored:    process_init_79_clustermq.out
+    Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_80_clustermq.out
+    Ignored:    process_init_81_clustermq.out
+    Ignored:    process_init_82_clustermq.out
+    Ignored:    process_init_83_clustermq.out
+    Ignored:    process_init_84_clustermq.out
+    Ignored:    process_init_85_clustermq.out
+    Ignored:    process_init_86_clustermq.out
+    Ignored:    process_init_87_clustermq.out
+    Ignored:    process_init_88_clustermq.out
+    Ignored:    process_init_89_clustermq.out
+    Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_90_clustermq.out
+    Ignored:    process_init_91_clustermq.out
+    Ignored:    process_init_92_clustermq.out
+    Ignored:    process_init_93_clustermq.out
+    Ignored:    process_init_94_clustermq.out
+    Ignored:    process_init_95_clustermq.out
+    Ignored:    process_init_96_clustermq.out
+    Ignored:    process_init_97_clustermq.out
+    Ignored:    process_init_98_clustermq.out
+    Ignored:    process_init_99_clustermq.out
+    Ignored:    process_init_9_clustermq.out
+    Ignored:    process_ukbb.log
+    Ignored:    process_ukbb_10_clustermq.out
+    Ignored:    process_ukbb_11_clustermq.out
+    Ignored:    process_ukbb_12_clustermq.out
+    Ignored:    process_ukbb_13_clustermq.out
+    Ignored:    process_ukbb_14_clustermq.out
+    Ignored:    process_ukbb_15_clustermq.out
+    Ignored:    process_ukbb_16_clustermq.out
+    Ignored:    process_ukbb_17_clustermq.out
+    Ignored:    process_ukbb_18_clustermq.out
+    Ignored:    process_ukbb_19_clustermq.out
+    Ignored:    process_ukbb_1_clustermq.out
+    Ignored:    process_ukbb_20_clustermq.out
+    Ignored:    process_ukbb_21_clustermq.out
+    Ignored:    process_ukbb_22_clustermq.out
+    Ignored:    process_ukbb_2_clustermq.out
+    Ignored:    process_ukbb_3_clustermq.out
+    Ignored:    process_ukbb_4_clustermq.out
+    Ignored:    process_ukbb_5_clustermq.out
+    Ignored:    process_ukbb_6_clustermq.out
+    Ignored:    process_ukbb_7_clustermq.out
+    Ignored:    process_ukbb_8_clustermq.out
+    Ignored:    process_ukbb_9_clustermq.out
+    Ignored:    prs.log
+    Ignored:    prs_1_clustermq.out
+    Ignored:    prs_2_clustermq.out
+    Ignored:    prs_3_clustermq.out
+    Ignored:    prs_4_clustermq.out
+    Ignored:    prs_5_clustermq.out
+    Ignored:    prs_6_clustermq.out
+    Ignored:    prs_7_clustermq.out
+    Ignored:    prs_8_clustermq.out
+    Ignored:    ukbb.log
+    Ignored:    ukbb_1_clustermq.out
+    Ignored:    ukbb_analysis.log
+    Ignored:    ukbb_analysis_100_clustermq.out
+    Ignored:    ukbb_analysis_101_clustermq.out
+    Ignored:    ukbb_analysis_102_clustermq.out
+    Ignored:    ukbb_analysis_103_clustermq.out
+    Ignored:    ukbb_analysis_104_clustermq.out
+    Ignored:    ukbb_analysis_105_clustermq.out
+    Ignored:    ukbb_analysis_106_clustermq.out
+    Ignored:    ukbb_analysis_107_clustermq.out
+    Ignored:    ukbb_analysis_108_clustermq.out
+    Ignored:    ukbb_analysis_109_clustermq.out
+    Ignored:    ukbb_analysis_10_clustermq.out
+    Ignored:    ukbb_analysis_110_clustermq.out
+    Ignored:    ukbb_analysis_111_clustermq.out
+    Ignored:    ukbb_analysis_112_clustermq.out
+    Ignored:    ukbb_analysis_113_clustermq.out
+    Ignored:    ukbb_analysis_114_clustermq.out
+    Ignored:    ukbb_analysis_115_clustermq.out
+    Ignored:    ukbb_analysis_116_clustermq.out
+    Ignored:    ukbb_analysis_117_clustermq.out
+    Ignored:    ukbb_analysis_118_clustermq.out
+    Ignored:    ukbb_analysis_119_clustermq.out
+    Ignored:    ukbb_analysis_11_clustermq.out
+    Ignored:    ukbb_analysis_120_clustermq.out
+    Ignored:    ukbb_analysis_121_clustermq.out
+    Ignored:    ukbb_analysis_122_clustermq.out
+    Ignored:    ukbb_analysis_123_clustermq.out
+    Ignored:    ukbb_analysis_124_clustermq.out
+    Ignored:    ukbb_analysis_125_clustermq.out
+    Ignored:    ukbb_analysis_126_clustermq.out
+    Ignored:    ukbb_analysis_127_clustermq.out
+    Ignored:    ukbb_analysis_128_clustermq.out
+    Ignored:    ukbb_analysis_129_clustermq.out
+    Ignored:    ukbb_analysis_12_clustermq.out
+    Ignored:    ukbb_analysis_130_clustermq.out
+    Ignored:    ukbb_analysis_131_clustermq.out
+    Ignored:    ukbb_analysis_132_clustermq.out
+    Ignored:    ukbb_analysis_133_clustermq.out
+    Ignored:    ukbb_analysis_134_clustermq.out
+    Ignored:    ukbb_analysis_135_clustermq.out
+    Ignored:    ukbb_analysis_136_clustermq.out
+    Ignored:    ukbb_analysis_137_clustermq.out
+    Ignored:    ukbb_analysis_138_clustermq.out
+    Ignored:    ukbb_analysis_139_clustermq.out
+    Ignored:    ukbb_analysis_13_clustermq.out
+    Ignored:    ukbb_analysis_140_clustermq.out
+    Ignored:    ukbb_analysis_141_clustermq.out
+    Ignored:    ukbb_analysis_142_clustermq.out
+    Ignored:    ukbb_analysis_143_clustermq.out
+    Ignored:    ukbb_analysis_144_clustermq.out
+    Ignored:    ukbb_analysis_145_clustermq.out
+    Ignored:    ukbb_analysis_146_clustermq.out
+    Ignored:    ukbb_analysis_147_clustermq.out
+    Ignored:    ukbb_analysis_148_clustermq.out
+    Ignored:    ukbb_analysis_149_clustermq.out
+    Ignored:    ukbb_analysis_14_clustermq.out
+    Ignored:    ukbb_analysis_150_clustermq.out
+    Ignored:    ukbb_analysis_151_clustermq.out
+    Ignored:    ukbb_analysis_152_clustermq.out
+    Ignored:    ukbb_analysis_153_clustermq.out
+    Ignored:    ukbb_analysis_154_clustermq.out
+    Ignored:    ukbb_analysis_155_clustermq.out
+    Ignored:    ukbb_analysis_156_clustermq.out
+    Ignored:    ukbb_analysis_157_clustermq.out
+    Ignored:    ukbb_analysis_158_clustermq.out
+    Ignored:    ukbb_analysis_159_clustermq.out
+    Ignored:    ukbb_analysis_15_clustermq.out
+    Ignored:    ukbb_analysis_160_clustermq.out
+    Ignored:    ukbb_analysis_16_clustermq.out
+    Ignored:    ukbb_analysis_17_clustermq.out
+    Ignored:    ukbb_analysis_18_clustermq.out
+    Ignored:    ukbb_analysis_19_clustermq.out
+    Ignored:    ukbb_analysis_1_clustermq.out
+    Ignored:    ukbb_analysis_20_clustermq.out
+    Ignored:    ukbb_analysis_21_clustermq.out
+    Ignored:    ukbb_analysis_22_clustermq.out
+    Ignored:    ukbb_analysis_23_clustermq.out
+    Ignored:    ukbb_analysis_24_clustermq.out
+    Ignored:    ukbb_analysis_25_clustermq.out
+    Ignored:    ukbb_analysis_26_clustermq.out
+    Ignored:    ukbb_analysis_27_clustermq.out
+    Ignored:    ukbb_analysis_28_clustermq.out
+    Ignored:    ukbb_analysis_29_clustermq.out
+    Ignored:    ukbb_analysis_2_clustermq.out
+    Ignored:    ukbb_analysis_30_clustermq.out
+    Ignored:    ukbb_analysis_31_clustermq.out
+    Ignored:    ukbb_analysis_32_clustermq.out
+    Ignored:    ukbb_analysis_33_clustermq.out
+    Ignored:    ukbb_analysis_34_clustermq.out
+    Ignored:    ukbb_analysis_35_clustermq.out
+    Ignored:    ukbb_analysis_36_clustermq.out
+    Ignored:    ukbb_analysis_37_clustermq.out
+    Ignored:    ukbb_analysis_38_clustermq.out
+    Ignored:    ukbb_analysis_39_clustermq.out
+    Ignored:    ukbb_analysis_3_clustermq.out
+    Ignored:    ukbb_analysis_40_clustermq.out
+    Ignored:    ukbb_analysis_41_clustermq.out
+    Ignored:    ukbb_analysis_42_clustermq.out
+    Ignored:    ukbb_analysis_43_clustermq.out
+    Ignored:    ukbb_analysis_44_clustermq.out
+    Ignored:    ukbb_analysis_45_clustermq.out
+    Ignored:    ukbb_analysis_46_clustermq.out
+    Ignored:    ukbb_analysis_47_clustermq.out
+    Ignored:    ukbb_analysis_48_clustermq.out
+    Ignored:    ukbb_analysis_49_clustermq.out
+    Ignored:    ukbb_analysis_4_clustermq.out
+    Ignored:    ukbb_analysis_50_clustermq.out
+    Ignored:    ukbb_analysis_51_clustermq.out
+    Ignored:    ukbb_analysis_52_clustermq.out
+    Ignored:    ukbb_analysis_53_clustermq.out
+    Ignored:    ukbb_analysis_54_clustermq.out
+    Ignored:    ukbb_analysis_55_clustermq.out
+    Ignored:    ukbb_analysis_56_clustermq.out
+    Ignored:    ukbb_analysis_57_clustermq.out
+    Ignored:    ukbb_analysis_58_clustermq.out
+    Ignored:    ukbb_analysis_59_clustermq.out
+    Ignored:    ukbb_analysis_5_clustermq.out
+    Ignored:    ukbb_analysis_60_clustermq.out
+    Ignored:    ukbb_analysis_61_clustermq.out
+    Ignored:    ukbb_analysis_62_clustermq.out
+    Ignored:    ukbb_analysis_63_clustermq.out
+    Ignored:    ukbb_analysis_64_clustermq.out
+    Ignored:    ukbb_analysis_65_clustermq.out
+    Ignored:    ukbb_analysis_66_clustermq.out
+    Ignored:    ukbb_analysis_67_clustermq.out
+    Ignored:    ukbb_analysis_68_clustermq.out
+    Ignored:    ukbb_analysis_69_clustermq.out
+    Ignored:    ukbb_analysis_6_clustermq.out
+    Ignored:    ukbb_analysis_70_clustermq.out
+    Ignored:    ukbb_analysis_71_clustermq.out
+    Ignored:    ukbb_analysis_72_clustermq.out
+    Ignored:    ukbb_analysis_73_clustermq.out
+    Ignored:    ukbb_analysis_74_clustermq.out
+    Ignored:    ukbb_analysis_75_clustermq.out
+    Ignored:    ukbb_analysis_76_clustermq.out
+    Ignored:    ukbb_analysis_77_clustermq.out
+    Ignored:    ukbb_analysis_78_clustermq.out
+    Ignored:    ukbb_analysis_79_clustermq.out
+    Ignored:    ukbb_analysis_7_clustermq.out
+    Ignored:    ukbb_analysis_80_clustermq.out
+    Ignored:    ukbb_analysis_81_clustermq.out
+    Ignored:    ukbb_analysis_82_clustermq.out
+    Ignored:    ukbb_analysis_83_clustermq.out
+    Ignored:    ukbb_analysis_84_clustermq.out
+    Ignored:    ukbb_analysis_85_clustermq.out
+    Ignored:    ukbb_analysis_86_clustermq.out
+    Ignored:    ukbb_analysis_87_clustermq.out
+    Ignored:    ukbb_analysis_88_clustermq.out
+    Ignored:    ukbb_analysis_89_clustermq.out
+    Ignored:    ukbb_analysis_8_clustermq.out
+    Ignored:    ukbb_analysis_90_clustermq.out
+    Ignored:    ukbb_analysis_91_clustermq.out
+    Ignored:    ukbb_analysis_92_clustermq.out
+    Ignored:    ukbb_analysis_93_clustermq.out
+    Ignored:    ukbb_analysis_94_clustermq.out
+    Ignored:    ukbb_analysis_95_clustermq.out
+    Ignored:    ukbb_analysis_96_clustermq.out
+    Ignored:    ukbb_analysis_97_clustermq.out
+    Ignored:    ukbb_analysis_98_clustermq.out
+    Ignored:    ukbb_analysis_99_clustermq.out
+    Ignored:    ukbb_analysis_9_clustermq.out
+
+Untracked files:
+    Untracked:  Rlogo.png
+    Untracked:  Rlogo2.png
+    Untracked:  analysis/GWAS_case_only.Rmd
+    Untracked:  analysis/meetings.Rmd
+    Untracked:  code/extractions/Aurelie09032021_extract.sh
+    Untracked:  code/extractions/MarcodePieri_09032021_extract.sh
+    Untracked:  code/extractions/MarcodePieri_09032021_proxies_extract.sh
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison.csv
+    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison2.csv
+    Untracked:  output/PSYMETAB_GWAS_baseline_CEU_result.csv
+    Untracked:  output/PSYMETAB_GWAS_subgroup_CEU_result.csv
+    Untracked:  output/PSYMETAB_inclusion_dates.txt
+    Untracked:  output/coffee_consumed_Neale_UKBB_analysis.csv
+    Untracked:  rplot.jpg
+    Untracked:  temp
+
+Unstaged changes:
+    Modified:   analysis/GWAS_method.Rmd
+    Modified:   analysis/GWAS_results.Rmd
+    Modified:   analysis/_site.yml
+    Modified:   analysis/genetic_quality_control.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/pheno_quality_control.Rmd
+    Modified:   analysis/plans.Rmd
+    Modified:   analysis/setup.Rmd
+    Modified:   cache_log.csv
+    Modified:   code/extractions/AurelieReymond_extract.sh
+    Modified:   post_impute.log
+
+</code></pre> <p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+  
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/3ce7c51855367140b44e83dad9166fc5ad096e77/analysis/GWAS_summary.Rmd" target="_blank">3ce7c51</a>
+</td>
+<td>
+jennysjaarda
+</td>
+<td>
+2021-04-14
+</td>
+<td>
+add GWAS summary Rmd
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+</div>
+</div>
+</div>
+
+
+
+
+<p><strong>The following document outlines and summarizes the GWAS performed in PSYMETAB.</strong></p>
+<div id="overview-of-analyses" class="section level2">
+<h2>Overview of analyses</h2>
+<div id="initial-gwas." class="section level3">
+<h3>1. Initial GWAS.</h3>
+<ul>
+<li>Initially, three GWAS were performed (see <a href="GWAS_method.html">GWAS method</a> and <a href="GWAS_method.html">GWAS results</a> for more details):</li>
+</ul>
+<ol style="list-style-type: lower-alpha">
+<li>Baseline GWAS: standard GWAS with miscellaneous baseline variables using first round of follow-up (eg. LDL, HDL, BMI, etc.).</li>
+<li>Interaction GWAS: to test gene*drug interaction on the evolution of BMI to identify SNPs which interact with psychiatric drug use to cause an increase in BMI.</li>
+<li>Subgroup GWAS: to test GWAS of evolution of BMI in those under a certain drug vs those not under that drug (i.e. two distinct subgroups for each drug of interest: cases and controls).</li>
+</ol>
+<ul>
+<li>Analayses (b) and (c) are very similar, where a SNP association which differs significantly between the two subgroups in (c) (using a heterogeneity test for example) would suggest that this SNP acts through the drug to exert its effect on BMI.</li>
+</ul>
+</div>
+<div id="comparison-with-ukbb-as-control-population." class="section level3">
+<h3>2. Comparison with UKBB as control population.</h3>
+<ul>
+<li>Ideally, analyses (b) and/or (c) above would idenitfy SNPs that are linked to increase in BMI through an interaction with drug use.</li>
+<li>However, due to the nature of the PSYMETAB study design, all participants are taking some (or multiple) drugs and have some pre-existing psychiatric condition.</li>
+<li>Therefore, there are no <em>true</em> controls (i.e. the control population we were using was not ideal because they are all taking another drug that could confound the analysis and have some psychiatric disease).</li>
+<li>Indeed, after performing these analyses, no striking associations were identified.</li>
+<li>It was then decided to use the UKBB as our control population.</li>
+<li>Specifically, the subset of UKBB participants with more than two measures for BMI to identify SNPs linked to change (slope) of BMI and compare these signals with those identified in PSYMETAB.</li>
+<li>For further details and results see <a href="GWAS_UKBB_control.html">GWAS UKBB control</a>.</li>
+</ul>
+</div>
+<div id="replication-in-ukbb." class="section level3">
+<h3>3. Replication in UKBB.</h3>
+<ul>
+<li>Using the drug-use variable in the UKBB, we sought to replicate the drug-specific signals we identified in PSYMETAB (i.e. the significant results from the subgroup under a given drug, described above).</li>
+<li>Subgroups were created in UKBB based on drug use.</li>
+<li>Because the number of participants in the UKBB with both multiple measures for BMI <strong>and</strong> under a psychiatric of interest is very small, BMI itself was used as a proxy for evolution of BMI.</li>
+<li>For more details see: <a href="GWAS_UKBB_replication.html">GWAS UKBB replication</a>.</li>
+</ul>
+</div>
+<div id="case-only-analysis." class="section level3">
+<h3>4. Case-only analysis.</h3>
+<ul>
+<li>There was also interest to identify SNPs linked to an evolution of BMI in the general psychiatric population (i.e. all PSYMETAB regardless of which drug being taken).</li>
+<li>Signals identified in this analysis would be indictative of one of three relationships:</li>
+</ul>
+<ol style="list-style-type: lower-alpha">
+<li>SNPs linked to BMI change in general (not specific to the psychiatric population).</li>
+<li>SNPs linked to BMI change in the psychiatric population (i.e. are not important in the general, non-psychiatric population, interact somehow with disease status).</li>
+<li>SNPs which act through psychiatric drugs generally speaking but not one drug individually.</li>
+</ol>
+<ul>
+<li>Impossible for us to distinguish between (a) and (c) but we can test if SNPs are associated with BMI change in the UKBB to rule out/in (b).</li>
+<li>To perform this analysis, the PSYMETAB population was divided into distinct subgroups and results were then meta-analyzed.</li>
+<li>For more details see: <a href="GWAS_case_only.html">GWAS case only</a>.</li>
+<li>Motivatation for 1(c) was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.</li>
+</ul>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
