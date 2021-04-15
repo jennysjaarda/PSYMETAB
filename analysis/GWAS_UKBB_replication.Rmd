@@ -1,0 +1,9 @@
+---
+title: "GWAS UKBB replication"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+
+**The following document outlines the attempt to replicate signals identified in PSYMETAB in the UKBB*
