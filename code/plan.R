@@ -859,16 +859,13 @@ ukbb_analysis <- drake_plan(
     ukbb_filter_bmi_slope = target(filter_ukbb(ukbb_munge_bmi_slope, relatives, exclusion_list, british_subset),
       dynamic = map(ukbb_munge_bmi_slope)),
 
-    # correlate BMI with BMI_slope
-    #bmi_slope_corr = target(corr_bmi_slope(ukbb_filter_bmi_slope, ukbb_org, ukb_key, !!bmi_var),
-    #  dynamic = map(ukbb_filter_bmi_slope)),
-
     #related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge_bmi_slope$eid)),
     #ukbb_filter_bmi_slope = full_join(tibble(eid=ukbb_org$eid), filter_ukbb_relatives(ukbb_munge_bmi_slope, related_IDs_remove, exclusion_list[,1], british_subset)),
 
 
     ukbb_munge_drug_users = munge_ukbb_drug_users(ukbb_org, drug_codes_interest, medication_columns),
-    ukbb_drug_counts = ukbb_munge_drug_users %>% dplyr::select(paste0(drug_codes_interest$molecule, "_users")) %>% map_df(~length(which(.==1))) %>% t(), ## get counts in UKBB for each molecule
+    ## get counts in UKBB for each molecule
+    ukbb_drug_counts = count_ukbb_drug_users(ukbb_munge_drug_users, drug_codes_interest),
 
     ukbb_munge_drug_users_bmi = munge_ukbb_drug_users_bmi(ukbb_org, ukb_key, ukbb_munge_drug_users, !!bmi_var),
     ukbb_filter_drug_users_bmi = target(filter_ukbb(ukbb_munge_drug_users_bmi, relatives, exclusion_list, british_subset),
@@ -888,9 +885,9 @@ ukbb_analysis <- drake_plan(
 
     ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/ukbb_GWAS"), sep=" ", quote=F, row.names=F, col.names = T),
 
-    chr_num = tibble(chr = 1:22),
+    #chr_num = tibble(chr = 1:22),
 
-    v2_snp_list_files = chr_num %>% mutate(v2_snp_list_files = paste0(!!UKBB_processed, "v2_snp_list/", "snp_list_chr", chr, ".txt")),
+    v2_snp_list_files = create_UKBB_v2_snp_list(!!UKBB_processed),
 
     check_v2_snp_list_files = target({
       c(v2_snp_list_files$v2_snp_list_files)},
@@ -961,15 +958,14 @@ ukbb_control <- drake_plan(
   #   psy_ukbb_merge},
   #   dynamic = map(chr_num)),
 
-  psy_UKBB_merge = target(left_join(BMI_slope_nominal,
-    ukbb_gwas %>% dplyr::select(chr, rsid, pos, a_0, a_1, af, info, starts_with("bmi_slope")) %>% rename_all(paste0, "_UKBB"), by = c("SNP" = "rsid_UKBB")),
+  psy_UKBB_merge = target(merge_psy_UKBB(BMI_slope_nominal, UKBB_GWAS_file=file_in("analysis/GWAS/UKBB/UKBB_bgenie_HRC_filtered.txt")),
     dynamic = map(BMI_slope_nominal)),
 
-  psy_UKBB_harmonize = target(harmonize_ukbb_plink_data(psy_UKBB_merge),
+  psy_UKBB_harmonize = target(harmonize_ukbb_plink_data(psy_UKBB_merge, SNP_col="SNP", REF1_col="A1", ALT1_col="A2", REF2_col="a_1_UKBB", ALT2_col="a_0_UKBB"),
     dynamic = map(psy_UKBB_merge)),
 
   #psy_ukbb_merge = left_join(BMI_slope_nominal, ukbb_gwas %>% dplyr::select(), by = c("SNP" = "rsid")),
-  psy_ukbb_het = target(calc_het(psy_UKBB_harmonize, "SNP", "BETA", "beta_harmonized_UKBB", "SE", "bmi_slope_resid_se_UKBB"),
+  psy_ukbb_het = target(calc_het(psy_UKBB_harmonize, "SNP", "BETA", "bmi_slope_resid_beta_UKBB", "SE", "bmi_slope_resid_se_UKBB", "match_description"),
     dynamic = map(psy_UKBB_harmonize)),
 
   psy_ukbb_het_prune = target(prune_psy(psy_ukbb_het),
@@ -977,14 +973,27 @@ ukbb_control <- drake_plan(
 
   write_ukbb_comparison = write.csv(psy_ukbb_het_prune,  file_out("output/PSYMETAB_GWAS_UKBB_controls.csv"),row.names = F),
 
-  ukbb_top_snps_chr = tibble(chr = psy_ukbb_het$CHR, rsid = psy_ukbb_het$SNP),
-
-  ukbb_geno = load_geno(bgen_sample_file, ukbb_top_snps_chr, !!UKBB_dir),
-
   # ukbb_comparison = read.csv(file_in("output/PSYMETAB_GWAS_UKBB_comparison.csv")),
   #
   # ukbb_comparison_format = sort_ukbb_comparison(ukbb_comparison, subgroup_GWAS_count, !!interaction_outcome, !!drug_classes),
   # write.csv(ukbb_comparison_format,  file_out("output/PSYMETAB_GWAS_UKBB_comparison2.csv"),row.names = F)
+
+)
+
+ukbb_replication <- drake_plan(
+
+  ukbb_top_snps_chr = target(tibble(chr = psy_ukbb_het$CHR, rsid = psy_ukbb_het$SNP),
+    dynamic = map(psy_ukbb_het)),
+
+  ukbb_geno = target(load_geno(ukbb_bgen_sample, ukbb_top_snps_chr, !!UKBB_dir),
+    dynamic = map(ukbb_top_snps_chr)),
+
+
+  # check if BMI correlates with BMI_slope
+  #bmi_slope_corr = target(corr_bmi_slope(ukbb_filter_bmi_slope, ukbb_org, ukb_key, !!bmi_var),
+  #  dynamic = map(ukbb_filter_bmi_slope)),
+
+
 
 )
 
