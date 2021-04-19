@@ -973,7 +973,7 @@ ukbb_control <- drake_plan(
     dynamic = map(psy_UKBB_harmonize)),
 
   psy_ukbb_het_prune = target(prune_psy(psy_ukbb_het),
-    dynaimc = map(psy_ukbb_het)),
+    dynamic = map(psy_ukbb_het)),
 
   write_ukbb_comparison = write.csv(psy_ukbb_het_prune,  file_out("output/PSYMETAB_GWAS_UKBB_controls.csv"),row.names = F),
 
