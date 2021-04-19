@@ -1796,6 +1796,18 @@ munge_ukbb_drug_users <- function(ukbb_org, drug_codes_interest, medication_colu
 
 }
 
+count_ukbb_drug_users <- function(ukbb_munge_drug_users, drug_codes_interest){
+  data <- ukbb_munge_drug_users %>% dplyr::select(paste0(drug_codes_interest$molecule, "_users")) %>% map_df(~length(which(.==1))) %>% t()
+
+  return(data)
+}
+
+create_UKBB_v2_snp_list <- function(UKBB_processed){
+  chr_num = tibble(chr = 1:22)
+  output <- chr_num %>% mutate(v2_snp_list_files = paste0(UKBB_processed, "v2_snp_list/", "snp_list_chr", chr, ".txt"))
+  return(output)
+}
+
 munge_ukbb_bmi_slope <- function(ukbb_org, ukb_key, date_followup, bmi_var){
 
   cols_date <- dplyr::pull(ukb_key[which(ukb_key[,1] == date_followup),"col.name"])
@@ -2033,11 +2045,6 @@ extract_sig_results <- function(file, threshold, eth){
   af_file <- str_replace(af_file_temp2, "/processed/", paste0("/", eth, "/"))
 
   file_info <- extract_file_info(file, eth)
-  drug_class <-  gsub(paste0(".*PSYMETAB_GWAS_(.+)_", eth ,".*"), "\\1", file)
-  # pheno_temp <- gsub(".*Drug[.](.+)[.]GWAS.txt*", "\\1", file)
-  # pheno <- gsub("_[^_]*$", "\\1", pheno_temp)
-  # variable <- unlist(regmatches(pheno, regexpr("[_]", pheno), invert = TRUE))[1]
-  # outcome <- unlist(regmatches(pheno, regexpr("[_]", pheno), invert = TRUE))[2]
 
   af_data <- fread(af_file)
   data_gwsig <- filter(data, P< threshold)
@@ -2053,6 +2060,15 @@ extract_sig_results <- function(file, threshold, eth){
 
   AF_merge <- left_join(result, af_data %>% dplyr::select(ID, A1, A1_CT, A1_FREQ, OBS_CT), by = c("SNP" = "ID"))
   return(AF_merge)
+
+}
+
+merge_psy_UKBB <- function(psy_GWAS, UKBB_GWAS_file){
+
+  ukbb_gwas <- fread(UKBB_GWAS_file)
+  ukbb_gwas_sub <- ukbb_gwas %>% dplyr::select(chr, rsid, pos, a_0, a_1, af, info) %>% rename_all(paste0, "_UKBB")
+  output <- left_join(psy_GWAS, ukbb_gwas_sub, by = c("SNP" = "rsid_UKBB"))
+  return(output)
 
 }
 
@@ -2133,7 +2149,7 @@ get_plink_a2 <- function(plink_glm){
 
 }
 
-harmonize_ukbb_plink_data <- function(data, SNP_col="SNP", REF1_col="A1", ALT1_col="A2", REF2_col="a_1_UKBB", ALT2_col="a_0_UKBB", beta_flip_col="bmi_slope_resid_beta_UKBB"){
+harmonize_ukbb_plink_data <- function(data, SNP_col="SNP", REF1_col="A1", ALT1_col="A2", REF2_col="a_1_UKBB", ALT2_col="a_0_UKBB"){
 
   data$A2 <- get_plink_a2(data)
   data <- data %>% filter(!is.na(bmi_slope_resid_beta_UKBB))
@@ -2145,22 +2161,25 @@ harmonize_ukbb_plink_data <- function(data, SNP_col="SNP", REF1_col="A1", ALT1_c
   data$palindromic <- temp$palindromic
   data$match_description <- temp$match_description
 
-  new_beta <- data[[beta_flip_col]]
-  i <- data$match_description=="swap_alleles"
-  new_beta[i] <- new_beta[i]*(-1)
-
-  data$beta_harmonized_UKBB <- new_beta
-
   return(data)
 }
 
-calc_het <- function(data, snp_col, beta1_col, beta2_col, se1_col, se2_col){
+flip_beta <- function(betas_to_flip, match_description){
+  new_beta <- betas_to_flip
+  i <- match_description=="swap_alleles"
+  new_beta[i] <- new_beta[i]*(-1)
+  return(new_beta)
+}
+
+calc_het <- function(data, snp_col, beta1_col, beta2_col, se1_col, se2_col, match_description_col){
+
+  data$beta2_harmonized <- flip_beta(data[[beta2_col]], data[[match_description_col]])
 
   data$het_pval <- NA
   for(snp in 1:dim(data)[1] ){
     rsid <- as.character(data[snp,snp_col])
     beta1 <-  as.numeric(as.character(data[snp,beta1_col]))
-    beta2 <-   as.numeric(as.character(data[snp,beta2_col]))
+    beta2 <-   as.numeric(as.character(data[snp,"beta2_harmonized"]))
     SE1 <-  as.numeric(as.character(data[snp,se1_col]))
     SE2 <-  as.numeric(as.character(data[snp,se2_col]))
     se <- sqrt( (SE1^2) + (SE2^2) )
