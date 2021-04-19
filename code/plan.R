@@ -922,6 +922,12 @@ ukbb_analysis <- drake_plan(
       paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out")
     }, dynamic = map(chunk_ukbb_run), format = "file"),
 
+    ukbb_gwas = {
+      bgenie_unzip
+      process_bgenie(directory="analysis/GWAS/UKBB/", extension=".out", HRC_panel=file_in(!!HRC_panel))
+    },
+    bgenie_process_out = fwrite(ukbb_gwas, file_out("analysis/GWAS/UKBB/UKBB_bgenie_HRC_filtered.txt"), row.names=F, quote=F, sep = "\t"),
+
 )
 
 
@@ -929,10 +935,7 @@ ukbb_analysis <- drake_plan(
 
 # vis_drake_graph(ukbb_analysis)
 
-process_ukbb <- drake_plan(
-
-  ukbb_gwas = process_bgenie(directory="analysis/GWAS/UKBB/", extension=".out", HRC_panel=file_in(!!HRC_panel)),
-  bgenie_process_out = fwrite(ukbb_gwas, file_out("analysis/GWAS/UKBB/UKBB_bgenie_HRC_filtered.txt"), row.names=F, quote=F, sep = "\t"),
+ukbb_control <- drake_plan(
 
   # bgenie_read = target(
   #   fread(paste0("analysis/GWAS/UKBB/chr", chr_num$chr, ".out"), data.table=F),
@@ -944,10 +947,11 @@ process_ukbb <- drake_plan(
 
   BMI_slope_sub_files = subgroup_files[grepl("CEU[.]Drug[.]BMI_slope", subgroup_files) & !grepl("weight", subgroup_files) & !grepl( "sensitivity", subgroup_files)],
 
-  BMI_slope_nominal = target(extract_sig_files(BMI_slope_sub_files, !!gw_sig_nominal),
+  BMI_slope_nominal = target(extract_sig_results(BMI_slope_sub_files, !!gw_sig_nominal, eth="CEU"),
     dynamic = map(BMI_slope_sub_files)),
 
-  BMI_slope_nominal_AF = add_AF(BMI_slope_nominal, AF_file = file_in("analysis/QC/14_mafcheck/CEU/PSYMETAB_GWAS.CEU.afreq")),
+
+  # BMI_slope_nominal_AF = add_AF(BMI_slope_nominal, AF_file = file_in("analysis/QC/14_mafcheck/CEU/PSYMETAB_GWAS.CEU.afreq")),
 
   # psy_ukbb_merge = target({
   #   bgenie_unzip
@@ -957,12 +961,21 @@ process_ukbb <- drake_plan(
   #   psy_ukbb_merge},
   #   dynamic = map(chr_num)),
 
-  psy_ukbb_merge = left_join(BMI_slope_nominal, ukbb_gwas, by = c("SNP" = "rsid")),
-  psy_ukbb_het = calc_het(psy_ukbb_merge, "SNP", "BETA", "bmi_slope_res_ivt_beta_UKBB", "SE", "bmi_slope_res_ivt_se_UKBB"),
+  psy_UKBB_merge = target(left_join(BMI_slope_nominal,
+    ukbb_gwas %>% dplyr::select(chr, rsid, pos, a_0, a_1, af, info, starts_with("bmi_slope")) %>% rename_all(paste0, "_UKBB"), by = c("SNP" = "rsid_UKBB")),
+    dynamic = map(BMI_slope_nominal)),
 
-  psy_ukbb_het_prune = prune_psy_ukbb(psy_ukbb_het),
+  psy_UKBB_harmonize = target(harmonize_ukbb_plink_data(psy_UKBB_merge),
+    dynamic = map(psy_UKBB_merge)),
 
-  write_ukbb_comparison = write.csv(psy_ukbb_het_prune,  file_out("output/PSYMETAB_GWAS_UKBB_comparison.csv"),row.names = F),
+  #psy_ukbb_merge = left_join(BMI_slope_nominal, ukbb_gwas %>% dplyr::select(), by = c("SNP" = "rsid")),
+  psy_ukbb_het = target(calc_het(psy_UKBB_harmonize, "SNP", "BETA", "beta_harmonized_UKBB", "SE", "bmi_slope_resid_se_UKBB"),
+    dynamic = map(psy_UKBB_harmonize)),
+
+  psy_ukbb_het_prune = target(prune_psy(psy_ukbb_het),
+    dynaimc = map(psy_ukbb_het)),
+
+  write_ukbb_comparison = write.csv(psy_ukbb_het_prune,  file_out("output/PSYMETAB_GWAS_UKBB_controls.csv"),row.names = F),
 
   ukbb_top_snps_chr = tibble(chr = psy_ukbb_het$CHR, rsid = psy_ukbb_het$SNP),
 
@@ -975,7 +988,7 @@ process_ukbb <- drake_plan(
 
 )
 
-ukbb <- bind_plans(ukbb_analysis, process_ukbb)
+ukbb <- bind_plans(ukbb_analysis, ukbb_control)
 
 
 

@@ -2012,19 +2012,47 @@ corr_bmi_slope <- function(bmi_data, ukbb_org, ukb_key, bmi_var){
   full_data <- inner_join(data, ukbb_sub)
 }
 
-extract_sig_files <- function(file, threshold){
+extract_file_info <- function(file, eth){
+  drug_class <-  gsub(paste0(".*PSYMETAB_GWAS_(.+)_", eth ,".*"), "\\1", file)
+  pheno_temp <- gsub(".*Drug[.](.+)[.]GWAS.txt*", "\\1", file)
+  pheno <- gsub(paste0("_", drug_class), "", pheno_temp)
+  variable <- unlist(regmatches(pheno, regexpr("[_]", pheno), invert = TRUE))[1]
+  outcome <- unlist(regmatches(pheno, regexpr("[_]", pheno), invert = TRUE))[2]
+
+  return(c(drug_class=drug_class, variable=variable, outcome=outcome))
+  #return(c(outcome))
+}
+
+extract_sig_results <- function(file, threshold, eth){
 
   result <- numeric()
 
   data <- fread(file)
+  af_file_temp <- str_replace(file, "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")
+  af_file_temp2 <- str_replace(af_file_temp, ".GWAS.txt", ".glm.linear")
+  af_file <- str_replace(af_file_temp2, "/processed/", paste0("/", eth, "/"))
+
+  file_info <- extract_file_info(file, eth)
+  drug_class <-  gsub(paste0(".*PSYMETAB_GWAS_(.+)_", eth ,".*"), "\\1", file)
+  # pheno_temp <- gsub(".*Drug[.](.+)[.]GWAS.txt*", "\\1", file)
+  # pheno <- gsub("_[^_]*$", "\\1", pheno_temp)
+  # variable <- unlist(regmatches(pheno, regexpr("[_]", pheno), invert = TRUE))[1]
+  # outcome <- unlist(regmatches(pheno, regexpr("[_]", pheno), invert = TRUE))[2]
+
+  af_data <- fread(af_file)
   data_gwsig <- filter(data, P< threshold)
   if(dim(data_gwsig)[1]!=0){
 
     data_gwsig$file <- file
+    data_gwsig$drug_class <- file_info["drug_class"]
+    data_gwsig$variable <- file_info["variable"]
+    data_gwsig$outcome <- file_info["outcome"]
+
     result <- rbind(result, data_gwsig)
   }
 
-  return(result)
+  AF_merge <- left_join(result, af_data %>% dplyr::select(ID, A1, A1_CT, A1_FREQ, OBS_CT), by = c("SNP" = "ID"))
+  return(AF_merge)
 
 }
 
@@ -2034,7 +2062,96 @@ add_AF <- function(data, AF_file){
   AF_merge <- left_join(data, AF_data %>% dplyr::select(ID, ALT_FREQS), by = c("SNP" = "ID"))
 
 
+}
 
+## PLINK beta in terms of A1
+## Bgenie beta in terms of a_1
+
+check_palindromic <- function(A1, A2){
+	(A1 == "T" & A2 == "A") |
+	(A1 == "A" & A2 == "T") |
+	(A1 == "G" & A2 == "C") |
+	(A1 == "C" & A2 == "G")
+}
+
+flip_alleles <- function(x){
+	x <- toupper(x)
+	x <- gsub("C", "g", x)
+	x <- gsub("G", "c", x)
+	x <- gsub("A", "t", x)
+	x <- gsub("T", "a", x)
+	return(toupper(x))
+}
+
+
+match_alleles <- function(A1, A2, B1, B2){
+
+  match_description <- rep("simple_match", length(A1))
+  status1 <- (A1 == B1) & (A2 == B2)
+  to_swap <- (A1 == B2) & (A2 == B1)
+
+  # If B's alleles are the wrong way round then swap
+	Btemp <- B1[to_swap]
+	B1[to_swap] <- B2[to_swap]
+	B2[to_swap] <- Btemp
+  match_description[to_swap] <- "swap_alleles"
+
+	# Check again
+	status1 <- (A1 == B1) & (A2 == B2)
+	palindromic <- check_palindromic(A1, A2)
+
+	# If NOT palindromic and alleles DON'T match then try flipping
+	i <- !palindromic & !status1
+	B1[i] <- flip_alleles(B1[i])
+	B2[i] <- flip_alleles(B2[i])
+	status1 <- (A1 == B1) & (A2 == B2)
+	#jlog[['flipped_alleles_basic']] <- sum(i)
+
+	# If still NOT palindromic and alleles DON'T match then try swapping
+	i <- !palindromic & !status1
+	to_swap <- (A1 == B2) & (A2 == B1)
+  match_description[to_swap] <- "swap_alleles"
+	Btemp <- B1[to_swap]
+	B1[to_swap] <- B2[to_swap]
+	B2[to_swap] <- Btemp
+
+	# Any SNPs left with unmatching alleles need to be removed
+	status1 <- (A1 == B1) & (A2 == B2)
+	remove <- !status1
+  match_description[remove] <- "non-match"
+  return(list(match_description=match_description, palindromic=palindromic))
+
+  ## since all datasets are imputed and on positive strand, we aren't really worried about palindromic SNPs
+}
+
+get_plink_a2 <- function(plink_glm){
+
+  a2 <- plink_glm$ALT
+  ref_a1_mis_match <- !plink_glm$REF == plink_glm$A1
+  a2[ref_a1_mis_match] <- plink_glm$REF[ref_a1_mis_match]
+  return(a2)
+
+}
+
+harmonize_ukbb_plink_data <- function(data, SNP_col="SNP", REF1_col="A1", ALT1_col="A2", REF2_col="a_1_UKBB", ALT2_col="a_0_UKBB", beta_flip_col="bmi_slope_resid_beta_UKBB"){
+
+  data$A2 <- get_plink_a2(data)
+  data <- data %>% filter(!is.na(bmi_slope_resid_beta_UKBB))
+
+  ## PLINK beta in terms of A1
+  ## Bgenie beta in terms of a_1
+
+  temp <- match_alleles(data$A1, data$A2, data$a_1_UKBB, data$a_0_UKBB)
+  data$palindromic <- temp$palindromic
+  data$match_description <- temp$match_description
+
+  new_beta <- data[[beta_flip_col]]
+  i <- data$match_description=="swap_alleles"
+  new_beta[i] <- new_beta[i]*(-1)
+
+  data$beta_harmonized_UKBB <- new_beta
+
+  return(data)
 }
 
 calc_het <- function(data, snp_col, beta1_col, beta2_col, se1_col, se2_col){
@@ -2059,33 +2176,37 @@ calc_het <- function(data, snp_col, beta1_col, beta2_col, se1_col, se2_col){
 
 }
 
-prune_psy_ukbb <-function(data){
+prune_psy <-function(data){
 
-  unique_files <- unique(data$file)
-
+  # unique_files <- unique(data$file)
+  #
   result <- numeric()
-  for(i in 1:length(unique_files)){
+  # for(i in 1:length(unique_files)){
+  #
+  # file_i <- unique_files[i]
+  # t <- subset(data, data$file==file_i)
+  t <- data[order(data$P),] %>% filter(!is.na(chr_UKBB))
+  j <- 1
 
-    file_i <- unique_files[i]
-    t <- subset(data, data$file==file_i)
-    t <- t[order(t$P),] %>% filter(!is.na(chr_UKBB))
-    j <- 1
-    while(j <= dim(t)[1]){
-      chr <- t[["CHR"]][j]
-      bp <- t[["BP"]][j]
-      remove_indices <- which(t[["CHR"]]==chr & t[["BP"]] >= (bp - 500000) & t[["BP"]] <= (bp + 500000))
-      remove_indices <- remove_indices[-which(remove_indices==j)]
-      if(length(remove_indices)!=0){
-        t <- t[-remove_indices, ]
-      }
-      j <- j+1
+  while(j <= dim(t)[1]){
+    chr <- t[["CHR"]][j]
+    bp <- t[["BP"]][j]
+    remove_indices <- which(t[["CHR"]]==chr & t[["BP"]] >= (bp - 500000) & t[["BP"]] <= (bp + 500000))
+    number_signals <- length(remove_indices)
+    remove_indices <- remove_indices[-which(remove_indices==j)]
+    if(length(remove_indices)!=0){
+      t <- t[-remove_indices, ]
     }
-
-    result <- rbind(result, t)
+    t$number_signals <- number_signals
+    j <- j+1
 
   }
 
-  return(result)
+  #result <- rbind(result, t)
+
+  # }
+
+  return(t)
 
 }
 
