@@ -2066,7 +2066,7 @@ extract_sig_results <- function(file, threshold, eth){
 merge_psy_UKBB <- function(psy_GWAS, UKBB_GWAS_file){
 
   ukbb_gwas <- fread(UKBB_GWAS_file)
-  ukbb_gwas_sub <- ukbb_gwas %>% dplyr::select(chr, rsid, pos, a_0, a_1, af, info) %>% rename_all(paste0, "_UKBB")
+  ukbb_gwas_sub <- ukbb_gwas %>% rename_all(paste0, "_UKBB") #dplyr::select(chr, rsid, pos, a_0, a_1, af, info) %>%
   output <- left_join(psy_GWAS, ukbb_gwas_sub, by = c("SNP" = "rsid_UKBB"))
   return(output)
 
@@ -2152,7 +2152,7 @@ get_plink_a2 <- function(plink_glm){
 harmonize_ukbb_plink_data <- function(data, SNP_col="SNP", REF1_col="A1", ALT1_col="A2", REF2_col="a_1_UKBB", ALT2_col="a_0_UKBB"){
 
   data$A2 <- get_plink_a2(data)
-  data <- data %>% filter(!is.na(bmi_slope_resid_beta_UKBB))
+  data <- data %>% filter(!is.na(data))
 
   ## PLINK beta in terms of A1
   ## Bgenie beta in terms of a_1
