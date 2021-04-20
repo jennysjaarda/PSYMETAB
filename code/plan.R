@@ -562,8 +562,8 @@ process_init <- drake_plan(
     output_dir = "analysis/GWAS", type = "case_only", pheno_list = !!interaction_outcome)},
     hpc = FALSE),
 
-  subgroup_freq_files = subgroup_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")),
-  case_only_freq_files = case_only_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")),
+  subgroup_freq_files = subgroup_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")) %>% filter(eth!="META"),
+  case_only_freq_files = case_only_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")) %>% filter(eth!="META_DRUGS"),
 
   check_baseline_files = target({
     baseline_gwas_files$log_file},
@@ -927,9 +927,6 @@ ukbb_analysis <- drake_plan(
 
 )
 
-
-
-
 # vis_drake_graph(ukbb_analysis)
 
 ukbb_control <- drake_plan(
@@ -971,7 +968,10 @@ ukbb_control <- drake_plan(
   psy_ukbb_het_prune = target(prune_psy(psy_ukbb_het),
     dynamic = map(psy_ukbb_het)),
 
-  write_ukbb_comparison = write.csv(psy_ukbb_het_prune,  file_out("output/PSYMETAB_GWAS_UKBB_controls.csv"),row.names = F),
+  psy_ukbb_het_prune_interest = {
+    psy_ukbb_het_prune %>% dplyr::select(-contains("users")) %>% rename(bmi_slope_het_pval = het_pval)},
+
+  write_ukbb_comparison = write.csv(psy_ukbb_het_prune_interest,  file_out("output/PSYMETAB_GWAS_UKBB_controls.csv"),row.names = F),
 
   # ukbb_comparison = read.csv(file_in("output/PSYMETAB_GWAS_UKBB_comparison.csv")),
   #
@@ -985,19 +985,24 @@ ukbb_replication <- drake_plan(
   ukbb_top_snps_chr = target(tibble(chr = psy_ukbb_het$CHR, rsid = psy_ukbb_het$SNP),
     dynamic = map(psy_ukbb_het)),
 
-  ukbb_geno = target(load_geno(ukbb_bgen_sample, ukbb_top_snps_chr, !!UKBB_dir),
-    dynamic = map(ukbb_top_snps_chr)),
+  #ukbb_geno = target(load_geno(ukbb_bgen_sample, ukbb_top_snps_chr, !!UKBB_dir),
+  #  dynamic = map(ukbb_top_snps_chr)),
 
+  psy_UKBB_replicate = target(replicate_psy_UKBB(psy_UKBB_merge, eth="CEU", !!test_drugs),
+    dynamic = map(psy_UKBB_merge)),
 
-  # check if BMI correlates with BMI_slope
-  #bmi_slope_corr = target(corr_bmi_slope(ukbb_filter_bmi_slope, ukbb_org, ukb_key, !!bmi_var),
-  #  dynamic = map(ukbb_filter_bmi_slope)),
+  psy_UKBB_replicate_sig = target(extract_ukbb_rep_sig(psy_UKBB_replicate, eth="CEU"),
+    dynamic = map(psy_UKBB_replicate)),
 
+  # check if BMI correlates with BMI_slope to justify the analysis above
+  bmi_slope_corr_data = target(corr_bmi_slope(ukbb_filter_bmi_slope, ukbb_org, ukb_key, !!bmi_var),
+    dynamic = map(ukbb_filter_bmi_slope)),
 
+  #bmi_slope_corr
 
 )
 
-ukbb <- bind_plans(ukbb_analysis, ukbb_control)
+ukbb <- bind_plans(ukbb_analysis, ukbb_control, ukbb_replication)
 
 
 

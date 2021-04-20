@@ -1798,7 +1798,6 @@ munge_ukbb_drug_users <- function(ukbb_org, drug_codes_interest, medication_colu
 
 count_ukbb_drug_users <- function(ukbb_munge_drug_users, drug_codes_interest){
   data <- ukbb_munge_drug_users %>% dplyr::select(paste0(drug_codes_interest$molecule, "_users")) %>% map_df(~length(which(.==1))) %>% t()
-
   return(data)
 }
 
@@ -2020,8 +2019,14 @@ corr_bmi_slope <- function(bmi_data, ukbb_org, ukb_key, bmi_var){
 
   cols_pheno <-  dplyr::pull(ukb_key[which(ukb_key[,1] == bmi_var),"col.name"])
   cols_pheno_first <- cols_pheno[1]
-  ukbb_sub <- ukbb_org %>% dplyr::select(eid, !!cols_pheno_first, !!cols_sex, !!cols_age) %>%  mutate(outcome = ivt(body_mass_index_bmi_f21001_0_0))
+  ukbb_sub <- ukbb_org %>% dplyr::select(eid, !!cols_pheno_first, !!cols_sex, !!cols_age) %>%
+    rename(bmi = !!cols_pheno_first) %>%
+    mutate(bmi_ivt = ivt(bmi))
   full_data <- inner_join(data, ukbb_sub)
+  output <- list()
+  output[[1]] <- full_data
+  return(output)
+
 }
 
 extract_file_info <- function(file, eth){
@@ -2988,37 +2993,48 @@ summarize_case_only_meta <- function(snp, eth, variable, outcome, study_name, dr
   P_META <- as.numeric(meta_gwas[meta_row, "P"])
   BETA_META <- as.numeric(meta_gwas[meta_row, "BETA"])
   SE_META <-abs(BETA_META/qnorm(P_META/2))
-
+  Q_META <- as.numeric(meta_gwas[meta_row, "Q"])
   drug_result <- numeric()
   for(drug in drug_prioritization){
-    drug_file <- paste0(study_name, "_", pheno, "_", drug, ".GWAS.txt")
-    if(file.exists(file.path(directory, "processed", drug_file))){
-      drug_gwas <- fread(file.path(directory, "processed", drug_file), data.table=F)
-      row_num <-  which(drug_gwas$SNP==snp)
+    drug_file <- paste0(study_name, "_FREQ_", pheno, "_", drug, ".glm.linear")
+    if(file.exists(file.path(directory, eth, drug_file))){
+      drug_gwas <- fread(file.path(directory, eth, drug_file), data.table=F)
+      row_num <-  which(drug_gwas$ID==snp)
       if(length(row_num)!=0){
         drug_p <- as.numeric(drug_gwas[row_num, "P"])
         drug_beta <- as.numeric(drug_gwas[row_num, "BETA"])
         drug_se <- as.numeric(drug_gwas[row_num, "SE"])
+        drug_A1_CT <- as.numeric(drug_gwas[row_num, "A1_CT"])
+        drug_A1_FREQ <- as.numeric(drug_gwas[row_num, "A1_FREQ"])
+        drug_OBS_CT <- as.numeric(drug_gwas[row_num, "OBS_CT"])
+
       } else {
+          drug_p <- NA
+          drug_beta <- NA
+          drug_se <- NA
+          drug_A1_CT <- NA
+          drug_A1_FREQ <- NA
+          drug_OBS_CT <- NA
+      }
+
+    } else {
         drug_p <- NA
         drug_beta <- NA
         drug_se <- NA
-      }
+        drug_A1_CT <- NA
+        drug_A1_FREQ <- NA
+        drug_OBS_CT <- NA
     }
-    if(!file.exists(file.path(directory, "processed", drug_file))){
-      drug_p <- NA
-      drug_beta <- NA
-      drug_se <- NA
-    }
-    drug_result <- cbind(drug_result, drug_p, drug_beta, drug_se)
+
+    drug_result <- cbind(drug_result, drug_p, drug_beta, drug_se, drug_A1_CT, drug_A1_FREQ, drug_OBS_CT)
 
   }
 
-  colnames(drug_result) <- apply(expand.grid( c("P_", "BETA_", "SE_"), drug_prioritization),
+  colnames(drug_result) <- apply(expand.grid( c("P_", "BETA_", "SE_", "A1_CT_", "A1_FREQ_", "OBS_CT_"), drug_prioritization),
                                1, paste, collapse="")
 
 
-  result <- cbind(snp, eth, variable, outcome, drug_result, P_META, BETA_META, SE_META)
+  result <- as_tibble(cbind(snp, eth, variable, outcome, drug_result, P_META, BETA_META, SE_META))
 
 }
 
