@@ -2152,7 +2152,7 @@ get_plink_a2 <- function(plink_glm){
 harmonize_ukbb_plink_data <- function(data, SNP_col="SNP", REF1_col="A1", ALT1_col="A2", REF2_col="a_1_UKBB", ALT2_col="a_0_UKBB"){
 
   data$A2 <- get_plink_a2(data)
-  data <- data %>% filter(!is.na(data))
+  data <- data %>% filter(!is.na(chr_UKBB))
 
   ## PLINK beta in terms of A1
   ## Bgenie beta in terms of a_1
@@ -2174,7 +2174,7 @@ flip_beta <- function(betas_to_flip, match_description){
 calc_het <- function(data, snp_col, beta1_col, beta2_col, se1_col, se2_col, match_description_col){
 
   data$beta2_harmonized <- flip_beta(data[[beta2_col]], data[[match_description_col]])
-
+  data <- data %>% filter(!match_description=="non-match")
   data$het_pval <- NA
   for(snp in 1:dim(data)[1] ){
     rsid <- as.character(data[snp,snp_col])
@@ -2227,6 +2227,40 @@ prune_psy <-function(data){
 
   return(t)
 
+}
+
+replicate_psy_UKBB <- function(psy_UKBB_merge, eth="CEU", test_drugs){
+
+  result <- list()
+  pvalue_cols <- grep(pattern=".-log10p",x=names(psy_UKBB_merge),value=TRUE)
+  file <- psy_UKBB_merge[["file"]][1]
+  file_info <- extract_file_info(file, eth)
+  drug_list <- unlist(test_drugs[which(test_drugs$class==file_info["drug_class"]), "drugs"])
+  drug_list <- tolower(drug_list)
+  cols_interest <- unlist(lapply(drug_list, function(u) names(psy_UKBB_merge)[str_detect(names(psy_UKBB_merge), u)]))
+  temp1 <- psy_UKBB_merge %>% dplyr::select(-matches("(beta_UKBB|se_UKBB|t_UKBB|log10p_UKBB)"))
+  temp2 <- psy_UKBB_merge[, cols_interest]
+  out <- cbind(temp1, temp2)
+
+  result[[paste0(file_info["variable"], "_", file_info["outcome"], "_", file_info["drug_class"], "_", eth, "_UKBB_rep")]] <- out
+  return(result)
+}
+
+extract_ukbb_rep_sig <- function(data, eth){
+
+  result <- list()
+  data <- data[[1]]
+  file <- data[["file"]][1]
+  file_info <- extract_file_info(file, eth)
+
+  pvalue_cols <- grep(pattern=".-log10p",x=names(data),value=TRUE)
+
+  sig_df <- as.data.frame(data[,pvalue_cols] > -log10(0.05))
+
+  keep <- which(rowSums(sig_df)==1)
+  sig_data <- data[keep,] %>% mutate_at(vars(contains("log10p")), ~10^(-.)) %>% rename_at(vars(contains("log10p")), ~gsub("-log10p", "_pval", .))
+  result[[paste0(file_info["variable"], "_", file_info["outcome"], "_", file_info["drug_class"], "_", eth, "_UKBB_rep")]] <- sig_data
+  return(result)
 }
 
 combine_targets <- function(...){
