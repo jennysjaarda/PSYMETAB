@@ -3034,7 +3034,7 @@ summarize_case_only_meta <- function(snp, eth, variable, outcome, study_name, dr
                                1, paste, collapse="")
 
 
-  result <- as_tibble(cbind(snp, eth, variable, outcome, drug_result, P_META, BETA_META, SE_META))
+  result <- as_tibble(cbind(snp, eth, variable, outcome, drug_result, P_META, BETA_META, SE_META, Q_META))
 
 }
 
