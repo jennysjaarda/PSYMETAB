@@ -294,7 +294,7 @@ analysis_prep_case_only <- drake_plan(
 
 )
 
-analysis_prep_merge <- bind_plans(analysis_prep, analysis_prep_case_only)
+#analysis_prep_merge <- bind_plans(analysis_prep, analysis_prep_case_only)
 
 ## Case only resid data has number of columns equal to length(drug_prioritization) * length(outcomes),
 ## where each drug in `drug_prioritization` corresponds to length(outcomes) columns (i.e. BMI slope, 6mo, 3mo, weighted slope, etc.).
