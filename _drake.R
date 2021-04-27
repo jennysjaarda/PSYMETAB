@@ -11,4 +11,4 @@ plan <- bind_plans(qc_prep, pre_impute_qc, download_impute, post_impute, analysi
 
 drake_config(plan, verbose = 1, log_make = "plan.log", cache_log_file = "cache_log.csv",
   parallelism = "clustermq", jobs = 120, template = list(cpus = 1, partition = "cluster",
-  log_file = "/data/sgg2/jenny/projects/PSYMETAB/process_init_%a_clustermq.out"))
+  log_file = "/data/sgg2/jenny/projects/PSYMETAB/plan_%a_clustermq.out"))
