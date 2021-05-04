@@ -1,0 +1,190 @@
+---
+title: "GWAS case only"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: true
+---
+
+
+
+```{css include=FALSE}
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+```
+
+```{r setup, include = FALSE}
+options(scipen=999)
+source("R/packages.R")
+source("R/functions.R")
+source("R/settings.R")
+library(DT)
+library(knitr)
+```
+
+```{r load_data, include = FALSE}
+
+loadd(case_only_gwas_sig_com)
+loadd(case_only_resid_data)
+loadd(pheno_case_only)
+```
+
+## Rationale. 
+
+- PSYMETAB was divided into subgroups based on different drugs such that each participant is only in one subgroup.
+- Because participants can be followed for more than one drug, it is necessary to *select* one drug per participant. 
+- Therefore a prioritization method was followed: 
+    - If a particpant has been followed for the highest priority drug they are placed in this drug group. 
+    - If not, they are checked for the second drug in the prioritization list and either placed in the second drug group or examined to see if they were followed for the next drug in the list. 
+    - This process was repeated for all drugs in the prioritization list.
+    - If a participant has not been followed for any of the drugs in the prioritization list, they are placed in category `Other`. 
+- The different drug groups tested along with their sample size can be seen below, in order of their prioritization: 
+```{r drug_counts, echo = FALSE}
+loadd(case_only_interest_summarize)
+x <- case_only_interest_summarize[1,] %>% dplyr::select(contains("OBS_CT")) %>% as.data.frame() %>% t()
+x1 <- tibble::rownames_to_column(as.data.frame(x), "drug_group") %>% rename(count = V1)
+x1 %>% kable() %>%
+  kable_styling(full_width = F, position = "left")
+
+```
+
+## Results.
+
+### SNP tables.
+
+After meta-analyzing across the independent drug groups, we identified the following GW-significant findings: 
+```{r snp_summary_data, echo=FALSE, include=FALSE}
+
+#result
+loadd(case_only_interest)
+
+#interest_results <- case_only_gwas_sig_meta %>% filter(variable=="BMI" & eth=="CEU")
+
+summarize_meta_results <- case_only_interest_summarize %>% dplyr::select(variable, outcome, snp, BETA_META, P_META, Q_META) %>% rename(SNP=snp) %>% 
+  left_join(., case_only_interest %>% dplyr::select(SNP, REF, ALT, CHR, BP)) %>%
+  dplyr::select(variable, outcome, SNP, CHR, BP, REF, ALT, everything()) 
+```
+
+```{r snp_summary_view, echo = FALSE}
+summarize_meta_results %>% kable() %>%
+  kable_styling(full_width = F, position = "left") 
+
+```
+
+### Heterogeneity analysis.
+
+We also examined the meta-analysis results for evidence of heterogeneity to assess if the significant results were driven by one drug group in paticular. Below are the forest plots illustrating the effects among the different subgroups. 
+```{r forest_plots, echo=FALSE, fig.width=10, fig.height=6}
+par(mar=c(5,5,0,0))
+
+i <- 1
+for(i in 1:dim(case_only_interest_summarize)[1]){
+  sel <- i# c(1,8)
+  
+  beta <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('BETA_')) %>% mutate_all(as.double) %>%  t(.)
+  se <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('SE_')) %>% mutate_all(as.double) %>%  t(.)
+  n <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('OBS_CT')) %>% mutate_all(as.double) %>%  t(.)
+  af <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('A1_FREQ_')) %>% mutate_all(as.double) %>%  t(.)
+  p <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('P_')) %>% mutate_all(as.double) %>%  t(.)
+  
+  lower_ci <- beta - 1.96*se
+  upper_ci <- beta + 1.96*se
+  
+  beta_round <- sapply(beta, pretty_round)
+  lower_ci_round <- sapply(lower_ci, pretty_round)
+  upper_ci_round <- sapply(upper_ci, pretty_round)
+  
+  ci_char <- paste0(beta_round, " (", lower_ci_round, ", ", upper_ci_round, ")")
+  af_round <- sapply(af, pretty_round)
+  p_round <- sapply(p, pretty_round)
+  
+  table_meta <- data.frame(
+    Name=c("Drug", case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('BETA_')) %>% names() %>% str_remove('BETA_')),
+    ci95=c("Beta (95% CI)", ci_char), 
+    n=c("N", n, ""),
+    p=c("P-value", p_round)
+    
+  )
+  table_meta <- table_meta %>% mutate_all(as.character)
+  table_meta <- rbind(table_meta[1,], rep("", dim(table_meta)[2]), table_meta[2:(dim(table_meta)[1]-1),], rep("", dim(table_meta)[2]), table_meta[dim(table_meta)[1],])
+  
+  
+  beta_fp <-  c(NA, NA, beta[1:(length(beta)[1]-1)], NA, beta[length(beta)[1]])
+  se_fp <-  c(NA, NA, se[1:(length(se)[1]-1)], NA, se[length(se)[1]])
+  
+  #png(file = 'forestplot.png') 
+  
+  forestplot_i <- forestplot::forestplot(labeltext = table_meta, # case_only_meta_summ[sel,1:4], 
+                         mean = beta_fp,
+                         lower = beta_fp-1.96*se_fp, #c(beta-1.96*se,NA),
+                         upper = beta_fp+1.96*se_fp, #beta_fp+1.96*se_fp
+                         # align = 
+                         is.summary = c(TRUE, logical(length = length(se_fp)-2), TRUE),
+                         # hrzl_lines,
+                         # line.margin,
+                         # colgap,
+                         # new_page = TRUE,
+                         #clip = c(0.1,2.5), 
+                         #xlog = TRUE
+                         graphwidth=unit(8,"cm"), 
+                         
+  )
+  
+  #dev.off()
+  
+  print(forestplot_i)
+}
+
+
+
+```
+
+### PHEWAS.
+- For each SNP identified above, we checked for previous associations in relevant consortia.
+
+```{r consort_phewas, echo=FALSE, results="asis"}
+
+
+loadd(consort_extract_snp_list)
+
+for(i in 1:dim(case_only_interest_summarize)[1]){
+  SNP_name <- case_only_interest_summarize$snp[i]
+  consort_extract_snp_list[[SNP_name]] %>% kable() %>%
+   kable_styling(full_width = F, position = "left") %>%
+    htmltools::HTML() %>% 
+    print
+  cat("\n")
+}
+
+
+
+```
+
+- We also checked for associations in the [GeneAtlas](http://geneatlas.roslin.ed.ac.uk/).
+
+```{r roslin_phewas, echo=FALSE}
+
+
+loadd(consort_extract_snp_list)
+
+SNPs <- numeric()
+URL <- numeric()
+for(i in 1:dim(case_only_interest_summarize)[1]){
+  SNPs <- c(SNPs, case_only_interest_summarize$snp[i])
+  URL <- c(URL, paste0('http://geneatlas.roslin.ed.ac.uk/phewas/?variant=', case_only_interest_summarize$snp[i], '&representation=table'))
+}
+
+  
+
+
+tibble(SNP=SNPs, URL=URL) %>% kable() %>%
+  kable_styling(full_width = F, position = "left") 
+
+  
+```
+
+
