@@ -47,3 +47,7 @@ if [ -s "$output/${out_name}/${out_name}_missing_snps.txt" ]; then
   plink2 --bfile $output/${out_name}/${out_name}_missing_snps_extract --recode A --out $output/${out_name}/${out_name}_missing_snps_extract
   Rscript code/extractions/geno_original_merge.r $output $out_name $snp_file
 fi
+
+if [ ! -f "$output/${out_name}/${out_name}_extraction_geno.txt" ]; then
+  cp $output/${out_name}/${out_name}_extraction.txt $output/${out_name}/${out_name}_extraction_geno.txt
+fi
