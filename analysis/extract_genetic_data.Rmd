@@ -8,6 +8,7 @@ output:
 
 **The following document outlines the procedure to extract genetic data located on the `HPC1` servers.**
 
+# 1. Create input file.
 
 - Text file.
 - One line per SNP.
@@ -37,13 +38,15 @@ output:
     - Replace all instances of  `FirstnameLastname` in Template with new "requestor" (e.g. replace **Aurelie** with **FirstnameLastname**), there should be four replace instances: (1) SBATCH `job-name`, (2) folder `input`, (3) folder `ouput`, (4) comment at end of file indicating how to launch the script.
     - Run the extraction script for each requestor as an `sbatch` job.
   - The extraction script will only try to perform the extraction for a given file (i.e. the memory intensive portion of the script) if a folder does not already exists which corresponds to that SNP lists here: `/data/sgg2/jenny/projects/PSYMETAB/data/processed/extractions/${resquester}/${snp_list}`
+  - The data is being extracted from the final QC file: `${QC_dir}/15_final_processing/FULL/PSYMETAB_GWAS.FULL`
 
 # 4. Summary of result files.
 
 - Results will be saved to the following location: `/data/sgg2/jenny/projects/PSYMETAB/data/processed/extractions/${resquester}/${snp_list}`.
 - `${snp_list}_rsids.txt`: list of rsIDs with empty characters removed (in most cases this should be identical to the input file from #1).
-- `${snp_list}_SNP_info.txt`: info file for each rsID, extracted from HRC list (see [HRC website](http://www.haplotype-reference-consortium.org/home)), columns correspond to: `#CHROM	POS	ID	REF	ALT	AC	AN	AF	AC_EXCLUDING_1000G	AN_EXCLUDING_1000G	AF_EXCLUDING_1000G	AA`.
-- For each chromosome (`$chr`), extracted from imputed data, there are the following files from extracting the chromosome specific genetic data using [PLINK](https://www.cog-genomics.org/plink/2.0/):
+- `${snp_list}_SNP_HRC_info.txt`: info file for each rsID, extracted from HRC list (see [HRC website](http://www.haplotype-reference-consortium.org/home)), columns correspond to: `#CHROM	POS	ID	REF	ALT	AC	AN	AF	AC_EXCLUDING_1000G	AN_EXCLUDING_1000G	AF_EXCLUDING_1000G	AA`.
+- `${snp_list}_SNP_impute_info.txt`: imputation info file for each rsID, extracted from imputed plink data (`pvar` file), columns correspond to: `#CHROM  POS  ID REF ALT FILTER  INFO`. See plink2 pvar [website](https://www.cog-genomics.org/plink/2.0/formats#pvar) for full description of this file. This file should be used if imputation metrics are required.
+- For each chromosome (`$chr`), extracted from imputed data, there are the following files from extracting the chromosome specific genetic data using [PLINK](https://www.cog-genomics.org/plink/2.0/), specifically the `raw` file description can be found [here](https://www.cog-genomics.org/plink/2.0/formats#raw):
   - `${snp_list}_chr${chr}.txt`: list of rsIDs on `chr${chr}`
   - `${snp_list}_chr${chr}.psam`
   - `${snp_list}_chr${chr}.pvar`
@@ -59,9 +62,9 @@ output:
   - `${snp_list}_missing_snps_extract.bed`: PLINK extraction from original genotype data.
   - `${snp_list}_missing_snps_extract.raw`: PLINK extraction from original genotype data.
   - `${snp_list}_missing_snps_extract.log`: PLINK extraction from original genotype data.
-  - `${snp_list}_extraction_geno.txt`: merged genetic data, same file as above, but with additional SNPs extracted from original genotype data, this is the **main results file**:
+- `${snp_list}_extraction_geno.txt`: merged genetic data, same file as above, but with additional SNPs extracted from original genotype data (if necessary), this is the **main results file**:
     - First column is `GPCR` ID.
-    - Subsequent **N** columns correspond **N** SNPs extracted from imputed data.
+    - Subsequent **N** columns correspond **N** SNPs extracted from imputed data: genotype information. Column headers are formatted as `VariantID_countedallele`, where `VariantID` is usually an "rs#" and `countedallele` represents the allele that is counted (data extracted using `--raw` flag in PLINK).
     - One column for ethnicity (one of: "CEU" (European), "EA" (East Asian), "MIXED", "NA" (Native American), "YRI" (African))
     - Following 100 columns correspond to genetic principal components.
     - *Note*: it is **strongly** encouraged to only us the `CEU` samples as this our largest and cleanest sample. If using only European, adjust for at least the first 10 PCs in your analysis. If you need to include additional ethnic groups, you have two options: (1) analyze each ethnic group seperately, adjusting for PCs **or** (2) analyze the entire group together without PCs (PCs were calculated in each ethnic group **seperately** so you cannot include them in a model where all ethnic groups are included).
