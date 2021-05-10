@@ -10,7 +10,7 @@ file_start=$(echo $snp_file | cut -f1 -d.)
 out_name=$(basename $file_start)
 
 clean_file=$output/${out_name}/${out_name}_rsids.txt
-snp_HRC_info=$output/${out_name}/${out_name}_SNP_HRC_info.txt
+snp_hrc_info=$output/${out_name}/${out_name}_SNP_HRC_info.txt
 snp_impute_info=$output/${out_name}/${out_name}_SNP_impute_info.txt
 
   #clean input file
