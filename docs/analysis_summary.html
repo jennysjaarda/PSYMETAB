@@ -395,7 +395,7 @@ div.section {
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
   data-toggle="collapse" data-target="#workflowr-report">
   
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 
@@ -405,7 +405,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
   <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
   <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -415,10 +415,10 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
   <p>
-<strong>Last updated:</strong> 2021-04-14
+<strong>Last updated:</strong> 2021-06-01
 </p>
   <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
   <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -435,23 +435,23 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
   <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
   
-<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec7f87fb1782c72c20c7e374966953bdda1fb8621targetblankc7f87fba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/c7f87fb1782c72c20c7e374966953bdda1fb8621" target="_blank">c7f87fb</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreef231b562f65babff1f6e34bdff16ffe422779d1etargetblankf231b56a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/f231b562f65babff1f6e34bdff16ffe422779d1e" target="_blank">f231b56</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec7f87fb1782c72c20c7e374966953bdda1fb8621targetblankc7f87fba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreef231b562f65babff1f6e34bdff16ffe422779d1etargetblankf231b56a" class="panel-collapse collapse">
 <div class="panel-body">
   
 
@@ -470,7 +470,7 @@ Ignored files:
     Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
     Ignored:    analysis/Rlogo2.png
-    Ignored:    analysis/figure/
+    Ignored:    analysis/_drake.R
     Ignored:    analysis/rplot.jpg
     Ignored:    analysis_prep.log
     Ignored:    analysis_prep_10_clustermq.out
@@ -542,6 +542,127 @@ Ignored files:
     Ignored:    packrat/lib-R/
     Ignored:    packrat/lib-ext/
     Ignored:    packrat/lib/
+    Ignored:    plan.log
+    Ignored:    plan_100_clustermq.out
+    Ignored:    plan_101_clustermq.out
+    Ignored:    plan_102_clustermq.out
+    Ignored:    plan_103_clustermq.out
+    Ignored:    plan_104_clustermq.out
+    Ignored:    plan_105_clustermq.out
+    Ignored:    plan_106_clustermq.out
+    Ignored:    plan_107_clustermq.out
+    Ignored:    plan_108_clustermq.out
+    Ignored:    plan_109_clustermq.out
+    Ignored:    plan_10_clustermq.out
+    Ignored:    plan_110_clustermq.out
+    Ignored:    plan_111_clustermq.out
+    Ignored:    plan_112_clustermq.out
+    Ignored:    plan_113_clustermq.out
+    Ignored:    plan_114_clustermq.out
+    Ignored:    plan_115_clustermq.out
+    Ignored:    plan_116_clustermq.out
+    Ignored:    plan_117_clustermq.out
+    Ignored:    plan_118_clustermq.out
+    Ignored:    plan_119_clustermq.out
+    Ignored:    plan_11_clustermq.out
+    Ignored:    plan_120_clustermq.out
+    Ignored:    plan_12_clustermq.out
+    Ignored:    plan_13_clustermq.out
+    Ignored:    plan_14_clustermq.out
+    Ignored:    plan_15_clustermq.out
+    Ignored:    plan_16_clustermq.out
+    Ignored:    plan_17_clustermq.out
+    Ignored:    plan_18_clustermq.out
+    Ignored:    plan_19_clustermq.out
+    Ignored:    plan_1_clustermq.out
+    Ignored:    plan_20_clustermq.out
+    Ignored:    plan_21_clustermq.out
+    Ignored:    plan_22_clustermq.out
+    Ignored:    plan_23_clustermq.out
+    Ignored:    plan_24_clustermq.out
+    Ignored:    plan_25_clustermq.out
+    Ignored:    plan_26_clustermq.out
+    Ignored:    plan_27_clustermq.out
+    Ignored:    plan_28_clustermq.out
+    Ignored:    plan_29_clustermq.out
+    Ignored:    plan_2_clustermq.out
+    Ignored:    plan_30_clustermq.out
+    Ignored:    plan_31_clustermq.out
+    Ignored:    plan_32_clustermq.out
+    Ignored:    plan_33_clustermq.out
+    Ignored:    plan_34_clustermq.out
+    Ignored:    plan_35_clustermq.out
+    Ignored:    plan_36_clustermq.out
+    Ignored:    plan_37_clustermq.out
+    Ignored:    plan_38_clustermq.out
+    Ignored:    plan_39_clustermq.out
+    Ignored:    plan_3_clustermq.out
+    Ignored:    plan_40_clustermq.out
+    Ignored:    plan_41_clustermq.out
+    Ignored:    plan_42_clustermq.out
+    Ignored:    plan_43_clustermq.out
+    Ignored:    plan_44_clustermq.out
+    Ignored:    plan_45_clustermq.out
+    Ignored:    plan_46_clustermq.out
+    Ignored:    plan_47_clustermq.out
+    Ignored:    plan_48_clustermq.out
+    Ignored:    plan_49_clustermq.out
+    Ignored:    plan_4_clustermq.out
+    Ignored:    plan_50_clustermq.out
+    Ignored:    plan_51_clustermq.out
+    Ignored:    plan_52_clustermq.out
+    Ignored:    plan_53_clustermq.out
+    Ignored:    plan_54_clustermq.out
+    Ignored:    plan_55_clustermq.out
+    Ignored:    plan_56_clustermq.out
+    Ignored:    plan_57_clustermq.out
+    Ignored:    plan_58_clustermq.out
+    Ignored:    plan_59_clustermq.out
+    Ignored:    plan_5_clustermq.out
+    Ignored:    plan_60_clustermq.out
+    Ignored:    plan_61_clustermq.out
+    Ignored:    plan_62_clustermq.out
+    Ignored:    plan_63_clustermq.out
+    Ignored:    plan_64_clustermq.out
+    Ignored:    plan_65_clustermq.out
+    Ignored:    plan_66_clustermq.out
+    Ignored:    plan_67_clustermq.out
+    Ignored:    plan_68_clustermq.out
+    Ignored:    plan_69_clustermq.out
+    Ignored:    plan_6_clustermq.out
+    Ignored:    plan_70_clustermq.out
+    Ignored:    plan_71_clustermq.out
+    Ignored:    plan_72_clustermq.out
+    Ignored:    plan_73_clustermq.out
+    Ignored:    plan_74_clustermq.out
+    Ignored:    plan_75_clustermq.out
+    Ignored:    plan_76_clustermq.out
+    Ignored:    plan_77_clustermq.out
+    Ignored:    plan_78_clustermq.out
+    Ignored:    plan_79_clustermq.out
+    Ignored:    plan_7_clustermq.out
+    Ignored:    plan_80_clustermq.out
+    Ignored:    plan_81_clustermq.out
+    Ignored:    plan_82_clustermq.out
+    Ignored:    plan_83_clustermq.out
+    Ignored:    plan_84_clustermq.out
+    Ignored:    plan_85_clustermq.out
+    Ignored:    plan_86_clustermq.out
+    Ignored:    plan_87_clustermq.out
+    Ignored:    plan_88_clustermq.out
+    Ignored:    plan_89_clustermq.out
+    Ignored:    plan_8_clustermq.out
+    Ignored:    plan_90_clustermq.out
+    Ignored:    plan_91_clustermq.out
+    Ignored:    plan_92_clustermq.out
+    Ignored:    plan_93_clustermq.out
+    Ignored:    plan_94_clustermq.out
+    Ignored:    plan_95_clustermq.out
+    Ignored:    plan_96_clustermq.out
+    Ignored:    plan_97_clustermq.out
+    Ignored:    plan_98_clustermq.out
+    Ignored:    plan_99_clustermq.out
+    Ignored:    plan_9_clustermq.out
     Ignored:    process_init.log
     Ignored:    process_init_100_clustermq.out
     Ignored:    process_init_101_clustermq.out
@@ -696,7 +817,30 @@ Ignored files:
     Ignored:    prs_7_clustermq.out
     Ignored:    prs_8_clustermq.out
     Ignored:    ukbb.log
+    Ignored:    ukbb_10_clustermq.out
+    Ignored:    ukbb_11_clustermq.out
+    Ignored:    ukbb_12_clustermq.out
+    Ignored:    ukbb_13_clustermq.out
+    Ignored:    ukbb_14_clustermq.out
+    Ignored:    ukbb_15_clustermq.out
+    Ignored:    ukbb_16_clustermq.out
+    Ignored:    ukbb_17_clustermq.out
+    Ignored:    ukbb_18_clustermq.out
+    Ignored:    ukbb_19_clustermq.out
     Ignored:    ukbb_1_clustermq.out
+    Ignored:    ukbb_20_clustermq.out
+    Ignored:    ukbb_21_clustermq.out
+    Ignored:    ukbb_22_clustermq.out
+    Ignored:    ukbb_23_clustermq.out
+    Ignored:    ukbb_24_clustermq.out
+    Ignored:    ukbb_2_clustermq.out
+    Ignored:    ukbb_3_clustermq.out
+    Ignored:    ukbb_4_clustermq.out
+    Ignored:    ukbb_5_clustermq.out
+    Ignored:    ukbb_6_clustermq.out
+    Ignored:    ukbb_7_clustermq.out
+    Ignored:    ukbb_8_clustermq.out
+    Ignored:    ukbb_9_clustermq.out
     Ignored:    ukbb_analysis.log
     Ignored:    ukbb_analysis_100_clustermq.out
     Ignored:    ukbb_analysis_101_clustermq.out
@@ -862,14 +1006,19 @@ Ignored files:
 Untracked files:
     Untracked:  Rlogo.png
     Untracked:  Rlogo2.png
-    Untracked:  analysis/GWAS_case_only.Rmd
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/GWAS_subgroup_results.Rmd
     Untracked:  analysis/meetings.Rmd
+    Untracked:  analysis/report.Rmd
     Untracked:  code/extractions/Aurelie09032021_extract.sh
     Untracked:  code/extractions/MarcodePieri_09032021_extract.sh
     Untracked:  code/extractions/MarcodePieri_09032021_proxies_extract.sh
-    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison.csv
-    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison2.csv
+    Untracked:  code/extractions/NicolasToni_extract.sh
+    Untracked:  forest_plot.rds
+    Untracked:  output/PSYMETAB_GWAS_UKBB_controls.csv
     Untracked:  output/PSYMETAB_GWAS_baseline_CEU_result.csv
+    Untracked:  output/PSYMETAB_GWAS_case_only_CEU_meta_result.csv
+    Untracked:  output/PSYMETAB_GWAS_celine_extract.csv
     Untracked:  output/PSYMETAB_GWAS_subgroup_CEU_result.csv
     Untracked:  output/PSYMETAB_inclusion_dates.txt
     Untracked:  output/coffee_consumed_Neale_UKBB_analysis.csv
@@ -877,18 +1026,35 @@ Untracked files:
     Untracked:  temp
 
 Unstaged changes:
+    Modified:   R/functions.R
+    Modified:   R/plan.R
+    Modified:   _drake.R
+    Modified:   analysis/GWAS_UKBB_control.Rmd
+    Modified:   analysis/GWAS_UKBB_replication.Rmd
+    Modified:   analysis/GWAS_case_only.Rmd
     Modified:   analysis/GWAS_method.Rmd
     Modified:   analysis/GWAS_results.Rmd
-    Modified:   analysis/GWAS_summary.Rmd
     Modified:   analysis/_site.yml
+    Modified:   analysis/create_custom_cluster_files.Rmd
     Modified:   analysis/genetic_quality_control.Rmd
     Modified:   analysis/index.Rmd
     Modified:   analysis/pheno_quality_control.Rmd
     Modified:   analysis/plans.Rmd
     Modified:   analysis/setup.Rmd
     Modified:   cache_log.csv
+    Modified:   code/extractions/AudeCoumau_extract.sh
     Modified:   code/extractions/AurelieReymond_extract.sh
+    Modified:   code/extractions/ChinEap_extract.sh
+    Modified:   code/extractions/FlavioFerreira_extract.sh
+    Modified:   code/extractions/FredVandenberghe_extract.sh
+    Modified:   code/extractions/MarcodePieri_extract.sh
+    Modified:   code/extractions/MurielleBrocard_extract.sh
+    Modified:   code/extractions/NermineLaaboub_extract.sh
+    Modified:   code/extractions/NicolasAnsermot_extract.sh
+    Modified:   code/extractions/SeverineCrettolWavre_extract.sh
+    Modified:   code/extractions/master_extract.sh
     Modified:   post_impute.log
+    Modified:   slurm_clustermq.tmpl
 
 </code></pre> <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
@@ -929,10 +1095,27 @@ Message
 <tbody>
 <tr>
 <td>
-html
+Rmd
 </td>
 <td>
-<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/c7f87fb1782c72c20c7e374966953bdda1fb8621/docs/GWAS_summary.html" target="_blank">c7f87fb</a>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/f231b562f65babff1f6e34bdff16ffe422779d1e/analysis/analysis_summary.Rmd" target="_blank">f231b56</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-06-01
+</td>
+<td>
+Update website
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jennysjaarda/PSYMETAB/blob/50610806a40cd5399dc6d46864b956d0f9828ed1/analysis/analysis_summary.Rmd" target="_blank">5061080</a>
 </td>
 <td>
 Jenny Sjaarda
@@ -941,24 +1124,24 @@ Jenny Sjaarda
 2021-04-14
 </td>
 <td>
-Build site.
+rename GWAS analysis to be more generic.
 </td>
 </tr>
 <tr>
 <td>
-Rmd
+html
 </td>
 <td>
-<a href="https://github.com/jennysjaarda/PSYMETAB/blob/3ce7c51855367140b44e83dad9166fc5ad096e77/analysis/GWAS_summary.Rmd" target="_blank">3ce7c51</a>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/50610806a40cd5399dc6d46864b956d0f9828ed1/docs/analysis_summary.html" target="_blank">5061080</a>
 </td>
 <td>
-jennysjaarda
+Jenny Sjaarda
 </td>
 <td>
 2021-04-14
 </td>
 <td>
-add GWAS summary Rmd
+rename GWAS analysis to be more generic.
 </td>
 </tr>
 </tbody>
@@ -991,11 +1174,11 @@ add GWAS summary Rmd
 <div id="comparison-with-ukbb-as-control-population." class="section level3">
 <h3>2. Comparison with UKBB as control population.</h3>
 <ul>
-<li>Ideally, analyses (b) and/or (c) above would idenitfy SNPs that are linked to increase in BMI through an interaction with drug use.</li>
+<li>Ideally, analyses (b) and/or (c) above would identify SNPs that are linked to increase in BMI through an interaction with drug use.</li>
 <li>However, due to the nature of the PSYMETAB study design, all participants are taking some (or multiple) drugs and have some pre-existing psychiatric condition.</li>
 <li>Therefore, there are no <em>true</em> controls (i.e. the control population we were using was not ideal because they are all taking another drug that could confound the analysis and have some psychiatric disease).</li>
 <li>Indeed, after performing these analyses, no striking associations were identified.</li>
-<li>It was then decided to use the UKBB as our control population.</li>
+<li>To mitigate this, we decided to use the UKBB as a control population.</li>
 <li>Specifically, the subset of UKBB participants with more than two measures for BMI to identify SNPs linked to change (slope) of BMI and compare these signals with those identified in PSYMETAB.</li>
 <li>For further details and results see <a href="GWAS_UKBB_control.html">GWAS UKBB control</a>.</li>
 </ul>
@@ -1022,7 +1205,7 @@ add GWAS summary Rmd
 <li>Impossible for us to distinguish between (a) and (c) but we can test if SNPs are associated with BMI change in the UKBB to rule out/in (2).</li>
 <li>To perform this analysis, the PSYMETAB population was divided into distinct subgroups and results were then meta-analyzed.</li>
 <li>For more details see: <a href="GWAS_case_only.html">GWAS case only</a>.</li>
-<li>Motivatation for #1.c was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.</li>
+<li>Motivation for #1.c was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.</li>
 </ul>
 </div>
 </div>
