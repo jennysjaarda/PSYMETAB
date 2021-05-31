@@ -18,11 +18,11 @@ output:
 - Analayses (b) and (c) are very similar, where a SNP association which differs significantly between the two subgroups in (c) (using a heterogeneity test for example) would suggest that this SNP acts through the drug to exert its effect on BMI.
 
 ### 2. Comparison with UKBB as control population.
-- Ideally, analyses (b) and/or (c) above would idenitfy SNPs that are linked to increase in BMI through an interaction with drug use.
+- Ideally, analyses (b) and/or (c) above would identify SNPs that are linked to increase in BMI through an interaction with drug use.
 - However, due to the nature of the PSYMETAB study design, all participants are taking some (or multiple) drugs and have some pre-existing psychiatric condition.
 - Therefore, there are no *true* controls (i.e. the control population we were using was not ideal because they are all taking another drug that could confound the analysis and have some psychiatric disease).
 - Indeed, after performing these analyses, no striking associations were identified.
-- It was then decided to use the UKBB as our control population.
+- To mitigate this, we decided to use the UKBB as a control population.
 - Specifically, the subset of UKBB participants with more than two measures for BMI to identify SNPs linked to change (slope) of BMI and compare these signals with those identified in PSYMETAB.
 - For further details and results see [GWAS UKBB control](GWAS_UKBB_control.html).
 
@@ -41,4 +41,4 @@ output:
 - Impossible for us to distinguish between (a) and (c) but we can test if SNPs are associated with BMI change in the UKBB to rule out/in (2).
 - To perform this analysis, the PSYMETAB population was divided into distinct subgroups and results were then meta-analyzed.
 - For more details see: [GWAS case only](GWAS_case_only.html).
-- Motivatation for #1.c was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.
+- Motivation for #1.c was to optimize sample size, whereas in analysis #4, distinct subgroups were created which allows for a straight forward meta-analysis across groups, in an effort to identify signals within the full popualtion.
