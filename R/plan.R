@@ -5,61 +5,128 @@
 
 qc_prep <- drake_plan (
   # Load and clean data to prepare for QC ----------------------
-  qc_pheno_raw = read_excel(file_in(!!qc_pheno_file),sheet = 1),
-  id_code = read.csv(file_in("data/raw/ID_key.csv"), header=T),
+  qc_pheno_raw = read_excel(file_in(!!qc_pheno_file), sheet = 1),
+  id_code = read.csv(file_in("data/raw/ID_key.csv"), header = T),
   rs_conversion = fread(file_in(!!rsconv_raw_file), data.table = F),
-  fam_raw = read.table(file_in(!!paste0(plink_bed_out,".fam"))), # read the .fam file
+  fam_raw = read.table(file_in(!!paste0(
+    plink_bed_out, ".fam"
+  ))),
+  # read the .fam file
   ped_folder = file_in(!!dirname(plink_ped_raw)),
   #bed_folder = file_out(!!dirname(plink_bed_out)),
   #create_dir = dir.create(bed_folder, showWarnings = F),
   create_bed_out = {
-    in_file <- paste0(ped_folder,"/",basename(!!plink_ped_raw))
-    outfile <- paste0(!!dirname(plink_bed_out),"/",basename(!!plink_bed_out))
-    processx::run(command = "plink", c( "--file", in_file, "--make-bed", "--out", outfile), error_on_status = F)
-    file_out(!!paste0(plink_bed_out,".fam"))
-    file_out(!!dirname(plink_bed_out))},
-
+    in_file <- paste0(ped_folder, "/", basename(!!plink_ped_raw))
+    outfile <-
+      paste0(!!dirname(plink_bed_out), "/", basename(!!plink_bed_out))
+    processx::run(
+      command = "plink",
+      c("--file", in_file, "--make-bed", "--out", outfile),
+      error_on_status = F
+    )
+    file_out(!!paste0(plink_bed_out, ".fam"))
+    file_out(!!dirname(plink_bed_out))
+  },
+  
   fam_munge = munge_fam(fam_raw, id_code),
-  qc_pheno_munge = munge_qc_pheno(qc_pheno_raw,fam_munge),
+  qc_pheno_munge = munge_qc_pheno(qc_pheno_raw, fam_munge),
   dups = find_dups(qc_pheno_munge, fam_munge),
-  sex_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Sexe)),
-  eth_info = qc_pheno_munge %>% dplyr::select(c(FID,IID,Ethnie)),
+  sex_info = qc_pheno_munge %>% dplyr::select(c(FID, IID, Sexe)),
+  eth_info = qc_pheno_munge %>% dplyr::select(c(FID, IID, Ethnie)),
   sex_format = format_sex_file(sex_info),
   eth_format = format_eth_file(eth_info),
-  rs_conversion_munge = rs_conversion %>% mutate(RsID = case_when(RsID=="." ~ Name, TRUE ~ RsID)),
-  out_sex = write.table(sex_format,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"),row.names = F, quote = F, col.names = F),
-  out_eth = write.table(eth_format,  file_out("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt"),row.names = F, quote = F, col.names = F),
-  out_dups = write.table(dups$dups,file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"),row.names = F, quote = F, col.names = F),
-  out_dups_set = write.table(dups$dups_set, file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"),row.names = F, quote = F, col.names = F),
-  out_rs_conversion = {write.table(rs_conversion_munge, file_out("data/processed/reference_files/rsid_conversion.txt"), row.names = F, quote = F, col.names = F)},
-
+  rs_conversion_munge = rs_conversion %>% mutate(RsID = case_when(RsID ==
+                                                                    "." ~ Name, TRUE ~ RsID)),
+  out_sex = write.table(
+    sex_format,
+    file_out("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"),
+    row.names = F,
+    quote = F,
+    col.names = F
+  ),
+  out_eth = write.table(
+    eth_format,
+    file_out("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt"),
+    row.names = F,
+    quote = F,
+    col.names = F
+  ),
+  out_dups = write.table(
+    dups$dups,
+    file_out("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"),
+    row.names = F,
+    quote = F,
+    col.names = F
+  ),
+  out_dups_set = write.table(
+    dups$dups_set,
+    file_out(
+      "data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt"
+    ),
+    row.names = F,
+    quote = F,
+    col.names = F
+  ),
+  out_rs_conversion = {
+    write.table(
+      rs_conversion_munge,
+      file_out("data/processed/reference_files/rsid_conversion.txt"),
+      row.names = F,
+      quote = F,
+      col.names = F
+    )
+  },
+  
 )
+
 
 # vis_drake_graph(qc_prep)
 
 psy_miscellaneous <- drake_plan(
-  custom_snp_list = read_excel(file_in("data/raw/custom_SNP_list.xlsx"),sheet = 1),
-  HRC_list = fread("/data/sgg2/jenny/data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab", data.table=F),
+  custom_snp_list = read_excel(file_in("data/raw/custom_SNP_list.xlsx"), sheet = 1),
+  HRC_list = fread(
+    "/data/sgg2/jenny/data/HRC.r1-1.GRCh37.wgs.mac5.sites.tab",
+    data.table = F
+  ),
   ## check which SNPs in the custom SNP list (defined by Aurelie and others in the group at Cery) would already be imputed using the HRC panel.
   ## if SNPs are already in the HRC list above, then there is no need to genotype them directly.
-
+  
   custom_snp_list_non_hrc = custom_snp_list %>% filter(!SNP %in%  HRC_list$ID),
-  out_non_hrc_snps = write.table(custom_snp_list_non_hrc, file_out("data/processed/non_hrc_custom_snps.txt"),row.names = F, quote = F, col.names = T),
-
-
+  out_non_hrc_snps = write.table(
+    custom_snp_list_non_hrc,
+    file_out("data/processed/non_hrc_custom_snps.txt"),
+    row.names = F,
+    quote = F,
+    col.names = T
+  ),
 )
 
 # vis_drake_graph(psy_miscellaneous)
 
-pre_impute_qc <- drake_plan(
-  # run pre-imupation quality control ----------------------
-  run_pre_imputation = target(
-    {file_in("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt");
-     file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt"); file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt");
-     file_in("data/processed/reference_files/rsid_conversion.txt"); processx::run(command = "sh", c( pre_imputation_script), error_on_status = F)
-     file_out("analysis/QC/00_preprocessing", "analysis/QC/01_strandflip", "analysis/QC/02_maf_zero", "analysis/QC/03_missingness", "analysis/QC/04_sexcheck")}
-  ),
-)
+
+# run pre-imupation quality control ----------------------
+
+
+
+pre_impute_qc <- drake_plan(run_pre_imputation = target({
+  file_in("data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt")
+  file_in("data/processed/phenotype_data/PSYMETAB_GWAS_eth.txt")
+  
+  file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs.txt")
+  file_in("data/processed/phenotype_data/PSYMETAB_GWAS_dupIDs_set.txt")
+  
+  file_in("data/processed/reference_files/rsid_conversion.txt")
+  processx::run(command = "sh",
+                c(pre_imputation_script),
+                error_on_status = F)
+  file_out(
+    "analysis/QC/00_preprocessing",
+    "analysis/QC/01_strandflip",
+    "analysis/QC/02_maf_zero",
+    "analysis/QC/03_missingness",
+    "analysis/QC/04_sexcheck"
+  )
+}), )
 
 # vis_drake_graph(pre_impute_qc)
 
@@ -67,231 +134,600 @@ pre_impute_qc <- drake_plan(
 ## here download output and upload to Michigan server
 ################################################################
 
-download_impute <- drake_plan(
-
-  # download imputation ------------
-  download_imputation = target({
-      processx::run(command = "sh", c(file_in(!!download_imputation_script)), error_on_status = F)
-  }),
-)
+# download imputation ------------
+download_impute <- drake_plan(download_imputation = target({
+  processx::run(command = "sh",
+                c(file_in(!!download_imputation_script)),
+                error_on_status = F)
+}),)
 
 # vis_drake_graph(download_impute)
 
-post_impute <- drake_plan(
 
+post_impute <- drake_plan(
   # run post-imputation quality control and processing ------------
   run_check_imputation = target({
-      # file_in("analysis/QC/06_imputation_get")
-      # this file will get zipped later so we cannot track it
-      processx::run(command = "sh", c( file_in(!!check_imputation_script)), error_on_status = F)
-      file_out("analysis/QC/07_imputation_check")
-    }),
+    # file_in("analysis/QC/06_imputation_get")
+    # this file will get zipped later so we cannot track it
+    processx::run(command = "sh",
+                  c(file_in(!!check_imputation_script)),
+                  error_on_status = F)
+    file_out("analysis/QC/07_imputation_check")
+  }),
   run_post_imputation = target({
-      file_in("code/qc/ethnicity_check.R", "code/qc/relatedness_filter.R", "code/qc/maf_check.R", "code/qc/update_pvar.R")
-      processx::run(command = "sh", c( file_in(!!post_imputation_script)), error_on_status = F)
-      # file_out("analysis/QC/08_plink_convert"), "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
-      #         "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
-      # these files are too big to track
-    }),
+    file_in(
+      "code/qc/ethnicity_check.R",
+      "code/qc/relatedness_filter.R",
+      "code/qc/maf_check.R",
+      "code/qc/update_pvar.R"
+    )
+    processx::run(command = "sh",
+                  c(file_in(!!post_imputation_script)),
+                  error_on_status = F)
+    # file_out("analysis/QC/08_plink_convert"), "analysis/QC/09_extract_typed", "analysis/QC/10_merge_imputed", "analysis/QC/11_relatedness",
+    #         "analysis/QC/12_ethnicity_admixture", "analysis/QC/13_hwecheck", "analysis/QC/14_mafcheck")
+    # these files are too big to track
+  }),
   run_final_processing = target({
-      run_post_imputation
-      file_in(!!(paste0("analysis/QC/14_mafcheck/", study_name, ".mafcheck.step14.log")))
-      # file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
-      processx::run(command = "sh", c( file_in(!!final_processing_script)), error_on_status = F)
-      # file_out("analysis/QC/15_final_processing")
-      # these files are too big to track
-    }),
+    run_post_imputation
+    file_in(!!(
+      paste0(
+        "analysis/QC/14_mafcheck/",
+        study_name,
+        ".mafcheck.step14.log"
+      )
+    ))
+    # file_in("analysis/QC/11_relatedness", "analysis/QC/12_ethnicity_admixture", "analysis/QC/14_mafcheck")
+    processx::run(command = "sh",
+                  c(file_in(!!final_processing_script)),
+                  error_on_status = F)
+    # file_out("analysis/QC/15_final_processing")
+    # these files are too big to track
+  }),
   cp_qc_report = target({
-      file_in("analysis/QC/06_imputation_get/qcreport.html")
-      processx::run(command = "cp", c( "analysis/QC/06_imputation_get/qcreport.html", "docs/generated_reports/"), error_on_status = F)
-      file_out("docs/generated_reports/qcreport.html")
-    }, hpc = FALSE),
+    file_in("analysis/QC/06_imputation_get/qcreport.html")
+    processx::run(
+      command = "cp",
+      c(
+        "analysis/QC/06_imputation_get/qcreport.html",
+        "docs/generated_reports/"
+      ),
+      error_on_status = F
+    )
+    file_out("docs/generated_reports/qcreport.html")
+  }, hpc = FALSE),
   cp_qc_check = target({
-      file_in("analysis/QC/07_imputation_check")
-      processx::run("/bin/sh", c("-c","cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"), error_on_status = F)
-      file_out("docs/generated_reports/07_imputation_check.html", "docs/generated_reports/CrossCohortReport.html")
+    file_in("analysis/QC/07_imputation_check")
+    processx::run(
+      "/bin/sh",
+      c(
+        "-c",
+        "cp analysis/QC/07_imputation_check/summaryOutput/*html docs/generated_reports/"
+      ),
+      error_on_status = F
+    )
+    file_out(
+      "docs/generated_reports/07_imputation_check.html",
+      "docs/generated_reports/CrossCohortReport.html"
+    )
   }, hpc = FALSE),
   snp_weights = target({
     run_post_imputation
-    read.table((file_in(!!paste0("analysis/QC/12_ethnicity_admixture/snpweights/", study_name, ".NA.predpc"))))
+    read.table((file_in(
+      !!paste0(
+        "analysis/QC/12_ethnicity_admixture/snpweights/",
+        study_name,
+        ".NA.predpc"
+      )
+    )))
   }, hpc = FALSE),
   related_inds = target({
     run_post_imputation
-    read.table((file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))))
+    read.table((file_in(
+      !!paste0(
+        "analysis/QC/11_relatedness/",
+        study_name,
+        "_related_ids.txt"
+      )
+    )))
   }, hpc = FALSE),
   snp_weights_munge = target(munge_snp_weights(snp_weights, related_inds), hpc = FALSE),
-  snp_weights_out = target(write.table(snp_weights_munge, file_out(!!paste0("data/processed/extractions/", study_name, ".snpweights"))), hpc = FALSE)
-
+  snp_weights_out = target(write.table(snp_weights_munge, file_out(
+    !!paste0("data/processed/extractions/", study_name, ".snpweights")
+  )), hpc = FALSE), 
+  
+  ## an info file was also created in the "final_processing" script but it iddin't extract all relevant fields.
+  # info_file = target({
+  #   run_final_processing
+  #   system(!!paste0("bcftools query -f '%CHROM %POS %ID %REF %ALT %INFO/R2{0} %INFO/ER2 %INFO/IMPUTED %INFO/TYPED %INFO/TYPED_ONLY\n' analysis/QC/15_final_processing/FULL/", study_name, ".FULL.vcf > analysis/QC/", study_name, ".impute_info"))
+  # }
+  # ),
+  
 )
 
 # vis_drake_graph(post_impute)
 
+
 qc_process <- drake_plan(
-
   imputed_var = count_imputed_var(),
-
-  missingness_variants_removed = {countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.bim"))[1] -
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_10.bim"))[1] +
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_10.bim"))[1] -
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_05.bim"))[1] +
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_05.bim"))[1] -
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_01.bim"))[1]},
-
-   missingness_indiv_removed = {countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1] -
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_10.fam"))[1] +
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_05.fam"))[1] -
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_mind_05.fam"))[1] +
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness_geno_01.fam"))[1] -
-    countLines(paste0("analysis/QC/03_missingness/", !!study_name, ".missingness.step3.fam"))[1]},
-
-  initial_variants = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.bim"))[1],
-  initial_ind = countLines(paste0("analysis/QC/02_maf_zero/", !!study_name, ".maf_zero.step2.fam"))[1],
-
+  
+  missingness_variants_removed = {
+    countLines(paste0(
+      "analysis/QC/02_maf_zero/",
+      !!study_name,
+      ".maf_zero.step2.bim"
+    ))[1] -
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_geno_10.bim"
+        )
+      )[1] +
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_mind_10.bim"
+        )
+      )[1] -
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_geno_05.bim"
+        )
+      )[1] +
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_mind_05.bim"
+        )
+      )[1] -
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_geno_01.bim"
+        )
+      )[1]
+  },
+  
+  missingness_indiv_removed = {
+    countLines(paste0(
+      "analysis/QC/02_maf_zero/",
+      !!study_name,
+      ".maf_zero.step2.fam"
+    ))[1] -
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_mind_10.fam"
+        )
+      )[1] +
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_geno_05.fam"
+        )
+      )[1] -
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_mind_05.fam"
+        )
+      )[1] +
+      countLines(
+        paste0(
+          "analysis/QC/03_missingness/",
+          !!study_name,
+          ".missingness_geno_01.fam"
+        )
+      )[1] -
+      countLines(paste0(
+        "analysis/QC/03_missingness/",
+        !!study_name,
+        ".missingness.step3.fam"
+      ))[1]
+  },
+  
+  initial_variants = countLines(
+    paste0(
+      "analysis/QC/02_maf_zero/",
+      !!study_name,
+      ".maf_zero.step2.bim"
+    )
+  )[1],
+  initial_ind = countLines(
+    paste0(
+      "analysis/QC/02_maf_zero/",
+      !!study_name,
+      ".maf_zero.step2.fam"
+    )
+  )[1],
+  
   preprocess_var_init = countLines(paste0(!!plink_bed_out, ".bim")),
   preprocess_ind_init = countLines(paste0(!!plink_bed_out, ".bim")),
-
-  preprocess_non_x = countLines(paste0("analysis/QC/00_preprocessing/non_autosome_or_x_variants")),
-  preprocess_non_x_remain = countLines(paste0("analysis/QC/00_preprocessing/temp1.bim")),
-
-  preprocess_var_dups = countLines(paste0("analysis/QC/00_preprocessing/duplicate_variants")),
-  preprocess_var_dups_remain = countLines(paste0("analysis/QC/00_preprocessing/temp2.bim")),
-
-
+  
+  preprocess_non_x = countLines(
+    paste0("analysis/QC/00_preprocessing/non_autosome_or_x_variants")
+  ),
+  preprocess_non_x_remain = countLines(paste0(
+    "analysis/QC/00_preprocessing/temp1.bim"
+  )),
+  
+  preprocess_var_dups = countLines(paste0(
+    "analysis/QC/00_preprocessing/duplicate_variants"
+  )),
+  preprocess_var_dups_remain = countLines(paste0(
+    "analysis/QC/00_preprocessing/temp2.bim"
+  )),
+  
+  
 )
 
 analysis_prep <- drake_plan(
   # prepare phenotype files for analysis in GWAS/GRS etc. ------------
-
-  pheno_raw = readr::read_delim(file_in(!!pheno_file), na = c("#pdt", "#ccannul", "#pam", "#di", "#pnc"), col_types = cols(.default = col_character()), delim = ",") %>% type_convert(),
-
+  
+  pheno_raw = readr::read_delim(
+    file_in(!!pheno_file),
+    na = c("#pdt", "#ccannul", "#pam", "#di", "#pnc"),
+    col_types = cols(.default = col_character()),
+    delim = ","
+  ) %>% type_convert(),
+  
   ## create a file with start and end dates for each particpant for extracting ECG data
-  pheno_dates = pheno_raw %>% group_by(GEN) %>% mutate(Date = as.Date(Date, format = '%d.%m.%y')) %>% mutate(min_date = min(Date, na.rm=T)) %>% mutate(max_date = max(Date, na.rm=T)) %>% dplyr::select(GEN, min_date, max_date) %>% unique(),
-  pheno_dates_out =  write.table(pheno_dates, file_out("output/PSYMETAB_inclusion_dates.txt"), row.names = F, quote = F, col.names = T),
-
-  caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet=1) %>% type_convert(),
-    hpc = FALSE),
+  pheno_dates = pheno_raw %>% group_by(GEN) %>% mutate(Date = as.Date(Date, format = '%d.%m.%y')) %>% mutate(min_date = min(Date, na.rm =
+                                                                                                                              T)) %>% mutate(max_date = max(Date, na.rm = T)) %>% dplyr::select(GEN, min_date, max_date) %>% unique(),
+  pheno_dates_out =  write.table(
+    pheno_dates,
+    file_out("output/PSYMETAB_inclusion_dates.txt"),
+    row.names = F,
+    quote = F,
+    col.names = T
+  ),
+  
+  caffeine_raw = target(read_excel(file_in(!!caffeine_file), sheet = 1) %>% type_convert(),
+                        hpc = FALSE),
   # found a mistake that the age of WIFRYNSK was wrong at one instance.
-
+  
   caffeine_munge = munge_caffeine(caffeine_raw),
   psymet_bgen_sample = target({
-    readr::read_delim(file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.sample")),
-      col_types = cols(.default = col_character()), delim = " ") %>% type_convert()
-    }),
-  psymet_bgen_nosex_out = write.table(psymet_bgen_sample[,1:3],file_out(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL_nosex.sample")),row.names = F, quote = F, col.names = T),
-  pc_raw = read_pcs(file_in(!!pc_dir), !!study_name, !!eths) %>% as_tibble(),
-
-  pheno_munge = munge_pheno(pheno_raw, !!baseline_vars, !!leeway_time, caffeine_munge, !!follow_up_6mo, !!follow_up_3mo, !!follow_up_1mo, !!interaction_outcome), # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
+    readr::read_delim(
+      file_in(
+        !!paste0(
+          "analysis/QC/15_final_processing/FULL/",
+          study_name,
+          ".FULL.sample"
+        )
+      ),
+      col_types = cols(.default = col_character()),
+      delim = " "
+    ) %>% type_convert()
+  }),
+  psymet_bgen_nosex_out = write.table(
+    psymet_bgen_sample[, 1:3],
+    file_out(
+      !!paste0(
+        "analysis/QC/15_final_processing/FULL/",
+        study_name,
+        ".FULL_nosex.sample"
+      )
+    ),
+    row.names = F,
+    quote = F,
+    col.names = T
+  ),
+  pc_raw = read_pcs(file_in(!!pc_dir),!!study_name,!!eths) %>% as_tibble(),
+  
+  pheno_munge = munge_pheno(
+    pheno_raw,
+    !!baseline_vars,
+    !!leeway_time,
+    caffeine_munge,
+    !!follow_up_6mo,
+    !!follow_up_3mo,
+    !!follow_up_1mo,
+    !!interaction_outcome
+  ),
+  # pheno_munge %>% count(GEN) %>% filter(n!=1) ## NO DUPLICATES !
   #pheno_munge = munge_pheno(pheno_raw, baseline_vars, leeway_time, caffeine_munge, follow_up_limit)
-  pheno_merge = merge_pheno_caffeine(pheno_raw, caffeine_munge, !!anonymization_error), # in the end, we don't use this dataset, but if you want to merge by caffeine with the appropriate date use this data.
-
-  pheno_baseline = inner_join(pc_raw %>% mutate_at("GPCR", as.character), pheno_munge %>% mutate_at("GEN", as.character), by = c("GPCR" = "GEN")) %>%
-    replace_na(list(sex='NONE')),
-  pheno_eths_out = write.table(pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
-    dplyr::select(COUNT,GPCR,eth ), file_out(!!paste0("data/processed/phenotype_data/", study_name, "_inferred_eths.txt")), row.names = F, quote = F, col.names = T),
-
-  pc_raw_out = write.table(pc_raw, file_out(!!paste0("data/processed/phenotype_data/", study_name, "_PCs.txt")), row.names = F, quote = F, col.names = T),
-
-  pheno_drug_combinations = define_pheno_drug_combos(!!drug_classes, !!interaction_vars),
-  pheno_followup = target(munge_pheno_follow(pheno_baseline, !!test_drugs, pheno_drug_combinations$class, pheno_drug_combinations$pheno, !!low_inducers, !!high_inducers),
-    dynamic = map(pheno_drug_combinations)), #names(pheno_followup) is the names defined in `test_drugs`: tibble
+  pheno_merge = merge_pheno_caffeine(pheno_raw, caffeine_munge,!!anonymization_error),
+  # in the end, we don't use this dataset, but if you want to merge by caffeine with the appropriate date use this data.
+  
+  pheno_baseline = inner_join(
+    pc_raw %>% mutate_at("GPCR", as.character),
+    pheno_munge %>% mutate_at("GEN", as.character),
+    by = c("GPCR" = "GEN")
+  ) %>%
+    replace_na(list(sex = 'NONE')),
+  pheno_eths_out = write.table(
+    pheno_baseline %>% tidyr::separate(FID, c("COUNT", "GPCR"), "_") %>%
+      dplyr::select(COUNT, GPCR, eth),
+    file_out(
+      !!paste0(
+        "data/processed/phenotype_data/",
+        study_name,
+        "_inferred_eths.txt"
+      )
+    ),
+    row.names = F,
+    quote = F,
+    col.names = T
+  ),
+  
+  pc_raw_out = write.table(
+    pc_raw,
+    file_out(
+      !!paste0("data/processed/phenotype_data/", study_name, "_PCs.txt")
+    ),
+    row.names = F,
+    quote = F,
+    col.names = T
+  ),
+  
+  pheno_drug_combinations = define_pheno_drug_combos(!!drug_classes,!!interaction_vars),
+  pheno_followup = target(
+    munge_pheno_follow(
+      pheno_baseline,
+      !!test_drugs,
+      pheno_drug_combinations$class,
+      pheno_drug_combinations$pheno,
+      !!low_inducers,
+      !!high_inducers
+    ),
+    dynamic = map(pheno_drug_combinations)
+  ),
+  #names(pheno_followup) is the names defined in `test_drugs`: tibble
   # follow-up data is smaller than baseline data because participants were filtered if who have they had taken drug but it wasn't followed (because we don't know when they would have taken the drug)
-
-  GWAS_input = create_GWAS_pheno(pheno_baseline, pheno_followup, !!caffeine_vars, !!test_drugs,
-    !!high_inducers, !!med_inducers, !!low_inducers, !!outcomes),
-
-
+  
+  GWAS_input = create_GWAS_pheno(
+    pheno_baseline,
+    pheno_followup,
+    !!caffeine_vars,
+    !!test_drugs,!!high_inducers,
+    !!med_inducers,
+    !!low_inducers,
+    !!outcomes
+  ),
+  
+  
   ## linear model GWAS:
   #linear_pheno = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|_start_Drug_1')),
   #linear_covar = pheno_baseline %>% dplyr::select(matches('^FID$|^IID$|^sex$|^Age_Drug_1$|Age_sq_Drug_1$|^PC[0-9]$|^PC[1][0-9]$|^PC20')),
   #pheno_followup_split = split_followup(pheno_followup, !!test_drugs),
   #followup_data_write = if(!is.null(create_pheno_folder)){ write_followup_data(pheno_followup_split)},
   out_pheno_munge =  target({
-    write.table(pheno_munge, file_out("data/processed/phenotype_data/GWAS_input/pheno_munge.txt"), row.names = F, quote = F, col.names = T)}),
-
+    write.table(
+      pheno_munge,
+      file_out(
+        "data/processed/phenotype_data/GWAS_input/pheno_munge.txt"
+      ),
+      row.names = F,
+      quote = F,
+      col.names = T
+    )
+  }),
+  
   out_linear_pheno =  target({
     GWAS_input
-    write.table(GWAS_input$full_pheno, file_out("data/processed/phenotype_data/GWAS_input/pheno_input.txt"), row.names = F, quote = F, col.names = T)}),
+    write.table(
+      GWAS_input$full_pheno,
+      file_out(
+        "data/processed/phenotype_data/GWAS_input/pheno_input.txt"
+      ),
+      row.names = F,
+      quote = F,
+      col.names = T
+    )
+  }),
   out_linear_covar =  target({
     GWAS_input
-    write.table(GWAS_input$full_covar, file_out("data/processed/phenotype_data/GWAS_input/covar_input.txt"), row.names = F, quote = F, col.names = T)}),
-
-  baseline_gwas_info = target(define_baseline_models(GWAS_input, !!baseline_vars, !!drug_classes, !!caffeine_vars, !!interaction_outcome),
-    hpc = FALSE),
-  interaction_gwas_info = target(define_interaction_models(GWAS_input, !!drug_classes, !!interaction_outcome, !!baseline_vars),
-    hpc = FALSE),
-  subgroup_gwas_info = target(define_subgroup_models(GWAS_input, !!drug_classes, !!interaction_outcome, !!baseline_vars),
-    hpc = FALSE),
-
+    write.table(
+      GWAS_input$full_covar,
+      file_out(
+        "data/processed/phenotype_data/GWAS_input/covar_input.txt"
+      ),
+      row.names = F,
+      quote = F,
+      col.names = T
+    )
+  }),
+  
+  baseline_gwas_info = target(
+    define_baseline_models(
+      GWAS_input,
+      !!baseline_vars,
+      !!drug_classes,
+      !!caffeine_vars,
+      !!interaction_outcome
+    ),
+    hpc = FALSE
+  ),
+  interaction_gwas_info = target(
+    define_interaction_models(
+      GWAS_input,
+      !!drug_classes,
+      !!interaction_outcome,
+      !!baseline_vars
+    ),
+    hpc = FALSE
+  ),
+  subgroup_gwas_info = target(
+    define_subgroup_models(
+      GWAS_input,
+      !!drug_classes,
+      !!interaction_outcome,
+      !!baseline_vars
+    ),
+    hpc = FALSE
+  ),
+  
   baseline_resid = target(
-    residualize_pheno(GWAS_input, pheno = baseline_gwas_info$pheno, covars = baseline_gwas_info$covars, outcome_type = "baseline", !!eths, eth_data = pc_raw),
+    residualize_pheno(
+      GWAS_input,
+      pheno = baseline_gwas_info$pheno,
+      covars = baseline_gwas_info$covars,
+      outcome_type = "baseline",
+      !!eths,
+      eth_data = pc_raw
+    ),
     dynamic = map(baseline_gwas_info)
   ),
-
+  
   baseline_resid_data = reduce(baseline_resid, inner_join),
-
+  
   interaction_resid = target(
-    residualize_pheno(GWAS_input, pheno = interaction_gwas_info$pheno, covars = interaction_gwas_info$covars, outcome_type = "interaction", !!eths, eth_data = pc_raw),
+    residualize_pheno(
+      GWAS_input,
+      pheno = interaction_gwas_info$pheno,
+      covars = interaction_gwas_info$covars,
+      outcome_type = "interaction",
+      !!eths,
+      eth_data = pc_raw
+    ),
     dynamic = map(interaction_gwas_info)
   ),
-
+  
   interaction_resid_data = reduce(interaction_resid, inner_join),
-
+  
   subgroup_resid = target(
-    residualize_pheno(GWAS_input, pheno = subgroup_gwas_info$pheno, covars = subgroup_gwas_info$covars, outcome_type = "subgroup", !!eths, eth_data = pc_raw),
+    residualize_pheno(
+      GWAS_input,
+      pheno = subgroup_gwas_info$pheno,
+      covars = subgroup_gwas_info$covars,
+      outcome_type = "subgroup",
+      !!eths,
+      eth_data = pc_raw
+    ),
     dynamic = map(subgroup_gwas_info)
   ),
   subgroup_resid_data = reduce(subgroup_resid, inner_join),
-
+  
   drug_classes_tibble = tibble(class = !!drug_classes),
-
+  
   out_baseline_resid =  target({
-    write.table(baseline_resid_data, file_out("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"), row.names = F, quote = F, col.names = T)}),
-
+    write.table(
+      baseline_resid_data,
+      file_out(
+        "data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"
+      ),
+      row.names = F,
+      quote = F,
+      col.names = T
+    )
+  }),
+  
   out_interacation_resid = target(
     write_interaction_resid(interaction_resid_data, drug_classes_tibble$class),
-    dynamic=map(drug_classes_tibble), format = "file"),
-
+    dynamic = map(drug_classes_tibble),
+    format = "file"
+  ),
+  
   out_subgroup_resid = target(
     write_subgroup_resid(subgroup_resid_data, drug_classes_tibble$class),
-    dynamic=map(drug_classes_tibble), format = "file"),
-
+    dynamic = map(drug_classes_tibble),
+    format = "file"
+  ),
+  
 )
 
 # vis_drake_graph(analysis_prep)
 
 # based on Zoltan's suggestion, divide PSYMETAB into subgroups based on different drugs such that each participant is only in one subgroup.
 
+
 analysis_prep_case_only <- drake_plan(
-
   interaction_vars_tibble = tibble(phenotype = !!interaction_vars),
-
-  pheno_case_only = target(munge_pheno_case_only(pheno_baseline, !!drug_prioritization, interaction_vars_tibble$phenotype, !!low_inducers, !!high_inducers),
-    dynamic = map(interaction_vars_tibble)),
-
-  GWAS_input_case_only = create_GWAS_pheno_case_only(pheno_baseline, pheno_case_only, !!caffeine_vars, !!test_drugs,
-    !!high_inducers, !!med_inducers, !!low_inducers, !!outcomes),
-
+  
+  pheno_case_only = target(
+    munge_pheno_case_only(
+      pheno_baseline,
+      !!drug_prioritization,
+      interaction_vars_tibble$phenotype,
+      !!low_inducers,
+      !!high_inducers
+    ),
+    dynamic = map(interaction_vars_tibble)
+  ),
+  
+  GWAS_input_case_only = create_GWAS_pheno_case_only(
+    pheno_baseline,
+    pheno_case_only,
+    !!caffeine_vars,
+    !!test_drugs,!!high_inducers,
+    !!med_inducers,
+    !!low_inducers,
+    !!outcomes
+  ),
+  
   out_case_only_pheno =  target({
     GWAS_input
-    write.table(GWAS_input_case_only$full_pheno, file_out("data/processed/phenotype_data/GWAS_input/case_only_pheno_input.txt"), row.names = F, quote = F, col.names = T)}),
+    write.table(
+      GWAS_input_case_only$full_pheno,
+      file_out(
+        "data/processed/phenotype_data/GWAS_input/case_only_pheno_input.txt"
+      ),
+      row.names = F,
+      quote = F,
+      col.names = T
+    )
+  }),
   out_case_only_covar =  target({
     GWAS_input
-    write.table(GWAS_input_case_only$full_covar, file_out("data/processed/phenotype_data/GWAS_input/case_only_covar_input.txt"), row.names = F, quote = F, col.names = T)}),
-
-
-  case_only_gwas_info = target(define_case_only_models(GWAS_input_case_only, !!drug_prioritization, !!interaction_outcome, !!baseline_vars),
-    hpc = FALSE),
-
-  case_only_resid = target(residualize_pheno_case_only(GWAS_input_case_only, pheno = case_only_gwas_info$pheno, covars = case_only_gwas_info$covars, outcome_type = "case_only", !!eths, eth_data = pc_raw),
-    dynamic = map(case_only_gwas_info)),
-
+    write.table(
+      GWAS_input_case_only$full_covar,
+      file_out(
+        "data/processed/phenotype_data/GWAS_input/case_only_covar_input.txt"
+      ),
+      row.names = F,
+      quote = F,
+      col.names = T
+    )
+  }),
+  
+  
+  case_only_gwas_info = target(
+    define_case_only_models(
+      GWAS_input_case_only,
+      !!drug_prioritization,
+      !!interaction_outcome,
+      !!baseline_vars
+    ),
+    hpc = FALSE
+  ),
+  
+  case_only_resid = target(
+    residualize_pheno_case_only(
+      GWAS_input_case_only,
+      pheno = case_only_gwas_info$pheno,
+      covars = case_only_gwas_info$covars,
+      outcome_type = "case_only",
+      !!eths,
+      eth_data = pc_raw
+    ),
+    dynamic = map(case_only_gwas_info)
+  ),
+  
   case_only_resid_data = reduce(case_only_resid, inner_join),
-
+  
   out_case_only_resid = target({
-    write.table(case_only_resid_data,
-    file_out("data/processed/phenotype_data/GWAS_input/case_only_input_resid.txt"), row.names = F, quote = F, col.names = T)}),
-
-
+    write.table(
+      case_only_resid_data,
+      file_out(
+        "data/processed/phenotype_data/GWAS_input/case_only_input_resid.txt"
+      ),
+      row.names = F,
+      quote = F,
+      col.names = T
+    )
+  }),
+  
+  
 )
 
 #analysis_prep_merge <- bind_plans(analysis_prep, analysis_prep_case_only)
@@ -409,7 +845,33 @@ init_analysis <- drake_plan(
   ),
 
   # get frequency counts for each GWAS
-
+  
+  
+  linear_freq_out = target({
+    #loadd(baseline_gwas_info
+    file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.log"))
+    run_gwas_freq_counts(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"),
+             pheno_file = file_in("data/processed/phenotype_data/GWAS_input/baseline_input_resid.txt"),
+             threads = 8, eths = !!eths,
+             eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+             eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+             remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+             output_dir = (!!plink_output_dir), output = paste0(!!study_name, "_FREQ"))}
+  ),
+  
+  interaction_freq_out = target({
+    check_interaction_input_files
+    file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.log"))
+    run_gwas_freq_counts(pfile = paste0("analysis/QC/15_final_processing/FULL/", !!study_name, ".FULL"), pheno_file = interaction_gwas_input$pheno_file,
+             covar_file = interaction_gwas_input$covar_file,type = "interaction",
+             threads = 8, covar_names = interaction_gwas_input$covars, parameters = interaction_gwas_input$parameters, output_suffix = interaction_gwas_input$output_suffix,
+             eths = !!eths, eth_sample_file = paste0("analysis/QC/12_ethnicity_admixture/pca/", !!study_name, "_ETH_samples.txt"),  ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+             eth_low_maf_file = paste0("analysis/QC/14_mafcheck/", !!study_name, "_ETH_low_maf_snps.txt"), ## this is not a real file - "ETH" gets replaced by proper "ETH" in `run_gwas`
+             remove_sample_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")),
+             output_dir = (!!plink_output_dir), output = paste0(!!study_name, "_FREQ"))},
+    dynamic = map(interaction_gwas_input)
+  ),
+  
   subgroup_freq_out = target({
     check_subgroup_input_files
     file_in(!!paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.log"))
@@ -563,7 +1025,10 @@ process_init <- drake_plan(
     hpc = FALSE),
 
   subgroup_freq_files = subgroup_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")) %>% filter(eth!="META"),
-  case_only_freq_files = case_only_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")) %>% filter(eth!="META_DRUGS"),
+  interaction_freq_files = interaction_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")) %>% filter(eth!="META"),
+  baseline_freq_files = baseline_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")) %>% filter(eth!="META"),
+  
+  case_only_freq_files = case_only_gwas_files %>% mutate_if(is.character, ~str_replace(., "PSYMETAB_GWAS", "PSYMETAB_GWAS_FREQ")) %>% filter(eth!="META_DRUGS") %>% filter(eth!="META"),
 
   check_baseline_files = target({
     baseline_gwas_files$log_file},
@@ -580,7 +1045,8 @@ process_init <- drake_plan(
   check_case_only_files = target({
     case_only_gwas_files$log_file},
     dynamic=map(case_only_gwas_files), format = "file"),
-
+  
+  ## save frequency statistics for subgroup and case only analyses
 
   check_subgroup_freq_files = target({
     subgroup_freq_files$log_file},
@@ -590,13 +1056,25 @@ process_init <- drake_plan(
     case_only_freq_files$log_file},
     dynamic=map(case_only_freq_files), format = "file"),
 
+  check_interaction_freq_files = target({
+    interaction_freq_files$log_file},
+    dynamic=map(interaction_freq_files), format = "file"),
+  
+  check_baseline_freq_files = target({
+    baseline_freq_files$log_file},
+    dynamic=map(baseline_freq_files), format = "file"),
+  
   # write formatted GWAS file ---------------------------
-
+  
+  gwas_reference_file_out = create_gwas_reference_file(freq_file = "analysis/QC/15_final_processing/CEU/PSYMETAB_GWAS.CEU.afreq", info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", 
+                        output_file = file_out("analysis/GWAS/GWAS_reference_file.txt")),
+  
   process_baseline_gwas = target({
     check_baseline_files
+    gwas_reference_file_out
     process_gwas(eth = baseline_gwas_files$eth, pheno=baseline_gwas_files$pheno, drug=baseline_gwas_files$drug, file=baseline_gwas_files$plink_file,
       output = !!study_name, output_dir = "analysis/GWAS", type = "full",
-      info_file = paste0("analysis/QC/15_final_processing/", !!study_name, ".info"), out_file = baseline_gwas_files$processed_file)
+      reference_file = file_in("analysis/GWAS/GWAS_reference_file.txt"), out_file = baseline_gwas_files$processed_file)
     baseline_gwas_files$processed_file
     },
     dynamic = map(baseline_gwas_files), format = "file"
@@ -626,9 +1104,10 @@ process_init <- drake_plan(
 
   process_interaction_gwas = target({
     check_interaction_files
+    gwas_reference_file_out
     process_gwas(eth = interaction_gwas_files$eth, pheno=interaction_gwas_files$pheno, drug=interaction_gwas_files$drug, file=interaction_gwas_files$plink_file,
       output = !!study_name, output_dir = "analysis/GWAS", type = "interaction",
-      info_file = paste0("analysis/QC/15_final_processing/", !!study_name, ".info"), out_file = interaction_gwas_files$processed_file)
+      reference_file = file_in("analysis/GWAS/GWAS_reference_file.txt"), out_file = interaction_gwas_files$processed_file)
     interaction_gwas_files$processed_file
     },
     dynamic = map(interaction_gwas_files), format = "file"
@@ -657,9 +1136,10 @@ process_init <- drake_plan(
 
   process_subgroup_gwas = target({
     check_subgroup_files
+    gwas_reference_file_out
     process_gwas(eth = subgroup_gwas_files$eth, pheno=subgroup_gwas_files$pheno, drug=subgroup_gwas_files$drug, file=subgroup_gwas_files$plink_file,
       output = !!study_name, output_dir = "analysis/GWAS", type = "subgroup",
-      info_file = paste0("analysis/QC/15_final_processing/", !!study_name, ".info"), out_file = subgroup_gwas_files$processed_file)
+      reference_file = file_in("analysis/GWAS/GWAS_reference_file.txt"), out_file = subgroup_gwas_files$processed_file)
     subgroup_gwas_files$processed_file
     },
     dynamic = map(subgroup_gwas_files),
@@ -691,9 +1171,10 @@ process_init <- drake_plan(
 
   process_case_only_gwas = target({
     check_case_only_files
+    gwas_reference_file_out
     process_gwas(eth = case_only_gwas_files_mod$eth_mod, pheno=case_only_gwas_files_mod$pheno, drug=case_only_gwas_files_mod$drug, file=case_only_gwas_files_mod$plink_file,
       output = !!study_name, output_dir = "analysis/GWAS", type = "case_only",
-      info_file = paste0("analysis/QC/15_final_processing/", !!study_name, ".info"), out_file = case_only_gwas_files_mod$processed_file)
+      reference_file = file_in("analysis/GWAS/GWAS_reference_file.txt"), out_file = case_only_gwas_files_mod$processed_file)
     case_only_gwas_files_mod$processed_file
     },
     dynamic = map(case_only_gwas_files_mod), format = "file"
@@ -723,70 +1204,77 @@ process_init <- drake_plan(
   # extract nominally significant results (results in a list of nominally significant tibbles)---------------------------
 
   baseline_gwas_sig = target({
-
+    check_baseline_freq_files
     process_baseline_gwas
-    gw_sig_extract(gwas_file = baseline_gwas_files$processed_file, !!gw_sig_nominal, eth = baseline_gwas_files$eth,
+    gw_sig_extract(gwas_file = baseline_gwas_files$processed_file, gz_plink_file = baseline_gwas_files$plink_file, !!gw_sig_nominal, eth = baseline_gwas_files$eth,
       pheno = baseline_gwas_files$pheno, drug_class = NA, drug = baseline_gwas_files$drug)
     },
     dynamic = map(baseline_gwas_files)
   ),
 
   interaction_gwas_sig = target({
-
+    check_interaction_freq_files
     process_interaction_gwas
-    gw_sig_extract(gwas_file = interaction_gwas_files$processed_file, !!gw_sig_nominal, eth = interaction_gwas_files$eth,
-      pheno = interaction_gwas_files$pheno, drug_class = interaction_gwas_files$drug_class, drug = interaction_gwas_files$drug)
+    gw_sig_extract(gwas_file = interaction_gwas_files$processed_file, gz_plink_file = interaction_gwas_files$plink_file, !!gw_sig_nominal, eth = interaction_gwas_files$eth,
+      pheno = interaction_gwas_files$pheno, drug_class = interaction_gwas_files$drug_class, drug = interaction_gwas_files$drug, interaction = T)
     },
     dynamic = map(interaction_gwas_files)
   ),
 
   subgroup_gwas_sig = target({
-
+    check_subgroup_freq_files
     process_subgroup_gwas
-    gw_sig_extract(gwas_file = subgroup_gwas_files$processed_file, !!gw_sig_nominal, eth = subgroup_gwas_files$eth,
+    gw_sig_extract(gwas_file = subgroup_gwas_files$processed_file, gz_plink_file = subgroup_gwas_files$plink_file, !!gw_sig_nominal, eth = subgroup_gwas_files$eth,
       pheno = subgroup_gwas_files$pheno, drug_class = subgroup_gwas_files$drug_class, drug = subgroup_gwas_files$drug)
     },
     dynamic = map(subgroup_gwas_files)
   ),
 
   case_only_gwas_sig = target({
-
+    check_case_only_freq_files
     process_case_only_gwas
-    gw_sig_extract(gwas_file = case_only_gwas_files_mod$processed_file, !!gw_sig_nominal, eth = case_only_gwas_files_mod$eth,
+    gw_sig_extract(gwas_file = case_only_gwas_files_mod$processed_file, gz_plink_file = case_only_gwas_files_mod$plink_file, !!gw_sig_nominal, eth = case_only_gwas_files_mod$eth,
       pheno = case_only_gwas_files_mod$pheno, drug_class = NA, drug = case_only_gwas_files_mod$drug)
     },
     dynamic = map(case_only_gwas_files_mod)
   ),
-  # combined nominally significant results into one tibble ---------------------------
 
+  case_only_celine_extract = target({
+    #chr = 10 #BP_start=61815632 # BP_stop=61820501
+    #BP+- 500K around 61834898
+    check_case_only_freq_files
+    process_case_only_gwas
+    region_extract(gwas_file = case_only_gwas_files_mod$processed_file, gz_plink_file = case_only_gwas_files_mod$plink_file, chr = 10, bp_start = 61834898-500000, bp_stop = 61834898 + 500000, eth = case_only_gwas_files_mod$eth,
+                   pheno = case_only_gwas_files_mod$pheno, drug_class = NA, drug = case_only_gwas_files_mod$drug)
+  },
+  dynamic = map(case_only_gwas_files_mod)
+  ),
+  
+  
   baseline_gwas_sig_clean = target(clean_gwas_summary(baseline_gwas_sig), dynamic = map(baseline_gwas_sig)),
   interaction_gwas_sig_clean = target(clean_gwas_summary(interaction_gwas_sig), dynamic = map(interaction_gwas_sig)),
   subgroup_gwas_sig_clean = target(clean_gwas_summary(subgroup_gwas_sig), dynamic = map(subgroup_gwas_sig)),
-
+  
   case_only_gwas_sig_clean = target(clean_case_only_summary(case_only_gwas_sig),
     dynamic = map(case_only_gwas_sig)),
+  
+  case_only_celine_extract_clean = target(clean_case_only_summary(case_only_celine_extract),
+                                    dynamic = map(case_only_celine_extract)),
+  
+  # combined nominally significant results into one tibble ---------------------------
 
   baseline_gwas_nom_com = bind_rows(baseline_gwas_sig_clean, .id = "pheno_name"),
   interaction_gwas_nom_com = bind_rows(interaction_gwas_sig_clean, .id = "pheno_name"),
   subgroup_gwas_nom_com = bind_rows(subgroup_gwas_sig_clean, .id = "pheno_name"),
   case_only_gwas_nom_com = bind_rows(case_only_gwas_sig_clean, .id = "pheno_name"),
-
+  
+  case_only_celine_extract_com = bind_rows(case_only_celine_extract_clean, .id = "pheno_name"),
   # filter above nominally significant results into GW-significant results  ---------------------------
 
   baseline_gwas_sig_com = baseline_gwas_nom_com %>% filter(P < !!gw_sig),
   interaction_gwas_sig_com = interaction_gwas_nom_com %>% filter(P < !!gw_sig),
   subgroup_gwas_sig_com = subgroup_gwas_nom_com %>% filter(P < !!gw_sig),
   case_only_gwas_sig_com = case_only_gwas_nom_com %>% filter(P < !!gw_sig),
-
-  case_only_gwas_sig_meta = case_only_gwas_sig_com %>% filter(group=="META_DRUGS"),
-
-  # filter into only categories of interest ---------------------------
-
-  baseline_interest = baseline_gwas_sig_com %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", pheno)),
-  subgroup_interest = subgroup_gwas_sig_com %>% filter(drug=="Drug") %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", drug_class)) %>% filter(grepl("BMI", pheno)),
-
-  write_baseline_interest = write.csv(baseline_interest,  file_out("output/PSYMETAB_GWAS_baseline_CEU_result.csv"),row.names = F),
-  write_subgroup_interest = write.csv(subgroup_interest,  file_out("output/PSYMETAB_GWAS_subgroup_CEU_result.csv"),row.names = F),
 
   # count significant results ---------------------------
 
@@ -814,13 +1302,101 @@ process_init <- drake_plan(
       related_ids_file = file_in(!!paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt")))
   }, dynamic = map(subgroup_gwas_process)),
 
+  # filter into only categories of interest ---------------------------
+  
+  baseline_interest = baseline_gwas_sig_com %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", pheno)),
+  subgroup_interest = subgroup_gwas_sig_com %>% filter(drug=="Drug") %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", drug_class)) %>% filter(grepl("BMI", pheno)),
+  case_only_interest = case_only_gwas_sig_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI"),
+  
+  case_only_celine_interest = case_only_celine_extract_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI"),
+  
   # extract model specific results for case-only and pull Q-statistic
-
-  case_only_meta_summ = target(summarize_case_only_meta(case_only_gwas_sig_meta$SNP, case_only_gwas_sig_meta$eth, case_only_gwas_sig_meta$variable, case_only_gwas_sig_meta$outcome,
-    !!study_name, !!drug_prioritization, directory = "analysis/GWAS/case_only"),
-    dynamic=map(case_only_gwas_sig_meta)
-  )
-
+  
+  case_only_interest_summarize = target(summarize_case_only_meta(case_only_interest$SNP, case_only_interest$eth, case_only_interest$variable, case_only_interest$outcome,
+                                                                 !!study_name, !!drug_prioritization, directory = "analysis/GWAS/case_only"),
+                                        dynamic=map(case_only_interest)
+  ),
+  
+  #case_only_celine_interest_summarize = target(summarize_case_only_meta(case_only_celine_interest$SNP, case_only_celine_interest$eth, case_only_celine_interest$variable, case_only_celine_interest$outcome,
+  #                                                                      !!study_name, !!drug_prioritization, directory = "analysis/GWAS/case_only"),
+  #                                             dynamic=map(case_only_celine_interest)
+  #),
+  
+  
+  subgroup_interest_prune = crude_prune(subgroup_interest, grouping_var = "pheno_name"), # prune by position
+  
+  ## Define list of SNPs that are significant in case_only and subgroup models and extract these SNPs from files of interest 
+  
+  SNPs_interest = c(case_only_interest$SNP, subgroup_interest$SNP),
+  
+  SNPs_interest_chr = tibble(chr = c(case_only_interest$CHR, subgroup_interest$CHR), rsid = SNPs_interest), 
+  consort_files = list.files(!!paste0(consortia_dir, "/formatted"), full.names = TRUE), 
+  
+  check_consort_files = target({
+    consort_files},
+    dynamic=map(consort_files), format = "file"),
+  
+  consort_extract = target({
+    check_consort_files
+    consort_lookup(SNPs_interest, consort_files)
+  }, dynamic = map(consort_files)),  
+  
+  consort_extract_agg = rbindlist(consort_extract),
+  
+  ## have the lists be sorted SNPs instead of by consort
+  
+  consort_extract_snpwise = target({
+    temp <- consort_extract_agg  %>% group_by(SNP) 
+    out <- temp %>% group_split() %>% set_names(unlist(group_keys(temp)))  
+  }
+  ),
+  
+  ## check if significant snps (`SNPs_interest`) have consitent findings in similar GWAS (i.e. 3 mo, 6 mo, full)
+  
+  case_only_extract = target({
+    check_case_only_freq_files
+    process_case_only_gwas
+    snp_psymetab_extract(gwas_file = case_only_gwas_files_mod$processed_file, gz_plink_file = case_only_gwas_files_mod$plink_file, SNPs_interest, eth = case_only_gwas_files_mod$eth,
+                         pheno = case_only_gwas_files_mod$pheno, drug_class = NA, drug = case_only_gwas_files_mod$drug)
+  },
+  dynamic = map(case_only_gwas_files_mod)
+  ),
+  
+  subgroup_extract = target({
+    check_subgroup_freq_files
+    process_subgroup_gwas
+    snp_psymetab_extract(gwas_file = subgroup_gwas_files$processed_file, gz_plink_file = subgroup_gwas_files$plink_file, SNPs_interest, eth = subgroup_gwas_files$eth,
+                         pheno = subgroup_gwas_files$pheno, drug_class = subgroup_gwas_files$drug_class, drug = subgroup_gwas_files$drug)
+  },
+  dynamic = map(subgroup_gwas_files)
+  ),
+  
+  case_only_extract_agg = rbindlist(case_only_extract, fill=T),
+  case_only_extract_snpwise = target({
+    temp <- case_only_extract_agg  %>% group_by(SNP) 
+    out <- temp %>% group_split() %>% set_names(unlist(group_keys(temp)))  
+  }
+  ),
+  
+  case_only_extract_snpwise_clean = target({
+    clean_case_only_snpwise(case_only_extract_snpwise)
+  }, dynamic = map(case_only_extract_snpwise)
+  ),
+  
+  subgroup_extract_agg = rbindlist(subgroup_extract,  fill=T),
+  
+  ## have the lists be sorted SNPs instead of by consort
+  subgroup_extract_snpwise = target({
+    temp <- subgroup_extract_agg  %>% group_by(SNP) 
+    out <- temp %>% group_split() %>% set_names(unlist(group_keys(temp)))  
+  }
+  ),
+  
+  write_baseline_interest = write.csv(baseline_interest,  file_out("output/PSYMETAB_GWAS_baseline_CEU_result.csv"),row.names = F),
+  write_subgroup_interest = write.csv(subgroup_interest,  file_out("output/PSYMETAB_GWAS_subgroup_CEU_result.csv"),row.names = F),
+  write_case_only_interest = write.csv(case_only_interest_summarize,  file_out("output/PSYMETAB_GWAS_case_only_CEU_meta_result.csv"),row.names = F),
+  #write_case_only_celine_interest = write.csv(case_only_celine_interest_summarize,  file_out("output/PSYMETAB_GWAS_celine_extract.csv"),row.names = F),
+  
 )
 
 # vis_drake_graph(process_init)
@@ -873,58 +1449,63 @@ ukbb_analysis <- drake_plan(
 
 
     ukbb_filter_all = c(ukbb_filter_bmi_slope, ukbb_filter_drug_users_bmi),
-
+    
+    # ### 28/05/2021: UKBB GWAS - NEEDS TO BE RE-RUN ADJUSTING FOR BMI BUT TAKES SOME TIME
+    
     # residualize and ivt
-    ukbb_resid_list = target(resid_ukbb(ukbb_filter_all, ukbb_org, ukb_key, sqc_munge, !!sex_var, !!age_var),
-      dynamic = map(ukbb_filter_all)),
-
-    ukbb_resid_join = reduce(ukbb_resid_list, full_join),
-    #ukbb_resid_bmi_slope = resid_ukbb(ukbb_filter_bmi_slope, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
-    ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid_join),
-
-
-    ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/ukbb_GWAS"), sep=" ", quote=F, row.names=F, col.names = T),
-
-    #chr_num = tibble(chr = 1:22),
-
-    v2_snp_list_files = create_UKBB_v2_snp_list(!!UKBB_processed),
-
-    check_v2_snp_list_files = target({
-      c(v2_snp_list_files$v2_snp_list_files)},
-      dynamic = map(v2_snp_list_files), format = "file"),
-
-    chunk_ukbb = target({
-      check_v2_snp_list_files
-      make_ukbb_chunks(v2_snp_list_files$v2_snp_list_files, chunk_size=1e6)
-    }, dynamic = map(v2_snp_list_files)),
-
-    chunk_ukbb_run = as_tibble(chunk_ukbb),
-
-    bgenie_out = target({
-      ukbb_bgen_out
-      if(!file.exists(paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz"))){
-        launch_bgenie(chunk_ukbb_run$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), !!UKBB_dir, chunk_ukbb_run$chr_char, chunk_ukbb_run$start, chunk_ukbb_run$end, chunk_ukbb_run$chunk_num)
-      }
-      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz")
-    }, dynamic = map(chunk_ukbb_run), format = "file"),
-
-    # Not all runs will produce a file, because there are no variants in the selected chunk, for example:
-    # launch_bgenie(chunk_ukbb_run$chr[133], phenofile = ("data/processed/ukbb_data/ukbb_GWAS"), UKBB_dir, chunk_ukbb_run$chr_char[133], chunk_ukbb_run$start[133], chunk_ukbb_run$end[133], chunk_ukbb_run$chunk_num[133])
-
-    bgenie_unzip = target({
-      bgenie_out
-      if(!file.exists(paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out"))){
-        unzip_bgenie(chunk_ukbb_run$chr, chunk_ukbb_run$chunk_num)
-      }
-      paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out")
-    }, dynamic = map(chunk_ukbb_run), format = "file"),
-
-    ukbb_gwas = {
-      bgenie_unzip
-      process_bgenie(directory="analysis/GWAS/UKBB/", extension=".out", HRC_panel=file_in(!!HRC_panel))
-    },
-    bgenie_process_out = fwrite(ukbb_gwas, file_out("analysis/GWAS/UKBB/UKBB_bgenie_HRC_filtered.txt"), row.names=F, quote=F, sep = "\t"),
-
+    # ukbb_resid_list = target(resid_ukbb(ukbb_filter_all, ukbb_org, ukb_key, sqc_munge, !!bmi_var, !!sex_var, !!age_var),
+    #   dynamic = map(ukbb_filter_all)),
+    # 
+    # ukbb_resid_join = reduce(ukbb_resid_list, full_join),
+    # #ukbb_resid_bmi_slope = resid_ukbb(ukbb_filter_bmi_slope, ukb_key, sqc_munge, outcome = "bmi_slope", !!bmi_var, !!sex_var, !!age_var),
+    # ukbb_bgen_order = order_bgen(ukbb_bgen_sample, ukbb_resid_join),
+    # 
+    # 
+    # ukbb_bgen_out = write.table(ukbb_bgen_order, file_out("data/processed/ukbb_data/ukbb_GWAS"), sep=" ", quote=F, row.names=F, col.names = T),
+    # 
+    # #chr_num = tibble(chr = 1:22),
+    # 
+    # v2_snp_list_files = create_UKBB_v2_snp_list(!!UKBB_processed),
+    # 
+    # check_v2_snp_list_files = target({
+    #   c(v2_snp_list_files$v2_snp_list_files)},
+    #   dynamic = map(v2_snp_list_files), format = "file"),
+    # 
+    # chunk_ukbb = target({
+    #   check_v2_snp_list_files
+    #   make_ukbb_chunks(v2_snp_list_files$v2_snp_list_files, chunk_size=1e6)
+    # }, dynamic = map(v2_snp_list_files)),
+    # 
+    # chunk_ukbb_run = as_tibble(chunk_ukbb),
+    # 
+    # 
+     
+    # bgenie_out = target({
+    #   ukbb_bgen_out
+    #   if(!file.exists(paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz"))){
+    #     launch_bgenie(chunk_ukbb_run$chr, phenofile = file_in("data/processed/ukbb_data/ukbb_GWAS"), !!UKBB_dir, chunk_ukbb_run$chr_char, chunk_ukbb_run$start, chunk_ukbb_run$end, chunk_ukbb_run$chunk_num)
+    #   }
+    #   paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out.gz")
+    # }, dynamic = map(chunk_ukbb_run), format = "file"),
+    # 
+    # # Not all runs will produce a file, because there are no variants in the selected chunk, for example:
+    # # launch_bgenie(chunk_ukbb_run$chr[133], phenofile = ("data/processed/ukbb_data/ukbb_GWAS"), UKBB_dir, chunk_ukbb_run$chr_char[133], chunk_ukbb_run$start[133], chunk_ukbb_run$end[133], chunk_ukbb_run$chunk_num[133])
+    # 
+    # bgenie_unzip = target({
+    #   bgenie_out
+    #   if(!file.exists(paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out"))){
+    #     unzip_bgenie(chunk_ukbb_run$chr, chunk_ukbb_run$chunk_num)
+    #   }
+    #   paste0("analysis/GWAS/UKBB/chr", chunk_ukbb_run$chr, "_chunk", chunk_ukbb_run$chunk_num, ".out")
+    # }, dynamic = map(chunk_ukbb_run), format = "file"),
+    # 
+    # ukbb_gwas = {
+    #   bgenie_unzip
+    #   process_bgenie(directory="analysis/GWAS/UKBB/", extension=".out", HRC_panel=file_in(!!HRC_panel))
+    # },
+    # bgenie_process_out = fwrite(ukbb_gwas, file_out("analysis/GWAS/UKBB/UKBB_bgenie_HRC_filtered.txt"), row.names=F, quote=F, sep = "\t"),
+    
+    
 )
 
 # vis_drake_graph(ukbb_analysis)
@@ -965,7 +1546,7 @@ ukbb_control <- drake_plan(
   psy_ukbb_het = target(calc_het(psy_UKBB_harmonize, "SNP", "BETA", "bmi_slope_resid_beta_UKBB", "SE", "bmi_slope_resid_se_UKBB", "match_description"),
     dynamic = map(psy_UKBB_harmonize)),
 
-  psy_ukbb_het_prune = target(prune_psy(psy_ukbb_het),
+  psy_ukbb_het_prune = target(prune_psy_ukbb(psy_ukbb_het),
     dynamic = map(psy_ukbb_het)),
 
   psy_ukbb_het_prune_interest = {
@@ -998,11 +1579,43 @@ ukbb_replication <- drake_plan(
   bmi_slope_corr_data = target(corr_bmi_slope(ukbb_filter_bmi_slope, ukbb_org, ukb_key, !!bmi_var),
     dynamic = map(ukbb_filter_bmi_slope)),
 
-  #bmi_slope_corr
-
 )
 
-ukbb <- bind_plans(ukbb_analysis, ukbb_control, ukbb_replication)
+ukbb_icd_vs_drug <- drake_plan(
+  
+  ukbb_diagnoses = ukb_icd_diagnosis(ukbb_org, ukbb_org$eid, icd.version = 10),
+  
+  # ICD10 diagnoses: https://biobank.ctsu.ox.ac.uk/showcase/field.cgi?id=41270
+  ukbb_psychiatric_icd10 = ukbb_diagnoses %>% filter(grepl('^F', code)), 
+  ukbb_psychiatric_icd10_samples = ukbb_psychiatric_icd10 %>% pull(sample) %>% unique(),
+  
+  ukbb_psy_subgroups = create_ukbb_psy_subgroups(ukbb_munge_drug_users, ukbb_psychiatric_icd10_samples), 
+  ukbb_psy_subgroups_bmi_slope = ukbb_subgroups_add_var(ukbb_psy_subgroups, ukbb_filter_bmi_slope$bmi_slope), 
+  
+  ukbb_psy_subgroups_filter_bmi_slope = target(filter_ukbb(ukbb_psy_subgroups_bmi_slope, relatives, exclusion_list, british_subset),
+                                      dynamic = map(ukbb_psy_subgroups_bmi_slope)),
+
+  
+  # residualize and ivt
+  ukbb_psy_subgroups_resid_bmi_slope = target(resid_ukbb(ukbb_psy_subgroups_filter_bmi_slope, ukbb_org, ukb_key, sqc_munge, !!bmi_var, !!sex_var, !!age_var),
+                           dynamic = map(ukbb_psy_subgroups_filter_bmi_slope)),
+  
+  ukbb_geno = load_geno(ukbb_bgen_sample, SNPs_interest_chr, !!UKBB_dir),
+  
+  ukbb_psy_subgroups_assoc = target(ukbb_resid_geno_assoc(ukbb_psy_subgroups_resid_bmi_slope, ukbb_geno), 
+         dynamic = map(ukbb_psy_subgroups_resid_bmi_slope)), 
+  
+  ukbb_psy_subgroups_assoc_agg = rbindlist(ukbb_psy_subgroups_assoc),
+  
+  
+  ukbb_psy_subgroups_assoc_snpwise = target({
+    temp <- ukbb_psy_subgroups_assoc_agg  %>% group_by(snp) 
+    out <- temp %>% group_split() %>% set_names(unlist(group_keys(temp)))  
+  }
+  ),
+  
+)
+
 
 
 

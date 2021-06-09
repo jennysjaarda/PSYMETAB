@@ -9,18 +9,6 @@ navbar:
     href: about.html
   - text: Setup
     href: setup.html
-  - text: Project
-    menu:
-    - text: GWAS
-      menu:
-      - text: "GWAS methods"
-        href: GWAS_method.html
-      - text: "GWAS results"
-        href: GWAS_results.html
-  - text: Meetings
-    menu:
-    - text: "Update with Zoltan 25-09-2020"
-      href: Zoltan_meeting_25_09_2020.html
   right:
   - icon: fa-github
     text: Source code

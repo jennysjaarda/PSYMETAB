@@ -31,6 +31,7 @@ output:
 - Subgroups were created in UKBB based on drug use.
 - Because the number of participants in the UKBB with both multiple measures for BMI **and** under a psychiatric of interest is very small, BMI itself was used as a proxy for evolution of BMI.
 - For more details see: [GWAS UKBB replication](GWAS_UKBB_replication.html).
+- Unfortunately, BMI was not a good proxy for BMI slope so we had to restrict to only participants with >2 measures of BMI to replicate. 
 
 ### 4. Case-only analysis.
 - There was also interest to identify SNPs linked to an evolution of BMI in the general psychiatric population (i.e. all PSYMETAB regardless of which drug being taken).

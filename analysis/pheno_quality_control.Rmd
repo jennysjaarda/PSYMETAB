@@ -20,9 +20,9 @@ options(width = 150)
 
 ```{r setup, include = FALSE}
 options(scipen=999)
-source("code/packages.R")
-source("code/functions.R")
-source("code/settings.R")
+source("R/packages.R")
+source("R/functions.R")
+source("R/settings.R")
 ```
 
 **The following document outlines and summarizes the phenotypic quality control and processing procedure that was followed to create a clean dataset.**
@@ -55,38 +55,53 @@ pheno_raw <- readr::read_delim(pheno_file, col_types = cols(.default = col_chara
 process_pheno_raw <- function(pheno_raw) {
   
   output <- pheno_raw %>%
-    
-    mutate(Date = as.Date(Date, format = '%d.%m.%Y')) %>% arrange(Date)  %>%
-    mutate(AP1 = gsub(" ", "_", AP1)) %>% mutate_at("AP1", as.factor) %>%
-    mutate(AP1 = gsub("_.*$", "", AP1)) %>%
-    mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
+    mutate_all( ~ replace(., . == 999, NA)) %>% filter(!is.na(PatientsTaille) &
+                                                         !is.na(Poids)) %>%
+    mutate(Date = as.Date(Date, format = '%d.%m.%y'))  %>%
+    filter(!is.na(Date)) %>% arrange(PatientsRecNum, Date)  %>%
+    mutate(AP1 = gsub(" ", "_", AP1)) %>% mutate_at("AP1", as.factor) %>% mutate(AP1 = gsub("_.*$", "", AP1)) %>% mutate(AP1 = na_if(AP1, "")) %>% ## merge retard/depot with original
+    filter(!is.na(AP1)) %>%
+    group_by(GEN) %>%  mutate(sex = check_sex(Sexe)) %>%  filter(!is.na(Sexe)) %>% ## if any sex is missing take sex from other entries
+    ungroup() %>%
+    filter(remove_outliers(PatientsTaille)) %>%  # this removes patients with the following heights (cm): 106 106 106 106 106 106 106 106 116  96  96  90
+    #filter(remove_outliers(Poids)) %>%
     group_by(GEN) %>%
-    mutate(sex = check_sex(Sexe)) %>%
-    mutate_at("PatientsTaille", as.numeric) %>%
-    mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
-    mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %>%
-    ungroup() %>%  ### create ever on any drug
-    mutate(BMI = Poids / (PatientsTaille / 100) ^ 2) %>%
+    mutate_at("PatientsTaille", as.numeric) %>% mutate(height = check_height(PatientsTaille)) %>% ### take average of all heights
+    mutate_at(vars(Quetiapine:Doxepine), list(ever_drug = ever_drug)) %>% ungroup() %>%  ### create ever on any drug
+    rename(weight = Poids) %>%
+    mutate(BMI = weight / (height / 100) ^ 2) %>% filter(!is.na(BMI)) %>% ## create BMI
     group_by(GEN, PatientsRecNum) %>% mutate(drug_instance = row_number()) %>%
     mutate(date_difference = as.numeric(difftime(lag(Date), Date, units = "days"))) %>%
     mutate(
-      follow_up = case_when(
-        Mois > 12 ~ "greater_12months",
-        date_difference > 0 ~ "month_descrepency",
-        Mois == 0 ~ "new_regimen",
-        abs(date_difference) >= (Mois - lag(Mois)) *
-          30 - leeway_time &
-          abs(date_difference) <= (Mois - lag(Mois)) * 30 + leeway_time ~ "sensible",
-        is.na(date_difference) ~ "NA",
-        ### these are follow-ups that didn't start at month 0
-        TRUE ~ "leeway_exceeds"
+      AP1 = case_when(
+        AP1 == "Risperdal" ~ "Risperidone",
+        AP1 == "Paliperidone" ~ "Risperidone",
+        TRUE ~ AP1
       )
     ) %>%
-    mutate(AP1_mod = paste0(AP1, "_round", rename_meds(follow_up))) %>%
-    mutate(problems = case_when(Mois < lag(Mois) |
-                                  date_difference >= 0 ~ "problem",
-                                TRUE ~ "fine")) %>%
-    mutate(drug_match = check_drug(PatientsRecNum, AP1))
+    mutate(
+      follow_up = case_when(
+        abs(date_difference) >= (Mois - lag(Mois)) * 30 - leeway_time &
+          abs(date_difference) <= (Mois - lag(Mois)) * 30 + leeway_time ~ "sensible",
+        is.na(date_difference) ~ "NA",
+        Mois == 0 ~ "new_regimen",
+        date_difference < 0 ~ "leeway_exceeds",
+        TRUE ~ "dupliate"
+      )
+    ) %>%
+    mutate(
+      month_descrepency = case_when(
+        Mois < lag(Mois) | date_difference >= 0 ~ "month_discrepency",
+        TRUE ~ "sensible"
+      )
+    ) %>%
+    mutate(drug_match = check_drug(PatientsRecNum, AP1)) %>%
+    mutate(date_difference_first =  as.numeric(difftime(Date, first(Date)), units = "days")) %>%
+    ungroup() %>%
+    
+    group_by(GEN) %>%
+    mutate(AP1_mod = rename_meds(AP1, PatientsRecNum, Date)) %>%
+    ungroup()
   
   return(output)
 
@@ -122,11 +137,11 @@ head(leeway_exceeds)
 t %>% filter(GEN=="YSFHMSHX") %>% dplyr::select(follow_up, Date, date_difference, Mois)
 
 ## month discrepency
-problem_ids <- t %>% filter(problems == "problem") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+problem_ids <- t %>% filter(month_descrepency == "month_discrepency") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
   mutate(problem_category = "month_discrepency")
 
 head(problem_ids)
-t %>% filter(GEN=="JWWJQJGS") %>% dplyr::select(follow_up, Date, date_difference, Mois, problems)
+t %>% filter(GEN=="JWWJQJGS") %>% dplyr::select(follow_up, Date, date_difference, Mois, month_descrepency)
 
 # drug mismatch
 problem_drugs <- t %>% filter(drug_match=="non-match") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
@@ -188,7 +203,7 @@ leeway_exceeds <- t %>% filter(follow_up == "leeway_exceeds") %>% dplyr::select(
   mutate(problem_category = "month_mismatch")
 
 ## month discrepency
-problem_ids <- t %>% filter(problems == "problem") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
+problem_ids <- t %>% filter(month_descrepency == "month_descrepency") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
   mutate(problem_category = "month_discrepency")
 
 # drug mismatch
@@ -199,7 +214,7 @@ flagged_rows2 <- rbind(missing_date, na_sex, missing_AP1, leeway_exceeds, proble
 
 table(flagged_rows2$problem_category)
 
-t %>% filter(drug_match=="non-match") %>% dplyr::select(AP1, drug_match) %>% unique %>% arrange(GEN)
+t %>% filter(drug_match=="non-match") %>% dplyr::select(AP1, drug_match, GEN) %>% unique %>% arrange(GEN)
 
 ```
 
@@ -229,7 +244,7 @@ options("tidylog.display" = NULL)    # turn on
 problem_drugs <- t %>% filter(drug_match=="non-match") %>% dplyr::select(GEN, Date, PatientsRecNum) %>%
   mutate(problem_category = "drug_mismatch")
 
-t %>% filter(drug_match=="non-match") %>% dplyr::select(AP1, drug_match) %>% unique %>% arrange(GEN)
+t %>% filter(drug_match=="non-match") %>% dplyr::select(AP1, drug_match, GEN) %>% unique %>% arrange(GEN)
 
 # empty table 
 ```

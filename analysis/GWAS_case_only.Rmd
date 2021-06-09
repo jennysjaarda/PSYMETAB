@@ -26,6 +26,12 @@ library(DT)
 library(knitr)
 ```
 
+```{r, echo=FALSE,include = FALSE}
+# You need this code to conduct the magic dependences attaching...
+DT::datatable(matrix())
+```
+
+
 ```{r load_data, include = FALSE}
 
 loadd(case_only_gwas_sig_com)
@@ -64,9 +70,9 @@ loadd(case_only_interest)
 
 #interest_results <- case_only_gwas_sig_meta %>% filter(variable=="BMI" & eth=="CEU")
 
-summarize_meta_results <- case_only_interest_summarize %>% dplyr::select(variable, outcome, snp, BETA_META, P_META, Q_META) %>% rename(SNP=snp) %>% 
-  left_join(., case_only_interest %>% dplyr::select(SNP, REF, ALT, CHR, BP)) %>%
-  dplyr::select(variable, outcome, SNP, CHR, BP, REF, ALT, everything()) 
+summarize_meta_results <- case_only_interest_summarize %>% dplyr::select(variable, outcome, snp, BETA_META, P_META, Q_META) %>% rename(SNP=snp) %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight") %>%
+  left_join(., case_only_interest %>% dplyr::select(SNP, A1, A2, CHR, BP)) %>%
+  dplyr::select(variable, outcome, SNP, CHR, BP, A1, A2, everything()) 
 ```
 
 ```{r snp_summary_view, echo = FALSE}
@@ -144,32 +150,40 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
 ```
 
 ### PHEWAS.
-- For each SNP identified above, we checked for previous associations in relevant consortia.
 
+#### Consortia. 
+
+- For each SNP identified above, we checked for previous associations in relevant consortia.
 ```{r consort_phewas, echo=FALSE, results="asis"}
 
 
-loadd(consort_extract_snp_list)
+loadd(consort_extract_snpwise)
 
 for(i in 1:dim(case_only_interest_summarize)[1]){
   SNP_name <- case_only_interest_summarize$snp[i]
-  consort_extract_snp_list[[SNP_name]] %>% kable() %>%
+  data_sub <- consort_extract_snpwise[[SNP_name]] %>% dplyr::select(consort, SNP, CHR, BP, FREQ, everything()) %>% 
+    mutate_if(is.numeric, pretty_round) %>% mutate_at(c("EFFECT_ALLELE", "OTHER_ALLELE"), toupper)
+  
+  cat(sprintf("\n**%s**\n\n", SNP_name))
+  cat("\n\n")
+  data_sub %>% kable() %>%
    kable_styling(full_width = F, position = "left") %>%
     htmltools::HTML() %>% 
     print
-  cat("\n")
+  cat("\n\n")
 }
 
 
 
 ```
 
+#### GeneAtlas lookup. 
+
 - We also checked for associations in the [GeneAtlas](http://geneatlas.roslin.ed.ac.uk/).
+```{r roslin_phewas, echo=FALSE, results="asis"}
 
-```{r roslin_phewas, echo=FALSE}
 
-
-loadd(consort_extract_snp_list)
+#loadd(consort_extract_snpwise)
 
 SNPs <- numeric()
 URL <- numeric()
@@ -187,4 +201,88 @@ tibble(SNP=SNPs, URL=URL) %>% kable() %>%
   
 ```
 
+### UKB replication analyses.  
+
+- We attempted to replicate the identified signals in the UKBiobank. 
+- The data was prepared as follows: 
+    - First, we selected a second group of participants which were taking at
+    least one psychiatric drug of interest according to the drug use variable (variable XX). 
+    - Second, we selected a set of  participants which indicated they had at least one ICD10 disorder in the psychiatric category (i.e. all disagnoses from "Chapter V Mental and behavioral disorders" see [here](https://biobank.ctsu.ox.ac.uk/showcase/field.cgi?id=41270), all codes beginning with F). We removed all participants from step 1 to ensure two independent groups of participants.
+    - Third, we restricted these groups to only participants with more the one BMI measure so that a BMI slope value could be measured. BMI slope was calculated for each participant as the beta coefficient of the regression of BMI versus time in days (where the first measure was at time 0, and all subsequent instances as days since the first observation). 
+    - Fourth, within each subgroup, data was filtered to only British participants, unrelated and withdrawn participants removed. 
+    - Fifth, BMI slope was transformed to ensure the data was normally distributed.
+    - Lastly, BMI slope was residualized for age, sex and the first 40 principal components. 
+- The data was then analyzed by testing the linear association between genetic variants of interest and the residualized, using an additive model.
+- The results can be seen below: 
+```{r ukb_replication, echo=FALSE, results="asis"}
+loadd(ukbb_psy_subgroups_assoc_snpwise)
+
+for(i in 1:dim(case_only_interest_summarize)[1]){
+  SNP_name <- case_only_interest_summarize$snp[i]
+  data_sub <- ukbb_psy_subgroups_assoc_snpwise[[SNP_name]] %>% dplyr::select(phenotype, n, geno_beta, geno_L95, geno_U95, geno_pval) %>% 
+    mutate(phenotype = str_replace(phenotype, "_bmi_slope_resid", "")) %>%  mutate_if(is.numeric, pretty_round) 
+  cat(sprintf("\n**%s**\n\n", SNP_name))
+  cat("\n\n")
+  data_sub %>% kable() %>%
+   kable_styling(full_width = F, position = "left") %>%
+    htmltools::HTML() %>% 
+    print
+  cat("\n\n")
+}
+
+```
+
+
+### Sensitivity analyses. 
+
+- We also ensured that the gw-significant SNPs we identified obtained consistent results with similar endpoint in PSYMETAB. 
+
+```{r, sensitivity_analysis, echo=FALSE, results="asis"}
+loadd(subgroup_extract_snpwise)
+loadd(case_only_extract_snpwise)
+loadd(case_only_extract_snpwise_clean)
+
+
+
+## case only results
+for(i in 1:dim(case_only_interest_summarize)[1]){
+  SNP_name <- case_only_interest_summarize$snp[i]
+  data_sub <- case_only_extract_snpwise_clean[[SNP_name]] %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>% dplyr::select(-pheno, -drug_class, -CHR, -BP, -variable, -T_STAT) %>%
+    mutate_if(is.numeric, pretty_round) %>% dplyr::select(eth, group, drug, outcome, A1, A2, A1_CT, A1_FREQ, OBS_CT, BETA, SE, P)
+ #  
+ # data_sub %>% kable() %>%
+ #   kable_styling(full_width = F, position = "left") %>%
+ #    htmltools::HTML() %>% 
+ #    print
+ #  cat("\n")
+  
+  #cat(sprintf("\n\n## %s\n\n", SNP_name))
+  cat(sprintf("\n**%s**\n\n", SNP_name))
+  cat("\n\n")
+  cat(knitr::knit_print(DT::datatable(data_sub, width = "100%")))
+  cat("\n\n")
+
+  
+}
+
+## subgroup results 
+for(i in 1:dim(case_only_interest_summarize)[1]){
+  SNP_name <- case_only_interest_summarize$snp[i]
+  data_sub <- subgroup_extract_snpwise[[SNP_name]] %>% mutate(variable = str_extract(string=pheno, pattern="[^_]*")) %>% 
+    mutate(outcome = str_replace(pheno, paste0(variable, "_"), "")) %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>%
+    mutate_if(is.numeric, pretty_round)  %>% dplyr::select(eth, drug_class, drug, outcome, A1, A2, A1_CT, A1_FREQ, OBS_CT, BETA, SE, P)
+
+ #cat(sprintf("\n\n## %s\n\n", SNP_name))
+  cat(sprintf("\n**%s**\n\n", SNP_name))
+  cat("\n\n")
+  cat(knitr::knit_print(DT::datatable(data_sub, width = "100%")))
+  cat("\n\n")
+#   subgroup_extract_snpwise[[SNP_name]] %>% kable() %>%
+#    kable_styling(full_width = F, position = "left") %>%
+#     htmltools::HTML() %>% 
+#     print
+#   cat("\n")
+}
+
+```
 

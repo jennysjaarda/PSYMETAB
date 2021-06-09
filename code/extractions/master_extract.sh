@@ -6,7 +6,7 @@
 #SBATCH --time=24:00:00                                            # Time limit d-hrs:min:sec
 #SBATCH --output=data/processed/extractions/%x.out                 # Standard output and error log (%j: job allocation number)
 #SBATCH --account=sgg                                              # runs on the sggg nodes.
-#SBATCH --partition=sgg                                            # runs on the sggg nodes
+#SBATCH --partition=cluster2                                            # runs on the sggg nodes
 
 code_directory=$projects/PSYMETAB/code/extractions
 template_file=$code_directory/template_extract.sh

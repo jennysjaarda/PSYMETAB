@@ -282,37 +282,8 @@ $(document).ready(function () {
 <li>
   <a href="setup.html">Setup</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Project
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li class="dropdown-submenu">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">GWAS</a>
-      <ul class="dropdown-menu" role="menu">
-        <li>
-          <a href="GWAS_method.html">GWAS methods</a>
-        </li>
-        <li>
-          <a href="GWAS_results.html">GWAS results</a>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Meetings
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="Zoltan_meeting_25_09_2020.html">Update with Zoltan 25-09-2020</a>
-    </li>
-  </ul>
+<li>
+  <a href="plans.html">Analysis plans</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -348,7 +319,7 @@ div.section {
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report"
   data-toggle="collapse" data-target="#workflowr-report">
   
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 
@@ -358,7 +329,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
   <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
   <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -368,10 +339,10 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
   <p>
-<strong>Last updated:</strong> 2021-03-04
+<strong>Last updated:</strong> 2021-05-31
 </p>
   <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
   <p>
 <strong>Knit directory:</strong> <code>PSYMETAB/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -388,13 +359,13 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
   <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
   
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -466,10 +437,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec96d28fe674dee4f066eaa79587384e0b4f67921targetblankc96d28fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/c96d28fe674dee4f066eaa79587384e0b4f67921" target="_blank">c96d28f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreef5126df40b07977a0af2a0b0197cd8909c17af58targetblankf5126dfa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jennysjaarda/PSYMETAB/tree/f5126df40b07977a0af2a0b0197cd8909c17af58" target="_blank">f5126df</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreec96d28fe674dee4f066eaa79587384e0b4f67921targetblankc96d28fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjennysjaardaPSYMETABtreef5126df40b07977a0af2a0b0197cd8909c17af58targetblankf5126dfa" class="panel-collapse collapse">
 <div class="panel-body">
   
 
@@ -485,19 +456,47 @@ Ignored files:
     Ignored:    analysis/._data_processing_in_genomestudio.Rmd
     Ignored:    analysis/._quality_control.Rmd
     Ignored:    analysis/GWAS/
-    Ignored:    analysis/GWAS_results.knit.md
-    Ignored:    analysis/GWAS_results.utf8.md
     Ignored:    analysis/PRS/
     Ignored:    analysis/QC/
     Ignored:    analysis/Rlogo2.png
+    Ignored:    analysis/_drake.R
     Ignored:    analysis/figure/
     Ignored:    analysis/rplot.jpg
+    Ignored:    analysis_prep.log
     Ignored:    analysis_prep_10_clustermq.out
     Ignored:    analysis_prep_11_clustermq.out
     Ignored:    analysis_prep_12_clustermq.out
+    Ignored:    analysis_prep_13_clustermq.out
+    Ignored:    analysis_prep_14_clustermq.out
+    Ignored:    analysis_prep_15_clustermq.out
+    Ignored:    analysis_prep_16_clustermq.out
+    Ignored:    analysis_prep_17_clustermq.out
+    Ignored:    analysis_prep_18_clustermq.out
+    Ignored:    analysis_prep_19_clustermq.out
     Ignored:    analysis_prep_1_clustermq.out
+    Ignored:    analysis_prep_20_clustermq.out
+    Ignored:    analysis_prep_21_clustermq.out
+    Ignored:    analysis_prep_22_clustermq.out
+    Ignored:    analysis_prep_23_clustermq.out
+    Ignored:    analysis_prep_24_clustermq.out
+    Ignored:    analysis_prep_25_clustermq.out
+    Ignored:    analysis_prep_26_clustermq.out
+    Ignored:    analysis_prep_27_clustermq.out
+    Ignored:    analysis_prep_28_clustermq.out
+    Ignored:    analysis_prep_29_clustermq.out
     Ignored:    analysis_prep_2_clustermq.out
+    Ignored:    analysis_prep_30_clustermq.out
+    Ignored:    analysis_prep_31_clustermq.out
+    Ignored:    analysis_prep_32_clustermq.out
+    Ignored:    analysis_prep_33_clustermq.out
+    Ignored:    analysis_prep_34_clustermq.out
+    Ignored:    analysis_prep_35_clustermq.out
+    Ignored:    analysis_prep_36_clustermq.out
+    Ignored:    analysis_prep_37_clustermq.out
+    Ignored:    analysis_prep_38_clustermq.out
+    Ignored:    analysis_prep_39_clustermq.out
     Ignored:    analysis_prep_3_clustermq.out
+    Ignored:    analysis_prep_40_clustermq.out
     Ignored:    analysis_prep_4_clustermq.out
     Ignored:    analysis_prep_5_clustermq.out
     Ignored:    analysis_prep_6_clustermq.out
@@ -506,11 +505,178 @@ Ignored files:
     Ignored:    analysis_prep_9_clustermq.out
     Ignored:    data/processed/
     Ignored:    data/raw/
+    Ignored:    download_impute.log
+    Ignored:    extract_sig.log
+    Ignored:    grs.log
+    Ignored:    init_analysis.log
+    Ignored:    init_analysis_10_clustermq.out
+    Ignored:    init_analysis_11_clustermq.out
+    Ignored:    init_analysis_12_clustermq.out
+    Ignored:    init_analysis_13_clustermq.out
+    Ignored:    init_analysis_14_clustermq.out
+    Ignored:    init_analysis_15_clustermq.out
+    Ignored:    init_analysis_16_clustermq.out
+    Ignored:    init_analysis_17_clustermq.out
+    Ignored:    init_analysis_18_clustermq.out
+    Ignored:    init_analysis_19_clustermq.out
+    Ignored:    init_analysis_1_clustermq.out
+    Ignored:    init_analysis_20_clustermq.out
+    Ignored:    init_analysis_2_clustermq.out
+    Ignored:    init_analysis_3_clustermq.out
+    Ignored:    init_analysis_4_clustermq.out
+    Ignored:    init_analysis_5_clustermq.out
+    Ignored:    init_analysis_6_clustermq.out
+    Ignored:    init_analysis_7_clustermq.out
+    Ignored:    init_analysis_8_clustermq.out
+    Ignored:    init_analysis_9_clustermq.out
     Ignored:    packrat/lib-R/
     Ignored:    packrat/lib-ext/
     Ignored:    packrat/lib/
+    Ignored:    plan.log
+    Ignored:    plan_100_clustermq.out
+    Ignored:    plan_101_clustermq.out
+    Ignored:    plan_102_clustermq.out
+    Ignored:    plan_103_clustermq.out
+    Ignored:    plan_104_clustermq.out
+    Ignored:    plan_105_clustermq.out
+    Ignored:    plan_106_clustermq.out
+    Ignored:    plan_107_clustermq.out
+    Ignored:    plan_108_clustermq.out
+    Ignored:    plan_109_clustermq.out
+    Ignored:    plan_10_clustermq.out
+    Ignored:    plan_110_clustermq.out
+    Ignored:    plan_111_clustermq.out
+    Ignored:    plan_112_clustermq.out
+    Ignored:    plan_113_clustermq.out
+    Ignored:    plan_114_clustermq.out
+    Ignored:    plan_115_clustermq.out
+    Ignored:    plan_116_clustermq.out
+    Ignored:    plan_117_clustermq.out
+    Ignored:    plan_118_clustermq.out
+    Ignored:    plan_119_clustermq.out
+    Ignored:    plan_11_clustermq.out
+    Ignored:    plan_120_clustermq.out
+    Ignored:    plan_12_clustermq.out
+    Ignored:    plan_13_clustermq.out
+    Ignored:    plan_14_clustermq.out
+    Ignored:    plan_15_clustermq.out
+    Ignored:    plan_16_clustermq.out
+    Ignored:    plan_17_clustermq.out
+    Ignored:    plan_18_clustermq.out
+    Ignored:    plan_19_clustermq.out
+    Ignored:    plan_1_clustermq.out
+    Ignored:    plan_20_clustermq.out
+    Ignored:    plan_21_clustermq.out
+    Ignored:    plan_22_clustermq.out
+    Ignored:    plan_23_clustermq.out
+    Ignored:    plan_24_clustermq.out
+    Ignored:    plan_25_clustermq.out
+    Ignored:    plan_26_clustermq.out
+    Ignored:    plan_27_clustermq.out
+    Ignored:    plan_28_clustermq.out
+    Ignored:    plan_29_clustermq.out
+    Ignored:    plan_2_clustermq.out
+    Ignored:    plan_30_clustermq.out
+    Ignored:    plan_31_clustermq.out
+    Ignored:    plan_32_clustermq.out
+    Ignored:    plan_33_clustermq.out
+    Ignored:    plan_34_clustermq.out
+    Ignored:    plan_35_clustermq.out
+    Ignored:    plan_36_clustermq.out
+    Ignored:    plan_37_clustermq.out
+    Ignored:    plan_38_clustermq.out
+    Ignored:    plan_39_clustermq.out
+    Ignored:    plan_3_clustermq.out
+    Ignored:    plan_40_clustermq.out
+    Ignored:    plan_41_clustermq.out
+    Ignored:    plan_42_clustermq.out
+    Ignored:    plan_43_clustermq.out
+    Ignored:    plan_44_clustermq.out
+    Ignored:    plan_45_clustermq.out
+    Ignored:    plan_46_clustermq.out
+    Ignored:    plan_47_clustermq.out
+    Ignored:    plan_48_clustermq.out
+    Ignored:    plan_49_clustermq.out
+    Ignored:    plan_4_clustermq.out
+    Ignored:    plan_50_clustermq.out
+    Ignored:    plan_51_clustermq.out
+    Ignored:    plan_52_clustermq.out
+    Ignored:    plan_53_clustermq.out
+    Ignored:    plan_54_clustermq.out
+    Ignored:    plan_55_clustermq.out
+    Ignored:    plan_56_clustermq.out
+    Ignored:    plan_57_clustermq.out
+    Ignored:    plan_58_clustermq.out
+    Ignored:    plan_59_clustermq.out
+    Ignored:    plan_5_clustermq.out
+    Ignored:    plan_60_clustermq.out
+    Ignored:    plan_61_clustermq.out
+    Ignored:    plan_62_clustermq.out
+    Ignored:    plan_63_clustermq.out
+    Ignored:    plan_64_clustermq.out
+    Ignored:    plan_65_clustermq.out
+    Ignored:    plan_66_clustermq.out
+    Ignored:    plan_67_clustermq.out
+    Ignored:    plan_68_clustermq.out
+    Ignored:    plan_69_clustermq.out
+    Ignored:    plan_6_clustermq.out
+    Ignored:    plan_70_clustermq.out
+    Ignored:    plan_71_clustermq.out
+    Ignored:    plan_72_clustermq.out
+    Ignored:    plan_73_clustermq.out
+    Ignored:    plan_74_clustermq.out
+    Ignored:    plan_75_clustermq.out
+    Ignored:    plan_76_clustermq.out
+    Ignored:    plan_77_clustermq.out
+    Ignored:    plan_78_clustermq.out
+    Ignored:    plan_79_clustermq.out
+    Ignored:    plan_7_clustermq.out
+    Ignored:    plan_80_clustermq.out
+    Ignored:    plan_81_clustermq.out
+    Ignored:    plan_82_clustermq.out
+    Ignored:    plan_83_clustermq.out
+    Ignored:    plan_84_clustermq.out
+    Ignored:    plan_85_clustermq.out
+    Ignored:    plan_86_clustermq.out
+    Ignored:    plan_87_clustermq.out
+    Ignored:    plan_88_clustermq.out
+    Ignored:    plan_89_clustermq.out
+    Ignored:    plan_8_clustermq.out
+    Ignored:    plan_90_clustermq.out
+    Ignored:    plan_91_clustermq.out
+    Ignored:    plan_92_clustermq.out
+    Ignored:    plan_93_clustermq.out
+    Ignored:    plan_94_clustermq.out
+    Ignored:    plan_95_clustermq.out
+    Ignored:    plan_96_clustermq.out
+    Ignored:    plan_97_clustermq.out
+    Ignored:    plan_98_clustermq.out
+    Ignored:    plan_99_clustermq.out
+    Ignored:    plan_9_clustermq.out
+    Ignored:    process_init.log
+    Ignored:    process_init_100_clustermq.out
+    Ignored:    process_init_101_clustermq.out
+    Ignored:    process_init_102_clustermq.out
+    Ignored:    process_init_103_clustermq.out
+    Ignored:    process_init_104_clustermq.out
+    Ignored:    process_init_105_clustermq.out
+    Ignored:    process_init_106_clustermq.out
+    Ignored:    process_init_107_clustermq.out
+    Ignored:    process_init_108_clustermq.out
+    Ignored:    process_init_109_clustermq.out
     Ignored:    process_init_10_clustermq.out
+    Ignored:    process_init_110_clustermq.out
+    Ignored:    process_init_111_clustermq.out
+    Ignored:    process_init_112_clustermq.out
+    Ignored:    process_init_113_clustermq.out
+    Ignored:    process_init_114_clustermq.out
+    Ignored:    process_init_115_clustermq.out
+    Ignored:    process_init_116_clustermq.out
+    Ignored:    process_init_117_clustermq.out
+    Ignored:    process_init_118_clustermq.out
+    Ignored:    process_init_119_clustermq.out
     Ignored:    process_init_11_clustermq.out
+    Ignored:    process_init_120_clustermq.out
     Ignored:    process_init_12_clustermq.out
     Ignored:    process_init_13_clustermq.out
     Ignored:    process_init_14_clustermq.out
@@ -523,14 +689,115 @@ Ignored files:
     Ignored:    process_init_20_clustermq.out
     Ignored:    process_init_21_clustermq.out
     Ignored:    process_init_22_clustermq.out
+    Ignored:    process_init_23_clustermq.out
+    Ignored:    process_init_24_clustermq.out
+    Ignored:    process_init_25_clustermq.out
+    Ignored:    process_init_26_clustermq.out
+    Ignored:    process_init_27_clustermq.out
+    Ignored:    process_init_28_clustermq.out
+    Ignored:    process_init_29_clustermq.out
     Ignored:    process_init_2_clustermq.out
+    Ignored:    process_init_30_clustermq.out
+    Ignored:    process_init_31_clustermq.out
+    Ignored:    process_init_32_clustermq.out
+    Ignored:    process_init_33_clustermq.out
+    Ignored:    process_init_34_clustermq.out
+    Ignored:    process_init_35_clustermq.out
+    Ignored:    process_init_36_clustermq.out
+    Ignored:    process_init_37_clustermq.out
+    Ignored:    process_init_38_clustermq.out
+    Ignored:    process_init_39_clustermq.out
     Ignored:    process_init_3_clustermq.out
+    Ignored:    process_init_40_clustermq.out
+    Ignored:    process_init_41_clustermq.out
+    Ignored:    process_init_42_clustermq.out
+    Ignored:    process_init_43_clustermq.out
+    Ignored:    process_init_44_clustermq.out
+    Ignored:    process_init_45_clustermq.out
+    Ignored:    process_init_46_clustermq.out
+    Ignored:    process_init_47_clustermq.out
+    Ignored:    process_init_48_clustermq.out
+    Ignored:    process_init_49_clustermq.out
     Ignored:    process_init_4_clustermq.out
+    Ignored:    process_init_50_clustermq.out
+    Ignored:    process_init_51_clustermq.out
+    Ignored:    process_init_52_clustermq.out
+    Ignored:    process_init_53_clustermq.out
+    Ignored:    process_init_54_clustermq.out
+    Ignored:    process_init_55_clustermq.out
+    Ignored:    process_init_56_clustermq.out
+    Ignored:    process_init_57_clustermq.out
+    Ignored:    process_init_58_clustermq.out
+    Ignored:    process_init_59_clustermq.out
     Ignored:    process_init_5_clustermq.out
+    Ignored:    process_init_60_clustermq.out
+    Ignored:    process_init_61_clustermq.out
+    Ignored:    process_init_62_clustermq.out
+    Ignored:    process_init_63_clustermq.out
+    Ignored:    process_init_64_clustermq.out
+    Ignored:    process_init_65_clustermq.out
+    Ignored:    process_init_66_clustermq.out
+    Ignored:    process_init_67_clustermq.out
+    Ignored:    process_init_68_clustermq.out
+    Ignored:    process_init_69_clustermq.out
     Ignored:    process_init_6_clustermq.out
+    Ignored:    process_init_70_clustermq.out
+    Ignored:    process_init_71_clustermq.out
+    Ignored:    process_init_72_clustermq.out
+    Ignored:    process_init_73_clustermq.out
+    Ignored:    process_init_74_clustermq.out
+    Ignored:    process_init_75_clustermq.out
+    Ignored:    process_init_76_clustermq.out
+    Ignored:    process_init_77_clustermq.out
+    Ignored:    process_init_78_clustermq.out
+    Ignored:    process_init_79_clustermq.out
     Ignored:    process_init_7_clustermq.out
+    Ignored:    process_init_80_clustermq.out
+    Ignored:    process_init_81_clustermq.out
+    Ignored:    process_init_82_clustermq.out
+    Ignored:    process_init_83_clustermq.out
+    Ignored:    process_init_84_clustermq.out
+    Ignored:    process_init_85_clustermq.out
+    Ignored:    process_init_86_clustermq.out
+    Ignored:    process_init_87_clustermq.out
+    Ignored:    process_init_88_clustermq.out
+    Ignored:    process_init_89_clustermq.out
     Ignored:    process_init_8_clustermq.out
+    Ignored:    process_init_90_clustermq.out
+    Ignored:    process_init_91_clustermq.out
+    Ignored:    process_init_92_clustermq.out
+    Ignored:    process_init_93_clustermq.out
+    Ignored:    process_init_94_clustermq.out
+    Ignored:    process_init_95_clustermq.out
+    Ignored:    process_init_96_clustermq.out
+    Ignored:    process_init_97_clustermq.out
+    Ignored:    process_init_98_clustermq.out
+    Ignored:    process_init_99_clustermq.out
     Ignored:    process_init_9_clustermq.out
+    Ignored:    process_ukbb.log
+    Ignored:    process_ukbb_10_clustermq.out
+    Ignored:    process_ukbb_11_clustermq.out
+    Ignored:    process_ukbb_12_clustermq.out
+    Ignored:    process_ukbb_13_clustermq.out
+    Ignored:    process_ukbb_14_clustermq.out
+    Ignored:    process_ukbb_15_clustermq.out
+    Ignored:    process_ukbb_16_clustermq.out
+    Ignored:    process_ukbb_17_clustermq.out
+    Ignored:    process_ukbb_18_clustermq.out
+    Ignored:    process_ukbb_19_clustermq.out
+    Ignored:    process_ukbb_1_clustermq.out
+    Ignored:    process_ukbb_20_clustermq.out
+    Ignored:    process_ukbb_21_clustermq.out
+    Ignored:    process_ukbb_22_clustermq.out
+    Ignored:    process_ukbb_2_clustermq.out
+    Ignored:    process_ukbb_3_clustermq.out
+    Ignored:    process_ukbb_4_clustermq.out
+    Ignored:    process_ukbb_5_clustermq.out
+    Ignored:    process_ukbb_6_clustermq.out
+    Ignored:    process_ukbb_7_clustermq.out
+    Ignored:    process_ukbb_8_clustermq.out
+    Ignored:    process_ukbb_9_clustermq.out
+    Ignored:    prs.log
     Ignored:    prs_1_clustermq.out
     Ignored:    prs_2_clustermq.out
     Ignored:    prs_3_clustermq.out
@@ -539,12 +806,99 @@ Ignored files:
     Ignored:    prs_6_clustermq.out
     Ignored:    prs_7_clustermq.out
     Ignored:    prs_8_clustermq.out
+    Ignored:    ukbb.log
+    Ignored:    ukbb_10_clustermq.out
+    Ignored:    ukbb_11_clustermq.out
+    Ignored:    ukbb_12_clustermq.out
+    Ignored:    ukbb_13_clustermq.out
+    Ignored:    ukbb_14_clustermq.out
+    Ignored:    ukbb_15_clustermq.out
+    Ignored:    ukbb_16_clustermq.out
+    Ignored:    ukbb_17_clustermq.out
+    Ignored:    ukbb_18_clustermq.out
+    Ignored:    ukbb_19_clustermq.out
+    Ignored:    ukbb_1_clustermq.out
+    Ignored:    ukbb_20_clustermq.out
+    Ignored:    ukbb_21_clustermq.out
+    Ignored:    ukbb_22_clustermq.out
+    Ignored:    ukbb_23_clustermq.out
+    Ignored:    ukbb_24_clustermq.out
+    Ignored:    ukbb_2_clustermq.out
+    Ignored:    ukbb_3_clustermq.out
+    Ignored:    ukbb_4_clustermq.out
+    Ignored:    ukbb_5_clustermq.out
+    Ignored:    ukbb_6_clustermq.out
+    Ignored:    ukbb_7_clustermq.out
+    Ignored:    ukbb_8_clustermq.out
+    Ignored:    ukbb_9_clustermq.out
+    Ignored:    ukbb_analysis.log
+    Ignored:    ukbb_analysis_100_clustermq.out
+    Ignored:    ukbb_analysis_101_clustermq.out
+    Ignored:    ukbb_analysis_102_clustermq.out
+    Ignored:    ukbb_analysis_103_clustermq.out
+    Ignored:    ukbb_analysis_104_clustermq.out
+    Ignored:    ukbb_analysis_105_clustermq.out
+    Ignored:    ukbb_analysis_106_clustermq.out
+    Ignored:    ukbb_analysis_107_clustermq.out
+    Ignored:    ukbb_analysis_108_clustermq.out
+    Ignored:    ukbb_analysis_109_clustermq.out
     Ignored:    ukbb_analysis_10_clustermq.out
+    Ignored:    ukbb_analysis_110_clustermq.out
+    Ignored:    ukbb_analysis_111_clustermq.out
+    Ignored:    ukbb_analysis_112_clustermq.out
+    Ignored:    ukbb_analysis_113_clustermq.out
+    Ignored:    ukbb_analysis_114_clustermq.out
+    Ignored:    ukbb_analysis_115_clustermq.out
+    Ignored:    ukbb_analysis_116_clustermq.out
+    Ignored:    ukbb_analysis_117_clustermq.out
+    Ignored:    ukbb_analysis_118_clustermq.out
+    Ignored:    ukbb_analysis_119_clustermq.out
     Ignored:    ukbb_analysis_11_clustermq.out
+    Ignored:    ukbb_analysis_120_clustermq.out
+    Ignored:    ukbb_analysis_121_clustermq.out
+    Ignored:    ukbb_analysis_122_clustermq.out
+    Ignored:    ukbb_analysis_123_clustermq.out
+    Ignored:    ukbb_analysis_124_clustermq.out
+    Ignored:    ukbb_analysis_125_clustermq.out
+    Ignored:    ukbb_analysis_126_clustermq.out
+    Ignored:    ukbb_analysis_127_clustermq.out
+    Ignored:    ukbb_analysis_128_clustermq.out
+    Ignored:    ukbb_analysis_129_clustermq.out
     Ignored:    ukbb_analysis_12_clustermq.out
+    Ignored:    ukbb_analysis_130_clustermq.out
+    Ignored:    ukbb_analysis_131_clustermq.out
+    Ignored:    ukbb_analysis_132_clustermq.out
+    Ignored:    ukbb_analysis_133_clustermq.out
+    Ignored:    ukbb_analysis_134_clustermq.out
+    Ignored:    ukbb_analysis_135_clustermq.out
+    Ignored:    ukbb_analysis_136_clustermq.out
+    Ignored:    ukbb_analysis_137_clustermq.out
+    Ignored:    ukbb_analysis_138_clustermq.out
+    Ignored:    ukbb_analysis_139_clustermq.out
     Ignored:    ukbb_analysis_13_clustermq.out
+    Ignored:    ukbb_analysis_140_clustermq.out
+    Ignored:    ukbb_analysis_141_clustermq.out
+    Ignored:    ukbb_analysis_142_clustermq.out
+    Ignored:    ukbb_analysis_143_clustermq.out
+    Ignored:    ukbb_analysis_144_clustermq.out
+    Ignored:    ukbb_analysis_145_clustermq.out
+    Ignored:    ukbb_analysis_146_clustermq.out
+    Ignored:    ukbb_analysis_147_clustermq.out
+    Ignored:    ukbb_analysis_148_clustermq.out
+    Ignored:    ukbb_analysis_149_clustermq.out
     Ignored:    ukbb_analysis_14_clustermq.out
+    Ignored:    ukbb_analysis_150_clustermq.out
+    Ignored:    ukbb_analysis_151_clustermq.out
+    Ignored:    ukbb_analysis_152_clustermq.out
+    Ignored:    ukbb_analysis_153_clustermq.out
+    Ignored:    ukbb_analysis_154_clustermq.out
+    Ignored:    ukbb_analysis_155_clustermq.out
+    Ignored:    ukbb_analysis_156_clustermq.out
+    Ignored:    ukbb_analysis_157_clustermq.out
+    Ignored:    ukbb_analysis_158_clustermq.out
+    Ignored:    ukbb_analysis_159_clustermq.out
     Ignored:    ukbb_analysis_15_clustermq.out
+    Ignored:    ukbb_analysis_160_clustermq.out
     Ignored:    ukbb_analysis_16_clustermq.out
     Ignored:    ukbb_analysis_17_clustermq.out
     Ignored:    ukbb_analysis_18_clustermq.out
@@ -553,38 +907,143 @@ Ignored files:
     Ignored:    ukbb_analysis_20_clustermq.out
     Ignored:    ukbb_analysis_21_clustermq.out
     Ignored:    ukbb_analysis_22_clustermq.out
+    Ignored:    ukbb_analysis_23_clustermq.out
+    Ignored:    ukbb_analysis_24_clustermq.out
+    Ignored:    ukbb_analysis_25_clustermq.out
+    Ignored:    ukbb_analysis_26_clustermq.out
+    Ignored:    ukbb_analysis_27_clustermq.out
+    Ignored:    ukbb_analysis_28_clustermq.out
+    Ignored:    ukbb_analysis_29_clustermq.out
     Ignored:    ukbb_analysis_2_clustermq.out
+    Ignored:    ukbb_analysis_30_clustermq.out
+    Ignored:    ukbb_analysis_31_clustermq.out
+    Ignored:    ukbb_analysis_32_clustermq.out
+    Ignored:    ukbb_analysis_33_clustermq.out
+    Ignored:    ukbb_analysis_34_clustermq.out
+    Ignored:    ukbb_analysis_35_clustermq.out
+    Ignored:    ukbb_analysis_36_clustermq.out
+    Ignored:    ukbb_analysis_37_clustermq.out
+    Ignored:    ukbb_analysis_38_clustermq.out
+    Ignored:    ukbb_analysis_39_clustermq.out
     Ignored:    ukbb_analysis_3_clustermq.out
+    Ignored:    ukbb_analysis_40_clustermq.out
+    Ignored:    ukbb_analysis_41_clustermq.out
+    Ignored:    ukbb_analysis_42_clustermq.out
+    Ignored:    ukbb_analysis_43_clustermq.out
+    Ignored:    ukbb_analysis_44_clustermq.out
+    Ignored:    ukbb_analysis_45_clustermq.out
+    Ignored:    ukbb_analysis_46_clustermq.out
+    Ignored:    ukbb_analysis_47_clustermq.out
+    Ignored:    ukbb_analysis_48_clustermq.out
+    Ignored:    ukbb_analysis_49_clustermq.out
     Ignored:    ukbb_analysis_4_clustermq.out
+    Ignored:    ukbb_analysis_50_clustermq.out
+    Ignored:    ukbb_analysis_51_clustermq.out
+    Ignored:    ukbb_analysis_52_clustermq.out
+    Ignored:    ukbb_analysis_53_clustermq.out
+    Ignored:    ukbb_analysis_54_clustermq.out
+    Ignored:    ukbb_analysis_55_clustermq.out
+    Ignored:    ukbb_analysis_56_clustermq.out
+    Ignored:    ukbb_analysis_57_clustermq.out
+    Ignored:    ukbb_analysis_58_clustermq.out
+    Ignored:    ukbb_analysis_59_clustermq.out
     Ignored:    ukbb_analysis_5_clustermq.out
+    Ignored:    ukbb_analysis_60_clustermq.out
+    Ignored:    ukbb_analysis_61_clustermq.out
+    Ignored:    ukbb_analysis_62_clustermq.out
+    Ignored:    ukbb_analysis_63_clustermq.out
+    Ignored:    ukbb_analysis_64_clustermq.out
+    Ignored:    ukbb_analysis_65_clustermq.out
+    Ignored:    ukbb_analysis_66_clustermq.out
+    Ignored:    ukbb_analysis_67_clustermq.out
+    Ignored:    ukbb_analysis_68_clustermq.out
+    Ignored:    ukbb_analysis_69_clustermq.out
     Ignored:    ukbb_analysis_6_clustermq.out
+    Ignored:    ukbb_analysis_70_clustermq.out
+    Ignored:    ukbb_analysis_71_clustermq.out
+    Ignored:    ukbb_analysis_72_clustermq.out
+    Ignored:    ukbb_analysis_73_clustermq.out
+    Ignored:    ukbb_analysis_74_clustermq.out
+    Ignored:    ukbb_analysis_75_clustermq.out
+    Ignored:    ukbb_analysis_76_clustermq.out
+    Ignored:    ukbb_analysis_77_clustermq.out
+    Ignored:    ukbb_analysis_78_clustermq.out
+    Ignored:    ukbb_analysis_79_clustermq.out
     Ignored:    ukbb_analysis_7_clustermq.out
+    Ignored:    ukbb_analysis_80_clustermq.out
+    Ignored:    ukbb_analysis_81_clustermq.out
+    Ignored:    ukbb_analysis_82_clustermq.out
+    Ignored:    ukbb_analysis_83_clustermq.out
+    Ignored:    ukbb_analysis_84_clustermq.out
+    Ignored:    ukbb_analysis_85_clustermq.out
+    Ignored:    ukbb_analysis_86_clustermq.out
+    Ignored:    ukbb_analysis_87_clustermq.out
+    Ignored:    ukbb_analysis_88_clustermq.out
+    Ignored:    ukbb_analysis_89_clustermq.out
     Ignored:    ukbb_analysis_8_clustermq.out
+    Ignored:    ukbb_analysis_90_clustermq.out
+    Ignored:    ukbb_analysis_91_clustermq.out
+    Ignored:    ukbb_analysis_92_clustermq.out
+    Ignored:    ukbb_analysis_93_clustermq.out
+    Ignored:    ukbb_analysis_94_clustermq.out
+    Ignored:    ukbb_analysis_95_clustermq.out
+    Ignored:    ukbb_analysis_96_clustermq.out
+    Ignored:    ukbb_analysis_97_clustermq.out
+    Ignored:    ukbb_analysis_98_clustermq.out
+    Ignored:    ukbb_analysis_99_clustermq.out
     Ignored:    ukbb_analysis_9_clustermq.out
 
 Untracked files:
     Untracked:  Rlogo.png
     Untracked:  Rlogo2.png
-    Untracked:  analysis_prep.log
-    Untracked:  download_impute.log
-    Untracked:  extract_sig.log
-    Untracked:  grs.log
-    Untracked:  init_analysis.log
-    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison.csv
-    Untracked:  output/PSYMETAB_GWAS_UKBB_comparison2.csv
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/GWAS_subgroup_results.Rmd
+    Untracked:  analysis/meetings.Rmd
+    Untracked:  analysis/report.Rmd
+    Untracked:  code/extractions/Aurelie09032021_extract.sh
+    Untracked:  code/extractions/MarcodePieri_09032021_extract.sh
+    Untracked:  code/extractions/MarcodePieri_09032021_proxies_extract.sh
+    Untracked:  forest_plot.rds
+    Untracked:  output/PSYMETAB_GWAS_UKBB_controls.csv
     Untracked:  output/PSYMETAB_GWAS_baseline_CEU_result.csv
+    Untracked:  output/PSYMETAB_GWAS_case_only_CEU_meta_result.csv
+    Untracked:  output/PSYMETAB_GWAS_celine_extract.csv
     Untracked:  output/PSYMETAB_GWAS_subgroup_CEU_result.csv
+    Untracked:  output/PSYMETAB_inclusion_dates.txt
     Untracked:  output/coffee_consumed_Neale_UKBB_analysis.csv
-    Untracked:  process_init.log
-    Untracked:  prs.log
     Untracked:  rplot.jpg
-    Untracked:  test
-    Untracked:  ukbb_analysis.log
+    Untracked:  temp
 
 Unstaged changes:
+    Modified:   R/functions.R
+    Modified:   R/plan.R
+    Modified:   _drake.R
+    Modified:   analysis/GWAS_UKBB_control.Rmd
+    Modified:   analysis/GWAS_UKBB_replication.Rmd
+    Modified:   analysis/GWAS_case_only.Rmd
+    Modified:   analysis/GWAS_method.Rmd
+    Modified:   analysis/GWAS_results.Rmd
+    Modified:   analysis/_site.yml
+    Modified:   analysis/analysis_summary.Rmd
+    Modified:   analysis/create_custom_cluster_files.Rmd
+    Modified:   analysis/genetic_quality_control.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/pheno_quality_control.Rmd
     Modified:   analysis/plans.Rmd
+    Modified:   analysis/setup.Rmd
     Modified:   cache_log.csv
+    Modified:   code/extractions/AudeCoumau_extract.sh
+    Modified:   code/extractions/AurelieReymond_extract.sh
+    Modified:   code/extractions/ChinEap_extract.sh
+    Modified:   code/extractions/FlavioFerreira_extract.sh
+    Modified:   code/extractions/FredVandenberghe_extract.sh
+    Modified:   code/extractions/MarcodePieri_extract.sh
+    Modified:   code/extractions/MurielleBrocard_extract.sh
+    Modified:   code/extractions/NermineLaaboub_extract.sh
+    Modified:   code/extractions/NicolasAnsermot_extract.sh
+    Modified:   code/extractions/SeverineCrettolWavre_extract.sh
     Modified:   post_impute.log
+    Modified:   slurm_clustermq.tmpl
 
 </code></pre> <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
@@ -623,6 +1082,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jennysjaarda/PSYMETAB/3cea988925216111aea6b7a3cf16ddc9b156cd22/docs/index.html" target="_blank">3cea988</a>
+</td>
+<td>
+Jenny Sjaarda
+</td>
+<td>
+2021-03-04
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -995,7 +1471,7 @@ Start workflowr project.
 
 
 
-<p><a href="https://github.com/jennysjaarda/PSYMETAB"><img src="https://img.shields.io/badge/last%20change-2021--03--04-brightgreen.svg" alt="Last-changedate" /></a> <a href="https://cran.r-project.org/"><img src="https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg" alt="minimal R version" /></a></p>
+<p><a href="https://github.com/jennysjaarda/PSYMETAB"><img src="https://img.shields.io/badge/last%20change-2021--05--31-brightgreen.svg" alt="Last-changedate" /></a> <a href="https://cran.r-project.org/"><img src="https://img.shields.io/badge/R%3E%3D-3.5.0-brightgreen.svg" alt="minimal R version" /></a></p>
 <p>This website contains all information and results about this research project.</p>
 <p>Project details and overview can be found in the <a href="about.html">About</a> page.</p>
 <p>See <a href="setup.html">Setup</a> for details on setting up the project and the various analyses for this project.</p>
@@ -1059,9 +1535,21 @@ Start workflowr project.
 </ol>
 </div>
 </div>
+<div id="to-do" class="section level2">
+<h2>TO DO</h2>
+<p><em>Analyses on going before mat-leave:</em></p>
+<ol start="0" style="list-style-type: decimal">
+<li><p>Run GWAS in UKBB with BMI change for comparison to GWAS in PSYMETAB. <strong>This analysis was completed before maternity leave, but noticed that the GWAS (using BGENIE with Ninon and Ele’s script) excluded HRC SNPs and should be performed on the complete SNP list. This analysis was running before maternity leave and needs to be checked that is ran properly.</strong> <em>See <code>launch_bgenie</code> function</em></p></li>
+<li><p>Test top SNPs from our GWAS (within drug subgroups) with BMI in UKBB within a group defined as under the same drug as the association in our psychiatric cohort (using drug information data in UKBB). Note that in contrast to our psychiatric cohort, we don’t have information for how long a UKBB participant has been taking a specific drug.</p></li>
+<li><p>To justify (1), ensure that BMI is a good proxy for change in BMI (i.e. the phenotype used in the psychiatric cohort), correlate BMI at end of follow-up with BMI slope in our psychiatric cohort.</p></li>
+<li><p>For rare (0.01 &lt; MAF &lt; 0.05) SNPs, perform permutation test (i.e. shuffle phenotype ~1M times and perform same association: pheno ~ SNP + covars) to see if the effect found with the real data (i.e. unshuffled phenotype) is significantly larger than using the 1M shuffled phenotypes and not just some artifact of low AF.</p></li>
+<li><p>Meta-analyze GWAS results across drug subgroups and use Cochran’s Q test (i.e. test for heterogeneity) to determine effects differ across subgroups.</p></li>
+<li><p>Added <code>logtotal_methyl_caffeine</code> to PRS analysis for Nermine. <em>See <code>prs_analysis</code> plan</em></p></li>
+</ol>
+</div>
 <div id="acknowledgements" class="section level2">
 <h2>Acknowledgements</h2>
-<p>Primary analysis performed by: <a href="jennysjaarda@gmail.com">Jenny Sjaarda</a>. Project supervisor: <a href="https://www.unil.ch/fbm/fr/home/menuinst/la-releve-academique/nominations--promotions/professeurs-a-a-z/d-g/eap-chin-bin.html">Professor Chin Bin Eap</a>. Analysis support: <a href="https://wp.unil.ch/sgg/people/zoltan/">Professor Zoltan Kutalik</a>.</p>
+<p>Primary analysis performed by: <a href="jennysjaarda@gmail.com">Jenny Sjaarda</a>.<br />Project supervisor: <a href="https://www.unil.ch/fbm/fr/home/menuinst/la-releve-academique/nominations--promotions/professeurs-a-a-z/d-g/eap-chin-bin.html">Professor Chin Bin Eap</a>.<br />Analysis support: <a href="https://wp.unil.ch/sgg/people/zoltan/">Professor Zoltan Kutalik</a>.</p>
 <p>This work has been supported by the <a href="http://www.snf.ch/en/funding/Pages/default.aspx">Swiss National Science Foundation</a>.</p>
 <br>
 <p>

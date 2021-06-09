@@ -1373,3 +1373,73 @@ node07.cluster | 102884 | 2020-06-09 23:54:13.441803 +0200 GMT | snp_weights_mun
 node07.cluster | 102884 | 2020-06-09 23:54:13.446486 +0200 GMT | snp_weights_out | build locally
 node07.cluster | 102884 | 2020-06-09 23:54:13.682986 +0200 GMT | snp_weights_out | skip
 node07.cluster | 102884 | 2020-06-09 23:54:47.162936 +0200 GMT |  | end make()
+node13.cluster | 142359 | 2020-06-29 17:59:32.518882 +0200 GMT |  | begin drake_config()
+node13.cluster | 142359 | 2020-06-29 17:59:32.557292 +0200 GMT |  | cache /data/sgg2/jenny/projects/PSYMETAB/.drake
+node13.cluster | 142359 | 2020-06-29 17:59:32.560298 +0200 GMT |  | analyze environment
+node13.cluster | 142359 | 2020-06-29 17:59:32.617198 +0200 GMT |  | get knitr hash
+node13.cluster | 142359 | 2020-06-29 17:59:32.641323 +0200 GMT |  | set knitr files
+node13.cluster | 142359 | 2020-06-29 17:59:32.668138 +0200 GMT |  | create graph edges
+node13.cluster | 142359 | 2020-06-29 17:59:32.678695 +0200 GMT |  | connect output files
+node13.cluster | 142359 | 2020-06-29 17:59:32.692071 +0200 GMT | file analysis/QC/07_imputation_check | file_out
+node13.cluster | 142359 | 2020-06-29 17:59:32.694000 +0200 GMT | file docs/generated_reports/CrossCohortReport.html | file_out
+node13.cluster | 142359 | 2020-06-29 17:59:32.695459 +0200 GMT | file docs/generated_reports/07_imputation_check.html | file_out
+node13.cluster | 142359 | 2020-06-29 17:59:32.696552 +0200 GMT | file data/processed/extractions/PSYMETAB_GWAS.snpweights | file_out
+node13.cluster | 142359 | 2020-06-29 17:59:32.697602 +0200 GMT | file docs/generated_reports/qcreport.html | file_out
+node13.cluster | 142359 | 2020-06-29 17:59:32.714818 +0200 GMT |  | end drake_config()
+node13.cluster | 142359 | 2020-06-29 17:59:32.716068 +0200 GMT |  | begin make()
+node13.cluster | 142359 | 2020-06-29 17:59:32.720057 +0200 GMT |  | end make()
+node13.cluster | 142359 | 2020-06-29 17:59:43.130054 +0200 GMT |  | begin drake_config()
+node13.cluster | 142359 | 2020-06-29 17:59:43.148975 +0200 GMT |  | cache /data/sgg2/jenny/projects/PSYMETAB/.drake
+node13.cluster | 142359 | 2020-06-29 17:59:43.154337 +0200 GMT |  | analyze environment
+node13.cluster | 142359 | 2020-06-29 17:59:43.206023 +0200 GMT |  | get knitr hash
+node13.cluster | 142359 | 2020-06-29 17:59:43.222987 +0200 GMT |  | set knitr files
+node13.cluster | 142359 | 2020-06-29 17:59:43.255902 +0200 GMT |  | end drake_config()
+node13.cluster | 142359 | 2020-06-29 17:59:43.257025 +0200 GMT |  | begin make()
+node13.cluster | 142359 | 2020-06-29 17:59:43.447726 +0200 GMT | dplyr::select | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.459615 +0200 GMT | processx::run | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.471395 +0200 GMT | file code/post_imputation_qc.sh | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.483590 +0200 GMT | file code/qc/maf_check.R | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.506950 +0200 GMT | file code/qc/ethnicity_check.R | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.560417 +0200 GMT | file code/qc/relatedness_filter.R | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.575636 +0200 GMT | file code/qc/update_pvar.R | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.604864 +0200 GMT | file code/check_imputation.sh | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.632602 +0200 GMT | file analysis/QC/11_relatedness/PSYMETAB_GWAS_related_ids.txt | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.656243 +0200 GMT | file code/final_processing.sh | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.703168 +0200 GMT | file analysis/QC/14_mafcheck/PSYMETAB_GWAS.mafcheck.step14.log | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.730185 +0200 GMT | file analysis/QC/12_ethnicity_admixture/snpweights/PSYMETAB_GWAS.NA.predpc | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.755111 +0200 GMT | file analysis/QC/06_imputation_get/qcreport.html | import
+node13.cluster | 142359 | 2020-06-29 17:59:43.777094 +0200 GMT | munge_snp_weights | import
+node13.cluster | 142359 | 2020-06-29 17:59:45.514160 +0200 GMT | run_check_imputation | skip
+node13.cluster | 142359 | 2020-06-29 17:59:45.531507 +0200 GMT | run_post_imputation | skip
+node13.cluster | 142359 | 2020-06-29 17:59:45.540228 +0200 GMT | cp_qc_report | skip
+node13.cluster | 142359 | 2020-06-29 17:59:47.231026 +0200 GMT | cp_qc_check | skip
+node13.cluster | 142359 | 2020-06-29 17:59:47.237939 +0200 GMT | snp_weights | trigger command
+node13.cluster | 142359 | 2020-06-29 17:59:47.243655 +0200 GMT | related_inds | trigger command
+node13.cluster | 142359 | 2020-06-29 17:59:47.251789 +0200 GMT | run_final_processing | trigger command
+node13.cluster | 142359 | 2020-06-29 17:59:47.264770 +0200 GMT |  | isolate oudated targets
+node13.cluster | 142359 | 2020-06-29 17:59:47.268412 +0200 GMT |  | construct priority queue
+node13.cluster | 142359 | 2020-06-29 17:59:47.274659 +0200 GMT | snp_weights | build locally
+node13.cluster | 142359 | 2020-06-29 17:59:47.276178 +0200 GMT | snp_weights | trigger command
+node13.cluster | 142359 | 2020-06-29 17:59:47.279868 +0200 GMT | snp_weights | target
+node13.cluster | 142359 | 2020-06-29 17:59:47.303364 +0200 GMT |  | load run_post_imputation
+node13.cluster | 142359 | 2020-06-29 17:59:47.345354 +0200 GMT | snp_weights | store
+node13.cluster | 142359 | 2020-06-29 17:59:47.472143 +0200 GMT | snp_weights | time  0.032s : 0.232s  (exec : total)
+node13.cluster | 142359 | 2020-06-29 17:59:47.590002 +0200 GMT | related_inds | build locally
+node13.cluster | 142359 | 2020-06-29 17:59:47.606790 +0200 GMT | related_inds | trigger command
+node13.cluster | 142359 | 2020-06-29 17:59:47.611010 +0200 GMT | related_inds | target
+node13.cluster | 142359 | 2020-06-29 17:59:47.619006 +0200 GMT | related_inds | store
+node13.cluster | 142359 | 2020-06-29 17:59:47.669536 +0200 GMT | related_inds | time  0.003s : 0.429s  (exec : total)
+node13.cluster | 142359 | 2020-06-29 17:59:47.762994 +0200 GMT | run_final_processing | trigger command
+node13.cluster | 142359 | 2020-06-29 17:59:47.947323 +0200 GMT |  | set common data
+node13.cluster | 142359 | 2020-06-29 17:59:47.970834 +0200 GMT |  | begin scheduling targets
+node13.cluster | 142359 | 2020-06-29 17:59:49.847012 +0200 GMT |  | sending common data
+node13.cluster | 142359 | 2020-06-29 17:59:50.396139 +0200 GMT | run_final_processing | trigger command
+node13.cluster | 142359 | 2020-06-29 17:59:50.401975 +0200 GMT | run_final_processing | target
+node01.cluster | 47094 | 2020-06-29 17:59:50.421386 +0200 GMT | run_final_processing | build on an hpc worker
+node13.cluster | 142359 | 2020-06-29 18:26:02.350674 +0200 GMT | run_final_processing | store
+node13.cluster | 142359 | 2020-06-29 18:26:02.662482 +0200 GMT | run_final_processing | time  1568.539s (~26.14 minutes) : 1575.414s (~26.26 minutes)  (exec : total)
+node13.cluster | 142359 | 2020-06-29 18:26:03.114394 +0200 GMT | snp_weights_munge | build locally
+node13.cluster | 142359 | 2020-06-29 18:26:03.335919 +0200 GMT | snp_weights_munge | skip
+node13.cluster | 142359 | 2020-06-29 18:26:03.346102 +0200 GMT | snp_weights_out | build locally
+node13.cluster | 142359 | 2020-06-29 18:26:03.491821 +0200 GMT | snp_weights_out | skip
+node13.cluster | 142359 | 2020-06-29 18:26:19.095928 +0200 GMT |  | end make()

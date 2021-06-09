@@ -7,9 +7,9 @@ output: workflowr::wflow_html
 
 ```{r setup, include = FALSE}
 options(scipen=999)
-source("code/packages.R")
-source("code/functions.R")
-source("code/settings.R")
+source("R/packages.R")
+source("R/functions.R")
+source("R/settings.R")
 
 ```
 

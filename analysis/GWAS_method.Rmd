@@ -17,9 +17,9 @@ pre code, pre, code {
 
 ```{r setup, include = FALSE}
 options(scipen=999)
-source("code/packages.R")
-source("code/functions.R")
-source("code/settings.R")
+source("R/packages.R")
+source("R/functions.R")
+source("R/settings.R")
 ```
 
 
@@ -329,6 +329,24 @@ test_drugs %>% kable() %>%
   - All cases falling in category `high` were removed. 
   - If testing a set of drugs spanning multiple categories (i.e. quetiapine, clozapine, olanzapine), the `max_category` would be `high` and no individuals would be removed in the sensitivity set. 
 
+## Independent drug sets. 
+
+- Based on Zoltan's suggestion, PSYMETAB was divided into subgroups based on different drugs such that each participant is only in one subgroup.
+- Because participants can be followed for more than one drug, it is necessary to *select* one drug per participant. 
+- Therefore a prioritization method was followed: 
+  - If a particpant has been followed for the highest priority drug they are placed in this drug group. 
+  - If not, they are checked for the second drug in the prioritization list and either placed in the second drug group or examined to see if they were followed for the next drug in the list. 
+  - This process was repeated for all drugs in the prioritization list.
+  - If a participant has not been followed for any of the drugs in the prioritization list, they are placed in category `Other`. 
+- The following independent drug groups were tested, in the following order. 
+
+```{r drug_prioritization_list, echo = FALSE}
+
+drug_prioritization %>% kable() %>%
+  kable_styling(full_width = F, position = "left") 
+
+```
+
 # Phenotype definitions.
 
 - The main phenotypes of interest were built using follow-up data, including:
@@ -399,6 +417,7 @@ test_drugs %>% kable() %>%
 ```
 - All outcomes used in interaction (above) were tested as outcomes.
 - Number of models tested = 2 (yes/no on drug) * 2 (original/sensitivity model) * length(drugs_tested) * length(interaction_outcome) * 3 ethnic models (European/mixed/meta) = `r 2*2*dim(test_drugs)[1]*length(interaction_outcome)*3`.
+- The idea was that a hetergeneity test would be performed to compare the GWAS between the two subgroups to identify associations that differ between the two groups (those under vs those not under a given drug). This would be to identify associations that are specific to a use of a certain drug. However, after further consideration, we decided that this did not make sense as the control group is not an ideal set of controls given that they are also taking some drug, and all have participants some psychiatric condition. 
 
 # Covariate definitions and adjustment.
 

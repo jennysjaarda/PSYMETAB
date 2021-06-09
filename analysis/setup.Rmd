@@ -246,7 +246,7 @@ rmd_commit <- c(rownames(repo_status$status)[repo_status$status$modified],
          rownames(repo_status$status)[repo_status$status$scratch])
 
 wflow_publish(rmd_commit,
-              message="Updating webiste")
+              message="Updating website")
 
 ```
 

@@ -1,7 +1,9 @@
 ---
 title: "Creating Custom Cluster Files in GenomeStudio"
 author: "Jenny Sjaarda"
-output: workflowr::wflow_html
+output:
+  workflowr::wflow_html:
+    toc: true
 ---
 
 Notes from Illumina [webinar](https://support.illumina.com/training/webinars/array/array-archive.html):

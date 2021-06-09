@@ -14,7 +14,7 @@ output:
 - Subsets were defined based on drug use, for various drug groups of interest (we had `r length(drug_classes)` groups of drugs that were analyzed).
 - Phenotypes included various measures of the evolution of BMI: BMI change, BMI slope, weighted slope for SE, etc.
 - Restricted to only European subset.
-- Phenotypes were residualized for: age, age^2, sex, PC1-20, follow-up time, follow-up time^2, and baseline BMI.
+- Phenotypes were first tranformed (INQT) and then residualized for: age, age^2, sex, PC1-20, follow-up time, follow-up time^2, and baseline BMI.
 - Note that one participant could fall into more than one subgroup because participants have been followed for multiple drugs.
 - This population served as *cases*.
 
@@ -23,13 +23,31 @@ output:
 - Phenotype: BMI slope and weighted BMI slope.
 - GWAS restricted to participants having at least 2 BMI measures.
 - Restricted to unrelated, British individuals.
-- Phenotypes were first residualized for: age, sex, PC1-40, and baseline BMI.
+- Phenotypes were first tranformed (INQT) and then residualized for: age, sex, PC1-40, and baseline BMI.
 - UKBB served as *controls*.
 
-### Step 3: comparison between PSYMETAB and UKBB.
+### Step 3: Comparison between PSYMETAB and UKBB.
 
 - In PSYMETAB, took only endpoints involving slope since this would represent the best comparison to UKBB.
+```{r slope files, echo = FALSE}
+loadd(BMI_slope_sub_files)
+```
 - Extracted nominally significant hits in PSYMETAB (p < 5e-06) (as there were very few at GW-significance, i.e. p < 5e-08).
+```{r slope files, echo = FALSE}
+loadd(BMI_slope_nominal)
+dim(BMI_slope_nominal)
+t <- lapply(BMI_slope_sub_files, extract_file_info, eth="CEU")
+as.data.frame(do.call(rbind, t))
+```
+- Merge with UKBB 
+```{r slope files, echo = FALSE}
+loadd(BMI_slope_UKBB_merge)
+dim(BMI_slope_UKBB_merge)
+```
 - For these SNPs, compared with UKBB using a standard heterogeneity statistic.
 - Limited to only GW-sig results based on het p-value.
 - Identified 68 GW-significant SNPs (i.e. SNPs that show significant difference between some PSYMETAB subset and UKBB based on a BMI slope measure, for only those SNPs in PSYMETAB that have p < 5e-06).
+```{r drugs_tested, echo = FALSE}
+psy_ukbb_het_prune %>% kable() %>%
+  kable_styling(full_width = F, position = "left") 
+```

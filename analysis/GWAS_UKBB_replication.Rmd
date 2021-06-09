@@ -6,4 +6,72 @@ output:
     toc: true
 ---
 
-**The following document outlines the attempt to replicate signals identified in PSYMETAB in the UKBB*
+**The following document outlines the attempt to replicate signals identified in PSYMETAB in the UKBB**
+
+
+```{css include=FALSE}
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+```
+
+```{r setup, include = FALSE}
+options(scipen=999)
+source("R/packages.R")
+source("R/functions.R")
+source("R/settings.R")
+library(DT)
+```
+
+- Because there is no control population in PSYMETAB, we attempted to replicate our signals in the UKBB. 
+- This was done by creating psychiatric subgroups within the UKBB, using the drug-use variable (see medication codes in the UKBB found [here](https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?id=4&nl=1)).
+- Specifically, UKBB participants who indicated that they were taking a psychiatric drug of interest, were used for the analysis.
+- The number of UKBB participants for each drug of interest is as follows:
+```{r ukbb_drug_counts, echo = FALSE}
+loadd(ukbb_drug_counts)
+x <- tibble::rownames_to_column(as.data.frame(ukbb_drug_counts), "drug_group") %>% rename(count = V1)
+x
+```
+
+- Our primary endpoint of interest in evolution of BMI, which requires >2 BMI measurements at >2 distinct time-points. 
+- Only ~30K UKBB (~6% of the cohort) participants have data at >=2 timepoints, so combining this dataset with those under a drug of interest would be very small. 
+- Therefore, we attempted to use BMI as a proxy for evolution of BMI (BMI-slope) to increase sample size. 
+- To justify this analysis, we first tested the correlation between BMI and BMI-slope. 
+```{r corr_bmi, echo = FALSE}
+loadd(bmi_slope_corr_data)
+hist(ivt(bmi_slope_corr_data[[1]]$bmi_slope), main="BMI slope hist UKBB", xlab = "BMI slope (INQT)")
+hist(bmi_slope_corr_data[[1]]$bmi_ivt, main="BMI hist UKBB", xlab = "BMI (INQT)")
+
+cor.test(bmi_slope_corr_data[[1]]$bmi_ivt, ivt(bmi_slope_corr_data[[1]]$bmi_slope), use="complete.obs")
+
+ggplot(bmi_slope_corr_data[[1]], aes(x=bmi_ivt, y=bmi_slope)) + geom_point() + geom_smooth(method=lm)
+```
+
+- We found a significant negative correlation between BMI at baseline and change in BMI, meaning that individuals with an already high BMI tend to have *smaller* increase in BMI overtime compared to those with a lower BMI.
+- In other words, the assumption is that people with a lower BMI have more weight to gain.
+- *Given this result, how should we proceed and interpret the following replication results?*
+
+```{r ukbb_replication_results, results='asis', echo = FALSE}
+loadd(psy_UKBB_replicate_sig)
+
+# for(i in 1:length(psy_UKBB_replicate_sig)){
+#   data <- psy_UKBB_replicate_sig[[i]] %>% dplyr::select(-matches("_t_|_se_|file"))
+#   print(names(psy_UKBB_replicate_sig)[i])
+#   print(data %>% kable() %>%
+#     kable_styling(full_width = F, position = "left") %>% scroll_box(width = "100%", height="500px"))
+#   cat("\n")
+# }
+  
+i=1
+  data <- psy_UKBB_replicate_sig[[i]] %>% dplyr::select(-matches("_t_|_se_|file"))
+  print(names(psy_UKBB_replicate_sig)[i])
+  print(data %>% kable() %>%
+    kable_styling(full_width = F, position = "left") %>% scroll_box(width = "100%", height="500px"))
+
+```
+
+- For comparison, we tested the correlation between BMI and BMI slope in PSYMETAB as well. **TOD**
+- It was decided that we should attempt to replicate the signals in the subset of participants with two measures of BMI and under at least one drug of interest. 

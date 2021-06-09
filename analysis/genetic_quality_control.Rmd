@@ -49,10 +49,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 
 - Instructions can be found [here](https://support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/genomestudio/genomestudio-2-0/genomestudio-genotyping-module-v2-user-guide-11319113-01.pdf).
 - Required files:
-  - Sample sheet: as csv file (created above).
-  - Data repository: as idat files.
-  - Manifest file: as bpm file.
-  - Cluster file: as egt file.
+    - Sample sheet: as csv file (created above).
+    - Data repository: as idat files.
+    - Manifest file: as bpm file.
+    - Cluster file: as egt file.
 - Data provided from Mylene Docquier, copied from sftp and saved here:  `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data`.
 - Create new IDs based on GPCR randomization (see `code/randomize_IDs.r`), and save to above folder as: `Eap0819_1t26_27to29corrected_7b9b_randomizedID.csv`.
 - Note that original IDs can be found in the same folder at the file: `Eap0819_1t26_27to29corrected_7b9.csv`, if needed.
@@ -70,10 +70,10 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
   7. Select "Import cluster positions from cluster file" and choose cluster file located here: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\data\GSPMA24v1_0-A_4349HNR_Samples.egt` and click "Finish".
 
 - Genome studio files were created using the following required files:
-  - Sample sheet: as csv file (created above).
-  - Data repository: as idat files (provided from Mylene Docquier).
-  - Manifest file: as bpm file (provided from Mylene Docquier).
-  - Cluster file: as egt file (provided from Mylene Docquier).
+    - Sample sheet: as csv file (created above).
+    - Data repository: as idat files (provided from Mylene Docquier).
+    - Manifest file: as bpm file (provided from Mylene Docquier).
+    - Cluster file: as egt file (provided from Mylene Docquier).
 
 ## Part C: Clustering and PLINK conversion.
 
@@ -102,9 +102,9 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
   3. **Review and edit**: use filters and scores to evaluate SNPs, correct or zero SNPs as needed. No manual editing was performed.
 - New genome studio was exported to the following location: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`, and named:  `GS_project_26092019_cluster`.
 - Remove filtered individuals:
-  - In samples table, remove filter for "Aux" > 100.
-  - Recalculate SNP statistics for these 8 samples only (to save time).
-  - Note that sample call rates have increased with new clustering positions.
+    - In samples table, remove filter for "Aux" > 100.
+    - Recalculate SNP statistics for these 8 samples only (to save time).
+    - Note that sample call rates have increased with new clustering positions.
 - Project was exported as PLINK file to the following location: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS`, and named: `PLINK_091019_0920`.
 - Individual PLINK files within above folder were named according to parent directory as: PSYMETAB_GWAS.ped and PSYMETAB_GWAS.map.
 - Ultimately, the final ped/map files reside here: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PLINK_091019_0920`.
@@ -116,12 +116,12 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 
 ### Data updates and releases.
 - Initial data was received on April 8, 2019:
-  - Final two plates were received on May 17, 2019.
-  - Processing began with initial files.
+    - Final two plates were received on May 17, 2019.
+    - Processing began with initial files.
 - July 18, 2019 update:
-  - It came to our attention that 15 participants were genotyped that did not consent.
-  - This list was sent to Mylene to be removed.
-  - Plates 27 to 29 were re-provided on 08/08/2019 without these 15 individuals (list below, and provided by Severine in email).
+    - It came to our attention that 15 participants were genotyped that did not consent.
+    - This list was sent to Mylene to be removed.
+    - Plates 27 to 29 were re-provided on 08/08/2019 without these 15 individuals (list below, and provided by Severine in email).
 ```{r eval=FALSE}
 013CB
 017CB
@@ -139,23 +139,23 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 246GP
 089PP
 ```
-  - Until new file was provided, these participants were removed using PLINK to avoid any further analysis of these individuals.
-  - The new genomestudio file was copied to: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PSYMETAB_GS2\Plates27to29_0819`.
-  - The same process above was followed (data opened in GS, cluster positions imported, and data saved to `Plates27to29_0819_cluster`, and `PLINK_270819_0457`).
-  - Old files were deleted to remove all data containing these individuals.
-  - Updated files were then copied to PSYMETAB_GS1.
+    - Until new file was provided, these participants were removed using PLINK to avoid any further analysis of these individuals.
+    - The new genomestudio file was copied to: `L:\PCN\UBPC\ANALYSES_RECHERCHE\Jenny\PSYMETAB_GWAS\PSYMETAB_GS2\Plates27to29_0819`.
+    - The same process above was followed (data opened in GS, cluster positions imported, and data saved to `Plates27to29_0819_cluster`, and `PLINK_270819_0457`).
+    - Old files were deleted to remove all data containing these individuals.
+    - Updated files were then copied to PSYMETAB_GS1.
 - August 28, 2019 update:
-  - Mylene provided one single genome studio file with all samples (excluding the list from Severine).
-  - These files were copied to UPPC folders and custom clustering was re-performed.
-  - These changes are reflected in the above description.
-  - All old files were subsequently deleted to ensure the data from these participants is completely removed from all databases.
-  - As of September 3, 2019, all clustering was complete and final PLINK files (`PLINK_030919_0149`) were copied to SGG directory (names of plink files according to parent directory: `DATA`).
+    - Mylene provided one single genome studio file with all samples (excluding the list from Severine).
+    - These files were copied to UPPC folders and custom clustering was re-performed.
+    - These changes are reflected in the above description.
+    - All old files were subsequently deleted to ensure the data from these participants is completely removed from all databases.
+    - As of September 3, 2019, all clustering was complete and final PLINK files (`PLINK_030919_0149`) were copied to SGG directory (names of plink files according to parent directory: `DATA`).
 - September 6, 2019 update:
-  - It was decided that all IDs part of PSYMETAB should be randomized to ensure they are not identifiable.
-  - We had a meeting to discuss (Celine, Fred, Chin, Nermine, and Claire), and decided to use a CHUV program (GPCR) for the randomization process.
-  - We requested with Mylene to create a new project with the new IDs, but she suggested to create our own GS project.
-  - She provided all relevant data to create our own GS project.
-  - The description above reflects these changes.
+    - It was decided that all IDs part of PSYMETAB should be randomized to ensure they are not identifiable.
+    - We had a meeting to discuss (Celine, Fred, Chin, Nermine, and Claire), and decided to use a CHUV program (GPCR) for the randomization process.
+    - We requested with Mylene to create a new project with the new IDs, but she suggested to create our own GS project.
+    - She provided all relevant data to create our own GS project.
+    - The description above reflects these changes.
 - As of October 11, all GS file were created, clustered and exported as PLINK files and subsequently moved to the sgg server.
 
 ## Part D: Copy files to SGG server.
@@ -176,9 +176,9 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 - Sex file was created according to the input specified on plink man page (FID, IID, sex [M/F]).
 - Ethnicity input file to be used in R script for comparison to genetically derived ethnic groups (by snpweights).
 - Recodes ethnic groups as follows:
-  - Changes French codes to English.
-  - Changes missing to unknown.
-  - Groups small ethnic groups to missing.
+    - Changes French codes to English.
+    - Changes missing to unknown.
+    - Groups small ethnic groups to missing.
 - A1 rsid conversion file was updated to remove all SNPs labeled with a [.] (see [data sources](data_sources.html)).
 - Create duplicates file
 
@@ -191,14 +191,13 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 
 ```{r setup, include = FALSE}
 options(scipen=999)
-source("code/packages.R")
-source("code/functions.R")
-source("code/settings.R")
+source("R/packages.R")
+source("R/functions.R")
+source("R/settings.R")
 
 
 library(R.utils)
 library(kableExtra)
-project_dir <- "/data/sgg2/jenny/projects/PSYMETAB"
 output_name <- "PSYMETAB_GWAS"
 input_chip <-plink_bed_out
 sex_file <- read.table('data/processed/phenotype_data/PSYMETAB_GWAS_sex.txt', header=F)
@@ -664,7 +663,7 @@ tar --exclude='*.info.gz' --exclude qcreport.html --exclude snps-excluded.txt --
 
 cd $output_dir/10_merge_imputed
 mkdir archive
-tar --exclude='*.psam' --exclude='*.pvar' -czvf archive/10_merge_imputed.tar.gz * --remove-files
+tar --exclude='*.psam' --exclude='*.pvar' --exclude archive -czvf archive/10_merge_imputed.tar.gz * --remove-files
 
 cd $output_dir/13_hwecheck
 mkdir archive

@@ -7,6 +7,7 @@
 #SBATCH --mem-per-cpu={{ memory | 7900 }}   # memory
 #SBATCH --array=1-{{ n_jobs }}              # job array
 #SBATCH --cpus-per-task={{ cpus }}
+#SBATCH --account=sgg
 # module load R                             # Uncomment if R is an environment module.
 ####ulimit -v $(( 1024 * {{ memory | 4096 }} ))
 CMQ_AUTH={{ auth }} R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'
