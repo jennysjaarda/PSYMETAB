@@ -195,6 +195,12 @@ for(i in 1:dim(case_only_interest)[1]){
   cat(paste0("![](", qq_file_name2, ")"), "\n") 
 }
 
+
+list.files("../analysis")
+
+getwd()
+list.files()
+
 #figures <- c("../analysis/rplot.jpg", "../Rlogo.png")
 #knitr::include_graphics(manhatten_figures)
 
