@@ -185,8 +185,8 @@ for(i in 1:dim(case_only_interest)[1]){
         overwrite = TRUE, recursive = FALSE, 
         copy.mode = TRUE)
   
-  manhattan_file_name2 <- paste0("../", paste0("analysis/images", "/", output, "_", title, "_META_manhattan.png"))
-  qq_file_name2 <- paste0("../", paste0("analysis/images", "/", output, "_", title, "_META_qq.png"))
+  manhattan_file_name2 <- paste0("analysis/images", "/", output, "_", title, "_META_manhattan.png")
+  qq_file_name2 <- paste0("analysis/images", "/", output, "_", title, "_META_qq.png")
   
   drug_list <- paste0(unlist(test_drugs[which(test_drugs$class==drug_class), "drugs"]), collapse=", ")
   cat(paste0("Below are the Manhattan and QQ plots for evolution of BMI **", outcome, "** and restricted to ethnic group '", eth, "'.", 
