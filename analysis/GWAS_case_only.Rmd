@@ -177,11 +177,16 @@ for(i in 1:dim(case_only_interest)[1]){
   manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_META_manhattan.png")
   qq_file_name <-  paste0(write_dir, "/", output, "_", title, "_META_qq.png")
   
-  manhattan_file_name2 <- paste0("../", manhattan_file_name)
-  qq_file_name2 <- paste0("../", qq_file_name)
+  file.copy(from=manhattan_file_name, to=paste0("analysis/images", "/", output, "_", title, "_META_manhattan.png"), 
+          overwrite = TRUE, recursive = FALSE, 
+          copy.mode = TRUE)
+
+  file.copy(from=qq_file_name, to=paste0("analysis/images", "/", output, "_", title, "_META_qq.png"), 
+        overwrite = TRUE, recursive = FALSE, 
+        copy.mode = TRUE)
   
-  manhatten_figures <- c(manhatten_figures, manhattan_file_name2)
-  qq_figures <- c(qq_figures, qq_file_name2)
+  manhattan_file_name2 <- paste0("../", paste0("analysis/images", "/", output, "_", title, "_META_manhattan.png"))
+  qq_file_name2 <- paste0("../", paste0("analysis/images", "/", output, "_", title, "_META_qq.png"))
   
   drug_list <- paste0(unlist(test_drugs[which(test_drugs$class==drug_class), "drugs"]), collapse=", ")
   cat(paste0("Below are the Manhattan and QQ plots for evolution of BMI **", outcome, "** and restricted to ethnic group '", eth, "'.", 
