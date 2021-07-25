@@ -2035,31 +2035,31 @@ create_ukbb_psy_subgroups <- function(ukbb_munge_drug_users, ukbb_psychiatric_ic
   ukbb_munge_drug_users_any <- ukbb_munge_drug_users %>%
     mutate(number_drugs = dplyr::select(., contains("_users")) %>% rowSums()) %>%
     mutate(any_users = ifelse(number_drugs > 0, 1, 0))
-  
+
   ukbb_icd_drug_data <- ukbb_munge_drug_users_any %>% mutate(psy_icd10 = ifelse(eid %in% ukbb_psychiatric_icd10_samples, 1, 0)) %>%
-    mutate(psy_icd10_exclusive = case_when(any_users == 1 ~ 0, 
+    mutate(psy_icd10_exclusive = case_when(any_users == 1 ~ 0,
                                            TRUE ~ psy_icd10))
-  
+
   output <- ukbb_icd_drug_data %>% dplyr::select(eid, ends_with("_users"), psy_icd10_exclusive)  %>% rename(psy_icd10 = psy_icd10_exclusive)
-  
+
 }
 
 
 ukbb_subgroups_add_var <- function(subgroup_data, variable_data){
   #subgroup_data<- ukbb_psy_subgroups
   #variable_data <- ukbb_filter_bmi_slope$bmi_slope
-  
+
   columns <- colnames(subgroup_data)[-(which(colnames(subgroup_data)=="eid"))]
   col_variable <- colnames(variable_data)[2]
   data <- inner_join(subgroup_data, variable_data)
   output <- list()
   for(col in columns){
-    
+
     data_sub <- data %>% dplyr::select(eid, !!col, !!col_variable) %>% rename(subgroup = !!col) %>% filter(subgroup==1) %>% dplyr::select(-subgroup)
     colnames(data_sub)[2] <- paste0(col, "_", col_variable)
     output[[col]] <- data_sub
   }
-  
+
   return(output)
 }
 
@@ -2235,15 +2235,15 @@ calc_het <- function(data, snp_col, beta1_col, beta2_col, se1_col, se2_col, matc
 }
 
 crude_prune <- function(data, grouping_var = NULL, CHR_col_name="CHR", BP_col_name="BP", P_col_name="P"){
-  
+
   result <- numeric()
-  
-  
+
+
   prune_group_data <- function(data, CHR_col_name="CHR", BP_col_name="BP", P_col_name="P"){
     j <- 1
     t <- data[order(data[[P_col_name]]),]
     while(j <= dim(t)[1]){
-      
+
       chr <- t[[CHR_col_name]][j]
       bp <- t[[BP_col_name]][j]
       remove_indices <- which(t[[CHR_col_name]]==chr & t[[BP_col_name]] >= (bp - 500000) & t[["BP"]] <= (bp + 500000))
@@ -2254,20 +2254,20 @@ crude_prune <- function(data, grouping_var = NULL, CHR_col_name="CHR", BP_col_na
       }
       t$number_signals[j] <- number_signals
       j <- j+1
-      
+
     }
     return(t)
   }
-  
+
   if(!is.null(grouping_var)){
-  
+
     for(group in unique(data[[grouping_var]])){
       data_group <- data[which(data[[grouping_var]]==group),]
       result <- rbind(result, prune_group_data(data_group, CHR_col_name, BP_col_name, P_col_name))
     }
-    
+
   } else result <- prune_group_data(data, CHR_col_name, BP_col_name, P_col_name)
-  
+
   return(result)
 }
 
@@ -2881,20 +2881,20 @@ define_case_only_files <- function(info = case_only_gwas_process, output = "PSYM
 }
 
 
-create_gwas_reference_file <- function(freq_file = "analysis/QC/15_final_processing/CEU/PSYMETAB_GWAS.CEU.afreq", info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info", 
+create_gwas_reference_file <- function(freq_file = "analysis/QC/15_final_processing/CEU/PSYMETAB_GWAS.CEU.afreq", info_file = "analysis/QC/15_final_processing/PSYMETAB_GWAS.info",
                              output_file = "analysis/GWAS/GWAS_reference_file.txt"){
   info <- fread(info_file)
   freq <- fread(freq_file)
-  
+
   info_merge <- merge(info, freq, by=c("ID", "REF", "ALT"))
-  output <- info_merge %>% dplyr::select(CHROM, POS, ID, REF, ALT, R2, ALT_FREQS, OBS_CT) %>% 
+  output <- info_merge %>% dplyr::select(CHROM, POS, ID, REF, ALT, R2, ALT_FREQS, OBS_CT) %>%
     mutate(A1 = case_when(ALT_FREQS <= 0.5 ~ ALT, TRUE ~ REF)) %>%
     mutate(A2 = case_when(ALT_FREQS > 0.5 ~ ALT, TRUE ~ REF)) %>%
     rename(ALT_FREQS_CEU = ALT_FREQS)
- 
+
   fwrite(output, output_file)
 }
-  
+
 
 process_gwas <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", output_dir = "analysis/GWAS", type = "full",
   reference_file = "analysis/GWAS/GWAS_reference_file.txt", out_file){
@@ -2904,13 +2904,13 @@ process_gwas <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", outpu
   write_dir <- file.path(output_dir, type, "processed")
 
   gwas_result <- fread(file, data.table=F, stringsAsFactors=F)
-  
-  # TO CONFIRM THAT ALL SNPs are in term of MAF as defined by the freq_file run the following: 
-  
+
+  # TO CONFIRM THAT ALL SNPs are in term of MAF as defined by the freq_file run the following:
+
   # test <- merge(info, gwas_result, by="ID")
   # backwards_snps <- test[which(test$A1.x!=test$A1.y), "ID"]
   # length(backwards_snps) ## should be 0
-  
+
 
   if(dim(gwas_result)[1]!=0){
     if(eth!="META"){
@@ -2919,7 +2919,7 @@ process_gwas <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", outpu
         filter(!is.na(P)) %>%
         rename("CHR" = "CHROM") %>%
         dplyr::select(CHR, BP, ID, A1.y, A2, BETA, SE, T_STAT, P) %>%
-        rename("A1" = "A1.y") %>% 
+        rename("A1" = "A1.y") %>%
         rename("SNP" = "ID")
 
       # gw_sig_result <- joint %>%
@@ -2931,7 +2931,7 @@ process_gwas <- function(eth, pheno, drug, file, output = "PSYMETAB_GWAS", outpu
       joint <- full_join(gwas_result, reference_data, by = c("SNP" = "ID")) %>%
         rename("CHR" = "CHROM") %>% rename("BP" = "POS") %>%
         filter(!is.na(P)) %>%
-        dplyr::select(CHR, BP, SNP, A1, A2, BETA, P, N, Q) # N is number of studies included 
+        dplyr::select(CHR, BP, SNP, A1, A2, BETA, P, N, Q) # N is number of studies included
     }
     fwrite(joint, out_file, sep="\t")
   }
@@ -2994,11 +2994,11 @@ gw_sig_extract <- function(gwas_file, gz_plink_file, gw_sig_nominal, eth, pheno,
   gwas$pheno <- pheno
   gwas$drug_class <- drug_class
   gwas$drug <- drug
-  
+
   sig_rows <- which(gwas$P < gw_sig_nominal)
   gw_sig_filter <- data.table(gwas[sig_rows,])
-  
-  
+
+
   output_name <- paste(eth, pheno, drug_class, drug, sep=".")
   if(is.na(drug)){
     output_name <- paste(eth, pheno, drug_class, sep=".")
@@ -3021,11 +3021,11 @@ gw_sig_extract <- function(gwas_file, gz_plink_file, gw_sig_nominal, eth, pheno,
     gw_sig_filter_af <- as.data.frame(gw_sig_filter_af)
   }
   if(eth=="META" | eth=="META_DRUGS"){
-    
+
     gw_sig_filter_af <- gw_sig_filter %>% mutate(A1_CT = NA) %>% mutate(A1_FREQ = NA) %>% mutate(OBS_CT = NA)  %>% dplyr::select(SNP, A1, A2, everything())
-    
+
   }
-  
+
   output[[output_name]] <- gw_sig_filter_af
   return(output)
 
@@ -3033,21 +3033,25 @@ gw_sig_extract <- function(gwas_file, gz_plink_file, gw_sig_nominal, eth, pheno,
 
 
 region_extract <- function(gwas_file, gz_plink_file, chr, bp_start, bp_stop, eth, pheno, drug_class, drug, study_name="PSYMETAB_GWAS", interaction = F){
-  
+
   output <- list()
   gwas <- fread(gwas_file, data.table=F)
   gwas$eth <- eth
   gwas$pheno <- pheno
   gwas$drug_class <- drug_class
   gwas$drug <- drug
-  
-  extract_rows <- which(gwas$CHR==chr & gwas$BP >= bp_start & gwas$BP <= bp_stop)
+
+  extract_rows <- numeric()
+  for(i in 1:length(chr)){
+    extract_rows <- c(extract_rows, which(gwas$CHR==chr[i] & gwas$BP >= bp_start[i] & gwas$BP <= bp_stop[i]))
+
+  }
   gw_extract <- data.table(gwas[extract_rows,])
-  
-  
+
+
   output_name <- paste(eth, pheno, drug_class, drug, sep=".")
-  if(is.na(drug)){
-    output_name <- paste(eth, pheno, drug_class, sep=".")
+  if(is.na(drug) & is.na(drug_class)){
+    output_name <- paste(eth, pheno, sep=".")
   }
   if(eth!="META" & eth!="META_DRUGS"){
     if(interaction == F){
@@ -3067,30 +3071,30 @@ region_extract <- function(gwas_file, gz_plink_file, chr, bp_start, bp_stop, eth
     gw_extract_af <- as.data.frame(gw_extract_af)
   }
   if(eth=="META" | eth=="META_DRUGS"){
-    
+
     gw_extract_af <- gw_extract %>% mutate(A1_CT = NA) %>% mutate(A1_FREQ = NA) %>% mutate(OBS_CT = NA)  %>% dplyr::select(SNP, A1, A2, everything())
-    
+
   }
-  
+
   output[[output_name]] <- gw_extract_af
   return(output)
-  
+
 }
 
 
 snp_psymetab_extract <- function(gwas_file, gz_plink_file, SNP_list, eth, pheno, drug_class, drug, study_name="PSYMETAB_GWAS", interaction = F){
-  
+
   output <- list()
   gwas <- fread(gwas_file, data.table=F)
   gwas$eth <- eth
   gwas$pheno <- pheno
   gwas$drug_class <- drug_class
   gwas$drug <- drug
-  
+
   extract_rows <- which(gwas$SNP %in% SNP_list)
   gw_snp_extract <- data.table(gwas[extract_rows,])
-  
-  
+
+
   output_name <- paste(eth, pheno, drug_class, drug, sep=".")
   if(is.na(drug)){
     output_name <- paste(eth, pheno, drug_class, sep=".")
@@ -3113,16 +3117,16 @@ snp_psymetab_extract <- function(gwas_file, gz_plink_file, SNP_list, eth, pheno,
     gw_snp_extract_af <- as.data.frame(gw_snp_extract_af)
   }
   if(eth=="META" | eth=="META_DRUGS"){
-    
+
     gw_snp_extract_af <- gw_snp_extract %>% mutate(A1_CT = NA) %>% mutate(A1_FREQ = NA) %>% mutate(OBS_CT = NA) %>% dplyr::select(SNP, A1, A2, everything())
-    
+
   }
-  
+
   output[[output_name]] <- gw_snp_extract_af
   return(output)
-  
-  
-  
+
+
+
 }
 
 
@@ -3185,7 +3189,7 @@ clean_case_only_summary <- function(case_only_data){
 
     variable <- str_extract(string=pheno, pattern="[^_]*")
     outcome <- str_replace(pheno, paste0(variable, "_"), "")
-  
+
     case_only_data <- as.data.frame(case_only_data)
     case_only_data$drug <- drug
     case_only_data$eth <- eth
@@ -3205,37 +3209,37 @@ clean_case_only_snpwise <- function(case_only_extract_snpwise_data){
   output_name <- names(case_only_extract_snpwise_data)
   case_only_data <- case_only_extract_snpwise_data[[1]]
   case_only_data <- as.data.frame(case_only_data)
-  
+
   for(i in 1:dim(case_only_data)[1]){
     pheno_name <- case_only_data$pheno[i]
     group <- case_only_data$eth[i]
-    
+
     if(group == "META_DRUGS"){
       eth <- str_extract(string=pheno_name, pattern="[^\\.]*")
       drug <- NA
       pheno <-  str_extract(string=pheno_name, pattern="[^\\.]+$")
-      
+
     } else {
       eth <- group
       drug <-  drug <- sub('.*\\_', '', pheno_name)
       pheno <- sub("_[^_]+$", "", pheno_name)
     }
-    
+
     outcome <- str_extract(string=pheno, pattern="[^_]+$")
-    
-    
+
+
     variable <- str_extract(string=pheno, pattern="[^_]*")
     outcome <- str_replace(pheno, paste0(variable, "_"), "")
-    
-    
+
+
     case_only_data$drug[i] <- drug
     case_only_data$eth[i] <- eth
     case_only_data$group[i] <- group
     case_only_data$variable[i] <- variable
     case_only_data$outcome[i] <- outcome
-    
+
   }
-  
+
   output <- list()
   output[[output_name]] <- case_only_data
   return(output)
@@ -3382,7 +3386,7 @@ count_GWAS_n <- function(psam_file, pheno_file, output_suffix, subgroup=NA, cova
 
 pretty_round <- function(x){
   x <- as.numeric(x)
-  
+
   round_body <- function(x) {
     if(!is.na(x))
     {
@@ -3395,21 +3399,21 @@ pretty_round <- function(x){
       if(abs(x)<0.001) {out <- sprintf("%.1e", signif(x, 2))}
       if(abs(x)==0) {out<- 0}
     } else out <- NA
-    
+
     return(out)
   }
-  
+
   out_vec <- sapply(x, round_body)
   return(out_vec)
 }
 
 
 consort_lookup <- function(SNPs, consort_file) {
-  
+
   consort_data <- fread(consort_file)
   rows_interest <- which(consort_data$SNP %in% SNPs)
   consort_data_sub <- consort_data[rows_interest, ]
-  
+
   output_name <- gsub(".txt", "", basename(consort_file)) #remove ".txt" and file extension
   consort_data_sub <- as.data.frame(consort_data_sub)
   consort_data_sub$consort <- output_name
@@ -3419,11 +3423,11 @@ consort_lookup <- function(SNPs, consort_file) {
 }
 
 SNP_consort_pull <- function(consort_extract, SNP){
-  
+
   SNP="rs17456259"
-  
+
   consort_extract
-  
+
 }
 
 extract_bgen <- function(snps, file){
@@ -3471,13 +3475,13 @@ load_geno <- function(bgen_sample_file,snp_data, UKBB_dir){
 ukbb_resid_geno_assoc <- function(pheno_resid_data, geno_data_map){
   #pheno_resid_data <- readd(ukbb_psy_subgroups_resid_bmi_slope, subtargets=1)
   #geno_data_map <- ukbb_geno
-  
+
   pheno_resid_data <- pheno_resid_data[[1]]
   phenotype <- colnames(pheno_resid_data)[2]
   colnames(pheno_resid_data)[2] <- "pheno"
   geno_data <- geno_data_map[[1]]
   geno_map <- geno_data_map[[2]]
-  
+
   analysis_result <- numeric()
   for(k in 1:dim(geno_map)[1]){
     snp <- geno_map[["rsid"]][k]
@@ -3486,8 +3490,8 @@ ukbb_resid_geno_assoc <- function(pheno_resid_data, geno_data_map){
     geno_sub$eid <- as.numeric(row.names(geno_sub))
     analyze_data <- inner_join(geno_sub, pheno_resid_data)
     model <- glm(pheno ~ geno, data=analyze_data, family="gaussian")
-    
-    
+
+
     model_summary <- full_model_summary(model)
     mod_extract <- extract_model_stats(model_summary, c("geno"))
     n <- length(fitted(model))
@@ -3497,11 +3501,11 @@ ukbb_resid_geno_assoc <- function(pheno_resid_data, geno_data_map){
     mod_extract$phenotype <- phenotype
     analysis_result <- rbind(analysis_result, mod_extract)
   }
-  
+
   output <- list()
   output[[phenotype]] <- analysis_result
   return(output)
-  
+
 }
 
 UKBB_GWAS <- function(ukbb_geno, phenotype_file, phenotype_col, phenotype_description,IV_file,sample_file,pheno_cov,grouping_var,household_time,output){
