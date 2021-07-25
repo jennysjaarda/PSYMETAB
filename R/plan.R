@@ -1310,11 +1310,11 @@ process_init <- drake_plan(
 
   # filter into only categories of interest ---------------------------
 
-  baseline_interest = baseline_gwas_sig_com %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", pheno)),
-  subgroup_interest = subgroup_gwas_sig_com %>% filter(drug=="Drug") %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", drug_class)) %>% filter(grepl("BMI", pheno)),
-  case_only_interest = case_only_gwas_sig_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI"),
+  baseline_interest = baseline_gwas_sig_com %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", pheno)) %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
+  subgroup_interest = subgroup_gwas_sig_com %>% filter(drug=="Drug") %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", drug_class)) %>% filter(grepl("BMI", pheno)) %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
+  case_only_interest = case_only_gwas_sig_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
 
-  case_only_celine_interest = case_only_celine_extract_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI"),
+  case_only_celine_interest = case_only_celine_extract_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
 
   # extract model specific results for case-only and pull Q-statistic
 
@@ -1440,10 +1440,6 @@ ukbb_analysis <- drake_plan(
     ukbb_munge_bmi_slope = munge_ukbb_bmi_slope(ukbb_org, ukb_key, !!date_followup, !!bmi_var),
     ukbb_filter_bmi_slope = target(filter_ukbb(ukbb_munge_bmi_slope, relatives, exclusion_list, british_subset),
       dynamic = map(ukbb_munge_bmi_slope)),
-
-    #related_IDs_remove = ukb_gen_samples_to_remove(relatives, ukb_with_data = as.integer(ukbb_munge_bmi_slope$eid)),
-    #ukbb_filter_bmi_slope = full_join(tibble(eid=ukbb_org$eid), filter_ukbb_relatives(ukbb_munge_bmi_slope, related_IDs_remove, exclusion_list[,1], british_subset)),
-
 
     ukbb_munge_drug_users = munge_ukbb_drug_users(ukbb_org, drug_codes_interest, medication_columns),
     ## get counts in UKBB for each molecule

@@ -60,6 +60,60 @@ x1 %>% kable() %>%
 
 ## Results.
 
+### Check correlation amongst phenotypes. 
+
+We checked the correlation amongst the five phenotypes tested (BMI change, BMI change 6 months, BMI change 3 months, BMI slope and BMI slope 6months) to justify that we do not adjust perform BF adjustments. 
+
+```{r, correlation_matrices, echo=FALSE, results="asis"}
+loadd(case_only_resid_data)
+loadd(pc_raw)
+
+CEU_only_resid_data <- inner_join(case_only_resid_data, pc_raw %>% dplyr::select(FID, eth), by="FID") %>% filter(eth=="CEU")
+
+for(drug in drug_prioritization){
+  
+  columns_interest <- paste0(c("BMI_change", "BMI_change_6mo", "BMI_change_3mo","BMI_slope", "BMI_slope_6mo"), "_", drug)
+  
+  data_sub <- CEU_only_resid_data[,columns_interest]
+  cat(paste0("Below is the correlation matrix for drug group: ", drug,  
+             "\n"))
+  cor_matrix <- (cor(data_sub, use="complete.obs"))
+  
+  cat("\n\n")
+  
+  cor_matrix %>% kable() %>%
+    kable_styling(full_width = F, position = "left") %>%
+    htmltools::HTML() %>% print
+  cat("\n\n")
+}
+
+
+result <- list()
+for(outcome in c("BMI_change", "BMI_change_6mo", "BMI_change_3mo","BMI_slope", "BMI_slope_6mo")){
+  
+  columns_interest <- paste0(outcome, "_", drug_prioritization)
+  data_sub <- CEU_only_resid_data[,c("FID", columns_interest)]
+  #data_gather <-  data_sub %>% gather(variable, value, starts_with(paste(outcome, "_")), na.rm=T) %>% rename(!!quo_name(outcome) := value)
+  data_gather <-  data_sub %>% tidyr::gather(variable, value, -FID, na.rm=T) %>% rename(!!quo_name(outcome) := value)
+  
+  result[[outcome]] <- data_gather %>% dplyr::select(-variable)
+  
+}
+
+
+cat(paste0("Below is the correlation matrix in all participants",  
+             "\n"))
+ 
+
+full_data <- reduce(result, full_join)
+
+cor_matrix_full <- (cor(full_data[,-1], use="complete.obs"))
+  
+cor_matrix_full %>% kable() %>%
+  kable_styling(full_width = F, position = "left")
+ 
+```
+
 ### SNP tables.
 
 After meta-analyzing across the independent drug groups, we identified the following GW-significant findings: 
@@ -68,11 +122,26 @@ After meta-analyzing across the independent drug groups, we identified the follo
 #result
 loadd(case_only_interest)
 
+summarize_meta_results <- case_only_interest_summarize %>% mutate_at(vars(contains("OBS_CT_")), as.numeric) %>%
+  mutate(N_total = rowSums(.[grep("OBS_CT", names(.))], na.rm = TRUE))
+
+weighted_AF <- rep(0, dim(summarize_meta_results)[1])
+for(drug in drug_prioritization){
+  
+  weighted_AF_drug <- as.numeric(summarize_meta_results[[paste0("A1_FREQ_", drug)]]) * 
+    as.numeric(summarize_meta_results[[paste0("OBS_CT_", drug)]])/summarize_meta_results[["N_total"]]
+  weighted_AF_drug[is.na(weighted_AF_drug)] <- 0
+  weighted_AF <- weighted_AF + weighted_AF_drug
+}
+
+summarize_meta_results$weighted_AF <- weighted_AF
+
 #interest_results <- case_only_gwas_sig_meta %>% filter(variable=="BMI" & eth=="CEU")
 
-summarize_meta_results <- case_only_interest_summarize %>% dplyr::select(variable, outcome, snp, BETA_META, P_META, Q_META) %>% rename(SNP=snp) %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight") %>%
-  left_join(., case_only_interest %>% dplyr::select(SNP, A1, A2, CHR, BP)) %>%
-  dplyr::select(variable, outcome, SNP, CHR, BP, A1, A2, everything()) 
+summarize_meta_results <- summarize_meta_results %>% dplyr::select(variable, outcome, snp, BETA_META, P_META, Q_META, N_total, weighted_AF) %>% rename(SNP=snp) %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight") %>%
+  left_join(., case_only_interest %>% dplyr::select(SNP, A1, A2, CHR, BP )) %>%
+  dplyr::select(variable, outcome, SNP, CHR, BP, A1, A2, N_total, weighted_AF, everything()) 
+
 ```
 
 ```{r snp_summary_view, echo = FALSE}
@@ -81,9 +150,67 @@ summarize_meta_results %>% kable() %>%
 
 ```
 
+### GWAS figures. 
+
+Below are the QQ and manhattan plots for each result with a GW-sig finding. 
+
+```{r images, echo=FALSE,  results="asis"}
+loadd(case_only_gwas_figures_input)
+
+
+manhatten_figures <- numeric()
+qq_figures <- numeric()
+output_dir <- "analysis/GWAS"
+type <- "case_only"
+write_dir <- file.path(output_dir, type, "processed")
+output <- "PSYMETAB_GWAS"
+
+for(i in 1:dim(case_only_interest)[1]){
+  
+  drug_class <- case_only_interest$drug_class[i]
+  drug <- case_only_interest$drug[i]
+  pheno <- case_only_interest$pheno[i]
+  eth <- case_only_interest$eth[i]
+  outcome <-case_only_interest$outcome[i]
+
+  title <- paste0(pheno)
+  manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_META_manhattan.png")
+  qq_file_name <-  paste0(write_dir, "/", output, "_", title, "_META_qq.png")
+  
+  file.copy(from=manhattan_file_name, to=paste0("docs/assets", "/", output, "_", title, "_META_manhattan.png"), 
+          overwrite = TRUE, recursive = FALSE, 
+          copy.mode = TRUE)
+
+  file.copy(from=qq_file_name, to=paste0("docs/assets", "/", output, "_", title, "_META_qq.png"), 
+        overwrite = TRUE, recursive = FALSE, 
+        copy.mode = TRUE)
+  
+  manhattan_file_name2 <- paste0("assets", "/", output, "_", title, "_META_manhattan.png")
+  qq_file_name2 <- paste0("assets", "/", output, "_", title, "_META_qq.png")
+  
+  drug_list <- paste0(unlist(test_drugs[which(test_drugs$class==drug_class), "drugs"]), collapse=", ")
+  cat(paste0("Below are the Manhattan and QQ plots for evolution of BMI **", outcome, "** and restricted to ethnic group '", eth, "'.", 
+             "\n"))
+  cat(paste0("![](", manhattan_file_name2, ")"), "\n") 
+  cat(paste0("![](", qq_file_name2, ")"), "\n") 
+}
+
+
+
+
+list.files("images")
+
+#figures <- c("../analysis/rplot.jpg", "../Rlogo.png")
+knitr::include_graphics(qq_file_name2)
+
+
+```
+
+
 ### Heterogeneity analysis.
 
-We also examined the meta-analysis results for evidence of heterogeneity to assess if the significant results were driven by one drug group in paticular. Below are the forest plots illustrating the effects among the different subgroups. 
+We also examined the meta-analysis results for evidence of heterogeneity to assess if the significant results were driven by one drug group in particular. Below are the forest plots illustrating the effects among the different subgroups. 
+
 ```{r forest_plots, echo=FALSE, fig.width=10, fig.height=6}
 par(mar=c(5,5,0,0))
 
@@ -179,7 +306,8 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
 
 #### GeneAtlas lookup. 
 
-- We also checked for associations in the [GeneAtlas](http://geneatlas.roslin.ed.ac.uk/).
+We also checked for associations in the [GeneAtlas](http://geneatlas.roslin.ed.ac.uk/).
+
 ```{r roslin_phewas, echo=FALSE, results="asis"}
 
 
@@ -235,7 +363,7 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
 
 ### Sensitivity analyses. 
 
-- We also ensured that the gw-significant SNPs we identified obtained consistent results with similar endpoint in PSYMETAB. 
+We also ensured that the gw-significant SNPs we identified obtained consistent results with similar endpoint in PSYMETAB. If you sort by "group" you will you can see all the results with "META_DRUGS" group (i.e. the results meta analyzed acrsoss nine drug groups).
 
 ```{r, sensitivity_analysis, echo=FALSE, results="asis"}
 loadd(subgroup_extract_snpwise)
@@ -263,25 +391,6 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
   cat("\n\n")
 
   
-}
-
-## subgroup results 
-for(i in 1:dim(case_only_interest_summarize)[1]){
-  SNP_name <- case_only_interest_summarize$snp[i]
-  data_sub <- subgroup_extract_snpwise[[SNP_name]] %>% mutate(variable = str_extract(string=pheno, pattern="[^_]*")) %>% 
-    mutate(outcome = str_replace(pheno, paste0(variable, "_"), "")) %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>%
-    mutate_if(is.numeric, pretty_round)  %>% dplyr::select(eth, drug_class, drug, outcome, A1, A2, A1_CT, A1_FREQ, OBS_CT, BETA, SE, P)
-
- #cat(sprintf("\n\n## %s\n\n", SNP_name))
-  cat(sprintf("\n**%s**\n\n", SNP_name))
-  cat("\n\n")
-  cat(knitr::knit_print(DT::datatable(data_sub, width = "100%")))
-  cat("\n\n")
-#   subgroup_extract_snpwise[[SNP_name]] %>% kable() %>%
-#    kable_styling(full_width = F, position = "left") %>%
-#     htmltools::HTML() %>% 
-#     print
-#   cat("\n")
 }
 
 ```
