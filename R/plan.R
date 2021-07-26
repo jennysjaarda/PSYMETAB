@@ -1257,6 +1257,8 @@ process_init <- drake_plan(
   ),
 
 
+  # create logical variable names
+
   baseline_gwas_sig_clean = target(clean_gwas_summary(baseline_gwas_sig), dynamic = map(baseline_gwas_sig)),
   interaction_gwas_sig_clean = target(clean_gwas_summary(interaction_gwas_sig), dynamic = map(interaction_gwas_sig)),
   subgroup_gwas_sig_clean = target(clean_gwas_summary(subgroup_gwas_sig), dynamic = map(subgroup_gwas_sig)),
@@ -1275,6 +1277,7 @@ process_init <- drake_plan(
   case_only_gwas_nom_com = bind_rows(case_only_gwas_sig_clean, .id = "pheno_name"),
 
   case_only_celine_extract_com = bind_rows(case_only_celine_extract_clean, .id = "pheno_name"),
+
   # filter above nominally significant results into GW-significant results  ---------------------------
 
   baseline_gwas_sig_com = baseline_gwas_nom_com %>% filter(P < !!gw_sig),
@@ -1314,7 +1317,7 @@ process_init <- drake_plan(
   subgroup_interest = subgroup_gwas_sig_com %>% filter(drug=="Drug") %>% filter(eth=="CEU") %>% filter(!grepl("sensitivity", drug_class)) %>% filter(grepl("BMI", pheno)) %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
   case_only_interest = case_only_gwas_sig_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
 
-  case_only_celine_interest = case_only_celine_extract_com %>% filter(group=="META_DRUGS") %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
+  case_only_celine_interest = case_only_celine_extract_com %>% filter(eth=="CEU") %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight"),
 
   # extract model specific results for case-only and pull Q-statistic
 
@@ -1322,6 +1325,9 @@ process_init <- drake_plan(
                                                                  !!study_name, !!drug_prioritization, directory = "analysis/GWAS/case_only"),
                                         dynamic=map(case_only_interest)
   ),
+
+  ## The below takes a long time because it extracts the statistics for each drug specific file for each SNP. This was important above because we had first selected GW-sig SNPs in the meta and then we wanted to examine their significance in each individauls drug group.
+  # For Celine, we don't need to do this because we have already extracted the region of interest in each file.
 
   #case_only_celine_interest_summarize = target(summarize_case_only_meta(case_only_celine_interest$SNP, case_only_celine_interest$eth, case_only_celine_interest$variable, case_only_celine_interest$outcome,
   #                                                                      !!study_name, !!drug_prioritization, directory = "analysis/GWAS/case_only"),
@@ -1401,7 +1407,7 @@ process_init <- drake_plan(
   write_baseline_interest = write.csv(baseline_interest,  file_out("output/PSYMETAB_GWAS_baseline_CEU_result.csv"),row.names = F),
   write_subgroup_interest = write.csv(subgroup_interest,  file_out("output/PSYMETAB_GWAS_subgroup_CEU_result.csv"),row.names = F),
   write_case_only_interest = write.csv(case_only_interest_summarize,  file_out("output/PSYMETAB_GWAS_case_only_CEU_meta_result.csv"),row.names = F),
-  #write_case_only_celine_interest = write.csv(case_only_celine_interest_summarize,  file_out("output/PSYMETAB_GWAS_celine_extract.csv"),row.names = F),
+  write_case_only_celine_interest = write.csv(case_only_celine_interest,  file_out("output/PSYMETAB_GWAS_celine_extract.csv"),row.names = F),
 
 )
 
