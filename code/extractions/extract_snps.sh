@@ -44,8 +44,10 @@ Rscript code/extractions/pc_merge.r $output $out_name $pc_data $snp_file
 
 if [ -s "$output/${out_name}/${out_name}_missing_snps.txt" ]; then
   plink2 --bfile $input_chip --extract $output/${out_name}/${out_name}_missing_snps.txt --make-bed --out $output/${out_name}/${out_name}_missing_snps_extract
-  plink2 --bfile $output/${out_name}/${out_name}_missing_snps_extract --recode A --out $output/${out_name}/${out_name}_missing_snps_extract
-  Rscript code/extractions/geno_original_merge.r $output $out_name $snp_file
+  if [ -s "$output/${out_name}/${out_name}_missing_snps_extract.fam" ]; then
+    plink2 --bfile $output/${out_name}/${out_name}_missing_snps_extract --recode A --out $output/${out_name}/${out_name}_missing_snps_extract
+    Rscript code/extractions/geno_original_merge.r $output $out_name $snp_file
+  fi
 fi
 
 if [ ! -f "$output/${out_name}/${out_name}_extraction_geno.txt" ]; then
