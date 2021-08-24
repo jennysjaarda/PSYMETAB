@@ -40,13 +40,13 @@ do
 done
 
 
-Rscript code/extractions/pc_merge.r $output $out_name $pc_data $snp_file
+/data/sgg2/jenny/bin/R-3.5.3/bin/Rscript code/extractions/pc_merge.r $output $out_name $pc_data $snp_file
 
 if [ -s "$output/${out_name}/${out_name}_missing_snps.txt" ]; then
   plink2 --bfile $input_chip --extract $output/${out_name}/${out_name}_missing_snps.txt --make-bed --out $output/${out_name}/${out_name}_missing_snps_extract
   if [ -s "$output/${out_name}/${out_name}_missing_snps_extract.fam" ]; then
     plink2 --bfile $output/${out_name}/${out_name}_missing_snps_extract --recode A --out $output/${out_name}/${out_name}_missing_snps_extract
-    Rscript code/extractions/geno_original_merge.r $output $out_name $snp_file
+    /data/sgg2/jenny/bin/R-3.5.3/bin/Rscript code/extractions/geno_original_merge.r $output $out_name $snp_file
   fi
 fi
 
