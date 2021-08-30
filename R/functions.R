@@ -3627,3 +3627,51 @@ sort_ukbb_comparison <- function(ukbb_comparison, subgroup_GWAS_count, interacti
   return(ukbb_comparison)
 
 }
+
+
+extract_celine_aripiprazole_pheno_data <- function(){
+
+  study_name <- "PSYMETAB_GWAS"
+
+  ## read the Aripiprazole data
+  covars <- read.table(  "data/processed/phenotype_data/GWAS_input/case_only_covar_input.txt", header = T)
+  pheno <- read.table(  "data/processed/phenotype_data/GWAS_input/case_only_pheno_input.txt", header = T)
+  resid <- read.table(  "data/processed/phenotype_data/GWAS_input/case_only_input_resid.txt", header = T)
+
+  ## read the subsets
+  related_samples <- read.table(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))
+  CEU_samples <- read.table(paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, '_CEU_samples.txt'), header=F)
+
+  ## only select variables of interest
+  covars_sub <- covars %>% dplyr::select("FID", "IID", ends_with("Aripiprazole"), "sex", starts_with("PC"))
+  pheno_sub <- pheno %>% dplyr::select("FID", "IID", "BMI_change_6mo_Aripiprazole")
+  resid_sub <- resid %>% dplyr::select("FID", "IID", "BMI_change_6mo_Aripiprazole")
+
+  loadd(pheno_case_only)
+
+  Aripiprazole_full_dat <- pheno_case_only[["Aripiprazole.BMI"]]
+
+  Aripiprazole_date <- numeric()
+  for(i in 1:dim(Aripiprazole_full_dat)[1]){
+
+    GPCR <- Aripiprazole_full_dat[i, "GPCR"][[1]]
+    col_with_data <- Aripiprazole_full_dat[i, "high_inducer_drug_num"][[1]]
+    date_start_drug <- Aripiprazole_full_dat[i, paste0("Date_Drug_", col_with_data)][[1]]
+    row_i <- cbind(GPCR, as.character(date_start_drug))
+
+    Aripiprazole_date <- rbind(Aripiprazole_date, row_i)
+  }
+
+  pheno1 <- merge(covars_sub, pheno_sub)
+  pheno2 <- subset(pheno1, !pheno1$FID %in% related_samples$V1)
+  pheno3 <- subset(pheno2, pheno2$FID %in% CEU_samples$V1)
+
+  Aripiprazole_dat <- pheno3 %>% dplyr::select(-LDL_start_Aripiprazole, -follow_up_time_Aripiprazole, -follow_up_time_1mo_Aripiprazole, -follow_up_time_3mo_Aripiprazole,
+                                   -follow_up_time_sq_Aripiprazole, -follow_up_time_1mo_sq_Aripiprazole, -follow_up_time_3mo_sq_Aripiprazole) %>% drop_na()
+
+  Aripiprazole_date <- as.data.frame(Aripiprazole_date)
+  Aripiprazole_date$GPCR <- as.character(Aripiprazole_date$GPCR)
+  colnames(Aripiprazole_date) <- c("GPCR", "Date_Drug_started")
+  output <- Aripiprazole_dat %>% separate(FID, into = c("ID", "GPCR"), sep = "_") %>% left_join(Aripiprazole_date)
+  return(output)
+}

@@ -1409,6 +1409,15 @@ process_init <- drake_plan(
   write_case_only_interest = write.csv(case_only_interest_summarize,  file_out("output/PSYMETAB_GWAS_case_only_CEU_meta_result.csv"),row.names = F),
   write_case_only_celine_interest = write.csv(case_only_celine_interest,  file_out("output/PSYMETAB_GWAS_celine_extract.csv"),row.names = F),
 
+  celine_aripiprazole_pheno_data = target({
+    pheno_case_only
+    case_only_interest
+    extract_celine_aripiprazole_pheno_data()
+  }),
+
+  write_celine_aripiprazole_pheno_data = write.csv(celine_aripiprazole_pheno_data,  file_out("output/PSYMETAB_GWAS_Celine_Aripiprazole_data.csv"),row.names = F)
+
+
 )
 
 # vis_drake_graph(process_init)
