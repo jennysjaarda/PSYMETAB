@@ -1452,7 +1452,10 @@ ukbb_analysis <- drake_plan(
     drug_codes_interest = drug_codes_summary %>%
       filter(molecule %in% c("olanzapine", "clozapine", "valproate", "quetiapine", "risperidone", "aripiprazole", "mirtazapine", "amisulpride")),
 
+    # create a BMI slope variable
     ukbb_munge_bmi_slope = munge_ukbb_bmi_slope(ukbb_org, ukb_key, !!date_followup, !!bmi_var),
+
+    # filter to only participants of interest
     ukbb_filter_bmi_slope = target(filter_ukbb(ukbb_munge_bmi_slope, relatives, exclusion_list, british_subset),
       dynamic = map(ukbb_munge_bmi_slope)),
 
@@ -1607,6 +1610,8 @@ ukbb_icd_vs_drug <- drake_plan(
   ukbb_psychiatric_icd10_samples = ukbb_psychiatric_icd10 %>% pull(sample) %>% unique(),
 
   ukbb_psy_subgroups = create_ukbb_psy_subgroups(ukbb_munge_drug_users, ukbb_psychiatric_icd10_samples),
+
+  ## create a column for non-psychiatric participants as control
   ukbb_psy_subgroups_bmi_slope = ukbb_subgroups_add_var(ukbb_psy_subgroups, ukbb_filter_bmi_slope$bmi_slope),
 
   ukbb_psy_subgroups_filter_bmi_slope = target(filter_ukbb(ukbb_psy_subgroups_bmi_slope, relatives, exclusion_list, british_subset),

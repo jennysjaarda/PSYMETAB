@@ -2049,6 +2049,9 @@ ukbb_subgroups_add_var <- function(subgroup_data, variable_data){
   #subgroup_data<- ukbb_psy_subgroups
   #variable_data <- ukbb_filter_bmi_slope$bmi_slope
 
+  # add column for non drug / psy_icd10 individuals
+
+  subgroup_data <- subgroup_data %>% mutate(non_psy_users = case_when(any_users == 1 | psy_icd10 == 1 ~ 0, TRUE ~ 1))
   columns <- colnames(subgroup_data)[-(which(colnames(subgroup_data)=="eid"))]
   col_variable <- colnames(variable_data)[2]
   data <- inner_join(subgroup_data, variable_data)
