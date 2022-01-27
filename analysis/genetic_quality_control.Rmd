@@ -17,13 +17,13 @@ options(width = 150)
 ```
 
 **The following document outlines and summarizes the genetic quality control and processing procedure that was followed to create a clean, imputed dataset.**
-	
+
 # Step 1: Prepare and cluster genomestudio files.
-	
+
 *Step 1 was performed entirely on CHUV computer*
-	
+
 ## Part A: Randomize IDs.
-	
+
 - Genetic sampleIDs were recoded according to GPCR algorithm to ensure genetic participants are not identifiable.
 - `code/radomize_IDs.r` was run on CHUV computer before building GenomeStudio project.
 - Creates a new csv file which was used to create a GenomeStudio project with data provided by lab in Geneva.
@@ -170,7 +170,7 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 
 # Step 2: Pre-quality control data prep.
 
-**See `qc_prep` drake plan in [code/plans.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R).**  
+**See `qc_prep` drake plan in [code/plans.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/plan.R).**
 
 - Processed sex and ethnicity files to be used in QC scripts.
 - Sex file was created according to the input specified on plink man page (FID, IID, sex [M/F]).
@@ -187,7 +187,7 @@ A,GSA_UPPC_20023490X357589_A1,,,,,,,,,,,,
 *Results of Step 3-6 are saved to `analysis/QC`. The majority of analyses were performed using [`PLINK`](https://www.cog-genomics.org/plink/2.0/) (either version 2.0 or 1.9)*
 *Each sub-spet (i.e. 0-15) corresponds to one folder within `analysis/QC`*
 
-**Source code for Step 3 can be found at: [code/pre_imputation_qc.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh).**   
+**Source code for Step 3 can be found at: [code/pre_imputation_qc.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/pre_imputation_qc.sh).**
 
 ```{r setup, include = FALSE}
 options(scipen=999)
@@ -207,9 +207,9 @@ loadd(dups)
 
 ```{r missingness_vars, include = FALSE}
 missingness_variants_removed <- countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_10.bim"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.bim"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.bim"))[1]
-    
+
 missingness_indiv_removed <- countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.fam"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.fam"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness.step3.fam"))[1]
-    
+
 initial_variants <- countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.bim"))[1]
 initial_ind <- countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.fam"))[1]
 ```
@@ -235,8 +235,8 @@ initial_ind <- countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_z
     - `r countLines(paste0("analysis/QC/00_preprocessing/", study_name, ".preprocessing.step0.fam"))` indviduals remaining.
 6. Sanity check: ensure that duplicates have the same genetic info"
     - From the PLINK [webpage](https://www.cog-genomics.org/plink/2.0/distance#make_king): *Note that KING kinship coefficients are scaled such that duplicate samples have kinship 0.5, not 1. First-degree relations (parent-child, full siblings) correspond to ~0.25, second-degree relations correspond to ~0.125, etc.*
-    - If all duplicate ID samples have KINSHIP ~0.5, then indeed they are genetic duplicates. 
-        
+    - If all duplicate ID samples have KINSHIP ~0.5, then indeed they are genetic duplicates.
+
 ```{r duplicates, echo = FALSE}
 t <- read.table(  paste0("analysis/QC/00_preprocessing/", study_name, ".duplicates.kin0"))
 colnames(t) <- c('#FID1', 'ID1', 'FID2', 'ID2', 'NSNP', 'HETHET', 'IBS0', 'KINSHIP')
@@ -265,7 +265,7 @@ t
 ## 2. Removal of SNPs that have MAF zero.
 
 1. Calculate frequency of all SNPs
-2. Remove MAF 0 SNPs: 
+2. Remove MAF 0 SNPs:
     - `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero_snp.txt"))` variants with `MAF = 0`.
     - `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.bim"))` variants remaining.
 
@@ -273,25 +273,25 @@ t
 
 ## 3. Missingness.
 
-1. Exclude variants with >10% missingness (using `geno --0.1`): 
+1. Exclude variants with >10% missingness (using `geno --0.1`):
     - `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_10.bim"))[1]` variants removed.
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_10.bim"))` variants remaining.
-2. Exclude individuals with >10% missingness (using `mind --0.1`): 
+2. Exclude individuals with >10% missingness (using `mind --0.1`):
     - `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.fam"))[1]` individuals removed.
       - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.fam"))` individuals remaining.
-3. Exclude variants with >5% missingness (using `geno --0.05`): 
+3. Exclude variants with >5% missingness (using `geno --0.05`):
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.bim"))[1]` variants removed.
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.bim"))` variants remaining.
-4. Exclude individuals with >5% missingness (using `mind --0.05`): 
+4. Exclude individuals with >5% missingness (using `mind --0.05`):
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.fam"))[1]` individuals removed.
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.fam"))` individuals remaining.
-5. Exclude variants with >1% missingness (using `geno --0.01`): 
+5. Exclude variants with >1% missingness (using `geno --0.01`):
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.bim"))[1]` variants removed.
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.bim"))` variants remaining.
-6. Exclude individuals with >1% missingness (using `mind --0.01`): 
+6. Exclude individuals with >1% missingness (using `mind --0.01`):
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness.step3.fam"))[1]` individuals removed.
     - `r countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness.step3.fam"))` individuals remaining.
-        
+
 \newline
 **Total removed: `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_10.bim"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.bim"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.bim"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.bim"))[1]` variants (`r formatC(round(missingness_variants_removed*100/initial_variants, 2), format='f', digits=2)`%) and `r countLines(paste0("analysis/QC/02_maf_zero/", study_name, ".maf_zero.step2.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_10.fam"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_05.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_mind_05.fam"))[1] + countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness_geno_01.fam"))[1] - countLines(paste0("analysis/QC/03_missingness/", study_name, ".missingness.step3.fam"))[1]` individuals (`r formatC(round(missingness_indiv_removed*100/initial_ind, 2), format='f', digits=2)`%).**
 
@@ -299,11 +299,11 @@ t
 
 ## 4. Sex check.
 
-1. Perform sex check. 
-2. Remove unambiguous sex violations. 
+1. Perform sex check.
+2. Remove unambiguous sex violations.
     - `r countLines(paste0("analysis/QC/04_sexcheck/", study_name, ".sexcheck.problem.ids"))[1]` individuals removed.
     - `r countLines(paste0("analysis/QC/04_sexcheck/", study_name, ".sexcheck.step4.fam"))` individuals remaining.
-    
+
 ## 5. Imputation preparation.
 
 1. Write frequency of final QC'd file (from #4) to file (using `-- freq`).
@@ -605,7 +605,7 @@ for(col_type in c("genetic", "reported"))
 
 # Step 6: Final processing.
 
-**Source code for Step 5 can be found at: [code/final_processing.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/final_processing.sh).**
+**Source code for Step 6 can be found at: [code/final_processing.sh](https://github.com/jennysjaarda/PSYMETAB/blob/master/code/final_processing.sh).**
 
 ## 15. Final processing.
 
@@ -617,17 +617,17 @@ for(col_type in c("genetic", "reported"))
     1. Extract ethnicity samples from typed file with duplicates removed (from #12).
     2. Re-clean data within each ethnicity before final PCA (as before, using the followings flags: `--geno 0.1`, `--maf 0.05`, `--hwe 5e-4`).
     3. Prune, excluding related individuals (as before, using: `--indep-pairwise 50 5 0.2`).
-        - PLINK2 will give an error if there are less than 50 samples to caclulate LD estimates. 
-        - This can be overriden `--bad-ld`, but they suggest that *this is almost always a bad idea*. 
-        - Of the five ethnic groups created in #12, the following groups did not proceed past this step due to insufficient sample size: 
+        - PLINK2 will give an error if there are less than 50 samples to caclulate LD estimates.
+        - This can be overriden `--bad-ld`, but they suggest that *this is almost always a bad idea*.
+        - Of the five ethnic groups created in #12, the following groups did not proceed past this step due to insufficient sample size:
     ```{r eth_size, echo = FALSE}
-    
+
     for (eth in eths){
       pca_exists <- FALSE
       n <- NA
       if(file.exists(file.path(pc_dir, eth, paste0(study_name,"_",eth,"_projections.txt")))){
         pca_exists <- TRUE
-        
+
       } else {
         cat("\n \n")
         cat(paste0("PCs were not successfully computed for ethnic group: ", eth, ". \n"))
@@ -635,10 +635,10 @@ for(col_type in c("genetic", "reported"))
         print(readLines(file.path(pc_dir, eth, paste0(study_name,".",eth,".indep.log"))))
         cat("\n--------------------------------------------------------------------------- \n")
       }
-      
+
     }
 
-    
+
     ```
     4. Create an unrelated set for calculating PCs with same set of pruned SNPs.
     5. Create a full set based on pruning in unrelated samples.
@@ -676,4 +676,3 @@ tar --exclude='*_low_maf_snps.txt' --exclude '*/*.afreq' --exclude '*.mafcheck.s
 ```
 
 If you need to unzip these files, it can be done as follows: `tar xvzf file.tar.gz`
-

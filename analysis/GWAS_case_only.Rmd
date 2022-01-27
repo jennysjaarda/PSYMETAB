@@ -39,16 +39,16 @@ loadd(case_only_resid_data)
 loadd(pheno_case_only)
 ```
 
-## Rationale. 
+## Rationale.
 
 - PSYMETAB was divided into subgroups based on different drugs such that each participant is only in one subgroup.
-- Because participants can be followed for more than one drug, it is necessary to *select* one drug per participant. 
-- Therefore a prioritization method was followed: 
-    - If a particpant has been followed for the highest priority drug they are placed in this drug group. 
-    - If not, they are checked for the second drug in the prioritization list and either placed in the second drug group or examined to see if they were followed for the next drug in the list. 
+- Because participants can be followed for more than one drug, it is necessary to *select* one drug per participant.
+- Therefore a prioritization method was followed:
+    - If a particpant has been followed for the highest priority drug they are placed in this drug group.
+    - If not, they are checked for the second drug in the prioritization list and either placed in the second drug group or examined to see if they were followed for the next drug in the list.
     - This process was repeated for all drugs in the prioritization list.
-    - If a participant has not been followed for any of the drugs in the prioritization list, they are placed in category `Other`. 
-- The different drug groups tested along with their sample size can be seen below, in order of their prioritization: 
+    - If a participant has not been followed for any of the drugs in the prioritization list, they are placed in category `Other`.
+- The different drug groups tested along with their sample size can be seen below, in order of their prioritization:
 ```{r drug_counts, echo = FALSE}
 loadd(case_only_interest_summarize)
 x <- case_only_interest_summarize[1,] %>% dplyr::select(contains("OBS_CT")) %>% as.data.frame() %>% t()
@@ -60,9 +60,9 @@ x1 %>% kable() %>%
 
 ## Results.
 
-### Check correlation amongst phenotypes. 
+### Check correlation amongst phenotypes.
 
-We checked the correlation amongst the five phenotypes tested (BMI change, BMI change 6 months, BMI change 3 months, BMI slope and BMI slope 6months) to justify that we do not adjust perform BF adjustments. 
+We checked the correlation amongst the five phenotypes tested (BMI change, BMI change 6 months, BMI change 3 months, BMI slope and BMI slope 6months) to justify that we do not adjust perform BF adjustments.
 
 ```{r, correlation_matrices, echo=FALSE, results="asis"}
 loadd(case_only_resid_data)
@@ -71,16 +71,16 @@ loadd(pc_raw)
 CEU_only_resid_data <- inner_join(case_only_resid_data, pc_raw %>% dplyr::select(FID, eth), by="FID") %>% filter(eth=="CEU")
 
 for(drug in drug_prioritization){
-  
+
   columns_interest <- paste0(c("BMI_change", "BMI_change_6mo", "BMI_change_3mo","BMI_slope", "BMI_slope_6mo"), "_", drug)
-  
+
   data_sub <- CEU_only_resid_data[,columns_interest]
-  cat(paste0("Below is the correlation matrix for drug group: ", drug,  
+  cat(paste0("Below is the correlation matrix for drug group: ", drug,
              "\n"))
   cor_matrix <- (cor(data_sub, use="complete.obs"))
-  
+
   cat("\n\n")
-  
+
   cor_matrix %>% kable() %>%
     kable_styling(full_width = F, position = "left") %>%
     htmltools::HTML() %>% print
@@ -90,33 +90,33 @@ for(drug in drug_prioritization){
 
 result <- list()
 for(outcome in c("BMI_change", "BMI_change_6mo", "BMI_change_3mo","BMI_slope", "BMI_slope_6mo")){
-  
+
   columns_interest <- paste0(outcome, "_", drug_prioritization)
   data_sub <- CEU_only_resid_data[,c("FID", columns_interest)]
   #data_gather <-  data_sub %>% gather(variable, value, starts_with(paste(outcome, "_")), na.rm=T) %>% rename(!!quo_name(outcome) := value)
   data_gather <-  data_sub %>% tidyr::gather(variable, value, -FID, na.rm=T) %>% rename(!!quo_name(outcome) := value)
-  
+
   result[[outcome]] <- data_gather %>% dplyr::select(-variable)
-  
+
 }
 
 
-cat(paste0("Below is the correlation matrix in all participants",  
+cat(paste0("Below is the correlation matrix in all participants",
              "\n"))
- 
+
 
 full_data <- reduce(result, full_join)
 
 cor_matrix_full <- (cor(full_data[,-1], use="complete.obs"))
-  
+
 cor_matrix_full %>% kable() %>%
   kable_styling(full_width = F, position = "left")
- 
+
 ```
 
 ### SNP tables.
 
-After meta-analyzing across the independent drug groups, we identified the following GW-significant findings: 
+After meta-analyzing across the independent drug groups, we identified the following GW-significant findings:
 ```{r snp_summary_data, echo=FALSE, include=FALSE}
 
 #result
@@ -127,8 +127,8 @@ summarize_meta_results <- case_only_interest_summarize %>% mutate_at(vars(contai
 
 weighted_AF <- rep(0, dim(summarize_meta_results)[1])
 for(drug in drug_prioritization){
-  
-  weighted_AF_drug <- as.numeric(summarize_meta_results[[paste0("A1_FREQ_", drug)]]) * 
+
+  weighted_AF_drug <- as.numeric(summarize_meta_results[[paste0("A1_FREQ_", drug)]]) *
     as.numeric(summarize_meta_results[[paste0("OBS_CT_", drug)]])/summarize_meta_results[["N_total"]]
   weighted_AF_drug[is.na(weighted_AF_drug)] <- 0
   weighted_AF <- weighted_AF + weighted_AF_drug
@@ -140,19 +140,19 @@ summarize_meta_results$weighted_AF <- weighted_AF
 
 summarize_meta_results <- summarize_meta_results %>% dplyr::select(variable, outcome, snp, BETA_META, P_META, Q_META, N_total, weighted_AF) %>% rename(SNP=snp) %>% dplyr::filter(outcome!="slope_weight_6mo") %>% dplyr::filter(outcome!="slope_weight") %>%
   left_join(., case_only_interest %>% dplyr::select(SNP, A1, A2, CHR, BP )) %>%
-  dplyr::select(variable, outcome, SNP, CHR, BP, A1, A2, N_total, weighted_AF, everything()) 
+  dplyr::select(variable, outcome, SNP, CHR, BP, A1, A2, N_total, weighted_AF, everything())
 
 ```
 
 ```{r snp_summary_view, echo = FALSE}
 summarize_meta_results %>% kable() %>%
-  kable_styling(full_width = F, position = "left") 
+  kable_styling(full_width = F, position = "left")
 
 ```
 
-### GWAS figures. 
+### GWAS figures.
 
-Below are the QQ and manhattan plots for each result with a GW-sig finding. 
+Below are the QQ and manhattan plots for each result with a GW-sig finding.
 
 ```{r images, echo=FALSE,  results="asis"}
 loadd(case_only_gwas_figures_input)
@@ -166,7 +166,7 @@ write_dir <- file.path(output_dir, type, "processed")
 output <- "PSYMETAB_GWAS"
 
 for(i in 1:dim(case_only_interest)[1]){
-  
+
   drug_class <- case_only_interest$drug_class[i]
   drug <- case_only_interest$drug[i]
   pheno <- case_only_interest$pheno[i]
@@ -176,23 +176,23 @@ for(i in 1:dim(case_only_interest)[1]){
   title <- paste0(pheno)
   manhattan_file_name <- paste0(write_dir, "/", output, "_", title, "_META_manhattan.png")
   qq_file_name <-  paste0(write_dir, "/", output, "_", title, "_META_qq.png")
-  
-  file.copy(from=manhattan_file_name, to=paste0("docs/assets", "/", output, "_", title, "_META_manhattan.png"), 
-          overwrite = TRUE, recursive = FALSE, 
+
+  file.copy(from=manhattan_file_name, to=paste0("docs/assets", "/", output, "_", title, "_META_manhattan.png"),
+          overwrite = TRUE, recursive = FALSE,
           copy.mode = TRUE)
 
-  file.copy(from=qq_file_name, to=paste0("docs/assets", "/", output, "_", title, "_META_qq.png"), 
-        overwrite = TRUE, recursive = FALSE, 
+  file.copy(from=qq_file_name, to=paste0("docs/assets", "/", output, "_", title, "_META_qq.png"),
+        overwrite = TRUE, recursive = FALSE,
         copy.mode = TRUE)
-  
+
   manhattan_file_name2 <- paste0("assets", "/", output, "_", title, "_META_manhattan.png")
   qq_file_name2 <- paste0("assets", "/", output, "_", title, "_META_qq.png")
-  
+
   drug_list <- paste0(unlist(test_drugs[which(test_drugs$class==drug_class), "drugs"]), collapse=", ")
-  cat(paste0("Below are the Manhattan and QQ plots for evolution of BMI **", outcome, "** and restricted to ethnic group '", eth, "'.", 
+  cat(paste0("Below are the Manhattan and QQ plots for evolution of BMI **", outcome, "** and restricted to ethnic group '", eth, "'.",
              "\n"))
-  cat(paste0("![](", manhattan_file_name2, ")"), "\n") 
-  cat(paste0("![](", qq_file_name2, ")"), "\n") 
+  cat(paste0("![](", manhattan_file_name2, ")"), "\n")
+  cat(paste0("![](", qq_file_name2, ")"), "\n")
 }
 
 
@@ -209,7 +209,7 @@ knitr::include_graphics(qq_file_name2)
 
 ### Heterogeneity analysis.
 
-We also examined the meta-analysis results for evidence of heterogeneity to assess if the significant results were driven by one drug group in particular. Below are the forest plots illustrating the effects among the different subgroups. 
+We also examined the meta-analysis results for evidence of heterogeneity to assess if the significant results were driven by one drug group in particular. Below are the forest plots illustrating the effects among the different subgroups.
 
 ```{r forest_plots, echo=FALSE, fig.width=10, fig.height=6}
 par(mar=c(5,5,0,0))
@@ -217,58 +217,58 @@ par(mar=c(5,5,0,0))
 i <- 1
 for(i in 1:dim(case_only_interest_summarize)[1]){
   sel <- i# c(1,8)
-  
+
   beta <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('BETA_')) %>% mutate_all(as.double) %>%  t(.)
   se <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('SE_')) %>% mutate_all(as.double) %>%  t(.)
   n <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('OBS_CT')) %>% mutate_all(as.double) %>%  t(.)
   af <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('A1_FREQ_')) %>% mutate_all(as.double) %>%  t(.)
   p <- case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('P_')) %>% mutate_all(as.double) %>%  t(.)
-  
+
   lower_ci <- beta - 1.96*se
   upper_ci <- beta + 1.96*se
-  
+
   beta_round <- sapply(beta, pretty_round)
   lower_ci_round <- sapply(lower_ci, pretty_round)
   upper_ci_round <- sapply(upper_ci, pretty_round)
-  
+
   ci_char <- paste0(beta_round, " (", lower_ci_round, ", ", upper_ci_round, ")")
   af_round <- sapply(af, pretty_round)
   p_round <- sapply(p, pretty_round)
-  
+
   table_meta <- data.frame(
     Name=c("Drug", case_only_interest_summarize[sel,] %>% dplyr::select(starts_with('BETA_')) %>% names() %>% str_remove('BETA_')),
-    ci95=c("Beta (95% CI)", ci_char), 
+    ci95=c("Beta (95% CI)", ci_char),
     n=c("N", n, ""),
     p=c("P-value", p_round)
-    
+
   )
   table_meta <- table_meta %>% mutate_all(as.character)
   table_meta <- rbind(table_meta[1,], rep("", dim(table_meta)[2]), table_meta[2:(dim(table_meta)[1]-1),], rep("", dim(table_meta)[2]), table_meta[dim(table_meta)[1],])
-  
-  
+
+
   beta_fp <-  c(NA, NA, beta[1:(length(beta)[1]-1)], NA, beta[length(beta)[1]])
   se_fp <-  c(NA, NA, se[1:(length(se)[1]-1)], NA, se[length(se)[1]])
-  
-  #png(file = 'forestplot.png') 
-  
-  forestplot_i <- forestplot::forestplot(labeltext = table_meta, # case_only_meta_summ[sel,1:4], 
+
+  #png(file = 'forestplot.png')
+
+  forestplot_i <- forestplot::forestplot(labeltext = table_meta, # case_only_meta_summ[sel,1:4],
                          mean = beta_fp,
                          lower = beta_fp-1.96*se_fp, #c(beta-1.96*se,NA),
                          upper = beta_fp+1.96*se_fp, #beta_fp+1.96*se_fp
-                         # align = 
+                         # align =
                          is.summary = c(TRUE, logical(length = length(se_fp)-2), TRUE),
                          # hrzl_lines,
                          # line.margin,
                          # colgap,
                          # new_page = TRUE,
-                         #clip = c(0.1,2.5), 
+                         #clip = c(0.1,2.5),
                          #xlog = TRUE
-                         graphwidth=unit(8,"cm"), 
-                         
+                         graphwidth=unit(8,"cm"),
+
   )
-  
+
   #dev.off()
-  
+
   print(forestplot_i)
 }
 
@@ -278,7 +278,7 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
 
 ### PHEWAS.
 
-#### Consortia. 
+#### Consortia.
 
 - For each SNP identified above, we checked for previous associations in relevant consortia.
 ```{r consort_phewas, echo=FALSE, results="asis"}
@@ -288,14 +288,14 @@ loadd(consort_extract_snpwise)
 
 for(i in 1:dim(case_only_interest_summarize)[1]){
   SNP_name <- case_only_interest_summarize$snp[i]
-  data_sub <- consort_extract_snpwise[[SNP_name]] %>% dplyr::select(consort, SNP, CHR, BP, FREQ, everything()) %>% 
+  data_sub <- consort_extract_snpwise[[SNP_name]] %>% dplyr::select(consort, SNP, CHR, BP, FREQ, everything()) %>%
     mutate_if(is.numeric, pretty_round) %>% mutate_at(c("EFFECT_ALLELE", "OTHER_ALLELE"), toupper)
-  
+
   cat(sprintf("\n**%s**\n\n", SNP_name))
   cat("\n\n")
   data_sub %>% kable() %>%
    kable_styling(full_width = F, position = "left") %>%
-    htmltools::HTML() %>% 
+    htmltools::HTML() %>%
     print
   cat("\n\n")
 }
@@ -304,7 +304,7 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
 
 ```
 
-#### GeneAtlas lookup. 
+#### GeneAtlas lookup.
 
 We also checked for associations in the [GeneAtlas](http://geneatlas.roslin.ed.ac.uk/).
 
@@ -320,40 +320,40 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
   URL <- c(URL, paste0('http://geneatlas.roslin.ed.ac.uk/phewas/?variant=', case_only_interest_summarize$snp[i], '&representation=table'))
 }
 
-  
+
 
 
 tibble(SNP=SNPs, URL=URL) %>% kable() %>%
-  kable_styling(full_width = F, position = "left") 
+  kable_styling(full_width = F, position = "left")
 
-  
+
 ```
 
-### UKB replication analyses.  
+### UKB replication analyses.
 
-- We attempted to replicate the identified signals in the UKBiobank. 
-- The data was prepared as follows: 
+- We attempted to replicate the identified signals in the UKBiobank.
+- The data was prepared as follows:
     - First, we selected a second group of participants which were taking at
-    least one psychiatric drug of interest according to the drug use variable (variable XX). 
+    least one psychiatric drug of interest according to the drug use variable (variable XX).
     - Second, we selected a set of  participants which indicated they had at least one ICD10 disorder in the psychiatric category (i.e. all disagnoses from "Chapter V Mental and behavioral disorders" see [here](https://biobank.ctsu.ox.ac.uk/showcase/field.cgi?id=41270), all codes beginning with F). We removed all participants from step 1 to ensure two independent groups of participants.
-    - Third, we restricted these groups to only participants with more the one BMI measure so that a BMI slope value could be measured. BMI slope was calculated for each participant as the beta coefficient of the regression of BMI versus time in days (where the first measure was at time 0, and all subsequent instances as days since the first observation). 
-    - Fourth, within each subgroup, data was filtered to only British participants, unrelated and withdrawn participants removed. 
+    - Third, we restricted these groups to only participants with more the one BMI measure so that a BMI slope value could be measured. BMI slope was calculated for each participant as the beta coefficient of the regression of BMI versus time in days (where the first measure was at time 0, and all subsequent instances as days since the first observation).
+    - Fourth, within each subgroup, data was filtered to only British participants, unrelated and withdrawn participants removed.
     - Fifth, BMI slope was transformed to ensure the data was normally distributed.
-    - Lastly, BMI slope was residualized for age, sex and the first 40 principal components. 
+    - Lastly, BMI slope was residualized for age, sex and the first 40 principal components.
 - The data was then analyzed by testing the linear association between genetic variants of interest and the residualized, using an additive model.
-- The results can be seen below: 
+- The results can be seen below:
 ```{r ukb_replication, echo=FALSE, results="asis"}
 loadd(ukbb_psy_subgroups_assoc_snpwise)
 
 for(i in 1:dim(case_only_interest_summarize)[1]){
   SNP_name <- case_only_interest_summarize$snp[i]
-  data_sub <- ukbb_psy_subgroups_assoc_snpwise[[SNP_name]] %>% dplyr::select(phenotype, n, geno_beta, geno_L95, geno_U95, geno_pval) %>% 
-    mutate(phenotype = str_replace(phenotype, "_bmi_slope_resid", "")) %>%  mutate_if(is.numeric, pretty_round) 
+  data_sub <- ukbb_psy_subgroups_assoc_snpwise[[SNP_name]] %>% dplyr::select(phenotype, n, geno_beta, geno_L95, geno_U95, geno_pval) %>%
+    mutate(phenotype = str_replace(phenotype, "_bmi_slope_resid", "")) %>%  mutate_if(is.numeric, pretty_round)
   cat(sprintf("\n**%s**\n\n", SNP_name))
   cat("\n\n")
   data_sub %>% kable() %>%
    kable_styling(full_width = F, position = "left") %>%
-    htmltools::HTML() %>% 
+    htmltools::HTML() %>%
     print
   cat("\n\n")
 }
@@ -361,7 +361,7 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
 ```
 
 
-### Sensitivity analyses. 
+### Sensitivity analyses.
 
 We also ensured that the gw-significant SNPs we identified obtained consistent results with similar endpoint in PSYMETAB. If you sort by "group" you will you can see all the results with "META_DRUGS" group (i.e. the results meta analyzed acrsoss nine drug groups).
 
@@ -377,21 +377,65 @@ for(i in 1:dim(case_only_interest_summarize)[1]){
   SNP_name <- case_only_interest_summarize$snp[i]
   data_sub <- case_only_extract_snpwise_clean[[SNP_name]] %>% filter(eth=="CEU") %>% filter(variable=="BMI") %>% dplyr::select(-pheno, -drug_class, -CHR, -BP, -variable, -T_STAT) %>%
     mutate_if(is.numeric, pretty_round) %>% dplyr::select(eth, group, drug, outcome, A1, A2, A1_CT, A1_FREQ, OBS_CT, BETA, SE, P)
- #  
+ #
  # data_sub %>% kable() %>%
  #   kable_styling(full_width = F, position = "left") %>%
- #    htmltools::HTML() %>% 
+ #    htmltools::HTML() %>%
  #    print
  #  cat("\n")
-  
+
   #cat(sprintf("\n\n## %s\n\n", SNP_name))
   cat(sprintf("\n**%s**\n\n", SNP_name))
   cat("\n\n")
   cat(knitr::knit_print(DT::datatable(data_sub, width = "100%")))
   cat("\n\n")
 
-  
+
 }
 
 ```
 
+### Count number of types of IDs
+
+Chin was interested to know number of *SMPP* or *GE* samples (Commented in manuscript: *Est-ce que tu arrives à dire combien de patients du SMPP et de GE ?*)
+
+Below give the counts for each type of ID of the QC'd, European, non-related set of participants.
+
+```{r, count_ID_type, echo = TRUE}
+# load QC data
+study_name <- "PSYMETAB_GWAS"
+pfile <- paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.sample")
+full_sample <- read.table(pfile, skip = 2)
+
+# load CEU only
+eth_sample_file <- paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, "_CEU_samples.txt")
+CEU_sample <- read.table(eth_sample_file)
+
+# load related individuals 
+remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))
+related_sample <- read.table(remove_sample_file)
+
+# filter QC data to CEU, unrelated set
+full_sample_filter <- full_sample %>% filter(V1 %in% CEU_sample$V1) %>% filter(!V1 %in% related_sample)
+
+# load original codes
+loadd(id_code)
+
+# merge with new codes and find SMPP, JO, S or GE codes
+full_sample_filter <- full_sample_filter %>%  separate(V1, c("num", "randomizedID")) %>%
+  mutate_at("randomizedID", as.character) %>%
+  left_join(id_code %>% mutate_at("randomizedID", as.character)) %>%
+  mutate(sample_ID = sampleID) %>%
+  separate(sampleID,
+         into = c("part1", "part2"),
+         sep = "(?=[A-Za-z])(?<=[0-9])|(?=[0-9])(?<=[A-Za-z])"
+       ) %>%
+  mutate(part1_nums = as.numeric(part1)) %>%
+  mutate(part2_nums = as.numeric(part2)) %>%
+  mutate(text = case_when(is.na(part1_nums) ~ part1,
+                          is.na(part2_nums) ~ part2))
+
+
+table(full_sample_filter$text, exclude = NULL)
+
+```
