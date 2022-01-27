@@ -1611,7 +1611,10 @@ ukbb_icd_vs_drug <- drake_plan(
 
   ukbb_psy_subgroups = create_ukbb_psy_subgroups(ukbb_munge_drug_users, ukbb_psychiatric_icd10_samples),
 
-  ## create a column for non-psychiatric participants as control
+  ## create two additional subgroups (besides the medication and ICD10):
+  ## 1. for non-psychiatric participants as control
+  ## 2. for ICD10 psychiatric diagnoses + medication users
+  
   ukbb_psy_subgroups_bmi_slope = ukbb_subgroups_add_var(ukbb_psy_subgroups, ukbb_filter_bmi_slope$bmi_slope),
 
   ukbb_psy_subgroups_filter_bmi_slope = target(filter_ukbb(ukbb_psy_subgroups_bmi_slope, relatives, exclusion_list, british_subset),

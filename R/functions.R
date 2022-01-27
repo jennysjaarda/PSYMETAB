@@ -2051,7 +2051,10 @@ ukbb_subgroups_add_var <- function(subgroup_data, variable_data){
 
   # add column for non drug / psy_icd10 individuals
 
-  subgroup_data <- subgroup_data %>% mutate(non_psy_users = case_when(any_users == 1 | psy_icd10 == 1 ~ 0, TRUE ~ 1))
+  subgroup_data <- subgroup_data %>%
+    mutate(non_psy_combined = case_when(any_users == 1 | psy_icd10 == 1 ~ 0, TRUE ~ 1)) %>%
+    mutate(psy_combined = case_when(any_users == 1 | psy_icd10 == 1 ~ 1, TRUE ~ 0))
+  
   columns <- colnames(subgroup_data)[-(which(colnames(subgroup_data)=="eid"))]
   col_variable <- colnames(variable_data)[2]
   data <- inner_join(subgroup_data, variable_data)
