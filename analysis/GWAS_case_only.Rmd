@@ -62,7 +62,7 @@ x1 %>% kable() %>%
 
 ### Find list of IDs for Table 1.
 
-Results are saved to `docs/case_only_IDs_date.csv`.
+Results are saved to `output/PSYMETAB_GWAS_case_only_IDs_date.csv`.
 
 ```{r, table1_IDs, echo=FALSE}
 loadd(case_only_resid_data)
@@ -107,7 +107,7 @@ for(i in 1:9){
   
 }
 
-write.table(full_data, "case_only_IDs_date.csv", row.names = F, quote = F)
+write.csv(full_data, "output/PSYMETAB_GWAS_case_only_IDs_date.csv", row.names = F, quote = F)
 
 ```
 
