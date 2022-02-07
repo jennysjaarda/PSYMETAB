@@ -60,15 +60,63 @@ x1 %>% kable() %>%
 
 ## Results.
 
+### Find list of IDs for Table 1.
+
+Results are saved to `docs/case_only_IDs_date.csv`.
+
+```{r, table1_IDs, echo=FALSE}
+loadd(case_only_resid_data)
+loadd(pc_raw)
+loadd(pheno_case_only)
+
+# load related individuals
+study_name <- "PSYMETAB_GWAS"
+remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))
+related_sample <- read.table(remove_sample_file)
+
+CEU_only_resid_data <- inner_join(case_only_resid_data, pc_raw %>% dplyr::select(FID, eth), by="FID") %>% filter(eth=="CEU") %>%
+  filter(!FID %in% related_sample$V1)
+
+# note that `dim(CEU_only_resid_data)[1] == sum(as.numeric(as.character(x1$count)))`
+
+full_data <- numeric()
+
+for(i in 1:9){
+  name <- names(pheno_case_only)[i]
+  drug <- strsplit(name, ".BMI")[[1]]
+  data <- pheno_case_only[[i]] %>%
+    dplyr::select(FID, IID, high_inducer_drug_num, starts_with("Date_")) %>%
+    mutate(Date_to_extract = paste0("Date_Drug_", high_inducer_drug_num)) %>%
+    mutate(drug_start_date = case_when(Date_to_extract == "Date_Drug_1" ~ Date_Drug_1,
+                                       Date_to_extract == "Date_Drug_2" ~ Date_Drug_2,
+                                       Date_to_extract == "Date_Drug_3" ~ Date_Drug_3,
+                                       Date_to_extract == "Date_Drug_4" ~ Date_Drug_4,
+                                       Date_to_extract == "Date_Drug_5" ~ Date_Drug_5,
+                                       Date_to_extract == "Date_Drug_6" ~ Date_Drug_6,
+                                       Date_to_extract == "Date_Drug_7" ~ Date_Drug_7,
+                                       Date_to_extract == "Date_Drug_8" ~ Date_Drug_8,
+                                       Date_to_extract == "Date_Drug_9" ~ Date_Drug_9,
+    )) %>%
+    filter(FID %in% CEU_only_resid_data$FID) %>%
+    mutate(drug = drug) %>%
+    dplyr::select(FID, IID, drug, drug_start_date) %>%
+    separate(FID, c("num", "randomizedID"))
+  
+  full_data <- rbind(full_data, data)
+  
+  
+}
+
+write.table(full_data, "case_only_IDs_date.csv", row.names = F, quote = F)
+
+```
+
+
 ### Check correlation amongst phenotypes.
 
 We checked the correlation amongst the five phenotypes tested (BMI change, BMI change 6 months, BMI change 3 months, BMI slope and BMI slope 6months) to justify that we do not adjust perform BF adjustments.
 
 ```{r, correlation_matrices, echo=FALSE, results="asis"}
-loadd(case_only_resid_data)
-loadd(pc_raw)
-
-CEU_only_resid_data <- inner_join(case_only_resid_data, pc_raw %>% dplyr::select(FID, eth), by="FID") %>% filter(eth=="CEU")
 
 for(drug in drug_prioritization){
 
@@ -403,7 +451,7 @@ Below give the counts for each type of ID of the QC'd, European, non-related set
 
 ```{r, count_ID_type, echo = TRUE}
 # load QC data
-study_name <- "PSYMETAB_GWAS"
+
 pfile <- paste0("analysis/QC/15_final_processing/FULL/", study_name, ".FULL.sample")
 full_sample <- read.table(pfile, skip = 2)
 
@@ -411,12 +459,8 @@ full_sample <- read.table(pfile, skip = 2)
 eth_sample_file <- paste0("analysis/QC/12_ethnicity_admixture/pca/", study_name, "_CEU_samples.txt")
 CEU_sample <- read.table(eth_sample_file)
 
-# load related individuals 
-remove_sample_file = file_in(paste0("analysis/QC/11_relatedness/", study_name, "_related_ids.txt"))
-related_sample <- read.table(remove_sample_file)
-
 # filter QC data to CEU, unrelated set
-full_sample_filter <- full_sample %>% filter(V1 %in% CEU_sample$V1) %>% filter(!V1 %in% related_sample)
+full_sample_filter <- full_sample %>% filter(V1 %in% CEU_sample$V1) %>% filter(!V1 %in% related_sample$V1)
 
 # load original codes
 loadd(id_code)
